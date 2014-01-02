@@ -44,6 +44,7 @@ package org.myrobotlab.service;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,6 +53,7 @@ import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
@@ -148,21 +150,15 @@ public class OpenCV extends VideoSource {
 		videoProcessor.publishDisplay = b;
 		return b;
 	}
-
-	public final SerializableImage publishDisplay(String source, BufferedImage img)
-	{
-		lastDisplay = new SerializableImage(img, source);
-		return lastDisplay;
-	}
 	
-	public final SerializableImage publishFrame(String source, BufferedImage img) {
-		SerializableImage si = new SerializableImage(img, source);
-		return si;
-	}
-
-	public final SerializableImage publishMask(String source, BufferedImage img) {
-		SerializableImage si = new SerializableImage(img, source);
-		return si;
+	/**
+	 * FIXME - input needs to be OpenCVData
+	 */
+	public final SerializableImage publishDisplay(SerializableImage img)
+	{
+		//lastDisplay = new SerializableImage(img, source);
+		//return lastDisplay;
+		return img;
 	}
 	
 	// publishing the big kahuna <output>
@@ -196,9 +192,6 @@ public class OpenCV extends VideoSource {
 		return grabberType;
 	}
 
-	public FrameGrabber getFrameGrabber() {
-		return videoProcessor.getGrabber();
-	}
 	
 	public void setDisplayFilter(String name) {
 		log.info("pre setDisplayFilter displayFilter{}", videoProcessor.displayFilter);
@@ -442,9 +435,17 @@ public class OpenCV extends VideoSource {
 	public void recordOutput(Boolean b) {
 		videoProcessor.recordOutput(b);
 	}
-
+	
 	public String recordSingleFrame() {
-		return videoProcessor.recordSingleFrame();
+		// WOOHOO Changed threads & thread safe !
+		OpenCVData d = videoProcessor.getLastData();
+		
+		if (d == null){
+			log.error("could not record frame last OpenCVData is null");
+			return null;
+		}
+		
+		return d.writeInput();
 	}
 
 	// filter dynamic data exchange end ------------------
@@ -590,13 +591,6 @@ public class OpenCV extends VideoSource {
 	{
 		videoProcessor.setMinDelay(time);
 	}
-	
-	/*
-	public OpenCVFilterState publishFilterState(OpenCVFilterState state)
-	{
-		return state;
-	}
-	*/
 
 	public static void main(String[] args) throws Exception {
 
@@ -624,9 +618,16 @@ public class OpenCV extends VideoSource {
 		//OpenCVFilterFlip flip = new OpenCVFilterFlip();
 		//flip.flipCode = 0; // horizontal
 		//opencv.addFilter(flip);
+		
+		VideoStreamer vs = new VideoStreamer("streamer");
+		vs.startService();
+		
+		vs.attach(opencv);
 				
 		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
 		gui.display();
+		
+		
 
 		gf.qualityLevel = 0.0004;
 		

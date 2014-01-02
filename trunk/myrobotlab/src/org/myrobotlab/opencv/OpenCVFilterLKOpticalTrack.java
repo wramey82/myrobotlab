@@ -24,10 +24,14 @@
  * */
 
 package org.myrobotlab.opencv;
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
 import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.cvCircle;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
 import static com.googlecode.javacv.cpp.opencv_core.cvSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
@@ -44,7 +48,9 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.data.Point2Df;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.CvTermCriteria;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -90,7 +96,7 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 	private Point2Df samplePoint = new Point2Df();
 
 	// display graphic structures
-	transient BufferedImage frameBuffer = null;
+	// transient BufferedImage frameBuffer = null;
 
 	// opencv data structures
 	transient CvTermCriteria termCriteria;
@@ -150,11 +156,9 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 		clearPoints = false;
 	}
 
-	@Override
-	public BufferedImage display(IplImage frame, OpenCVData data) {
-		frameBuffer = frame.getBufferedImage();
-		Graphics2D graphics = frameBuffer.createGraphics();
-		graphics.setColor(Color.green);
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+	@Override	
+	public IplImage display(IplImage frame, OpenCVData data) {
 		float x, y;
 		int xPixel, yPixel;
 		for (int i = 0; i < pointsToPublish.size(); ++i) {
@@ -166,23 +170,17 @@ public class OpenCVFilterLKOpticalTrack extends OpenCVFilter {
 			if (useFloatValues) {
 				xPixel = (int) (x * width);
 				yPixel = (int) (y * height);
-				graphics.drawLine(xPixel - 2, yPixel, xPixel + 2, yPixel);
-				graphics.drawLine(xPixel, yPixel + 2, xPixel, yPixel - 2);
-				graphics.drawString(String.format("%.3f,%.3f", x, y), xPixel, yPixel);
 			} else {
 				xPixel = (int) x;
 				yPixel = (int) y;
-				graphics.drawLine(xPixel - 2, yPixel, xPixel + 2, yPixel);
-				graphics.drawLine(xPixel, yPixel + 2, xPixel, yPixel - 2);
-				graphics.drawString(String.format("%d,%d", xPixel, yPixel), xPixel, yPixel);
 			}
+			cvCircle(frame, cvPoint(xPixel, yPixel), 1, CvScalar.GREEN, -1, 8, 0);
 		}
-
-		graphics.drawString(String.format("valid %d", pointsToPublish.size()), 10, 10);
-
-		return frameBuffer;
+		cvPutText(frame, String.format("valid %d", pointsToPublish.size()), cvPoint(10,10), font, CvScalar.GREEN);
+		return frame;
 	}
 
+	
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 

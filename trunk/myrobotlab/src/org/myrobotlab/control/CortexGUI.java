@@ -48,9 +48,9 @@ import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.Cortex;
 import org.myrobotlab.service.Tracking;
+import org.myrobotlab.service.data.Rectangle;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
-import org.myrobotlab.service.data.Rectangle;
 
 
 public class CortexGUI extends ServiceGUI implements MemoryDisplay {
@@ -187,11 +187,13 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 					SerializableImage lastImage = null;
 					video0.removeAllVideoDisplayPanels();
 					//for (Map.Entry<String,?> img : data.getImages().entrySet())
+					/*
 					SerializableImage img = data.getImage();
 					{
 						lastImage = img;
 						video0.displayFrame(lastImage);
 					}
+					*/
 					Graphics2D g2d = lastImage.getImage().createGraphics();
 					g2d.setColor(Color.RED);
 					ArrayList<Rectangle> bb = data.getBoundingBoxArray();

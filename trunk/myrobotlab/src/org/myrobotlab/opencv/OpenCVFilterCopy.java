@@ -23,17 +23,22 @@
  * 
  * */
 
+// http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
@@ -43,41 +48,52 @@ import static com.googlecode.javacv.cpp.opencv_features2d.*;
 import static com.googlecode.javacv.cpp.opencv_legacy.*;
 import static com.googlecode.javacv.cpp.opencv_video.*;
 import static com.googlecode.javacv.cpp.opencv_calib3d.*;
-
-public class OpenCVFilterPyramidDown extends OpenCVFilter {
+public class OpenCVFilterCopy extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
-
-	final static int CV_GAUSSIAN_5X5 = 7;
-
-	transient IplImage dst = null;	
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterCopy.class.getCanonicalName());
 
 
-	public OpenCVFilterPyramidDown()  {
+	public OpenCVFilterCopy()  {
 		super();
 	}
 	
-	public OpenCVFilterPyramidDown(String name)  {
+	public OpenCVFilterCopy(String name)  {
 		super(name);
 	}
 
+
+	/*
+	 
+	void getSubImg(IplImage* img, IplImage* subImg, CvRect roiRect) {
+
+	cvSetImageROI(img, roiRect);
+	subImg = cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
+	cvCopy(img, subImg, NULL);
+	cvResetImageROI(img);
+	}
+	 */
+	
+
 	@Override
-	public IplImage process(IplImage image, OpenCVData data) {
+	public IplImage process(IplImage img, OpenCVData data) {
 
-		//if (width > 1 && height > 1)
-		//{
-			cvPyrDown(image, dst, CV_GAUSSIAN_5X5);
-		//}
+		//CvRect roiRect = new CvRect(0, 0, 30, 120);
+		//cvSetImageROI(img, roiRect);
+		IplImage copy = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
 
-		return dst;
+		cvCopy(img, copy, null);
+		vp.sources.put(vp.boundServiceName, String.format("%.copy", name), img);
+		//cvResetImageROI(img);
+
+		return img;
 	}
 
 	@Override
 	public void imageChanged(IplImage image) {
+		// TODO Auto-generated method stub
 		
-		dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(), image.nChannels());
 	}
 
 }

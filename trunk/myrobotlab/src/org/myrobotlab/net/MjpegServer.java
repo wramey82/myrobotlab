@@ -62,7 +62,6 @@ public class MjpegServer extends NanoHTTPD {
 		String feed;
 		ArrayList<Connection> connections = new ArrayList<Connection>();
 		BlockingQueue<SerializableImage> videoFeed;
-		int frameIndex = 0;
 
 		VideoWebClient(BlockingQueue<SerializableImage> videoFeed, String feed, Socket socket) throws IOException {
 			//super(String.format("stream_%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort()));
@@ -77,9 +76,9 @@ public class MjpegServer extends NanoHTTPD {
 			try {
 				while (true) {
 					SerializableImage frame = videoFeed.take();
-					++frameIndex;
+					//++frameIndex;
 					//log.info("frame {}", frameIndex);
-
+					Logging.logTime(String.format("Mjpeg frameIndex %d size - %d ", frame.frameIndex, videoFeed.size()));
 					for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
 						Connection c = iterator.next();
 
@@ -92,11 +91,8 @@ public class MjpegServer extends NanoHTTPD {
 								c.initialized = true;
 							}
 
-
-							ByteArrayOutputStream bos = new ByteArrayOutputStream();
-							ImageIO.write(frame.getImage(), "jpg", bos);
-							byte[] bytes = bos.toByteArray();
-
+							byte[] bytes = frame.getBytes();
+							
 							// begin jpg
 							c.os.write((
 							        "--BoundaryString\r\n" +
@@ -112,7 +108,7 @@ public class MjpegServer extends NanoHTTPD {
 							
 							// flush or not to flush that is the question
 							c.os.flush();
-
+							Logging.logTime(String.format("Mjpeg frameIndex %d size - %d sent ", frame.frameIndex, videoFeed.size()));
 						} catch (Exception e) {
 							Logging.logException(e);
 							log.info("removing socket");

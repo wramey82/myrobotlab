@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 public class Inbox implements Serializable {
@@ -155,7 +156,10 @@ public class Inbox implements Serializable {
 				log.warn(String.format("%s inbox BUFFER OVERRUN dumping msg size %d - %s", name , msgBox.size(), msg.method));
 			} else {
 				msgBox.addFirst(msg);
-				log.debug(name + ".msgBox +1 = " + msgBox.size());
+				//Logging.logTime(String.format("inbox - %s size %d", name, msgBox.size()));
+				if (log.isDebugEnabled()){
+					log.debug(String.format("%s.msgBox + 1 = %d", name, msgBox.size()));
+				}
 				msgBox.notifyAll(); // must own the lock
 			}
 		}

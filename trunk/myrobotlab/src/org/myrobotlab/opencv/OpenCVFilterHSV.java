@@ -33,24 +33,24 @@ package org.myrobotlab.opencv;
  *  CV_HSV2BGR_FULL uses full 0 to 255 range
  */
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
-import javax.swing.JFrame;
+import java.nio.ByteBuffer;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -66,8 +66,8 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	IplImage saturation = null;
 	IplImage mask = null;
 	
-	transient BufferedImage frameBuffer = null;
-	
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+		
 	public OpenCVFilterHSV()  {
 		super();
 	}
@@ -91,24 +91,25 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
+	public IplImage display(IplImage image, OpenCVData data) {
 
-		frameBuffer = hsv.getBufferedImage(); // TODO - ran out of memory here
 		++frameCounter;
 		if (x != 0 && clickCounter % 2 == 0) {
-			if (g == null) {
-				g = frameBuffer.getGraphics();
-			}
 
 			if (frameCounter % 10 == 0) {
-				lastHexValueOfPoint = Integer.toHexString(frameBuffer.getRGB(x, y) & 0x00ffffff);
+				//frameBuffer = hsv.getBufferedImage(); // TODO - ran out of memory here
+				ByteBuffer buffer = image.getByteBuffer();
+				int index = y * image.widthStep() + x * image.nChannels();
+				 // Used to read the pixel value - the 0xFF is needed to cast from
+		        // an unsigned byte to an int.
+		        int value = buffer.get(index) & 0xFF;
+				lastHexValueOfPoint = Integer.toHexString(value & 0x00ffffff);
 			}
-			g.setColor(Color.green);
-			frameBuffer.getRGB(x, y);
-			g.drawString(lastHexValueOfPoint, x, y);
+			
+			cvPutText(image, lastHexValueOfPoint, cvPoint(x,y), font, CvScalar.BLACK);
 		}
 
-		return frameBuffer;
+		return image;
 	}
 
 

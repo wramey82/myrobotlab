@@ -81,6 +81,17 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 	int width = 0;
 	int height = 0;
 
+
+	double BLACK = 0.0;
+	boolean doneMoving = false;
+	boolean doneSweeping = false;
+
+	double lowThreshold = 90.0;
+	double highThreshold = 210.0;
+	int apertureSize = 3;
+	IplImage gray = null;
+	IplImage src = null;
+	
 	public final class Node {
 		public int x;
 		public int y;
@@ -104,20 +115,6 @@ public class OpenCVFilterMouse extends OpenCVFilter {
 		super(name);
 	}
 	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage(); 
-	}
-
-	double BLACK = 0.0;
-	boolean doneMoving = false;
-	boolean doneSweeping = false;
-
-	double lowThreshold = 90.0;
-	double highThreshold = 210.0;
-	int apertureSize = 3;
-	IplImage gray = null;
-	IplImage src = null;
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {

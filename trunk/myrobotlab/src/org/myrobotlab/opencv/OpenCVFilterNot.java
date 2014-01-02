@@ -49,12 +49,6 @@ public class OpenCVFilterNot extends OpenCVFilter {
 	public OpenCVFilterNot(String name)  {
 		super(name);
 	}
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return buffer.getBufferedImage(); // TODO - ran out of memory here
-	}
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {

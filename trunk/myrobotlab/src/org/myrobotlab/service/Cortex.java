@@ -128,10 +128,10 @@ public class Cortex extends Service implements MemoryChangeListener {
 			
 			// non machine build of template stack
 			if (templates.size() < 30){
-				templates.addAll(faces.cropBoundingBoxArray());
+				//templates.addAll(faces.cropBoundingBoxArray());
 			} else {
 				templates.remove(0);
-				templates.add(faces.cropBoundingBoxArray().get(0));
+				//templates.add(faces.cropBoundingBoxArray().get(0));
 			}
 			log.error("{}",templates.size());
 			int width = faces.getWidth();

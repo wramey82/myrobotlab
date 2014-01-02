@@ -35,7 +35,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvRect;
 import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 
 import java.awt.image.BufferedImage;
 
@@ -119,7 +118,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		super(name);
 	}
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
+	public IplImage display(IplImage image, OpenCVData data) {
 		/*
 		 * graphics = bi.createGraphics(); graphics.setColor(Color.green);
 		 * graphics.drawString("R/H " + (int)avg.getRed() + " G/S " +
@@ -158,7 +157,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 		// 0.0), 8, 0)
 		cvDrawRect(image, cvPoint(roiX, roiY), cvPoint(roiX + roiWidth, roiY + roiHeight), fillColor, 1, 1, 0);
 
-		return image.getBufferedImage();
+		return image;
 	}
 
 	CvScalar[][] colorGrid = null;

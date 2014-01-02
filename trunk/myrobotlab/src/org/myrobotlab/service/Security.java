@@ -238,7 +238,7 @@ public class Security extends Service implements AuthorizationProvider {
 
 		try {
 	
-			Serializable s = new SerializableImage(null, null);
+			//Serializable s = new SerializableImage(null, null);
 		
 		
 			// passphrase - key

@@ -87,17 +87,6 @@ public class OpenCVFilterMatchTemplate extends OpenCVFilter {
 		super(name);
 	}
 
-
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return image.getBufferedImage();
-		/*
-		 * display problem if (res != null) { return res.getBufferedImage(); }
-		 * else { return image.getBufferedImage(); }
-		 */
-	}
-
 	int clickCount = 0;
 	int x0, y0, x1, y1;
 	public CvRect rect = new CvRect();

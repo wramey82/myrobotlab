@@ -53,11 +53,7 @@ public class OpenCVFilterThreshold extends OpenCVFilter {
 	public OpenCVFilterThreshold(String name)  {
 		super(name);
 	}
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
+
 
 /*
 	@Override

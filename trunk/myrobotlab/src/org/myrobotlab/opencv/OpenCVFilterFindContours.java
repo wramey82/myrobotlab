@@ -25,10 +25,14 @@
 
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.cvClearMemStorage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMemStorage;
+import static com.googlecode.javacv.cpp.opencv_core.cvDrawRect;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_CHAIN_APPROX_SIMPLE;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_POLY_APPROX_DP;
@@ -38,21 +42,19 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvContourPerimeter;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvFindContours;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import org.myrobotlab.service.data.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.data.Rectangle;
 import org.slf4j.Logger;
 
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvContour;
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
@@ -61,6 +63,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
+	
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
 	// FIXME - ok - use awt - use mrl pojo's if expected to serialize to Android
 	// TODO - publish MRL objects - TODO make SerializableImage bundle with
@@ -100,7 +104,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		super(name);
 	}
 	
-
+/*
 	@Override
 	public BufferedImage display(IplImage image, OpenCVData data) {
 
@@ -123,6 +127,28 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			}
 		}
 		return frameBuffer;
+	}
+	*/
+	
+	int intX, intY;
+	public IplImage display(IplImage image, OpenCVData data) {
+		ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
+		if (boxes != null) {
+			for (Rectangle box : boxes) {
+				intX = (int)box.x;
+				intY = (int)box.y;
+				if (useFloatValues){
+					cvDrawRect(image, cvPoint(intX * width, intY * height), cvPoint(intX + (int)(box.width * width), intY + (int)(box.height * height)), null, 1, 1, 0);
+				} else {
+					cvDrawRect(image, cvPoint(intX, intY), cvPoint(intX + (int)(box.width), intY + (int)(box.height)), null, 1, 1, 0);
+				}
+			}
+			cvPutText(image, String.format("cnt %d", boxes.size()), cvPoint(10,10), font, CvScalar.BLACK);
+		} else {
+			cvPutText(image, "null", cvPoint(10,10), font, CvScalar.BLACK);
+		}
+		
+		return image;
 	}
 
 	@Override

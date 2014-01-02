@@ -34,7 +34,10 @@ import javax.swing.ImageIcon;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.interfaces.GUI;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class VideoWidget extends ServiceGUI {
 
@@ -142,10 +145,18 @@ public class VideoWidget extends ServiceGUI {
 		videoDisplayXPos = 0;
 		videoDisplayYPos = 0;
 	}
-
+	/*
+	public void displayFrame(OpenCVData data) {
+		IplImage img = data.getImage();
+		displayFrame(img);
+	}
+	*/
+	
 	// multiplex images if desired
 	public void displayFrame(SerializableImage img) {
 
+		 // FIXME not quite right
+		
 		String source = img.getSource();
 		if (displays.containsKey(source)) {
 			displays.get(source).displayFrame(img);

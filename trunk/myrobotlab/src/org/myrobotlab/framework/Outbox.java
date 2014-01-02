@@ -32,6 +32,7 @@ import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 
@@ -192,6 +193,8 @@ public class Outbox implements Runnable, Serializable {
 				log.warn(String.format("%s outbox BUFFER OVERRUN size %d", myService.getName(), msgBox.size()));
 			}
 			msgBox.addFirst(msg);
+			
+			//Logging.logTime(String.format("outbox %s size %d",myService.getName(), msgBox.size()));
 
 			if (log.isDebugEnabled()) {
 				log.debug(String.format("msg [%s]", msg.toString()));

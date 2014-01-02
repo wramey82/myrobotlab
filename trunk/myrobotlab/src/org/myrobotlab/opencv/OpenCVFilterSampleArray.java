@@ -52,11 +52,6 @@ public class OpenCVFilterSampleArray extends OpenCVFilter {
 	public OpenCVFilterSampleArray(String name)  {
 		super(name);
 	}
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return frameBuffer;
-	}
 
 
 	@Override

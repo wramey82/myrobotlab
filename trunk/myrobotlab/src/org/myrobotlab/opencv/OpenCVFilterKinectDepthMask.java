@@ -90,6 +90,24 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	// public ArrayList<KinectImageNode> nodes = new
 	// ArrayList<KinectImageNode>();
 	public ArrayList<KinectImageNode> nodes = null;
+	
+
+	String imageKey = "kinectDepth";
+
+	int mWidth = 0;
+	int mHeight = 0;
+	int mX = 0;
+	int mY = 0;
+
+	int scale = 2;
+
+	// countours
+	CvSeq contourPointer = new CvSeq();
+
+	int minArea = 30;
+	int maxArea = 0;
+	boolean isMinArea = true;
+	boolean isMaxArea = true;
 
 
 	public boolean drawBoundingBoxes = false;
@@ -116,29 +134,6 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	}
 
 	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		return image.getBufferedImage(); // TODO - ran out of memory here
-	}
-
-	String imageKey = "kinectDepth";
-
-	int mWidth = 0;
-	int mHeight = 0;
-	int mX = 0;
-	int mY = 0;
-
-	int scale = 2;
-
-	// countours
-	CvSeq contourPointer = new CvSeq();
-
-	int minArea = 30;
-	int maxArea = 0;
-	boolean isMinArea = true;
-	boolean isMaxArea = true;
-
-	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
 
 		/*
@@ -155,7 +150,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// TODO - clean up - remove input parameters? only use storage?
 		if (imageKey != null) {
-			IplImage kinectDepth = sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
+			IplImage kinectDepth = vp.sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
 		} else {
 			kinectDepth = image;
 		}

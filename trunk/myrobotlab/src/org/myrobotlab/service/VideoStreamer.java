@@ -102,21 +102,22 @@ public class VideoStreamer extends VideoSink {
 		super.releaseService();
 	}
 
-	public void publishDisplay(SerializableImage img) {
-		
+	public void publishDisplay(SerializableImage si) {
+		/*
 		if (mergeSteams)
 		{
-			img.setSource("output");
+			si.setSource("output");
 		}
+		*/
 		
-		if (!server.videoFeeds.containsKey(img.getSource())) {
-			server.videoFeeds.put(img.getSource(), (BlockingQueue<SerializableImage>) new LinkedBlockingQueue<SerializableImage>());
+		if (!server.videoFeeds.containsKey(si.getSource())) {
+			server.videoFeeds.put(si.getSource(), (BlockingQueue<SerializableImage>) new LinkedBlockingQueue<SerializableImage>());
 		}
 
-		BlockingQueue<SerializableImage> buffer = server.videoFeeds.get(img.getSource());
+		BlockingQueue<SerializableImage> buffer = server.videoFeeds.get(si.getSource());
 		// if its backed up over 10 frames we are dumping it
-		if (buffer.size() < 10) {
-			buffer.add(img);
+		if (buffer.size() < 1) {
+			buffer.add(si);
 		}
 	}
 

@@ -35,8 +35,6 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -70,21 +68,6 @@ public class OpenCVFilterColorTrack extends OpenCVFilter {
 	
 	public OpenCVFilterColorTrack(String name)  {
 		super(name);
-	}
-
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-
-		/*
-		 * if (thresholded2 != null) { frameBuffer =
-		 * thresholded2.getBufferedImage(); // TODO - ran out of memory here }
-		 * else if (thresholded != null) { frameBuffer =
-		 * thresholded.getBufferedImage(); } else if (thresholded != null) {
-		 * frameBuffer = hsv.getBufferedImage(); }
-		 */
-
-		frameBuffer = thresholded.getBufferedImage();
-		return frameBuffer;
 	}
 
 	

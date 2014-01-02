@@ -59,14 +59,6 @@ public class OpenCVFilterFauvist extends OpenCVFilter {
 	public OpenCVFilterFauvist(String name)  {
 		super(name);
 	}
-	
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return inlines.getBufferedImage();
-	}
-
-	CvPoint p0 = new CvPoint(0, 0);
-	CvPoint p1 = new CvPoint(0, 0);
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {

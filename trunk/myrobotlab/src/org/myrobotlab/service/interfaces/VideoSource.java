@@ -1,7 +1,5 @@
 package org.myrobotlab.service.interfaces;
 
-import java.awt.image.BufferedImage;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 
@@ -26,7 +24,7 @@ public abstract class VideoSource extends Service{
 		return true;
 	}
 	
-	public abstract SerializableImage publishDisplay(String source, BufferedImage img);
+	public abstract SerializableImage publishDisplay(SerializableImage img);
 
 	
 }

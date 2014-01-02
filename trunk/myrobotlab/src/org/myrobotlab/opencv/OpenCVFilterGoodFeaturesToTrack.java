@@ -25,8 +25,11 @@
 
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
@@ -42,9 +45,19 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.data.Point2Df;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.sun.jna.ptr.IntByReference;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_legacy.*;
+import static com.googlecode.javacv.cpp.opencv_video.*;
+import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
 public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
@@ -185,6 +198,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 	DecimalFormat df = new DecimalFormat("0.###");
 	
+	/*
 	@Override
 	public BufferedImage display(IplImage frame, OpenCVData data) {
 
@@ -195,11 +209,7 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		graphics.setColor(Color.green);
 
 		for (int i = 0; i < count[0]; ++i) {
-			/*
-			 * since there is no subpixel selection - we don't need to round -
-			 * we can cast x = Math.round(corners.x()); y =
-			 * Math.round(corners.y());
-			 */
+			
 			corners.position(i);
 			x = (int) corners.x();
 			y = (int) corners.y();
@@ -229,16 +239,69 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		// FIXME - ! which is faster OpenCV or awt - it has to go to awt anyway
 		// at some point
 		// if its running with guiservice
-		/*
-		 * OpenCV way to mark up
-		 * 
-		 * for (int i = 0; i < count[0]; i++) { corners.position(i); CvPoint p0
-		 * = cvPoint(Math.round(corners.x()), Math.round(corners.y()));
-		 * cvLine(frame, p0, p0, CV_RGB(255, 0, 0), 2, 8, 0); }
-		 */
-
+	
 		return frameBuffer; // TODO - ran out of memory here
 
 	}
+	
+*/
+	
+	transient CvScalar color = new CvScalar();
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+
+	
+	@Override
+	public IplImage display(IplImage frame, OpenCVData data) {
+
+
+		float gradient = 1 / oldest.value;
+		int x, y;
+
+		for (int i = 0; i < count[0]; ++i) {
+			/*
+			 * since there is no subpixel selection - we don't need to round -
+			 * we can cast x = Math.round(corners.x()); y =
+			 * Math.round(corners.y());
+			 */
+			corners.position(i);
+			x = (int) corners.x();
+			y = (int) corners.y();
+
+			if (colorAgeOfPoint) {
+				String key = String.format("%d.%d", x, y);
+				if (values.containsKey(key)) {
+					float scale = (values.get(String.format("%d.%d", x, y)) * (gradient));
+					if (scale == 1.0f) // grey
+					{
+						color = CvScalar.WHITE;
+						// TODO - find what this is color
+						
+					} else {
+						// WTF - I WANT AN HSV REPRESENTATION
+						//color.setVal(3, scale*10);
+						Color c = Color.getHSBColor(scale, 1.0f, 0.8f);
+						
+						color.red(c.getRed());
+						color.blue(c.getBlue());
+						color.green(c.getGreen());
+						//graphics.setColor(new Color(Color.HSBtoRGB(scale, 0.8f, 0.7f)));
+						//CV_HSV2RGB(scale);
+					}
+					cvCircle(frame, cvPoint(x, y), 1, color, -1, 8, 0);
+					cvPutText(frame, String.format("%s", df.format(scale)), cvPoint(x,y), font, color);
+
+				} else {
+					log.error(key); // FIXME FIXME FIXME ----  WHY THIS SHOULDN"T HAPPEN BUT IT HAPPENS ALL THE TIME
+				}
+			}
+			corners.position(i);
+			// graphics.drawOval(x, y, 3, 1);
+		}
+
+		return frame; // TODO - ran out of memory here
+
+	}
+	
+
 
 }

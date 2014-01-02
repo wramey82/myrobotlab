@@ -81,6 +81,7 @@ import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource, ActionListener {
@@ -157,6 +158,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		frameGrabberList.add("Pipeline"); // service which implements
 														// ImageStreamSource
 
+		//CanvasFrame cf = new CanvasFrame("hello");
+		
 		grabberTypeSelect = new JComboBox(frameGrabberList.toArray());
 
 		kinectImageOrDepth.addActionListener(this);
@@ -521,6 +524,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 				cameraRadio.setVisible(false);
 
 				IPCameraType.setVisible(false);
+				// this has static / global internals
 				VideoSources vs = new VideoSources();
 				Set<String> p = vs.getKeySet();
 				pipelineHookModel.removeAllElements();
@@ -544,9 +548,11 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		}
 	}
 
-	public void displayFrame(SerializableImage img) {
-		video0.displayFrame(img);
+	
+	public void displayFrame(SerializableImage frame) {
+		video0.displayFrame(frame);
 	}
+	
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {

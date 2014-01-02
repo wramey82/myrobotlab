@@ -3,6 +3,7 @@ package org.myrobotlab.control;
 import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -133,7 +134,10 @@ public class VideoDisplayPanel {
 		if (parent.normalizedSize != null) {
 			myIcon.setImage(img.getImage().getScaledInstance(parent.normalizedSize.width, parent.normalizedSize.height, 0));
 		} else {
-			myIcon.setImage(img.getImage());
+			BufferedImage bi = img.getImage();
+			if (bi != null){
+				myIcon.setImage(bi);
+			}
 		}
 		screen.setIcon(myIcon);
 

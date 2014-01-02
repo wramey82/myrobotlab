@@ -73,10 +73,7 @@ public class OpenCVFilterHoughLines2 extends OpenCVFilter {
 		super(name);
 	}
 
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
-		return image.getBufferedImage();
-	}
+
 	
 	CvPoint p0 = new CvPoint(0, 0);
 	CvPoint p1 = new CvPoint(0, 0);
