@@ -494,7 +494,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			gc = new GridBagConstraints();
 
 			frame.addWindowListener(this);
-			frame.setTitle("myrobotlab - " + getName());
+			frame.setTitle("myrobotlab - " + getName() + " " + Runtime.getVersion());
 
 			buildTabPanels();
 

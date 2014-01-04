@@ -30,21 +30,32 @@ package org.myrobotlab.service;
  new filters - http://idouglasamoore-javacv.googlecode.com/git-history/02385ce192fb82f1668386e55ff71ed8d6f88ae3/src/main/java/com/googlecode/javacv/ObjectFinder.java
 
  static wild card imports for quickly finding static functions in eclipse
- import static com.googlecode.javacv.cpp.opencv_highgui.*;
- import static com.googlecode.javacv.cpp.opencv_imgproc.*;
- import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+
+ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+ import static com.googlecode.javacv.cpp.opencv_contrib.*;
  import static com.googlecode.javacv.cpp.opencv_core.*;
  import static com.googlecode.javacv.cpp.opencv_features2d.*;
+ import static com.googlecode.javacv.cpp.opencv_flann.*;
+ import static com.googlecode.javacv.cpp.opencv_highgui.*;
+ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
  import static com.googlecode.javacv.cpp.opencv_legacy.*;
+ import static com.googlecode.javacv.cpp.opencv_ml.*;
+ import static com.googlecode.javacv.cpp.opencv_nonfree.*;
+ import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+ import static com.googlecode.javacv.cpp.opencv_photo.*;
+ import static com.googlecode.javacv.cpp.opencv_stitching.*;
  import static com.googlecode.javacv.cpp.opencv_video.*;
- import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+ import static com.googlecode.javacv.cpp.opencv_videostab.*;
 
+ //import static com.googlecode.javacv.cpp.opencv_gpu.*;
+ //import static com.googlecode.javacv.cpp.opencv_superres.*;
+ //import static com.googlecode.javacv.cpp.opencv_ts.*;
+ 
  */
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,7 +64,6 @@ import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.opencv.BlockingQueueGrabber;
 import org.myrobotlab.opencv.FilterWrapper;
@@ -76,6 +86,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 
 @Root
 public class OpenCV extends VideoSource {
@@ -281,8 +292,8 @@ public class OpenCV extends VideoSource {
 		return points;
 	}
 
-	public SerializableImage publishTemplate(String source, BufferedImage img) {
-		SerializableImage si = new SerializableImage(img, source);
+	public SerializableImage publishTemplate(String source, BufferedImage img, int frameIndex) {
+		SerializableImage si = new SerializableImage(img, source, frameIndex);
 		return si;
 	}
 
@@ -591,6 +602,12 @@ public class OpenCV extends VideoSource {
 	{
 		videoProcessor.setMinDelay(time);
 	}
+	
+	public String setRecordingSource(String source)
+	{
+		videoProcessor.recordingSource = source;
+		return source;
+	}
 
 	public static void main(String[] args) throws Exception {
 
@@ -605,7 +622,9 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		/*
 		opencv.capture();
+		
 		
 //		opencv.setMinDelay(1000);
 		OpenCVFilterGoodFeaturesToTrack gf = new OpenCVFilterGoodFeaturesToTrack();
@@ -623,13 +642,13 @@ public class OpenCV extends VideoSource {
 		vs.startService();
 		
 		vs.attach(opencv);
-				
+*/				
 		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
 		gui.display();
 		
 		
 
-		gf.qualityLevel = 0.0004;
+		//gf.qualityLevel = 0.0004;
 		
 	}
 

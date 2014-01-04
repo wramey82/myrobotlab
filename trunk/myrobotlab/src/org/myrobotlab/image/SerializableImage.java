@@ -83,6 +83,13 @@ public class SerializableImage implements Serializable {
 		this.image = image;
 		this.timestamp = System.currentTimeMillis();
 	}
+	
+	public SerializableImage(BufferedImage image, String source, int frameIndex) {
+		this.source = source;
+		this.image = image;
+		this.frameIndex = frameIndex;
+		this.timestamp = System.currentTimeMillis();
+	}
 
 	public SerializableImage(ByteBuffer buffer, String source, int frameIndex) {
 		this.source = source;
@@ -111,6 +118,7 @@ public class SerializableImage implements Serializable {
 
 			if (buffer != null) {
 				// FIXME - this does not work (always) :(
+				// not thread safe
 				bytes = new byte[buffer.remaining()];
 				buffer.get(bytes);
 				InputStream inputStream = new ByteArrayInputStream(bytes);

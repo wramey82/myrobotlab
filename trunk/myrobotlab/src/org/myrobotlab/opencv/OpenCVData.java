@@ -250,11 +250,18 @@ public class OpenCVData implements Serializable {
 	// FIXME FIXME FIXME - always push result back into data structure
 	public byte[] getJPGBytes(String filterName)
 	{
+		String key = String.format("%s.jpg.Bytes", filterName);
+		if (data.containsKey(key))
+		{
+			return (byte[]) data.get(key);
+		}
+		
 		CvMat mat = getJPG(filterName);
 
 		ByteBuffer byteBuffer = mat.getByteBuffer(); 
 		byte[] barray = new byte[byteBuffer.remaining()]; 
 		byteBuffer.get(barray); 
+		data.put(key, barray);
 		return barray;
 	}
 	
@@ -306,9 +313,11 @@ public class OpenCVData implements Serializable {
 			} catch(Exception e) {
 				Logging.logException(e);
 			}
+			
+			/*
 			cvSaveImage("direct.jpg", img);
 			cvSaveImage("direct.png", img);
-			
+			*/
 			
 		/*	
 			ByteBuffer bb = encodedImg.asByteBuffer();
