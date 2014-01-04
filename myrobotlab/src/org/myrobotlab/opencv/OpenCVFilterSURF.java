@@ -23,47 +23,58 @@
  * 
  * */
 
+// http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
+
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvPyrDown;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.ObjectFinder;
+import com.googlecode.javacv.ObjectFinder.Settings;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_nonfree.SURF;
 
-public class OpenCVFilterPyramidDown extends OpenCVFilter {
+public class OpenCVFilterSURF extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterPyramidDown.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterSURF.class.getCanonicalName());
+	public Settings settings = new Settings();
+	public ObjectFinder objectFinder = new ObjectFinder(settings);
 
-	final static int CV_GAUSSIAN_5X5 = 7;
-
-	transient IplImage dst = null;	
-
-
-	public OpenCVFilterPyramidDown()  {
+	public OpenCVFilterSURF()  {
 		super();
 	}
 	
-	public OpenCVFilterPyramidDown(String name)  {
+	public OpenCVFilterSURF(String name)  {
 		super(name);
 	}
 
+	public void setObjectImage(IplImage image){
+		settings.setObjectImage(image);
+	}
+	
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
+		
+		objectFinder.find(image);
+		
+		//SURF detector = new SURF(100);
 
-		cvPyrDown(image, dst, CV_GAUSSIAN_5X5);
-		return dst;
+		return image;
 	}
 
 	@Override
 	public void imageChanged(IplImage image) {
+		// TODO Auto-generated method stub
 		
-		dst = cvCreateImage(cvSize(image.width() / 2, image.height() / 2), image.depth(), image.nChannels());
 	}
 
 }

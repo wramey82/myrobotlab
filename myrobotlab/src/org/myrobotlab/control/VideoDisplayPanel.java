@@ -107,7 +107,7 @@ public class VideoDisplayPanel {
 
 	}
 
-	long frameCount = 0;
+//	long frameCount = 0;
 	long displayModulus = 100;
 	long delta = 0;
 
@@ -119,7 +119,7 @@ public class VideoDisplayPanel {
 		 * 
 		 * img.source is the name of the bound filter
 		 */
-		++frameCount;
+//		++frameCount;
 
 		String source = img.getSource();
 
@@ -141,7 +141,7 @@ public class VideoDisplayPanel {
 		}
 		screen.setIcon(myIcon);
 
-		if (frameCount % displayModulus == 0 && lastImage != null) {
+		if (img.frameIndex % displayModulus == 0 && lastImage != null) {
 			delta = (img.getTimestamp() - lastImage.getTimestamp());
 			if (delta != 0) {
 				deltaTime.setText(String.format("%d fps", 1000 / delta));

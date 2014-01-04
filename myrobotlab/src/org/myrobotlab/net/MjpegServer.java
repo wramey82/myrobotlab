@@ -78,7 +78,7 @@ public class MjpegServer extends NanoHTTPD {
 					SerializableImage frame = videoFeed.take();
 					//++frameIndex;
 					//log.info("frame {}", frameIndex);
-					Logging.logTime(String.format("Mjpeg frameIndex %d size - %d ", frame.frameIndex, videoFeed.size()));
+					Logging.logTime(String.format("Mjpeg frameIndex %d %d", frame.frameIndex, System.currentTimeMillis()));
 					for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
 						Connection c = iterator.next();
 
@@ -108,7 +108,7 @@ public class MjpegServer extends NanoHTTPD {
 							
 							// flush or not to flush that is the question
 							c.os.flush();
-							Logging.logTime(String.format("Mjpeg frameIndex %d size - %d sent ", frame.frameIndex, videoFeed.size()));
+							Logging.logTime(String.format("Mjpeg frameIndex %d %d SENT", frame.frameIndex, System.currentTimeMillis()));
 						} catch (Exception e) {
 							Logging.logException(e);
 							log.info("removing socket");

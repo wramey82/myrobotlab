@@ -17,8 +17,28 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
+import com.googlecode.javacpp.BytePointer;
 import com.googlecode.javacv.FrameGrabber;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+
+import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+import static com.googlecode.javacv.cpp.opencv_contrib.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_features2d.*;
+import static com.googlecode.javacv.cpp.opencv_flann.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_legacy.*;
+import static com.googlecode.javacv.cpp.opencv_ml.*;
+import static com.googlecode.javacv.cpp.opencv_nonfree.*;
+import static com.googlecode.javacv.cpp.opencv_objdetect.*;
+import static com.googlecode.javacv.cpp.opencv_photo.*;
+import static com.googlecode.javacv.cpp.opencv_stitching.*;
+import static com.googlecode.javacv.cpp.opencv_video.*;
+import static com.googlecode.javacv.cpp.opencv_videostab.*;
+
 
 public class IPCameraFrameGrabber extends FrameGrabber {
 
@@ -29,6 +49,8 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	 * cam http://192.168.0.57:8080/videofeed
 	 */
 	public final static Logger log = LoggerFactory.getLogger(IPCameraFrameGrabber.class);
+	
+	
 
 	private URL url;
 	private URLConnection connection;
@@ -84,10 +106,13 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 	@Override
 	public void trigger() throws Exception {
 	}
+	
+	IplImage decoded = null;
 
 	@Override
 	public IplImage grab() {
 		try {
+			
 			if (template == null)
 			{
 				// create the template for future frames
@@ -95,8 +120,21 @@ public class IPCameraFrameGrabber extends FrameGrabber {
 				template = IplImage.createFrom(grabBufferedImage());
 				Logging.logTime("created template");
 			}
-			Logging.logTime("pre - IplImage.create");
-			return IplImage.create(template.width(), template.height(), template.depth(), template.nChannels());
+			
+			//  //  IplImage.create(template.width(), template.height(), template.depth(), template.nChannels());
+			
+			 byte[] b = readImage();
+			 CvMat mat = cvMat(1, b.length, CV_8UC1, new 
+					 BytePointer(b));
+			 
+			 if (decoded != null){
+				 decoded.release();
+			 }
+			 
+			 decoded = cvDecodeImage(mat); 
+					    
+			Logging.logTime("pre - IplImage.cvDecodeImage");
+			return decoded;
 		} catch (Exception e) {
 			Logging.logException(e);
 		} catch (IOException e) {

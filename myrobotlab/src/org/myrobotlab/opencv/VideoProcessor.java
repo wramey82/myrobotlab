@@ -1,8 +1,11 @@
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.CV_FONT_HERSHEY_PLAIN;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -27,6 +30,8 @@ import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.FrameRecorder;
 import com.googlecode.javacv.OpenCVFrameRecorder;
 import com.googlecode.javacv.OpenKinectFrameGrabber;
+import com.googlecode.javacv.cpp.opencv_core.CvFont;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 @Root
@@ -61,7 +66,7 @@ public class VideoProcessor implements Runnable, Serializable {
 	// GRABBER END --------------------------
 	@Element
 	public boolean useBlockingData = false;
-	
+	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 	OpenCVData lastData = null;
 
 	OpenCVData data = null;
@@ -114,6 +119,9 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	private boolean recordOutput = false;
 	private boolean closeOutputs = false;
+	public String recordingSource = INPUT_KEY;
+
+	private boolean showFrames = true;
 
 
 	public VideoProcessor() {
@@ -270,7 +278,7 @@ public class VideoProcessor implements Runnable, Serializable {
 						// get the source image this filter is chained to
 						IplImage image = sources.get(filter.sourceKey);
 						if (image == null) {
-							log.warn("%s has no image - waiting",filter.name);
+							log.warn(String.format("%s has no image - waiting",filter.sourceKey));
 							Service.sleep(300);
 							continue;
 						}
@@ -328,16 +336,17 @@ public class VideoProcessor implements Runnable, Serializable {
 				// since it can be forked
 				// make note input & output might be of interest besides display
 				if (publishDisplay){
-					// FIXME - optimize the BufferedImage display
-					/*
-					Logging.logTime("pre-jpg");
-					byte[]b = data.getJPGAsByteArray(displayFilter);
-					Logging.logTime("post-jpg");
-					log.info("{}", b.length);
-					BufferedImage bi = data.getBufferedImageDisplay();
-					*/
+					// FIXME JUST SO YOU KNOW IT IMAGE IS SEPERATED FROM DISPLAY AT THIS POINT WITHOUT FORKING !!!! I CAN PROVE IT !!!S
+					// STILL DOING COPIES !!!! 
+					// if display frame
+					if (showFrames ){
+						//cvPutText(data.getImage(displayFilter), String.format("frame %d %d", frameIndex, System.currentTimeMillis()), cvPoint(10,20), font, CvScalar.BLACK);
+						cvPutText(data.getImage(displayFilter), String.format("frame %d %d", frameIndex, System.currentTimeMillis()), cvPoint(10,20), font, CvScalar.BLACK);
+					}
+					
 					SerializableImage display = new SerializableImage(data.getJPGBytes(displayFilter), data.getDisplayName(), frameIndex);
-					Logging.logTime("post-SerializableImage");
+					//SerializableImage display2 = new SerializableImage(data.getBufferedImageDisplay(), data.getDisplayName(), frameIndex);
+					Logging.logTime(String.format("post-SerializableImage frame %d %d", frameIndex, System.currentTimeMillis()));
 
 					if (display != null) {
 						opencv.invoke("publishDisplay", display);
@@ -345,7 +354,7 @@ public class VideoProcessor implements Runnable, Serializable {
 					
 					if (recordOutput) {
 						// TODO - add input, filter, & display
-						record("output", data);
+						record(data);
 					}
 				}
 
@@ -370,6 +379,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
+	// ------- filter methods begin ------------------
 	public OpenCVFilter addFilter(String name, String newFilter) {
 		String type = String.format("org.myrobotlab.opencv.OpenCVFilter%s", newFilter);
 		Object[] params = new Object[1];
@@ -464,34 +474,35 @@ public class VideoProcessor implements Runnable, Serializable {
 		log.error(String.format("removeFilter could not find %s filter", name));
 		return null;
 	}
+	// ------- filter methods end ------------------
 	
 	/**
 	 * thread safe recording of avi
 	 * @param key - input, filter, or display
 	 * @param data
 	 */
-	public void record(String key, OpenCVData data) {
+	public void record(OpenCVData data) {
 		try {
 
-			if (!outputFileStreams.containsKey(key)) {
+			if (!outputFileStreams.containsKey(recordingSource)) {
 				// FFmpegFrameRecorder recorder = new FFmpegFrameRecorder
 				// (String.format("%s.avi",filename), frame.width(),
 				// frame.height());
 
-				FrameRecorder recorder = new OpenCVFrameRecorder(String.format("%s.avi", key), frame.width(), frame.height());
+				FrameRecorder recorder = new OpenCVFrameRecorder(String.format("%s.avi", recordingSource), frame.width(), frame.height());
 				// recorder.setCodecID(CV_FOURCC('M','J','P','G'));
 				// TODO - set frame rate to framerate
 				recorder.setFrameRate(15);
 				recorder.setPixelFormat(1);
 				recorder.start();
-				outputFileStreams.put(key, recorder);
+				outputFileStreams.put(recordingSource, recorder);
 			}
 
 			// TODO - add input, filter & display
-			outputFileStreams.get(key).record(frame);
+			outputFileStreams.get(recordingSource).record(data.getImage(recordingSource));
 			
 			if (closeOutputs){
-				OpenCVFrameRecorder output = (OpenCVFrameRecorder) outputFileStreams.get(key);
+				OpenCVFrameRecorder output = (OpenCVFrameRecorder) outputFileStreams.get(recordingSource);
 				outputFileStreams.remove(output);
 				output.stop();
 				output.release();
@@ -504,7 +515,6 @@ public class VideoProcessor implements Runnable, Serializable {
 		}
 	}
 
-	
 	public void recordOutput(Boolean b) {
 		
 		if (b)
@@ -514,28 +524,6 @@ public class VideoProcessor implements Runnable, Serializable {
 			closeOutputs  = true;
 		}
 	}
-	
-	// FIXME - different thread issue !!!! solve with Runnable swing like
-	// solution
-	/*
-	public void recordOutput(Boolean b) {
-		isRecordingOutput = b;
-		String filename = "output"; // TODO FIXME
-		if (!b && outputFileStreams.containsKey(filename)) {
-			FrameRecorder recorder = outputFileStreams.get(filename);
-			try {
-				log.error("****about to stop recorder*****");
-				recorder.stop();
-				log.error("****about to release recorder*****");
-				recorder.release();
-				log.error("****released recorder - Yay*****");
-			} catch (com.googlecode.javacv.FrameRecorder.Exception e) {
-				Logging.logException(e);
-			}
-		}
-	}
-
-	*/
 	
 	public FrameGrabber getGrabber() {
 		return grabber;
@@ -547,5 +535,10 @@ public class VideoProcessor implements Runnable, Serializable {
 
 	public void setMinDelay(int minDelay) {
 		this.minDelay = minDelay;
+	}
+	
+	public boolean showFrames(boolean b){
+		showFrames = b;
+		return b;
 	}
 }

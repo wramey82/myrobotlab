@@ -34,10 +34,7 @@ import javax.swing.ImageIcon;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.interfaces.GUI;
-
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class VideoWidget extends ServiceGUI {
 
