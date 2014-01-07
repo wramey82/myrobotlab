@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSeq;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_objdetect;
@@ -112,7 +113,7 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		super(name);
 	}
 
-	int intX, intY;
+	int x0, y0, x1, y1;
 	
 	@Override
 	public IplImage display(IplImage image, OpenCVData data) {
@@ -122,12 +123,19 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 			if (bb != null) {
 				for (int i = 0; i < bb.size(); ++i) {
 					Rectangle rect = bb.get(i);
-					intX = (int)rect.x;
-					intY = (int)rect.y;
+
 					if (useFloatValues) {
-						cvDrawRect(image, cvPoint(intX * width, intY * height), cvPoint(intX + (int)(rect.width * width), intY + (int)(rect.height * height)), null, 1, 1, 0);
+						x0 = (int)(rect.x * width);
+						y0 = (int)(rect.y * height);
+						x1 = x0 + (int)(rect.width * width);
+						y1 = y0 + (int)(rect.height * height);
+						cvDrawRect(image, cvPoint(x0, y0), cvPoint(x1, y1), CvScalar.RED, 1, 1, 0);
 					} else {
-						cvDrawRect(image, cvPoint(intX, intY), cvPoint(intX + (int)(rect.width), intY + (int)(rect.height)), null, 1, 1, 0);
+						x0 = (int)rect.x;
+						y0 = (int)rect.y;
+						x1 = x0 + (int)rect.width;
+						y1 = y0 + (int)rect.height;
+						cvDrawRect(image, cvPoint(x0, y0), cvPoint(x1, y1), CvScalar.RED, 1, 1, 0);
 					}
 				}
 
