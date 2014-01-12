@@ -23,12 +23,69 @@ public class InMoovHand extends Service {
 	transient public Servo wrist;
 	transient public Arduino arduino;
 	
+	
 	// needed ?? reflectively they are good interfaces and 
 	// do not need to define their interaction !!
 	// transient public Keyboard keyboard;
 	// transient public XMPP xmpp;
 	//transient public Speech speech;// FIXME speakErrors()
 	
+	public Servo getThumb() {
+		return thumb;
+	}
+
+	public void setThumb(Servo thumb) {
+		this.thumb = thumb;
+	}
+
+	public Servo getIndex() {
+		return index;
+	}
+
+	public void setIndex(Servo index) {
+		this.index = index;
+	}
+
+	public Servo getMajeure() {
+		return majeure;
+	}
+
+	public void setMajeure(Servo majeure) {
+		this.majeure = majeure;
+	}
+
+	public Servo getRingFinger() {
+		return ringFinger;
+	}
+
+	public void setRingFinger(Servo ringFinger) {
+		this.ringFinger = ringFinger;
+	}
+
+	public Servo getPinky() {
+		return pinky;
+	}
+
+	public void setPinky(Servo pinky) {
+		this.pinky = pinky;
+	}
+
+	public Servo getWrist() {
+		return wrist;
+	}
+
+	public void setWrist(Servo wrist) {
+		this.wrist = wrist;
+	}
+
+	public Arduino getArduino() {
+		return arduino;
+	}
+
+	public void setArduino(Arduino arduino) {
+		this.arduino = arduino;
+	}
+
 	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
 	public static Peers getPeers(String name)
 	{

@@ -21,6 +21,46 @@ public class InMoovArm extends Service {
 	transient public Servo omoplate;
 	transient public Arduino arduino;
 	
+	public Servo getBicep() {
+		return bicep;
+	}
+
+	public void setBicep(Servo bicep) {
+		this.bicep = bicep;
+	}
+
+	public Servo getRotate() {
+		return rotate;
+	}
+
+	public void setRotate(Servo rotate) {
+		this.rotate = rotate;
+	}
+
+	public Servo getShoulder() {
+		return shoulder;
+	}
+
+	public void setShoulder(Servo shoulder) {
+		this.shoulder = shoulder;
+	}
+
+	public Servo getOmoplate() {
+		return omoplate;
+	}
+
+	public void setOmoplate(Servo omoplate) {
+		this.omoplate = omoplate;
+	}
+
+	public Arduino getArduino() {
+		return arduino;
+	}
+
+	public void setArduino(Arduino arduino) {
+		this.arduino = arduino;
+	}
+
 	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
 	public static Peers getPeers(String name)
 	{

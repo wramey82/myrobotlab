@@ -19,9 +19,89 @@ public class InMoovHead extends Service {
 	transient public MouthControl mouthControl;
 	transient public Servo jaw;
 	transient public Servo eyeX, eyeY;
-	transient public Servo x;
-	transient public Servo y;
+	transient public Servo rothead;
+	transient public Servo neck;
 	transient public Arduino arduino;
+	
+	public OpenCV getOpenCV() {
+		return opencv;
+	}
+
+	public void setOpenCV(OpenCV opencv) {
+		this.opencv = opencv;
+	}
+
+	public Tracking getHeadTracking() {
+		return headTracking;
+	}
+
+	public void setHeadTracking(Tracking headTracking) {
+		this.headTracking = headTracking;
+	}
+
+	public Tracking getEyesTracking() {
+		return eyesTracking;
+	}
+
+	public void setEyesTracking(Tracking eyesTracking) {
+		this.eyesTracking = eyesTracking;
+	}
+
+	public MouthControl getMouthControl() {
+		return mouthControl;
+	}
+
+	public void setMouthControl(MouthControl mouthControl) {
+		this.mouthControl = mouthControl;
+	}
+
+	public Servo getJaw() {
+		return jaw;
+	}
+
+	public void setJaw(Servo jaw) {
+		this.jaw = jaw;
+	}
+
+	public Servo getEyeX() {
+		return eyeX;
+	}
+
+	public void setEyeX(Servo eyeX) {
+		this.eyeX = eyeX;
+	}
+
+	public Servo getEyeY() {
+		return eyeY;
+	}
+
+	public void setEyeY(Servo eyeY) {
+		this.eyeY = eyeY;
+	}
+
+	public Servo getRothead() {
+		return rothead;
+	}
+
+	public void setRothead(Servo rothead) {
+		this.rothead = rothead;
+	}
+
+	public Servo getNeck() {
+		return neck;
+	}
+
+	public void setNeck(Servo neck) {
+		this.neck = neck;
+	}
+
+	public Arduino getArduino() {
+		return arduino;
+	}
+
+	public void setArduino(Arduino arduino) {
+		this.arduino = arduino;
+	}
 
 	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
 	public static Peers getPeers(String name)
@@ -34,8 +114,8 @@ public class InMoovHead extends Service {
 		peers.suggestAs("headArduino", "headArduino", "Arduino", "shared head Arduino");
 		peers.suggestAs("headTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");		
 		peers.suggestAs("eyesTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");	
-		peers.suggestAs("headTracking.x", "x", "Servo", "shared servo");		
-		peers.suggestAs("headTracking.y", "y", "Servo", "shared servo");		
+		peers.suggestAs("headTracking.x", "rothead", "Servo", "shared servo");		
+		peers.suggestAs("headTracking.y", "neck", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.x", "eyeX", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.y", "eyeY", "Servo", "shared servo");		
 		peers.suggestAs("opencv", "opencv", "OpenCV", "shared head OpenCV");	
@@ -47,8 +127,8 @@ public class InMoovHead extends Service {
 		peers.put("jaw", "Servo", "Jaw servo");
 		peers.put("eyeX", "Servo", "Eyes pan servo");
 		peers.put("eyeY", "Servo", "Eyes tilt servo");
-		peers.put("x", "Servo", "Head pan servo");
-		peers.put("y", "Servo", "Head tilt servo");
+		peers.put("rothead", "Servo", "Head pan servo");
+		peers.put("neck", "Servo", "Head tilt servo");
 		peers.put("headArduino", "Arduino", "Arduino controller for this arm");
 		
 		// TODO better be whole dam tree ! - have to recurse based on Type !!!!
@@ -70,24 +150,18 @@ public class InMoovHead extends Service {
 		jaw = (Servo) createPeer("jaw");
 		eyeX = (Servo) createPeer("eyeX");
 		eyeY = (Servo) createPeer("eyeY");
-		x = (Servo) createPeer("x");
-		y = (Servo) createPeer("y");
+		rothead = (Servo) createPeer("rothead");
+		neck = (Servo) createPeer("neck");
 		arduino = (Arduino) createPeer("headArduino");
-		
-		// FIXME DEFAULT I2C ????
-		// eyeX.setPin(pin)
-		// eyeY.setPin(pin)
-		// FIXME PIN WRONG 
 
-		eyeX.setPin(6);
-		eyeY.setPin(7);
-
-		jaw.setPin(14); // SHARED !!!
-		y.setPin(12);
-		x.setPin(13);
+		neck.setPin(12);
+		rothead.setPin(13);
+		eyeX.setPin(22);
+		eyeY.setPin(24);
+		jaw.setPin(26); 
 		
-		x.setMinMax(30, 150);
-		y.setMinMax(20, 160);
+		rothead.setMinMax(30, 150);
+		neck.setMinMax(20, 160);
 		
 		jaw.setRest(0);
 	}
@@ -102,8 +176,8 @@ public class InMoovHead extends Service {
 		jaw.startService();
 		eyeX.startService();
 		eyeY.startService();
-		x.startService();
-		y.startService();
+		rothead.startService();
+		neck.startService();
 		arduino.startService();
 	}
 
@@ -139,8 +213,8 @@ public class InMoovHead extends Service {
 		arduino.servoAttach(eyeX);
 		arduino.servoAttach(eyeY);
 		arduino.servoAttach(jaw);
-		arduino.servoAttach(x);
-		arduino.servoAttach(y);
+		arduino.servoAttach(rothead);
+		arduino.servoAttach(neck);
 		return true;
 	}
 
@@ -156,8 +230,8 @@ public class InMoovHead extends Service {
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("%s.moveTo %d %d %d %d %d", rothead, headY, eyeX, eyeY, jaw));
 		}
-		this.x.moveTo(rothead);
-		this.y.moveTo(headY);
+		this.rothead.moveTo(rothead);
+		this.neck.moveTo(headY);
 		if (eyeX != null)
 			this.eyeX.moveTo(eyeX);
 		if (eyeY != null)
@@ -169,8 +243,8 @@ public class InMoovHead extends Service {
 	public void rest() {
 		// initial positions
 		setSpeed(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		x.rest();
-		y.rest();
+		rothead.rest();
+		neck.rest();
 		eyeX.rest();
 		eyeY.rest();
 		jaw.rest();
@@ -179,16 +253,16 @@ public class InMoovHead extends Service {
 	// FIXME - should be broadcastServoState
 	public void broadcastState() {
 		// notify the gui
-		x.broadcastState();
-		y.broadcastState();
+		rothead.broadcastState();
+		neck.broadcastState();
 		eyeX.broadcastState();
 		eyeY.broadcastState();
 		jaw.broadcastState();
 	}
 
 	public void detach() {	
-		x.detach();
-		y.detach();
+		rothead.detach();
+		neck.detach();
 		eyeX.detach();
 		eyeY.detach();
 		jaw.detach();
@@ -196,8 +270,8 @@ public class InMoovHead extends Service {
 
 	public void release() {
 		detach();
-		x.releaseService();
-		y.releaseService();
+		rothead.releaseService();
+		neck.releaseService();
 		eyeX.releaseService();
 		eyeY.releaseService();
 		jaw.releaseService();
@@ -208,8 +282,8 @@ public class InMoovHead extends Service {
 			log.debug(String.format("%s setSpeed %d %d %d %d %d", headXSpeed, headYSpeed, eyeXSpeed, eyeYSpeed, jawSpeed));
 		}
 		
-		x.setSpeed(headXSpeed);
-		y.setSpeed(headYSpeed);
+		rothead.setSpeed(headXSpeed);
+		neck.setSpeed(headYSpeed);
 		eyeX.setSpeed(eyeXSpeed);
 		eyeY.setSpeed(eyeYSpeed);
 		jaw.setSpeed(jawSpeed);
@@ -217,22 +291,22 @@ public class InMoovHead extends Service {
 	}
 
 	public String getScript() {
-		return String.format("%s.moveTo(\"%s\",%d,%d,%d,%d,%d)\n", getName(), x.getPosition(), y.getPosition(), eyeX.getPosition(), eyeY.getPosition(),
+		return String.format("%s.moveTo(\"%s\",%d,%d,%d,%d,%d)\n", getName(), rothead.getPosition(), neck.getPosition(), eyeX.getPosition(), eyeY.getPosition(),
 				jaw.getPosition());
 	}
 
 	public void setpins(int headXPin, int headYPin, int eyeXPin, int eyeYPin, int jawPin) {
 		log.info(String.format("setPins %d %d %d %d %d %d", headXPin, headYPin, eyeXPin, eyeYPin, jawPin));
-		x.setPin(headXPin);
-		y.setPin(headYPin);
+		rothead.setPin(headXPin);
+		neck.setPin(headYPin);
 		eyeX.setPin(eyeXPin);
 		eyeY.setPin(eyeYPin);
 		jaw.setPin(jawPin);
 	}
 
 	public boolean isValid() {
-		x.moveTo(x.getRest() + 2);
-		y.moveTo(y.getRest() + 2);
+		rothead.moveTo(rothead.getRest() + 2);
+		neck.moveTo(neck.getRest() + 2);
 		eyeX.moveTo(eyeX.getRest() + 2);
 		eyeY.moveTo(eyeY.getRest() + 2);
 		jaw.moveTo(jaw.getRest() + 2);
@@ -240,8 +314,8 @@ public class InMoovHead extends Service {
 	}
 
 	public void setLimits(int headXMin, int headXMax, int headYMin, int headYMax, int eyeXMin, int eyeXMax, int eyeYMin, int eyeYMax, int jawMin, int jawMax) {
-		x.setMinMax(headXMin, headXMax);
-		y.setMinMax(headYMin, headYMax);
+		rothead.setMinMax(headXMin, headXMax);
+		neck.setMinMax(headYMin, headYMax);
 		eyeX.setMinMax(eyeXMin, eyeXMax);
 		eyeY.setMinMax(eyeYMin, eyeYMax);
 		jaw.setMinMax(jawMin, jawMax);
