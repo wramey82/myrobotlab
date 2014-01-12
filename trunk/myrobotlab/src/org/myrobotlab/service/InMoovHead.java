@@ -156,14 +156,22 @@ public class InMoovHead extends Service {
 
 		neck.setPin(12);
 		rothead.setPin(13);
+		jaw.setPin(26); 
 		eyeX.setPin(22);
 		eyeY.setPin(24);
-		jaw.setPin(26); 
 		
-		rothead.setMinMax(30, 150);
 		neck.setMinMax(20, 160);
+		rothead.setMinMax(30, 150);
+		jaw.setMinMax(10, 25);
+		eyeX.setMinMax(60,100);
+		eyeY.setMinMax(50,100);
 		
-		jaw.setRest(0);
+		neck.setRest(90);
+		rothead.setRest(90);
+		jaw.setRest(10);
+		eyeX.setRest(80);
+		eyeY.setRest(90);
+		
 	}
 
 	@Override
