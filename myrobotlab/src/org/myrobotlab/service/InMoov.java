@@ -12,7 +12,7 @@ public class InMoov extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(InMoov.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(InMoov.class);
 
 	// OBJECTIVE - try only have complex composite interaction here - everything
 	// else should be done directly to targeted services !!!
@@ -367,9 +367,9 @@ public class InMoov extends Service {
 		i01.addRoutes();
 		i01.startMouth();
 		
-		head.x.moveTo(96);
-		head.x.moveTo(150);
-		head.x.moveTo(88);
+		head.rothead.moveTo(96);
+		head.rothead.moveTo(150);
+		head.rothead.moveTo(88);
 		
 		Tracking t = i01.getHeadTracking();
 		t.x.moveTo(30);
