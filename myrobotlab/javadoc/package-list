@@ -7,11 +7,11 @@ org.myrobotlab.cmdline
 org.myrobotlab.control
 org.myrobotlab.control.opencv
 org.myrobotlab.control.widget
-org.myrobotlab.dbms
 org.myrobotlab.dynamicGUI
 org.myrobotlab.fileLib
 org.myrobotlab.framework
 org.myrobotlab.gp
+org.myrobotlab.i2c
 org.myrobotlab.image
 org.myrobotlab.inmoov
 org.myrobotlab.inverseKinematics
@@ -22,10 +22,13 @@ org.myrobotlab.mapper.gui
 org.myrobotlab.mapper.sim
 org.myrobotlab.memory
 org.myrobotlab.net
+org.myrobotlab.net.http
 org.myrobotlab.opencv
 org.myrobotlab.openni
+org.myrobotlab.pickToLight
 org.myrobotlab.reflection
 org.myrobotlab.roomba
+org.myrobotlab.runtime
 org.myrobotlab.security
 org.myrobotlab.serial
 org.myrobotlab.serial.gnu
