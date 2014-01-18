@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.SchemaOutputResolver;
@@ -27,6 +25,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.pickToLight.KitRequest;
 import org.myrobotlab.service.Clock;
+import org.myrobotlab.service.PickToLight;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -50,8 +49,7 @@ public class SOAP {
 	}
 
 	// TODO - put in TypesUtil
-	public static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class,
-			Float.class, Double.class, Void.class));
+
 
 	public HashSet<String> getFilter() {
 		HashSet<String> filter = new HashSet<String>();
@@ -99,7 +97,7 @@ public class SOAP {
 
 	public boolean hasComplexType(Method m) {
 		Class<?> ret = m.getReturnType();
-		if (!ret.isPrimitive() && !WRAPPER_TYPES.contains(ret) && ret != String.class) {
+		if (!ret.isPrimitive() && !Encoder.WRAPPER_TYPES.contains(ret) && ret != String.class) {
 			log.warn("filtering out {} because of complex return type {}", m.getName(), m.getReturnType().getSimpleName());
 			return true;
 		}
@@ -107,7 +105,7 @@ public class SOAP {
 		Class<?>[] params = m.getParameterTypes();
 		for (int i = 0; i < params.length; ++i) {
 			Class<?> c = params[i];
-			if (!c.isPrimitive() && !WRAPPER_TYPES.contains(c) && c != String.class) {
+			if (!c.isPrimitive() && !Encoder.WRAPPER_TYPES.contains(c) && c != String.class) {
 				log.warn("filtering out {} because of complex parameter type {}", m.getName(), c.getSimpleName());
 				return true;
 			}
@@ -119,7 +117,8 @@ public class SOAP {
 
 	String getPrimitiveWSDL(Class<?> type, HashSet<String> filter, boolean includeFilter) {
 		ArrayList<Method> ret = new ArrayList<Method>();
-		Method[] methods = type.getMethods();
+		//Method[] methods = type.getMethods();
+		Method[] methods = type.getDeclaredMethods();
 		for (int i = 0; i < methods.length; ++i) {
 			Method m = methods[i];
 			if (!hasComplexType(m)) {
@@ -174,7 +173,7 @@ public class SOAP {
 			Method m = methods[i];
 
 			if (distinctMethodNames.contains(m.getName())) {
-				log.warn(String.format("overloads are not supported in wsdl (lame) skipping %s", m.getName()));
+				log.warn(String.format("overloads are not supported in wsdl (lame) soap action problem, also messageTypes name clash %s", m.getName()));
 				continue;
 			}
 
@@ -183,7 +182,7 @@ public class SOAP {
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
 
 				// return type <element><complexType><sequence>....
-				if (m.getReturnType().isPrimitive() || WRAPPER_TYPES.contains(m.getReturnType()) || m.getReturnType() == String.class) {
+				if (m.getReturnType().isPrimitive() || Encoder.WRAPPER_TYPES.contains(m.getReturnType()) || m.getReturnType() == String.class) {
 					returnType = "     <element name=\"%methodName%Response\">\n" + "    <complexType>\n" + "     <sequence>\n"
 							+ "      <element name=\"%methodName%Return\" type=\"xsd:string\"/>\n" + "     </sequence>\n" + "    </complexType>\n" + "   </element>\n";
 
@@ -195,7 +194,7 @@ public class SOAP {
 				// parameter type <element><complexType><sequence>....
 				if (p.length == 0) {
 					params = "     <element name=\"%methodName%\">\n" + "       <complexType/>\n" + "   </element>\n";
-
+					//params = "     <element name=\"%methodName%\">\n" + "       <complexType><sequence><element name=\"%methodName%\"/></sequence></complexType>\n" + "   </element>\n";
 				} else {
 					params = "     <element name=\"%methodName%\">\n" + "    <complexType>\n" + "     <sequence>\n";
 					for (int j = 0; j < p.length; ++j) {
@@ -215,10 +214,14 @@ public class SOAP {
 
 			// get <!-- [[%wsdl:message%]] --> message
 			String messagesTemplate = FileIO.getResourceFile("soap/messages.xml");
+			
 			// for (int i = 0; i < methods.length; ++i) {
 			// Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
 				StringBuffer p = new StringBuffer("");
+				
+				p.append("<wsdl:part element=\"impl:%methodName%\" name=\"%methodName%\"></wsdl:part>\n");
+				
 				Class<?>[] parameters = m.getParameterTypes();
 				for (int j = 0; j < parameters.length; ++j) {
 					p.append("<wsdl:part element=\"impl:%methodName%\" name=\"p" + j + "\"></wsdl:part>\n");
@@ -419,10 +422,10 @@ public class SOAP {
 			
 			String wsdl = def.toString();
 			log.info(wsdl);
-
+*/
 			Class<?> clazz = PickToLight.class;
 
-			clazz = Clock.class;
+			//clazz = Clock.class;
 
 			SOAP soap = new SOAP();
 			// String xml = soap.getWSDL(Clock.class);
@@ -430,8 +433,6 @@ public class SOAP {
 
 			FileIO.stringToFile(String.format("%s.wsdl", clazz.getSimpleName()), xml);
 			// log.info(xml);
-			 * 
-			 */
 
 		} catch (Exception e) {
 			Logging.logException(e);

@@ -3,21 +3,27 @@ package org.myrobotlab.framework;
 import java.io.Serializable;
 
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.runtime.ProcParser;
 
 public class Platform implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	// VM Names
-	public final static String DALVIK = "dalvik";
-	public final static String HOTSPOT = "hotspot";
+	public final static String VM_DALVIK = "dalvik";
+	public final static String VM_HOTSPOT = "hotspot";
 
 	// OS Names
-	public final static String LINUX = "linux";
-	public final static String MAC = "mac";
-	public final static String WINDOWS = "windows";
+	public final static String OS_LINUX = "linux";
+	public final static String OS_MAC = "mac";
+	public final static String OS_WINDOWS = "windows";
 
 	public final static String UNKNOWN = "unknown";
+	
+	// arch names
+	public final static String ARCH_X86 = "x86";
+	public final static String ARCH_ARM = "arm";
 
 	final public String os;
 	final public String arch;
@@ -44,12 +50,12 @@ public class Platform implements Serializable {
 
 	public static String getOS() {
 		String os = System.getProperty("os.name").toLowerCase();
-		if ((os.indexOf(LINUX) >= 0)) {
-			return LINUX;
-		} else if ((os.indexOf(MAC) >= 0)) {
-			return MAC;
+		if ((os.indexOf(OS_LINUX) >= 0)) {
+			return OS_LINUX;
+		} else if ((os.indexOf(OS_MAC) >= 0)) {
+			return OS_MAC;
 		} else if ((os.indexOf("win") >= 0)) {
-			return WINDOWS;
+			return OS_WINDOWS;
 		} else {
 			return UNKNOWN;
 		}
@@ -58,15 +64,15 @@ public class Platform implements Serializable {
 	public static String getVMName() {
 		String vmname = System.getProperty("java.vm.name").toLowerCase();
 
-		if (vmname.equals(DALVIK)) {
-			return DALVIK;
+		if (vmname.equals(VM_DALVIK)) {
+			return VM_DALVIK;
 		} else {
-			return HOTSPOT;
+			return VM_HOTSPOT;
 		}
 	}
 
 	public static boolean isDavlik() {
-		return DALVIK.equals(getVMName());
+		return VM_DALVIK.equals(getVMName());
 	}
 
 	public static int getBitness() {
@@ -88,19 +94,28 @@ public class Platform implements Serializable {
 		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch) || arch.startsWith("x86")) {
 			arch = "x86"; // don't care at the moment
 		}
+		
+		if ("arm".equals(arch)){
+			Integer armv = ProcParser.getArmInstructionVersion();
+			if (armv != null){
+				arch = String.format("armv%d",armv);
+			}
+			//arch = "armv6"; // assume its version 6 instruction set
+			
+		}
 		return arch;
 	}
 
 	public static boolean isMac() {
-		return getOS().equals(MAC);
+		return getOS().equals(OS_MAC);
 	}
 
 	public static boolean isLinux() {
-		return getOS().equals(LINUX);
+		return getOS().equals(OS_LINUX);
 	}
 
 	public static boolean isWindows() {
-		return getOS().equals(WINDOWS);
+		return getOS().equals(OS_WINDOWS);
 	}
 	
 	public static String getClassPathSeperator()
@@ -113,9 +128,19 @@ public class Platform implements Serializable {
 		}
 	}
 	
+	public static boolean isArm() {
+		return getArch().startsWith(ARCH_ARM);
+	}
+	
+	public static boolean isX86() {
+		return getArch().equals(ARCH_X86);
+	}
+	
 	public String toString()
 	{
 		return String.format("%s.%d.%s", arch, bitness, os);
 	}
+	
+
 
 }
