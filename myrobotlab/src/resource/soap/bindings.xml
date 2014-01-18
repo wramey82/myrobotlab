@@ -1,6 +1,6 @@
       <wsdl:operation name="%methodName%">
           
-         <wsdlsoap:operation soapAction=""/>
+         <wsdlsoap:operation soapAction="%methodName%"/>
          
          <wsdl:input name="%methodName%Request">
              

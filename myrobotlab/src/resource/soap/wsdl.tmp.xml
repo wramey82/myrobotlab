@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="client.xsl"?>
-<wsdl:definitions targetNamespace="http://services.myrobotlab.org" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://services.myrobotlab.org" xmlns:intf="http://services.myrobotlab.org" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<wsdl:definitions targetNamespace="http://services.soap.org" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://services.soap.org" xmlns:intf="http://services.soap.org" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
  <wsdl:types>
-  <schema elementFormDefault="qualified" targetNamespace="http://services.myrobotlab.org" xmlns="http://www.w3.org/2001/XMLSchema">
+  <schema elementFormDefault="qualified" targetNamespace="http://services.soap.org" xmlns="http://www.w3.org/2001/XMLSchema">
 	<!-- [[%wsdl:types%]] -->
  </schema>
  </wsdl:types>
@@ -23,7 +23,8 @@
              
             <wsdl:port binding="impl:%service%SoapBinding" name="%service%">
                 
-               <wsdlsoap:address location="http://localhost:8080/ws/services/%service%"/>
+               <!--  <wsdlsoap:address location="http://raspi:7777/api/soap/%service%"/>  -->
+               <wsdlsoap:address location="http://raspi:7777/api/soap/pick.1"/>
                
             </wsdl:port>
             
