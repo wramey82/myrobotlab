@@ -652,8 +652,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public static synchronized void initialize() {
+		
+		// TODO - spin through all to search for useful info
+		
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
+		String userHome = System.getProperty("user.home");
 
 		String vmName = System.getProperty("java.vm.name");
 		// TODO this should be a single log statement
@@ -669,19 +673,23 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
 
+		
 		log.info("---------------non-normalized---------------");
 		log.info(String.format("java.vm.name [%s]", vmName));
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
 		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.vm.vendor")));
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
-
 		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.runtime.version")));
 
-		log.info(String.format("java.home [%s]", System.getProperty("java.home")));
+		//System.getProperty("pi4j.armhf")
 		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
+		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
+
+		log.info(String.format("java.home [%s]", System.getProperty("java.home")));
 		log.info(String.format("java.class.path [%s]", System.getProperty("java.class.path")));
 		log.info(String.format("java.library.path [%s]", libararyPath));
 		log.info(String.format("user.dir [%s]", userDir));
+		log.info(String.format("user.home [%s]", userHome));
 		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576));
 		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
 
@@ -2201,7 +2209,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public String setLogLevel(String level) {
 		Logging logging = LoggingFactory.getInstance();
-		logging.setLevel(level);
+		logging.setLevel(this.getClass().getCanonicalName(), level);
 		return level;
 	}
 
