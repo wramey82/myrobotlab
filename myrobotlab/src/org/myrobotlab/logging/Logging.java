@@ -17,6 +17,8 @@ public abstract class Logging {
 	public abstract void configure(); // a basic configuration
 
 	public abstract void setLevel(String level);
+	
+	public abstract void setLevel(String clazz, String level);
 
 	public abstract void addAppender(Object type);
 

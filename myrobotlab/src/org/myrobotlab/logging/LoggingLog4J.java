@@ -23,21 +23,40 @@ public class LoggingLog4J extends Logging {
 		org.apache.log4j.BasicConfigurator.configure();
 	}
 
-	@Override
 	public void setLevel(String level) {
 
-		if ("DEBUG".equals(level)) { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.DEBUG);
-		} else if ("TRACE".equals(level)) { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.TRACE);
-		} else if ("WARN".equals(level)) { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.WARN);
-		} else if ("ERROR".equals(level)) { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
-		} else if ("FATAL".equals(level)) { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.FATAL);
+	}
+
+	@Override
+	public void setLevel(String clazz, String level) {
+
+		Logger logger = null;
+		level = level.toUpperCase();
+
+		try {
+			if (clazz != null) {
+				Class<?> c = Class.forName(clazz);
+				logger = org.apache.log4j.Logger.getLogger(clazz);
+			}
+		} catch (Exception e) {
+		}
+		
+		if (logger == null) {
+			logger = org.apache.log4j.Logger.getRootLogger();
+		}
+
+		if ("DEBUG".equalsIgnoreCase(level)) { // && log4j {
+			logger.setLevel(org.apache.log4j.Level.DEBUG);
+		} else if ("TRACE".equalsIgnoreCase(level)) { // && log4j {
+			logger.setLevel(org.apache.log4j.Level.TRACE);
+		} else if ("WARN".equalsIgnoreCase(level)) { // && log4j {
+			logger.setLevel(org.apache.log4j.Level.WARN);
+		} else if ("ERROR".equalsIgnoreCase(level)) { // && log4j {
+			logger.setLevel(org.apache.log4j.Level.ERROR);
+		} else if ("FATAL".equalsIgnoreCase(level)) { // && log4j {
+			logger.setLevel(org.apache.log4j.Level.FATAL);
 		} else { // && log4j {
-			org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.INFO);
+			logger.setLevel(org.apache.log4j.Level.INFO);
 		}
 	}
 
@@ -63,13 +82,13 @@ public class LoggingLog4J extends Logging {
 		// TODO the type should be an enumeration so that we can make this a
 		// switch statement (unless Python dependencies don't allow for it)
 		try {
-			if (Appender.CONSOLE.equals(type)) {
+			if (Appender.CONSOLE.equalsIgnoreCase(type)) {
 				appender = new ConsoleAppender(layout);
 				appender.setName(type);
-			} else if (Appender.REMOTE.equals(type)) {
+			} else if (Appender.REMOTE.equalsIgnoreCase(type)) {
 				appender = new SocketAppender(hostOrMultiFile, Integer.parseInt(port));
 				appender.setName(type);
-			} else if (Appender.FILE.equals(type)) {
+			} else if (Appender.FILE.equalsIgnoreCase(type)) {
 				if (hostOrMultiFile != null) {
 					SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 					Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
@@ -96,7 +115,7 @@ public class LoggingLog4J extends Logging {
 			Logger.getRootLogger().addAppender(appender);
 		}
 
-		if (type.equals(Appender.NONE)) {
+		if (type.equalsIgnoreCase(Appender.NONE)) {
 			Logger.getRootLogger().removeAllAppenders();
 		}
 
