@@ -71,9 +71,9 @@ public class RemoteAdapter extends Service implements Communicator {
 	// when correct interfaces and base classes are done
 	transient TCPListener tcpListener = null;
 	transient UDPListener udpListener = null;
-	
-	Integer udpPort = 6767;
-	Integer tcpPort = 6767;
+
+	private Integer udpPort = 6767;
+	private Integer tcpPort = 6767;
 
 	public RemoteAdapter(String n) {
 		super(n);
@@ -94,9 +94,8 @@ public class RemoteAdapter extends Service implements Communicator {
 		ObjectInputStream in;
 		int listeningPort;
 
-
 		public TCPListener(int listeningPort, RemoteAdapter s) {
-			super(String.format("%s.tcp.%d",s.getName(), listeningPort));
+			super(String.format("%s.tcp.%d", s.getName(), listeningPort));
 			this.listeningPort = listeningPort;
 			myService = s;
 		}
@@ -122,11 +121,14 @@ public class RemoteAdapter extends Service implements Communicator {
 
 				while (isRunning()) {
 					Socket clientSocket = serverSocket.accept();
-					URI uri = new URI(String.format("mrl:%stcp://%s:%d", getName(), clientSocket.getInetAddress().getHostAddress(),clientSocket.getPort()));
-					//myService.info(String.format("new connection %s", url.toString()));
+					URI uri = new URI(String.format("mrl:%stcp://%s:%d", getName(), clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort()));
+					// myService.info(String.format("new connection %s",
+					// url.toString()));
 					Communicator comm = (Communicator) cm.getComm(uri);
-					comm.addClient(uri, clientSocket);
-					//broadcastState(); don't broadcast unless requested to
+					if (comm != null) {
+						comm.addClient(uri, clientSocket);
+					}
+					// broadcastState(); don't broadcast unless requested to
 				}
 
 				serverSocket.close();
@@ -144,7 +146,7 @@ public class RemoteAdapter extends Service implements Communicator {
 		int listeningPort;
 
 		public UDPListener(int listeningPort, RemoteAdapter s) {
-			super(String.format("%s.usp.%d",s.getName(), listeningPort));
+			super(String.format("%s.usp.%d", s.getName(), listeningPort));
 			this.listeningPort = listeningPort;
 			myService = s;
 		}
@@ -165,7 +167,7 @@ public class RemoteAdapter extends Service implements Communicator {
 
 				log.info(String.format("%s listening on udp %s:%d", getName(), socket.getLocalAddress(), socket.getLocalPort()));
 
-				Communicator comm = (Communicator) cm.getComm(new URI(String.format("mrl:%s/udp://%s:%d", getName(),socket.getLocalAddress(),socket.getLocalPort())));
+				Communicator comm = (Communicator) cm.getComm(new URI(String.format("mrl:%s/udp://%s:%d", getName(), socket.getLocalAddress(), socket.getLocalPort())));
 
 				byte[] b = new byte[65535]; // max udp size
 				ByteArrayInputStream b_in = new ByteArrayInputStream(b);
@@ -192,7 +194,6 @@ public class RemoteAdapter extends Service implements Communicator {
 						} else {
 							getOutbox().add(msg);
 						}
-				
 
 					} catch (Exception e) {
 						logException(e);
@@ -211,7 +212,7 @@ public class RemoteAdapter extends Service implements Communicator {
 	}
 
 	// FIXME - remove or change to be more general
-	public HashMap<URI, CommData>  getClients() {
+	public HashMap<URI, CommData> getClients() {
 		// ArrayList<U>
 		return null;
 	}
@@ -221,56 +222,49 @@ public class RemoteAdapter extends Service implements Communicator {
 		super.startService();
 		startListening();
 	}
-	
-	public void startListening()
-	{
+
+	public void startListening() {
 		startListening(udpPort, tcpPort);
 	}
-	
-	public void startListening(int udpPort, int tcpPort)
-	{
+
+	public void startListening(int udpPort, int tcpPort) {
 		startUDP(udpPort);
 		startTCP(tcpPort);
 	}
-	
-	public void startUDP(int port)
-	{
+
+	public void startUDP(int port) {
 		stopUDP();
 		udpPort = port;
 		udpListener = new UDPListener(udpPort, this);
 		udpListener.start();
-		
+
 	}
 
-	public void startTCP(int port)
-	{
+	public void startTCP(int port) {
 		stopTCP();
 		tcpPort = port;
 		tcpListener = new TCPListener(tcpPort, this);
 		tcpListener.start();
-		
+
 	}
 
-	public void stopUDP()
-	{
+	public void stopUDP() {
 		if (udpListener != null) {
 			udpListener.interrupt();
 			udpListener.shutdown();
 			udpListener = null;
 		}
 	}
-	
-	public void stopTCP()
-	{
+
+	public void stopTCP() {
 		if (tcpListener != null) {
 			tcpListener.interrupt();
 			tcpListener.shutdown();
 			tcpListener = null;
 		}
 	}
-	
-	public void stopListening()
-	{
+
+	public void stopListening() {
 		stopUDP();
 		stopTCP();
 	}
@@ -285,7 +279,6 @@ public class RemoteAdapter extends Service implements Communicator {
 	public String getDescription() {
 		return "allows remote communication between applets, or remote instances of myrobotlab";
 	}
-
 
 	static public ArrayList<InetAddress> getLocalAddresses() {
 		ArrayList<InetAddress> ret = new ArrayList<InetAddress>();
@@ -315,11 +308,11 @@ public class RemoteAdapter extends Service implements Communicator {
 			RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
 			Runtime.createAndStart(String.format("clock%d", i), "Clock");
 			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-			
-			// FIXME - sholdn't this be sendRemote ??? or at least 
+
+			// FIXME - sholdn't this be sendRemote ??? or at least
 			// in an interface
-			//remote.sendRemote(uri, msg);
-			//xmpp1.sendMessage("xmpp 2", "robot02 02");
+			// remote.sendRemote(uri, msg);
+			// xmpp1.sendMessage("xmpp 2", "robot02 02");
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -328,12 +321,30 @@ public class RemoteAdapter extends Service implements Communicator {
 	@Override
 	public void sendRemote(URI uri, Message msg) {
 		// TODO Auto-generated method stub
-		
+		log.info(String.format("sendRemote %s %s.%s", uri, msg.name, msg.method));
 	}
 
+	// FIXME - remote
 	@Override
 	public void addClient(URI uri, Object commData) {
 		// TODO Auto-generated method stub
-		
+		log.info("add client");
 	}
+	
+	public Integer getUdpPort() {
+		return udpPort;
+	}
+
+	public void setUDPPort(Integer udpPort) {
+		this.udpPort = udpPort;
+	}
+
+	public Integer getTcpPort() {
+		return tcpPort;
+	}
+
+	public void setTCPPort(Integer tcpPort) {
+		this.tcpPort = tcpPort;
+	}
+
 }

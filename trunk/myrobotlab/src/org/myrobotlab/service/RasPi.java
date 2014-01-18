@@ -18,7 +18,8 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-import com.pi4j.io.i2c.I2CFactory;
+//import com.pi4j.io.i2c.I2CFactory;
+import org.myrobotlab.i2c.I2CFactory;
 
 public class RasPi extends Service {
 
@@ -105,6 +106,7 @@ public class RasPi extends Service {
 	// FIXME - test by reading? writing ?
 	// FIXME - return array
 	public Integer[] scanI2CDevices(int busAddress) {
+		log.info("scanning through I2C devices");
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		try {
 			/*

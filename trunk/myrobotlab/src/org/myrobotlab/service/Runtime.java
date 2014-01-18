@@ -123,7 +123,9 @@ public class Runtime extends Service {
 		// isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		// only runtime can auto-update
-		// FIXME - re-implement but only start if there is a Task - runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+		// FIXME - re-implement but only start if there is a Task -
+		// runtime.timer.schedule(new AutoUpdate(),
+		// autoUpdateCheckIntervalSeconds * 1000);
 	}
 
 	public static String getVersion() {
@@ -146,10 +148,10 @@ public class Runtime extends Service {
 
 	public static void stopAutoUpdate() {
 		Runtime runtime = Runtime.getInstance();
-		/* FIXME - re-implement but only start if there is a task
-		runtime.timer.cancel();
-		runtime.timer.purge();
-		*/
+		/*
+		 * FIXME - re-implement but only start if there is a task
+		 * runtime.timer.cancel(); runtime.timer.purge();
+		 */
 	}
 
 	// TODO deprecate - this can be handled more generally in a
@@ -172,14 +174,18 @@ public class Runtime extends Service {
 			} else {
 				runtime.info(String.format("updating with %s", newVersion));
 				// Custom button text
-// FIXM re-implement but only start if you have a task runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+				// FIXM re-implement but only start if you have a task
+				// runtime.timer.schedule(new AutoUpdate(),
+				// autoUpdateCheckIntervalSeconds * 1000);
 				Runtime.getBleedingEdgeMyRobotLabJar();
 				Runtime.restart("moveUpdate");
 
 			}
 
 			log.info("re-setting timer begin");
-// FIXME - re-implement but only start if there is a task runtime.timer.schedule(new AutoUpdate(), autoUpdateCheckIntervalSeconds * 1000);
+			// FIXME - re-implement but only start if there is a task
+			// runtime.timer.schedule(new AutoUpdate(),
+			// autoUpdateCheckIntervalSeconds * 1000);
 			log.info("re-setting timer end");
 		}
 	}
@@ -215,7 +221,9 @@ public class Runtime extends Service {
 
 	/**
 	 * returns the platform type of a remote system
-	 * @param uri - the access uri of the remote system
+	 * 
+	 * @param uri
+	 *            - the access uri of the remote system
 	 * @return Platform description
 	 */
 	public Platform getPlatform(URI uri) {
@@ -231,6 +239,7 @@ public class Runtime extends Service {
 
 	/**
 	 * returns version string of MyRobotLab
+	 * 
 	 * @return
 	 */
 	public String getLocalVersion() {
@@ -238,12 +247,11 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * returns version string of MyRobotLab instance based on
-	 * uri 
-	 * e.g :
-	 *      uri mrl://10.5.3.1:7777 may be a remote instance
-	 *      null uri is local
-	 * @param uri - key of ServiceEnvironment
+	 * returns version string of MyRobotLab instance based on uri e.g : uri
+	 * mrl://10.5.3.1:7777 may be a remote instance null uri is local
+	 * 
+	 * @param uri
+	 *            - key of ServiceEnvironment
 	 * @return version string
 	 */
 	public String getVersion(URI uri) {
@@ -258,7 +266,7 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * updates the myrobotlab.jar 
+	 * updates the myrobotlab.jar
 	 */
 	synchronized public static void updateMyRobotLab() {
 		Runtime.getInstance().info("updating myrobotlab.jar");
@@ -269,6 +277,7 @@ public class Runtime extends Service {
 
 	/**
 	 * check if class is a Runtime class
+	 * 
 	 * @param newService
 	 * @return true if class == Runtime.class
 	 */
@@ -306,12 +315,10 @@ public class Runtime extends Service {
 	 */
 	@Override
 	public void stopService() {
-		/* FIXME - re-implement but only start if you have a task
-		if (timer != null) {
-			timer.cancel(); // stop all scheduled jobs
-			timer.purge();
-		}
-		*/
+		/*
+		 * FIXME - re-implement but only start if you have a task if (timer !=
+		 * null) { timer.cancel(); // stop all scheduled jobs timer.purge(); }
+		 */
 		super.stopService();
 		localInstance = null;
 	}
@@ -326,8 +333,9 @@ public class Runtime extends Service {
 
 	// ---------- Java Runtime wrapper functions begin --------
 	/**
-	 * Executes the specified command and arguments in a separate process.  
+	 * Executes the specified command and arguments in a separate process.
 	 * Returns the exit value for the subprocess.
+	 * 
 	 * @param params
 	 * @return
 	 */
@@ -353,8 +361,9 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Returns the amount of free memory in the Java Virtual Machine. 
-	 * Calling the gc method may result in increasing the value returned by freeMemory.
+	 * Returns the amount of free memory in the Java Virtual Machine. Calling
+	 * the gc method may result in increasing the value returned by freeMemory.
+	 * 
 	 * @return
 	 */
 	public static final long getFreeMemory() {
@@ -365,7 +374,8 @@ public class Runtime extends Service {
 	// http://www.javaworld.com/javaworld/javaqa/2002-11/01-qa-1108-cpu.html
 
 	/**
-	 * Returns the number of processors available to the Java virtual machine. 
+	 * Returns the number of processors available to the Java virtual machine.
+	 * 
 	 * @return
 	 */
 	public static final int availableProcessors() {
@@ -380,8 +390,11 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Terminates the currently running Java virtual machine by initiating its shutdown sequence. This method never returns normally. 
-	 * The argument serves as a status code; by convention, a nonzero status code indicates abnormal termination 
+	 * Terminates the currently running Java virtual machine by initiating its
+	 * shutdown sequence. This method never returns normally. The argument
+	 * serves as a status code; by convention, a nonzero status code indicates
+	 * abnormal termination
+	 * 
 	 * @param status
 	 */
 	public static final void exit(int status) {
@@ -389,7 +402,7 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Runs the garbage collector. 
+	 * Runs the garbage collector.
 	 */
 	public static final void gc() {
 		java.lang.Runtime.getRuntime().gc();
@@ -430,47 +443,47 @@ public class Runtime extends Service {
 			}
 			return s;
 		}
-		
+
 		// REMOTE BROADCAST to all foreign environments
 		// FIXME - Security determines what to export
 		// for each gateway
-		
+
 		Vector<String> remoteGateways = getServicesFromInterface(Communicator.class.getCanonicalName());
-		for (int ri = 0; ri < remoteGateways.size(); ++ri){
+		for (int ri = 0; ri < remoteGateways.size(); ++ri) {
 			String n = remoteGateways.get(ri);
-			//Communicator gateway = (Communicator)registry.get(n);
+			// Communicator gateway = (Communicator)registry.get(n);
 			ServiceInterface gateway = registry.get(n);
-			
+
 			// for each JVM this gateway is is attached too
 			for (Map.Entry<URI, ServiceEnvironment> o : hosts.entrySet()) {
 				// Map.Entry<String,SerializableImage> pairs = o;
 				URI uri = o.getKey();
-				// if its a foreign JVM & the gateway responsible for the remote connection and 
-				// the foreign JVM is not the host which this service originated from - send it....
-				if (uri != null && gateway.getName().equals(uri.getHost()) && !uri.equals(s.getHost())){
+				// if its a foreign JVM & the gateway responsible for the remote
+				// connection and
+				// the foreign JVM is not the host which this service originated
+				// from - send it....
+				if (uri != null && gateway.getName().equals(uri.getHost()) && !uri.equals(s.getHost())) {
 					log.info(String.format("gateway %s sending registration of %s remote to %s", gateway.getName(), s.getName(), uri));
 					Runtime rt = Runtime.getInstance();
 					// FIXME - Security determines what to export
 					Message msg = rt.createMessage("", "register", s);
-					((Communicator)gateway).sendRemote(uri, msg);
+					((Communicator) gateway).sendRemote(uri, msg);
 				}
 			}
 		}
-		
-		
-		
-		//ServiceInterface sw = new ServiceInterface(s, se.accessURL);
+
+		// ServiceInterface sw = new ServiceInterface(s, se.accessURL);
 		se.serviceDirectory.put(s.getName(), s);
-		registry.put(s.getName(), s); //  FIXME FIXME FIXME FIXME  !!!!!! pre-pend URI if not NULL !!! 
+		registry.put(s.getName(), s); // FIXME FIXME FIXME FIXME !!!!!! pre-pend
+										// URI if not NULL !!!
 		if (localInstance != null) {
 			localInstance.invoke("registered", s);
 		}
 
 		return s;
 	}
-	
-	public final static String getCWD()
-	{
+
+	public final static String getCWD() {
 		return System.getProperty("user.dir");
 	}
 
@@ -540,7 +553,7 @@ public class Runtime extends Service {
 	 */
 	public static synchronized boolean register(ServiceEnvironment s) {
 		URI uri = s.accessURL;
-		
+
 		if (!hosts.containsKey(uri)) {
 			log.info(String.format("adding new ServiceEnvironment {}", uri));
 		} else {
@@ -562,7 +575,7 @@ public class Runtime extends Service {
 			ServiceInterface si = s.serviceDirectory.get(serviceName);
 			// IMPORTANT - s.accessURL == service.host !! NORMALIZE !!!
 			si.setHost(uri);
-			
+
 			registry.put(serviceName, si);
 			localInstance.invoke("registered", s.serviceDirectory.get(serviceName));
 
@@ -662,12 +675,10 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Gets the current total number of services registered
-	 * services. This is the number of services in all Service
-	 * Environments
+	 * Gets the current total number of services registered services. This is
+	 * the number of services in all Service Environments
 	 * 
-	 * @return
-	 * total number of services
+	 * @return total number of services
 	 */
 	public int getServiceCount() {
 		int cnt = 0;
@@ -721,7 +732,8 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 * 
-	 * TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER - is already in XMPP
+	 *         TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER - is already in
+	 *         XMPP
 	 */
 	public static ServiceEnvironment getLocalServicesForExport() {
 		if (!hosts.containsKey(null)) {
@@ -741,8 +753,13 @@ public class Runtime extends Service {
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
 			if (security != null && security.allowExport(name)) {
-				//log.info(String.format("exporting service: %s of type %s", name, sw.getServiceType()));
-				export.serviceDirectory.put(name, sw);  // FIXME  !! make note when XMPP or Remote Adapter pull it - they have to reset this !!
+				// log.info(String.format("exporting service: %s of type %s",
+				// name, sw.getServiceType()));
+				export.serviceDirectory.put(name, sw); // FIXME !! make note
+														// when XMPP or Remote
+														// Adapter pull it -
+														// they have to reset
+														// this !!
 			} else {
 				log.info(String.format("%s will not be exported", name));
 				continue;
@@ -757,14 +774,13 @@ public class Runtime extends Service {
 		return sw.isLocal();
 	}
 
-
-
 	/**
-	 * releases a service - stops the service, its threads,
-	 * releases its resources, and removes registry entries
-	 * @param name of the service to be released
-	 * @return
-	 * whether or not it successfully released the service
+	 * releases a service - stops the service, its threads, releases its
+	 * resources, and removes registry entries
+	 * 
+	 * @param name
+	 *            of the service to be released
+	 * @return whether or not it successfully released the service
 	 */
 	public static boolean release(String name) /* release local Service */
 	{
@@ -933,8 +949,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * DEPRICATE 
-	 * saves binary definition of MRL
+	 * DEPRICATE saves binary definition of MRL
+	 * 
 	 * @param filename
 	 * @return
 	 */
@@ -970,8 +986,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * DEPRICATE 
-	 * loads binary definition of MRL
+	 * DEPRICATE loads binary definition of MRL
+	 * 
 	 * @param filename
 	 * @return
 	 */
@@ -1025,9 +1041,8 @@ public class Runtime extends Service {
 		 * if (hasGUI) { gui.display(); }
 		 */
 	}
-	
-	public static void dumpToFile()
-	{
+
+	public static void dumpToFile() {
 		FileIO.stringToFile(String.format("serviceRegistry.%s.txt", Runtime.getInstance().getName()), Runtime.dump());
 		FileIO.stringToFile(String.format("notifyEntries.%s.xml", Runtime.getInstance().getName()), Runtime.dumpNotifyEntries());
 	}
@@ -1040,7 +1055,7 @@ public class Runtime extends Service {
 	 */
 	public static String dumpNotifyEntries() {
 		ServiceEnvironment se = getLocalServices();
-		
+
 		Map<String, ServiceInterface> sorted = new TreeMap<String, ServiceInterface>(se.serviceDirectory);
 
 		Iterator<String> it = sorted.keySet().iterator();
@@ -1192,8 +1207,9 @@ public class Runtime extends Service {
 
 	/**
 	 * creates and starts service from a cmd line object
+	 * 
 	 * @param cmdline
-	 * data object from the cmd line
+	 *            data object from the cmd line
 	 */
 	public final static void createAndStartServices(CMDLine cmdline) {
 
@@ -1241,15 +1257,17 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Returns an array of all the simple type names of all the possible services.
-	 * The data originates from the repo's serviceData.xml file
-	 * https://code.google.com/p/myrobotlab/source/browse/trunk/myrobotlab/thirdParty/repo/serviceData.xml
+	 * Returns an array of all the simple type names of all the possible
+	 * services. The data originates from the repo's serviceData.xml file
+	 * https:/
+	 * /code.google.com/p/myrobotlab/source/browse/trunk/myrobotlab/thirdParty
+	 * /repo/serviceData.xml
 	 * 
-	 * There is a local one distributed with the install zip
-	 * When a "update" is forced, MRL will try to download the latest copy from the repo.
+	 * There is a local one distributed with the install zip When a "update" is
+	 * forced, MRL will try to download the latest copy from the repo.
 	 * 
-	 * The serviceData.xml lists all service types, dependencies, categories and other
-	 * relevant information regarding service creation
+	 * The serviceData.xml lists all service types, dependencies, categories and
+	 * other relevant information regarding service creation
 	 * 
 	 * @return
 	 */
@@ -1299,12 +1317,9 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * Main starting method of MyRobotLab
-	 * Parses command line options
+	 * Main starting method of MyRobotLab Parses command line options
 	 * 
-	 * -h help
-	 * -v version
-	 * -list 
+	 * -h help -v version -list
 	 * 
 	 * @param args
 	 */
@@ -1426,7 +1441,6 @@ public class Runtime extends Service {
 		return s;
 	}
 
-	
 	/**
 	 * 
 	 * @param name
@@ -1498,8 +1512,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * publishing point of Ivy sub system - sends event failedDependency when the
-	 * retrieve report for a Service fails
+	 * publishing point of Ivy sub system - sends event failedDependency when
+	 * the retrieve report for a Service fails
 	 * 
 	 * @param dep
 	 * @return
@@ -1568,8 +1582,11 @@ public class Runtime extends Service {
 	public static String dump() {
 		StringBuffer sb = new StringBuffer().append("\nhosts:\n");
 
-		Map<URI, ServiceEnvironment> sorted = hosts;// new TreeMap<URI, ServiceEnvironment>(hosts); - tree map doesnt allow null
-		
+		Map<URI, ServiceEnvironment> sorted = hosts;// new TreeMap<URI,
+													// ServiceEnvironment>(hosts);
+													// - tree map doesnt allow
+													// null
+
 		Iterator<URI> hkeys = sorted.keySet().iterator();
 		URI url;
 		ServiceEnvironment se;
@@ -1580,7 +1597,7 @@ public class Runtime extends Service {
 			url = hkeys.next();
 			se = hosts.get(url);
 			sb.append("\t").append(url);
-			
+
 			// good check :)
 			if ((se.accessURL != url) && (!url.equals(se.accessURL))) {
 				sb.append(" key not equal to data ").append(se.accessURL);
@@ -1798,7 +1815,7 @@ public class Runtime extends Service {
 		System.exit(0);
 
 	}
-	
+
 	/**
 	 * 
 	 * @param name
@@ -1855,9 +1872,6 @@ public class Runtime extends Service {
 	public ServiceInfo getServiceInfo() {
 		return serviceInfo;
 	}
-
-	// public static String newRMLInstanceCommandLineTemplate =
-	// " -classpath \"./libraries/jar/*%1$s./libraries/jar/%2$s/*%1$s%3$s\" -Djava.library.path=\"./libraries/native/%2$s%1$s\" org.myrobotlab.service.Runtime -service %4$s -logToConsole";
 
 	public static ArrayList<String> buildMLRCommandLine(HashMap<String, String> services, String runtimeName) {
 
@@ -1923,27 +1937,7 @@ public class Runtime extends Service {
 			processBuilder.directory(new File(System.getProperty("user.dir")));
 			processBuilder.redirectErrorStream(true);
 			Process process = processBuilder.start();
-			// System.out.print(process.getOutputStream());
-
-			// TODO - Read out dir output
-			/*
-			 * InputStream is = process.getInputStream(); InputStreamReader isr
-			 * = new InputStreamReader(is); BufferedReader br = new
-			 * BufferedReader(isr); String line;
-			 * //System.out.printf("Output of running %s is:\n",
-			 * Arrays.toString(buildMLRCommandLine())); while ((line =
-			 * br.readLine()) != null) { System.out.println(line); }
-			 */
-
-			// Wait to get exit value
-			/*
-			 * try { int exitValue = process.waitFor();
-			 * System.out.println("\n\nExit Value is " + exitValue); } catch
-			 * (InterruptedException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); }
-			 * 
-			 * process.waitFor(); System.out.println("Fin");
-			 */
+			
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -1961,50 +1955,6 @@ public class Runtime extends Service {
 		System.out.println("Fin");
 	}
 
-	/**
-	 * Inbound registerServices is the method initially called to contact a
-	 * remote process. Often is will be a GUI sending this request over the wire
-	 * to be received in another process by a RemoteAdapter. if the registration
-	 * of foreign Services is successful, the request is echoed back to the
-	 * sender, such that all Services ready for export are shared.
-	 * 
-	 * it is also invoked by RemoteAdapters as they recieve the initial request
-	 * the remote URI is filled in from the other end of the socket info Since
-	 * the foreign Services do not necessarily know how they are identified the
-	 * ServiceEnvironment & Service accessURL are filled in here
-	 * 
-	 * @param hostAddress
-	 * @param port
-	 * @param msg
-	 * 
-	 * currently this is a message from the remote system wrapped in a message
-	 * from a local network communicator service
-	 * 
-	 */
-	/*
-	public void registerServices(Message msg) {
-		if (msg.data.length == 0 || !(msg.data[0] instanceof ServiceEnvironment)) {
-			log.error("inbound registerServices not valid");
-			return;
-		}
-		try {
-			ServiceEnvironment mrlInstance = (ServiceEnvironment) msg.data[0];
-
-			if (!Runtime.register(mrlInstance)) {
-				// if nothing new return with echo
-				return;
-			}
-			// if successfully registered with "new" Services - echo a
-			// registration back
-			ServiceEnvironment echoLocal = Runtime.getLocalServicesForExport();
-			// send echo of local services back to sender
-			send(msg.sender, "registerServices", echoLocal);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			logException(e);
-		}
-	}
-	*/
 
 	/**
 	 * unique id's are need for sendBlocking - to uniquely identify the message
@@ -2036,22 +1986,58 @@ public class Runtime extends Service {
 		return false;
 	}
 
+	public static List<ServiceInterface> getServices() {
+		// QUESTION - why isn't registry just a treemap ?
+		TreeMap<String, ServiceInterface> sorted = new TreeMap<String, ServiceInterface>(registry);
+		List<ServiceInterface> list = new ArrayList<ServiceInterface>(sorted.values());
+		return list;
+	}
+
+	// --------  network begin ------------------------
+	
+	/**
+	 * although "fragile" since it relies on a external source - its useful to find
+	 * the external ip address of NAT'd systems
+	 * @return external or routers ip
+	 * @throws Exception
+	 */
+	public static String getExternalIp() throws Exception {
+		URL whatismyip = new URL("http://checkip.amazonaws.com");
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+			String ip = in.readLine();
+			return ip;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * gets all non-loopback, active, non-virtual ip addresses
+	 * @return list of local IP addresses
+	 * @throws SocketException
+	 */
 	static public ArrayList<String> getLocalAddresses() throws SocketException {
 		ArrayList<String> ret = new ArrayList<String>();
 		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 		while (interfaces.hasMoreElements()) {
 			NetworkInterface current = interfaces.nextElement();
 			System.out.println(current);
-			if (!current.isUp() || current.isLoopback() || current.isVirtual())
-			{
+			if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
 				log.info("skipping interface is down, a loopback or virtual");
 				continue;
 			}
 			Enumeration<InetAddress> addresses = current.getInetAddresses();
 			while (addresses.hasMoreElements()) {
 				InetAddress currentAddress = addresses.nextElement();
-				if (currentAddress.isLoopbackAddress())
-				{
+				if (currentAddress.isLoopbackAddress()) {
 					log.info("skipping loopback address");
 					continue;
 				}
@@ -2059,41 +2045,21 @@ public class Runtime extends Service {
 				ret.add(currentAddress.getHostAddress());
 			}
 		}
-		
+
 		return ret;
 	}
-
-	public static List<ServiceInterface> getServices() {
-		// QUESTION - why isn't registry just a treemap ?
-		TreeMap<String, ServiceInterface> sorted = new TreeMap<String, ServiceInterface>(registry);
-		List<ServiceInterface> list = new ArrayList<ServiceInterface>(sorted.values());
-		return list;
-	}
+	// --------  network end ------------------------
 	
-	/*
-	public static String getLogFile() {
-		Logging.
-		FileIO.fileToString(file);
+	/**
+	 * Runtime's setLogLevel will set the root log level
+	 * if its called from a service - it will only set that
+	 * Service type's log level
+	 * 
+	 */
+	public String setLogLevel(String level) {
+		Logging logging = LoggingFactory.getInstance();
+		logging.setLevel(level);
+		return level;
 	}
-	*/
-	
-	public static String getIp() throws Exception {
-	        URL whatismyip = new URL("http://checkip.amazonaws.com");
-	        BufferedReader in = null;
-	        try {
-	            in = new BufferedReader(new InputStreamReader(
-	                    whatismyip.openStream()));
-	            String ip = in.readLine();
-	            return ip;
-	        } finally {
-	            if (in != null) {
-	                try {
-	                    in.close();
-	                } catch (IOException e) {
-	                    e.printStackTrace();
-	                }
-	            }
-	        }
-	    }
 
 }

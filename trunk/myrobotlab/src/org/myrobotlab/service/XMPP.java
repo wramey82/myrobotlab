@@ -44,7 +44,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 	String user;
 	String password;
-	String host;
+	String hostname = "talk.google.com";
 	int port = 5222;
 	String service = "gmail.com"; // defaulted :P
 
@@ -61,15 +61,14 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	 * by who through the XMPP service TODO - audit full system ??? regardless
 	 * of message origin?
 	 */
+	// FIXME ?? - change to HashMap<String, RosterEntry>
 	HashSet<String> auditors = new HashSet<String>();
-	HashSet<String> responseRelays = new HashSet<String>();
+	//HashSet<String> responseRelays = new HashSet<String>();
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
 	transient HashMap<String, Chat> chats = new HashMap<String, Chat>();
 
 	public XMPP(String n) {
 		super(n);
-		
-		//localSecurity.put("user", value)
 	}
 
 	@Override
@@ -83,15 +82,12 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		return "xmpp service to access the jabber network";
 	}
 
-	public boolean connect(String host) {
-		this.host = host;
-		return connect(host, port);
-	}
 
-	public boolean connect(String host, int port) {
-		this.host = host;
-		this.port = port;
-		return connect(host, port, user, password);
+	// FIXME - user name and password - default the host and port (duh)
+	public boolean connect(String user, String password) {
+		this.user = user;
+		this.password = password;
+		return connect(hostname, port, user, password);
 	}
 
 	public boolean connect(String host, int port, String user, String password) {
@@ -99,7 +95,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	}
 
 	public boolean connect(String host, int port, String user, String password, String service) {
-		this.host = host;
+		this.hostname = host;
 		this.port = port;
 		this.user = user;
 		this.password = password;
@@ -123,12 +119,13 @@ public class XMPP extends Service implements Communicator, MessageListener {
 				// ConnectionConfiguration("talk.google.com", 5222,
 				// "gmail.com");
 				// config.setTruststoreType("BKS");
-				config = new ConnectionConfiguration(host, 5222, "gmail.com");
+				// TODO - look for security keys "myName" user & myName password
+				config = new ConnectionConfiguration(hostname, 5222, "gmail.com");
 			}
 
 			if (connection == null || !connection.isConnected()) {
 
-				log.info(String.format("%s new connection to %s:%d", getName(), host, port));
+				log.info(String.format("%s new connection to %s:%d", getName(), hostname, port));
 				connection = new XMPPConnection(config);
 				connection.connect();
 				log.info(String.format("%s connected %s", getName(), connection.isConnected()));
@@ -153,7 +150,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	}
 
 	public void disconnect() {
-		log.info(String.format("%s disconnecting from %s:%d", getName(), host, port));
+		log.info(String.format("%s disconnecting from %s:%d", getName(), hostname, port));
 		if (connection != null && connection.isConnected()) {
 			connection.disconnect();
 			connection = null;
@@ -202,7 +199,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		return roster;
 	}
 
-	RosterEntry getEntry(String userOrBuddyId) {
+	public RosterEntry getEntry(String userOrBuddyId) {
 		RosterEntry entry = null;
 		String id = null;
 		int pos = userOrBuddyId.indexOf("/");
@@ -246,7 +243,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	 *            - text to broadcast
 	 */
 	public void broadcast(String text) {
-		for (String buddy : responseRelays) {
+		for (String buddy : auditors) {
 			sendMessage(text, buddy);
 		}
 	}
@@ -314,7 +311,8 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 		if (auditors.size() > 0) {
 			for (String auditor : auditors) {
-				sendMessage(String.format("%s %s", msg.getFrom(), msg.getBody()), auditor);
+				RosterEntry re = getEntry(auditor);
+				sendMessage(String.format("%s %s", msg.getFrom(), msg.getBody()), re.getName());
 			}
 		}
 
@@ -545,6 +543,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		return true;
 	}
 
+	/*
 	public boolean addRelay(String id) {
 		RosterEntry entry = getEntry(id);
 		if (entry == null) {
@@ -566,6 +565,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		responseRelays.remove(buddyJID);
 		return true;
 	}
+	*/
 
 	/**
 	 * publishing point for XMPP messages
