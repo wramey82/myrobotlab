@@ -35,6 +35,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
+import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 
 /**
@@ -117,7 +118,7 @@ public class AdafruitLEDBackpack implements I2CDevice {
 		translation.put("m", (byte) 21);
 		translation.put("n", (byte) 84);
 		translation.put("o", (byte) 63);
-		translation.put("P", (byte) 115);
+		translation.put("p", (byte) 115);
 		translation.put("q", (byte) 103);
 		translation.put("r", (byte) 80);
 		translation.put("s", (byte) 109);
@@ -236,7 +237,7 @@ public class AdafruitLEDBackpack implements I2CDevice {
 		
 		public CycleThread(String msg, int delay)
 		{
-			this.msg = "    " + msg;
+			this.msg = "    " + msg + "    ";
 			this.delay = delay;
 		}
 		
@@ -244,6 +245,7 @@ public class AdafruitLEDBackpack implements I2CDevice {
 			isRunning = true;
 			try {
 			while(isRunning){
+				// start with scroll on page
 				for(int i = 0; i < msg.length()-3; ++i)
 				{
 					display(msg.substring(i, i+4));
@@ -257,16 +259,25 @@ public class AdafruitLEDBackpack implements I2CDevice {
 	}
 	
 	
-	public void cycleOn(String msg, int delay){
+	public void cycle(String msg, int delay){
 		if (ct != null)
 		{
-			cycleOff();
+			cycleStop();
 		}
 		ct = new CycleThread(msg, delay);
 		ct.start();
 	}
 	
-	public void cycleOff(){
+	public void cycle(String msg){
+		if (ct != null)
+		{
+			cycleStop();
+		}
+		ct = new CycleThread(msg, 300);
+		ct.start();
+	}
+	
+	public void cycleStop(){
 		if (ct != null){
 			ct.isRunning = false;
 		}
