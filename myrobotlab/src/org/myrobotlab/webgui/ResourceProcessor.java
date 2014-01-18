@@ -57,7 +57,7 @@ public class ResourceProcessor implements HTTPProcessor {
 	}
 
 	@Override
-	public Response serve(String uri, String method, Map<String, String> header, Map<String, String> parms) {
+	public Response serve(String uri, String method, Map<String, String> header, Map<String, String> parms, String postBody) {
 		return serveFile(uri, header, new File(webgui.root), true, scannedDirectories.contains(uri));
 	}
 

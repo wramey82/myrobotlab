@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.WebSocketImpl;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.myrobotlab.framework.Encoder;
@@ -67,8 +68,17 @@ public class WSServer extends WebSocketServer {
 	public WSServer(WebGUI webgui, int port) throws UnknownHostException {
 		super(new InetSocketAddress(port));
 		this.webgui = webgui;
+		
+		// FIXME !! - shorthand - /api/method ...
+		// FIXME !! - longhand /api/returnType/paramType/method ....
+		// FIXME !!
+		//processors.put("/api/soap", new SOAPProcessor());
+		//processors.put("/api/html/html/rest", new RESTProcessor());
+		//processors.put("/api", new RESTProcessor());
+		// default uri map 
 
 		processors.put("/services", new RESTProcessor());
+		processors.put("/api/soap", new SOAPProcessor());
 		defaultProcessor = new ResourceProcessor(webgui);
 		processors.put("/resource", defaultProcessor);// FIXME < wrong should be
 														// root
@@ -145,75 +155,17 @@ public class WSServer extends WebSocketServer {
 			}
 		}
 	}
+	
+	/*
 
 	@Override
-	public void onRawOpen(WebSocket conn, ByteBuffer d) {
+	public void onRawMessage(WebSocket conn, ByteBuffer d) {
+		
+		log.error("onRawMessage ??? Not supposed to be here right ???");
 
-		try {
 
-			String s = new String(d.array());
-			String sub = s.substring(0, d.limit());
-
-			HashMap<String, String> parms = new HashMap<String, String>();
-			HashMap<String, String> headers = new HashMap<String, String>();
-
-			// Decode the header into parms and header java properties
-			Map<String, String> pre = new HashMap<String, String>();
-
-			// FIXME - return an object - pre ???
-			decodeHeader(sub, pre, parms, headers);
-			String uri = pre.get("uri");
-			String method = pre.get("method");
-
-			// ////////////// webserver //////////////////////////
-			log.info(String.format("%s [%s]", method, uri));
-			String[] keys = uri.split("/");
-			String key = null;
-			if (keys.length > 1) {
-				key = String.format("/%s", keys[1]);
-			}
-
-			Response r = null;
-
-			// needs routing to correct processor
-			if (processors.containsKey(key)) {
-
-				HTTPProcessor processor = processors.get(key);
-				log.debug(String.format("uri hook - [%s] invoking %s", key, processor.getClass().getSimpleName()));
-				r = processor.serve(uri, method, headers, parms);
-
-			} else {
-				r = defaultProcessor.serve(uri, method, headers, parms);
-			}
-
-			// ///////////// webserver ////////////////////////////
-
-			// Response r = processor.serve(uri, method, headers, parms);
-
-			// sendResponse(r.status, r.mimeType, r.header, r.data);
-
-			// log.info(String.format("onRawOpen %s", sub));
-			// String response = "HTTP/1.0 200 OK\r\n" +
-			// "Content-Type: text/html; charset=utf-8\r\n" + "\r\n" +
-			// "<html>\r\n" + "hello java_websocket !\r\n" + "</html>\r\n" +
-			// "\r\n";
-			// conn.send(bytes)
-			// FIXME - inefficient and stoopid
-
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			r.send(out);
-			out.flush();
-			// out.close();
-			// conn.send("hello");
-			byte[] ba = out.toByteArray();
-			log.info(String.format("sending %d bytes", ba.length));
-			conn.send(ba);
-			conn.close();
-		} catch (Exception e) {
-			// attempt a 500
-			Logging.logException(e);
-		}
 	}
+	*/
 
 	// ///////////////////// FROM NANOHTTPD ///////////////////////
 
@@ -356,6 +308,99 @@ public class WSServer extends WebSocketServer {
 		} catch (UnsupportedEncodingException ignored) {
 		}
 		return decoded;
+	}
+
+	@Override
+	public void onRawOpen(WebSocket conn, ByteBuffer d) {
+		// TODO Auto-generated method stub
+
+		log.info("onRawOpen");
+		
+		try {
+
+			// this is the whole buffer i think
+			String s = new String(d.array());
+			//log.info(s);
+			
+			String sub = s.substring(0, d.limit());
+			log.info(sub);
+			
+			int pos0 = sub.indexOf("\r\n\r\n");
+			
+			if (pos0 == -1){
+				log.error("invalid http header");
+				return;
+			}
+			
+			String headerStr = sub.substring(0, pos0);
+			String postBody = null;
+						
+			if (pos0 > 0)
+			{
+				postBody = sub.substring(pos0+4);
+			}
+
+			HashMap<String, String> parms = new HashMap<String, String>();
+			HashMap<String, String> headers = new HashMap<String, String>();
+
+			// Decode the header into parms and header java properties
+			Map<String, String> pre = new HashMap<String, String>();
+
+			// FIXME - return an object - pre ???
+			decodeHeader(headerStr, pre, parms, headers);
+			String uri = pre.get("uri");
+			String method = pre.get("method");
+
+			// ////////////// webserver //////////////////////////
+			log.info(String.format("%s [%s]", method, uri));
+			String[] keys = uri.split("/");
+			String key = null;
+			if (keys.length > 1) {
+				key = String.format("/%s", keys[1]);
+			}
+
+			// FIXME use different response encoders Encoder.base64 etc
+			Response r = null;
+
+			// FIXME - parameter encoding & return encoding needs to be resolved in framework - before processing
+			// FIXME hacked up
+			// begin new api interface
+			if (uri.startsWith("/api/soap"))
+			{
+				HTTPProcessor processor = processors.get("/api/soap");
+				//String paramEncoding = keys[2];
+				
+				r = processor.serve(uri.substring("/api/soap".length()), method, headers, parms, postBody);
+				
+			} else if (processors.containsKey(key)) {
+
+				HTTPProcessor processor = processors.get(key);
+				log.debug(String.format("uri hook - [%s] invoking %s", key, processor.getClass().getSimpleName()));
+				r = processor.serve(uri, method, headers, parms, postBody);
+
+			} else {
+				r = defaultProcessor.serve(uri, method, headers, parms, postBody);
+			}
+			
+			if (r == null)
+			{
+				conn.close();
+				return;
+			}
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			r.send(out);
+			out.flush();
+			
+			byte[] ba = out.toByteArray();
+			log.info(String.format("sending %d bytes", ba.length));
+			conn.send(ba);
+			conn.close();
+		} catch (Exception e) {
+			// attempt a 500
+			Logging.logException(e);
+		}
+		
 	}
 
 }

@@ -1,13 +1,24 @@
 package org.myrobotlab.webgui;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPBodyElement;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPMessage;
+
+import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.net.http.Response;
@@ -22,11 +33,15 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 // FIXME - normalize - make only ResourceProcessor (its twin) - move all this to Encoder !!!
-public class RESTProcessor implements HTTPProcessor {
+public class SOAPProcessor implements HTTPProcessor {
 
-	public final static Logger log = LoggerFactory.getLogger(RESTProcessor.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(SOAPProcessor.class.getCanonicalName());
+
+	MessageFactory factory = null;
 
 	private HashSet<String> uris = new HashSet<String>();
+
+	static private String templateResponse = null;
 
 	transient private Serializer serializer = new Persister();
 
@@ -38,157 +53,139 @@ public class RESTProcessor implements HTTPProcessor {
 		private static final long serialVersionUID = 1L;
 	}
 
+	public SOAPProcessor() {
+		templateResponse = FileIO.getResourceFile("soap/response.xml");
+	}
+
+	// FIXME - can't throw out - kills thread...
 	@Override
-	public Response serve(String uri, String method, Map<String,String> header, Map<String,String> parms, String postBody) {
+	public Response serve(String uri, String method, Map<String, String> header, Map<String, String> parms, String postBody) {
+		try {
 
-		String returnFormat = "gson";
+			String returnFormat = "xml";
 
-		// TODO top level is return format /html /text /soap /xml /gson /json a
-		// default could exist - start with SOAP response
-		// default is not specified but adds {/rest/xml} /services ...
-		// TODO - custom display /displays
-		// TODO - structured rest fault responses
+			// TODO top level is return format /html /text /soap /xml /gson
+			// /json a
+			// default could exist - start with SOAP response
+			// default is not specified but adds {/rest/xml} /services ...
+			// TODO - custom display /displays
+			// TODO - structured rest fault responses
 
-		String[] keys = uri.split("/");
+			String[] keys = uri.split("/");
 
-		// decode everything
-		for (int i = 0; i < keys.length; ++i) {
-			keys[i] = decodePercent(keys[i], true);
-		}
+			// decode everything
+			for (int i = 0; i < keys.length; ++i) {
+				keys[i] = decodePercent(keys[i], true);
+			}
 
-		if ("/services".equals(uri)) {
-			// get runtime list
-			log.info("services request");
-			REST rest = new REST();
-			String services = rest.getServices();
+			/*
+			 * 
+			 * String soapAction = null; String[] sHeader =
+			 * headers.getHeader("SOAPAction");
+			 */
+			if (factory == null) {
+				factory = MessageFactory.newInstance();
+			}
 
-			Response response = new Response(Status.OK, "text/html", services);
-			return response;
+			SOAPMessage msg = factory.createMessage(null, new ByteArrayInputStream(postBody.getBytes()));
 
-		} else if (keys.length > 3) {
-			// get a specific service instance - execute method --with
-			// parameters--
-			String serviceName = keys[2];
-			String fn = keys[3];
-			Object[] typedParameters = null;
+			SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
+			SOAPBody body = env.getBody();
 
+			ArrayList<SOAPBodyElement> params = new ArrayList<SOAPBodyElement>();
+
+			Iterator<Object> itr = body.getChildElements();
+			String fn = null;
+			while (itr.hasNext()) {
+				Object m1 = itr.next();
+				if (!(m1 instanceof SOAPBodyElement)) {
+					continue;
+				}
+				SOAPBodyElement methodBody = (SOAPBodyElement) m1;
+				fn = methodBody.getLocalName();
+				log.info(String.format("found method %s", fn));
+
+				Iterator<Object> mitr = methodBody.getChildElements();
+				while (mitr.hasNext()) {
+					Object p1 = mitr.next();
+					if (!(p1 instanceof SOAPBodyElement)) {
+						continue;
+					}
+					SOAPBodyElement paramBody = (SOAPBodyElement) p1;
+					String paramName = paramBody.getLocalName();
+					String paramValue = paramBody.getValue();
+					log.info(String.format("found param %s=%s ", paramName, paramValue));
+					params.add(paramBody);
+
+					// FIXME - check for child elements - if no - then it can be
+					// converted to a simple data type
+				}
+			}
+
+			String serviceName = keys[1];
 			ServiceInterface si = org.myrobotlab.service.Runtime.getService(serviceName);
-			if (si == null)
-			{
+			if (si == null) {
 				log.error(String.format("%s service not found", serviceName));
 				Response response = new Response(Status.OK, "text/plain", String.format("%s service not found", serviceName));
 				return response;
 			}
-
-			// get parms
-			if (keys.length > 4) {
-				// copy paramater part of rest uri
-				String[] stringParams = new String[keys.length - 4];
-				for (int i = 0; i < keys.length - 4; ++i) {
-					stringParams[i] = keys[i + 4];
-				}
-
-				// FIXME FIXME FIXME !!!!
-				// this is an input format decision !!! .. it "SHOULD" be
-				// determined based on inbound uri format
-
-				TypeConverter.getInstance();
-				typedParameters = TypeConverter.getTypedParams(si.getClass(), fn, stringParams);
+			
+			Object responseObject = null;
+			Encoder.CodeBlock cb = Encoder.getCodeBlockFromXML(si.getClass().getCanonicalName(), fn, params);
+			if (cb != null){
+				// FIXME FIXME FIXME FIXME FIXME FIXME !!!!
+				// optimize by an overloaded invoke which accepts the 
+				// Method I currently have in CodeBlock - which was pulled up by a HashMap and
+				// not reflected !!!!
+				// responseObject = si.invoke(cb.method.getName(), cb.params);
+				responseObject = si.invoke(fn, cb.params);
 			}
 
-			// TODO - handle return type -
-			// TODO top level is return format /html /text /soap /xml /gson
-			// /json /base16 a default could exist - start with SOAP response
-			Object returnObject = si.invoke(fn, typedParameters);
 			String xml = null;
-
-			// Message msg = new Message();
-			// FIXME FIXME FIXME - put in a ResponseHanlder object with simple
-			// imputs/outputs String InputStream / OutputStream !!!!
+		
 			if ("xml".equals(returnFormat)) {
-
-				if (returnObject != null) {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					// if (returnObject)
-					try {
-
-						ReturnType returnType = new ReturnType();
-
-						// FIXME - handle
-						if (returnObject.getClass() == ArrayList.class) {
-							returnType.arrayList = (ArrayList<Object>) returnObject;
-						} else if (returnObject.getClass() == Array.class) {
-							returnType.array = (Object[]) returnObject;
-						} else if (returnObject.getClass() == HashMap.class) {
-							returnType.map = (HashMap<String, Object>) returnObject;
-						} else {
-							returnType.returnObject = returnObject;
-						}
-
-						serializer.write(returnType, out);
-
-					} catch (Exception e) {
-						// TODO Auto-generated catch block SOAP FAULT ??
-						e.printStackTrace();
-					}
-					xml = String.format("<%sResponse>%s</%sResponse>", fn, new String(out.toByteArray()), fn);
-				} else {
-					xml = String.format("<%sResponse />", fn);
-				}
-
+				
+				/*
+				 * if (returnObject != null) { ByteArrayOutputStream out = new
+				 * ByteArrayOutputStream(); // if (returnObject) try {
+				 * 
+				 * ReturnType returnType = new ReturnType();
+				 * 
+				 * // FIXME - handle if (returnObject.getClass() ==
+				 * ArrayList.class) { returnType.arrayList = (ArrayList<Object>)
+				 * returnObject; } else if (returnObject.getClass() ==
+				 * Array.class) { returnType.array = (Object[]) returnObject; }
+				 * else if (returnObject.getClass() == HashMap.class) {
+				 * returnType.map = (HashMap<String, Object>) returnObject; }
+				 * else { returnType.returnObject = returnObject; }
+				 * 
+				 * serializer.write(returnType, out);
+				 * 
+				 * } catch (Exception e) { // TODO Auto-generated catch block
+				 * SOAP FAULT ?? e.printStackTrace(); } xml =
+				 * String.format("<%sResponse>%s</%sResponse>", fn, new
+				 * String(out.toByteArray()), fn); } else { xml =
+				 * String.format("<%sResponse />", fn); }
+				 */
+				xml = templateResponse.replaceAll("%methodName%", fn);
+				xml = xml.replaceAll("%responseObject%",(responseObject == null)?"":responseObject.toString());
 				Response response = new Response(Status.OK, "text/xml", xml);
 				return response;
 
-			} else if ("gson".equals(returnFormat)) {
-				ByteArrayOutputStream out = null;
-
-				// FIXME - a "response" of some sort is important - even if the
-				// returned object is null
-				// the signal which you get from a event can be significant -
-				// the quetion arrises
-				// gson is to encode the returned data - but if there is no data
-				// - it still
-				// should return ... "blank" ?
-
-				String encodedResponse = "null"; // Hah .. dorky yet
-													// appropriate?
-
-				try {
-
-					if (returnObject != null) {
-						Gson gson = new Gson(); // FIXME - threadsafe? singeton?
-						out = new ByteArrayOutputStream();
-						JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-						writer.setIndent("  ");
-
-						writer.beginArray();
-						gson.toJson(returnObject, returnObject.getClass(), writer);
-						// for (Message message : messages) {
-						// gson.toJson(message, Message.class, writer);
-						// }
-						writer.endArray();
-						writer.close();
-
-						encodedResponse = new String(out.toByteArray());
-
-					}
-				} catch (Exception e) {
-					Logging.logException(e);
-				}
-
-				Response response = new Response(Status.OK, "text/text", encodedResponse);
-
-				return response;
 			}
 
 			// handle response depending on type
 			// TODO - make structured !!!
 			// Right now just return string object
 			// Response response = new Response("200 OK", "text/xml",
-			// (returnObject == null)?String.format("<%sResponse></%sResponse>",
+			// (returnObject ==
+			// null)?String.format("<%sResponse></%sResponse>",
 			// method, method):returnObject.toString());
-			Response response = new Response(Status.OK, "text/xml", (returnObject == null) ? String.format("<%sResponse></%sResponse>", method, method) : xml);
+			Response response = new Response(Status.OK, "text/xml", (responseObject == null) ? String.format("<%sResponse></%sResponse>", method, method) : xml);
 			return response;
+
+		} catch (Exception e) {
+			Logging.logException(e);
 		}
 		return null;
 	}
