@@ -8,7 +8,7 @@ public class LoggingFactory {
 	public static Logging getInstance()
 	{
 		try {
-			Logging logging = (Logging)Service.getNewInstance(Platform.getVMName().equals(Platform.DALVIK)?"org.myrobotlab.logging.LoggingLog4J":"org.myrobotlab.logging.LoggingLog4J");
+			Logging logging = (Logging)Service.getNewInstance(Platform.getVMName().equals(Platform.VM_DALVIK)?"org.myrobotlab.logging.LoggingLog4J":"org.myrobotlab.logging.LoggingLog4J");
 			return logging;
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

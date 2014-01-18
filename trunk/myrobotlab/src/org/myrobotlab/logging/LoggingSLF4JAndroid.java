@@ -63,5 +63,12 @@ public class LoggingSLF4JAndroid extends Logging {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public void setLevel(String clazz, String level) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
