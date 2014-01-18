@@ -25,11 +25,11 @@
 
 package org.myrobotlab.service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -149,9 +149,13 @@ public class Clock extends Service {
 			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
 			//RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
 			RemoteAdapter remote = new RemoteAdapter(String.format("remote%d", i));
-			remote.startListening(7776, 7776);
+			remote.setUDPPort(7776);
+			remote.setTCPPort(7776);
+			remote.startService();
+			// remote.startListening(7776, 7776); FIXME - problem starting server threads which rely on isRunning() - which is false - cuz you have not started it yet
 			Clock clock = (Clock)Runtime.createAndStart(String.format("clock%d", i), "Clock");
 			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+		//	clock.connect("blah", "blahpwd", "127.0.0.1", 6767);
 			/*
 			 *   FIXME FIXME FIXME - remoteRegister();
 			msg = xmpp1.createMessage("", "register", clock);
@@ -160,7 +164,8 @@ public class Clock extends Service {
 			*/
 			
 			Message msg = remote.createMessage("", "register", clock);
-//			remote.registerRemote("tcp://localhost:6767", msg);
+			URI uri = new URI("tcp://localhost:6767");
+			remote.sendRemote(uri, msg);
 			
 			// FIXME - sholdn't this be sendRemote ??? or at least 
 			// in an interface

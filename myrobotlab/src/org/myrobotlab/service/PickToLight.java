@@ -1,18 +1,20 @@
 package org.myrobotlab.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.i2c.AdafruitLEDBackpack;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.pickToLight.ControllerType;
 import org.myrobotlab.pickToLight.KitRequest;
+import org.myrobotlab.pickToLight.ModuleControl;
+import org.myrobotlab.pickToLight.ObjectFactory;
 import org.slf4j.Logger;
 
 import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
@@ -23,14 +25,12 @@ import com.pi4j.io.gpio.GpioPin;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-
-// cycle through single display
-// cycle through (list) of displays
-// cycle through all displays
-// cycle time
+import com.pi4j.io.i2c.I2CBus;
+import com.pi4j.io.i2c.I2CDevice;
+import com.pi4j.io.i2c.I2CFactory;
 
 // bin calls
-// boxList calls
+// moduleList calls
 // setAllBoxesLEDs (on off)
 // setBoxesOn(String list)
 // setBoxesOff(String list)
@@ -38,6 +38,13 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 // displayString(boxlist, str)
 // ZOD
 
+/**
+ * @author GroG
+ * 
+ *         C:\mrl\myrobotlab>xjc -d src -p org.myrobotlab.pickToLight
+ *         PickToLightTypes.xsd
+ * 
+ */
 public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	private static final long serialVersionUID = 1L;
@@ -46,13 +53,22 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	transient public WebGUI webgui;
 
 	public final static Logger log = LoggerFactory.getLogger(PickToLight.class);
-	// item# SensorBox
-	HashMap<Integer, SensorBox> sensorBoxes = new HashMap<Integer, SensorBox>();
+
+	ObjectFactory of = new ObjectFactory();
+
+	// item# Module
+	static HashMap<String, ModuleControl> modules = new HashMap<String, ModuleControl>();
 	public Worker worker;
 
-	String messageGoodPick = "YES";
+	String messageGoodPick = "GOOD";
 
-	int rasPiBus = 1;
+	HashMap<String, Worker> workers = new HashMap<String, Worker>();
+
+	// FIXME - you will need to decouple initialization until after raspibus is
+	// set
+	private int rasPiBus = 0;
+
+	private String updateURL;
 
 	public static Peers getPeers(String name) {
 		Peers peers = new Peers(name);
@@ -61,112 +77,50 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		return peers;
 	}
 
-	public class SensorBox {
-		Integer bus;
-		Integer address;
+	/**
+	 * Worker is a PickToLight level thread which operates over (potentially)
+	 * all of the service modules. Displays have their own
+	 * 
+	 */
+	public static class Worker extends Thread {
 
-		public AdafruitLEDBackpack display;
-
-		public String display(String str) {
-			return display.display(str);
-		}
-
-		public SensorBox(int bus, int address) {
-			this.bus = bus;
-			this.address = address;
-			try {
-
-				display = new AdafruitLEDBackpack(bus, address);
-			} catch (Exception e) {
-				Logging.logException(e);
-			}
-		}
-		
-		
-
-		// FIXME - add PCFBLAHBLAH
-	}
-	
-	public void cycleMsgOnDisplay(Integer address, String msg, Integer delay)
-	{
-		if (sensorBoxes.containsKey(address)) {
-			SensorBox sb = sensorBoxes.get(address);
-			sb.display.cycleOn(msg, delay);
-		} else {
-			log.error(String.format("cycleMsgOnDisplay could not find sensor box %d"));
-		}
-		
-	}
-	
-	public void cycleMsgOff(Integer address)
-	{
-		if (sensorBoxes.containsKey(address)) {
-			SensorBox sb = sensorBoxes.get(address);
-			sb.display.cycleOff();
-		} else {
-			log.error(String.format("cycleMsgOff could not find sensor box %d"));
-		}
-	}
-	
-
-	public String kitToLight(KitRequest kit) {
-		return "";
-	}
-
-	// single monolithic worker thread
-	// think of it like the SwingUtilities thread 
-	// easy 1 thread maintenance
-	public class Worker extends Thread {
-		
-		ConcurrentHashMap<String, Object[]> workQueue = new ConcurrentHashMap<String, Object[]>();
-		
 		public boolean isWorking = false;
 
-		public int idleSleep = 100;
-		public int delay;
-		public String msg = "helo";
+		public static final String TASK = "TASK";
 
-		public Worker(int delay, String msg) {
-			this.msg = msg;
-			this.delay = delay;
+		public HashMap<String, Object> data = new HashMap<String, Object>();
+
+		public Worker(String task) {
+			super(task);
+			data.put(TASK, task);
 		}
 
 		public void run() {
 			try {
-				isWorking = true;
-				long workTime = 0;
-				
-				while (isWorking) {
-					if (workQueue.size() == 0){
-						sleep(idleSleep);
-					} else {
-	
-						workTime = System.currentTimeMillis();
-						for (Map.Entry<String, Object[]> o : workQueue.entrySet()) {
-							String task = o.getKey();
-							
-							switch (task){
-							case "cycleDisplay":
-								break;
-								
-							}
-							// o.getValue().display(msg);
-							//int pickCount = (int) (1 + Math.random() * 26);
-							//o.getValue().display(pickCount + "");
-							//sleep(delay);
-							// o.getValue().display("    ");
-							// sleep(delay);
-						}
 
-					}
-					TreeMap<Integer, SensorBox> sorted = new TreeMap<Integer, SensorBox>(sensorBoxes);
-					for (Map.Entry<Integer, SensorBox> o : sorted.entrySet()) {
-						// o.getValue().display(msg);
-						int pickCount = (int) (1 + Math.random() * 26);
-						o.getValue().display(pickCount + "");
-						sleep(delay);
-						// o.getValue().display("    ");
-						// sleep(delay);
+				if (!data.containsKey(TASK)) {
+					log.error("task is required");
+					return;
+				}
+				String task = (String) data.get(TASK);
+				isWorking = true;
+
+				while (isWorking) {
+
+					switch (task) {
+
+					case "cycleAll":
+
+						TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+						for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+							o.getValue().cycle((String) data.get("msg"));
+						}
+						isWorking = false;
+						break;
+
+					default:
+						log.error(String.format("don't know how to handle task %s", task));
+						break;
 					}
 
 				}
@@ -179,21 +133,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public PickToLight(String n) {
 		super(n);
 		webgui = (WebGUI) createPeer("webgui");
+		webgui.autoStartBrowser(false);
 		raspi = (RasPi) createPeer("raspi");
-	}
-
-	public void cycle(int delay, String msg) {
-		cycleStop();
-		worker = new Worker(delay, msg);
-		worker.start();
-	}
-
-	public void cycleStop() {
-		if (worker != null) {
-			worker.isWorking = false;
-			worker.interrupt();
-			worker = null;
-		}
 	}
 
 	@Override
@@ -205,7 +146,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		return true;
 	}
 
-	public void createSensorBoxes() {
+	public void createModules() {
 
 		Integer[] devices = scanI2CDevices();
 
@@ -215,79 +156,92 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			int deviceAddress = devices[i];
 			// FIXME - kludge to work with our prototype
 			// addresses of displays are above 100
-			if (deviceAddress > 100) {
-				createSensorBox(1, deviceAddress);
-			}
+			/*
+			 * if (deviceAddress > 100) { createModule(1, deviceAddress); }
+			 */
+
+			createModule(1, deviceAddress);
 
 		}
 
 		// FIXME - kludge gor proto-type hardware
-		createPCF8574(rasPiBus, 0x27);
+		/*
+		 * if (Platform.isArm()) { createPCF8574(rasPiBus, 0x27); }
+		 */
 	}
 
-	public boolean createSensorBox(int bus, int address) {
-		log.info(String.format("adding sensor box %d %d", bus, address));
-		SensorBox box = new SensorBox(bus, address);
-		sensorBoxes.put(address, box);
+	public boolean createModule(int bus, int address) {
+		String key = makeKey(address);
+		log.info(String.format("create module key %s (bus %d address %d)", key, bus, address));
+		ModuleControl box = new ModuleControl(bus, address);
+		modules.put(key, box);
 		return true;
 	}
-	
+
 	public String display(Integer address, String msg) {
-		if (sensorBoxes.containsKey(address)) {
-			sensorBoxes.get(address).display(msg);
+		String key = makeKey(address);
+		if (modules.containsKey(key)) {
+			modules.get(key).display(msg);
 			return msg;
 		} else {
-			String err = String.format("display could not find sensorbox %d", address);
+			String err = String.format("display could not find module %d", key);
 			log.error(err);
 			return err;
 		}
 	}
 
+	public ArrayList<String> displayAddresses() {
+		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+		ArrayList<String> ret = new ArrayList<String>();
+
+		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+			ModuleControl mc = o.getValue();
+			ret.add(o.getKey());
+			mc.display(o.getKey());
+		}
+		return ret;
+	}
+
 	// FIXME normalize splitting code
-	public String display(String boxList, String value) {
-		if (boxList == null) {
+	public String display(String moduleList, String value) {
+		if (moduleList == null) {
 			log.error("box list is null");
 			return "box list is null";
 		}
-		String[] list = boxList.split(" ");
+		String[] list = moduleList.split(" ");
 		for (int i = 0; i < list.length; ++i) {
 			try {
 				String strKey = list[i].trim();
-				Integer key = Integer.parseInt(strKey);
-				if (sensorBoxes.containsKey(key)) {
-					sensorBoxes.get(key).display(value);
-				} else {
-					log.error(String.format("display could not find sensorbox %s", strKey));
+				if (strKey.length() > 0) {
+
+					String key = makeKey(Integer.parseInt(strKey));
+					if (modules.containsKey(key)) {
+						modules.get(key).display(value);
+					} else {
+						log.error(String.format("display could not find module %s", strKey));
+					}
 				}
 			} catch (Exception e) {
 				Logging.logException(e);
 			}
 		}
-
-		return boxList;
-
+		return moduleList;
 	}
 
 	/**
-	 * DEPRECATED 
-	 * @return sorted box list in a string with space delimited
+	 * single location for key generation - in case other parts are add in a
+	 * composite key
+	 * 
+	 * @param address
+	 * @return
 	 */
-	public String getBoxList() {
-		StringBuffer sb = new StringBuffer();
-		Map<Integer, SensorBox> treeMap = new TreeMap<Integer, SensorBox>(sensorBoxes);
-
-		boolean append = false;
-
-		for (Map.Entry<Integer, SensorBox> o : treeMap.entrySet()) {
-			sb.append((append ? " " : ""));
-			sb.append(o.getKey());
-			append = true;
-		}
-
-		return sb.toString();
+	public String makeKey(Integer address) {
+		return String.format("%d.%d", rasPiBus, address);
 	}
 
-	// LOWER LEVEL PIN CALLS
+	public String makeKey(Integer bus, Integer address) {
+		return String.format("%d.%d", bus, address);
+	}
 
 	@Override
 	public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
@@ -297,13 +251,13 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		GpioPin pin = event.getPin();
 
 		if (pin.getName().equals("GPIO 0")) {
-			sensorBoxes.get("01").display.blinkOff("ok");
+			modules.get("01").blinkOff("ok");
 		} else if (pin.getName().equals("GPIO 1")) {
-			sensorBoxes.get("02").display.blinkOff("ok");
+			modules.get("02").blinkOff("ok");
 		} else if (pin.getName().equals("GPIO 2")) {
-			sensorBoxes.get("03").display.blinkOff("ok");
+			modules.get("03").blinkOff("ok");
 		} else if (pin.getName().equals("GPIO 3")) {
-			sensorBoxes.get("04").display.blinkOff("ok");
+			modules.get("04").blinkOff("ok");
 		}
 		// if (pin.getName().equals(anObject))
 	}
@@ -331,38 +285,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_06), gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_07) };
 
 			// create and register gpio pin listener
-			gpio.addListener(this, myInputs);
-			/*
-			 * gpio.addListener(new GpioPinListenerDigital() {
-			 * 
-			 * @Override public void
-			 * handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent
-			 * event) { // display pin state on console
-			 * System.out.println(" --> GPIO PIN STATE CHANGE: " +
-			 * event.getPin() + " = " + event.getState()); } }, myInputs);
-			 */
-
-			/*
-			 * // provision gpio output pins and make sure they are all LOW at
-			 * startup GpioPinDigitalOutput myOutputs[] = {
-			 * gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_04,
-			 * PinState.LOW), gpio.provisionDigitalOutputPin(gpioProvider,
-			 * PCF8574Pin.GPIO_05, PinState.LOW),
-			 * gpio.provisionDigitalOutputPin(gpioProvider, PCF8574Pin.GPIO_06,
-			 * PinState.LOW) };
-			 * 
-			 * // on program shutdown, set the pins back to their default state:
-			 * HIGH //gpio.setShutdownOptions(true, PinState.HIGH, myOutputs);
-			 * 
-			 * // keep program running for 20 seconds for (int count = 0; count
-			 * < 10; count++) { gpio.setState(true, myOutputs);
-			 * Thread.sleep(1000); gpio.setState(false, myOutputs);
-			 * Thread.sleep(1000); }
-			 * 
-			 * // stop all GPIO activity/threads by shutting down the GPIO
-			 * controller // (this method will forcefully shutdown all GPIO
-			 * monitoring threads and scheduled tasks) // gpio.shutdown();
-			 */
 			log.info(String.format("PCF8574 - end - bus %d address %d", bus, address));
 
 			return gpioProvider;
@@ -379,48 +301,188 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		return raspi.scanI2CDevices(rasPiBus);
 	}
 
-	public void displayI2CAddresses() {
-		TreeMap<Integer, SensorBox> sorted = new TreeMap<Integer, SensorBox>(sensorBoxes);
-
-		for (Map.Entry<Integer, SensorBox> o : sorted.entrySet()) {
-			// o.getValue().display(msg);
-			o.getValue().display(o.getKey() + "");
-		}
-	}
-
 	public void startService() {
 		super.startService();
 		raspi.startService();
 		webgui.startService();
 
-		createSensorBoxes();
+		createModules();
 	}
+
+	public ControllerType getController() {
+
+		ControllerType controller = of.createControllerType();
+
+		controller.setVersion("svnVersion");
+		controller.setName(getName());
+		try {
+			ArrayList<String> addresses = Runtime.getLocalAddresses();
+			if (addresses.size() != 1) {
+				log.error(String.format("incorrect number of ip addresses %d", addresses.size()));
+			} else {
+				controller.setIpaddress(addresses.get(0));
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+		ArrayList<String> ret = new ArrayList<String>();
+
+		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+			ModuleControl mc = o.getValue();
+			controller.getModuleList().add(mc.getModule());
+			ret.add(o.getKey());
+			mc.display(o.getKey());
+		}
+
+		return controller;
+	}
+
+	// ------------ TODO - IMPLEMENT - BEGIN ----------------------
+	public String update(String url) {
+		// TODO - auto-update
+		return "TODO - auto update";
+	}
+
+	public String update() {
+		return update(updateURL);
+	}
+
+	public void drawColon(Integer bus, Integer address, boolean draw) {
+
+	}
+
+	/**
+	 * will let you change the overall brightness of the entire display. 0 is
+	 * least bright, 15 is brightest and is what is initialized by the display
+	 * when you start
+	 * 
+	 * @param address
+	 * @param level
+	 * @return
+	 */
+	public int setBrightness(Integer address, Integer level) {
+		return level;
+	}
+
+	public ModuleControl getModule(Integer address) {
+		return getModule(rasPiBus, address);
+	}
+
+	public ModuleControl getModule(Integer bus, Integer address) {
+		String key = makeKey(bus, address);
+		if (!modules.containsKey(key)) {
+			log.error(String.format("get module - could not find module with key %s", key));
+			return null;
+		}
+		return modules.get(key);
+	}
+
+	// ---- cycling message on individual module begin ----
+	public void cycle(Integer address, String msg) {
+		cycle(address, msg, 300);
+	}
+
+	public void cycle(Integer address, String msg, Integer delay) {
+		getModule(address).cycle(msg, delay);
+	}
+
+	public void cycleStop(Integer address) {
+		getModule(address).cycleStop();
+	}
+
+	public void cycleAll(String msg) {
+		cycleAll(300, msg);
+	}
+
+	public void cycleAll(int delay, String msg) {
+		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+			o.getValue().cycle(msg, delay);
+		}
+	}
+
+	public void cycleAllStop() {
+		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+			o.getValue().cycleStop();
+		}
+	}
+
+	public void startWorker(String key) {
+		if (workers.containsKey("cycleAll")) {
+			if (worker != null) {
+				worker.isWorking = false;
+				worker.interrupt();
+				worker = null;
+			}
+		}
+	}
+
+	public void stopWorker(String key) {
+		if (workers.containsKey("cycleAll")) {
+			if (worker != null) {
+				worker.isWorking = false;
+				worker.interrupt();
+				worker = null;
+			}
+		}
+	}
+
+	// ---- cycling message on individual module end ----
+
+	public String kitToLight(KitRequest kit) {
+		return "";
+	}
+
+	public void writeToDisplay (int address, byte b0, byte b1, byte b2, byte b3 ) {
+		try {
+			
+			
+/*
+		    sudo i2cset -y 0 0x10 0x80
+		    sudo i2cset -y 0 0x38 0 0x17 0xXX 0xXX 0xXX 0xXX i
+		    sudo i2cset -y 0 0x10 0x83
+*/
+			
+			// TODO abtract out Pi4J
+			I2CBus i2cbus = I2CFactory.getInstance(rasPiBus);
+			I2CDevice device = i2cbus.getDevice(address);
+			device.write(address, (byte)0x80);
+			device.write(address, new byte[]{(byte) 0x38, 0, (byte)0x17, b0, b1, b2, b3}, 0, 4);
+			device.write(address, (byte)0x83);
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
+	// ------------ TODO - IMPLEMENT - END ----------------------
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
-		String msg = "happy holidays merry christmas happy new year";
-		
-		log.info(String.format("[%s]",msg.substring(5, 9)));
+		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 
-		PickToLight pickToLight = new PickToLight("pickToLight");
+		PickToLight pickToLight = new PickToLight("pick.1");
 		pickToLight.startService();
-		String binList = pickToLight.getBoxList();
-		pickToLight.display(binList, "helo");
 
-		pickToLight.display("01", "1234");
-		pickToLight.display(" 01 02 03 ", "1234  1");
-		pickToLight.display("01 03", " 1234");
-		pickToLight.display(binList, "1234 ");
+		// String binList = pickToLight.getBoxList();
+		// pickToLight.display(binList, "helo");
+		/*
+		 * pickToLight.display("01", "1234"); pickToLight.display(" 01 02 03 ",
+		 * "1234  1"); pickToLight.display("01 03", " 1234"); //
+		 * pickToLight.display(binList, "1234 ");
+		 */
 
-		Runtime.createAndStart("web", "WebGUI");
+		// Runtime.createAndStart("web", "WebGUI");
 
 		// Runtime.createAndStart("webgui", "WebGUI");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 * gui.display();
 		 */
+
 	}
 
 }

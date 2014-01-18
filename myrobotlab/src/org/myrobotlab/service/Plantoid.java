@@ -258,9 +258,9 @@ public class Plantoid extends Service {
 			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
 			*/
 			// FIXME - add all roster to listeners method
-			xmpp.addRelay("incubator incubator");
-			xmpp.addRelay("David Ultis");
-			xmpp.addRelay("Greg Perry");
+			xmpp.addAuditor("incubator incubator");
+			xmpp.addAuditor("David Ultis");
+			xmpp.addAuditor("Greg Perry");
 			//xmpp.addRelay("info@reuseum.com");
 			//xmpp.addRelay("grasshopperrocket@gmail.com");			
 
