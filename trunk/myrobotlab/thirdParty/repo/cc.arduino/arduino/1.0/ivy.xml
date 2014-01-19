@@ -7,6 +7,6 @@
     </configurations>
     <publications>
         <artifact name="arduino.x86.32.windows" type="zip" ext="zip" conf="x86.32.windows, x86.64.windows"/>
-        <artifact name="arduino.x86.32.linux" type="zip" ext="zip" conf="x86.32.linux, x86.64.linux, arm.32.linux"/>
+        <artifact name="arduino.x86.32.linux" type="zip" ext="zip" conf="x86.32.linux, x86.64.linux, armv6.hfp.32.linux"/>
         </publications>
 </ivy-module>
