@@ -9,8 +9,8 @@
         <artifact name="pi4j-core" type="jar"/>
         <artifact name="pi4j-gpio-extension" type="jar"/>
         <!-- 
-        <artifact name="pi4j-core" type="jar" conf="arm.32.linux"/>
-        <artifact name="pi4j-gpio-extension" type="jar" conf="arm.32.linux"/>
+        <artifact name="pi4j-core" type="jar" conf="armv6.hfp.32.linux"/>
+        <artifact name="pi4j-gpio-extension" type="jar" conf="armv6.hfp.32.linux"/>
         
          -->
         </publications>
