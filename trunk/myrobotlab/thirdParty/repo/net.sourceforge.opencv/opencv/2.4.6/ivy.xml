@@ -11,9 +11,9 @@
         <artifact name="lbpcascades" type="zip" ext="zip" conf="*"/>
         <artifact name="hogcascades" type="zip" ext="zip" conf="*"/>
 
-        <artifact name="opencv-2.4.6.1-linux-arm" type="jar" conf="arm.32.linux"/>     
+        <artifact name="opencv-2.4.6.1-linux-arm" type="jar" conf="armv6.hfp.32.linux"/>     
 
-        <!--  deprecated<artifact name="opencv-2.4.6.1-android-arm" type="jar" conf="armv6.32.linux"/>    -->  
+        <!--  deprecated<artifact name="opencv-2.4.6.1-android-arm" type="jar" conf="armv6.hfp.32.linux"/>    -->  
 
         <artifact name="opencv-2.4.6.1-linux-x86" type="jar" conf="x86.32.linux"/>       
         <artifact name="opencv-2.4.6.1-linux-x86_64" type="jar" conf="x86.64.linux"/>      

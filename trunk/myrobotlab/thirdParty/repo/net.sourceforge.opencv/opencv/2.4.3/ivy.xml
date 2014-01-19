@@ -11,23 +11,23 @@
         <artifact name="lbpcascades" type="zip" ext="zip" conf="*"/>
         <artifact name="hogcascades" type="zip" ext="zip" conf="*"/>
 
-        <artifact name="arm.32.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_contrib" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_core" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_features2d" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_flann" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_gpu" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_highgui" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_imgproc" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_legacy" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_ml" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_nonfree" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_objdetect" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_photo" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_stitching" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_ts" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_video" type="native" ext="so.2.4" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libopencv_videostab" type="native" ext="so.2.4" conf="arm.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_contrib" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_core" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_features2d" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_flann" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_gpu" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_highgui" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_imgproc" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_legacy" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_ml" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_nonfree" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_objdetect" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_photo" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_stitching" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_ts" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_video" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libopencv_videostab" type="native" ext="so.2.4" conf="armv6.hfp.32.linux"/>
         
         <artifact name="x86.32.linux/libopencv_calib3d" type="native" ext="so.2.4" conf="x86.32.linux"/>
         <artifact name="x86.32.linux/libopencv_contrib" type="native" ext="so.2.4" conf="x86.32.linux"/>
