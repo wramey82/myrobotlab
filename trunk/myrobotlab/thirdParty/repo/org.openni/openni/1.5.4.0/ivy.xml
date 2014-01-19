@@ -7,12 +7,12 @@
     </configurations>
     <publications>
     
-        <artifact name="arm.32.linux/libnimCodecs" type="native" ext="so" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libnimMockNodes" type="native" ext="so" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libnimRecorder" type="native" ext="so" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libOpenNI.jni" type="native" ext="so" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/libOpenNI" type="native" ext="so" conf="arm.32.linux"/>
-        <artifact name="arm.32.linux/org.OpenNI" type="jar" conf="arm.32.linux"/>    
+        <artifact name="armv6.hfp.32.linux/libnimCodecs" type="native" ext="so" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libnimMockNodes" type="native" ext="so" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libnimRecorder" type="native" ext="so" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libOpenNI.jni" type="native" ext="so" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/libOpenNI" type="native" ext="so" conf="armv6.hfp.32.linux"/>
+        <artifact name="armv6.hfp.32.linux/org.OpenNI" type="jar" conf="armv6.hfp.32.linux"/>    
 
         <artifact name="x86.32.mac/libnimCodecs" type="native" ext="dylib" conf="x86.32.mac"/>
         <artifact name="x86.32.mac/libnimMockNodes" type="native" ext="dylib" conf="x86.32.mac"/>
