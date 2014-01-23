@@ -47,6 +47,8 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.CommData;
+import org.myrobotlab.net.CommObjectStreamOverTCP;
+import org.myrobotlab.net.TCPThread2;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
@@ -65,7 +67,7 @@ import org.slf4j.Logger;
 public class RemoteAdapter extends Service implements Communicator {
 
 	private static final long serialVersionUID = 1L;
-	public final static Logger log = LoggerFactory.getLogger(RemoteAdapter.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(RemoteAdapter.class);
 
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
@@ -74,9 +76,17 @@ public class RemoteAdapter extends Service implements Communicator {
 
 	private Integer udpPort = 6767;
 	private Integer tcpPort = 6767;
+	
+	// FIXME static map of clients is within this object - 
+	// simplify - remove all data maps and put in this service 
+	//CommObjectStreamOverTCP tcp;
 
+	transient HashMap<URI, TCPThread2> clientList = new HashMap<URI, TCPThread2>();
+	
 	public RemoteAdapter(String n) {
 		super(n);
+		
+		//tcp = new CommObjectStreamOverTCP(this);
 	}
 
 	@Override
@@ -120,15 +130,14 @@ public class RemoteAdapter extends Service implements Communicator {
 				myService.info(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
 
 				while (isRunning()) {
-					Socket clientSocket = serverSocket.accept();
-					URI uri = new URI(String.format("mrl:%stcp://%s:%d", getName(), clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort()));
-					// myService.info(String.format("new connection %s",
-					// url.toString()));
-					Communicator comm = (Communicator) cm.getComm(uri);
-					if (comm != null) {
-						comm.addClient(uri, clientSocket);
-					}
-					// broadcastState(); don't broadcast unless requested to
+					// FIXME - on contact register the "environment" regardless if a service registers !!!
+					Socket clientSocket = serverSocket.accept(); // FIXME ENCODER SHOULD BE DOING THIS
+					String clientKey = String.format("tcp://%s:%d",clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
+					//String newHostEntryKey = String.format("mrl://%s/%s", myService.getName(), clientKey);
+					//info(String.format("connection from %s", newHostEntryKey));
+					URI uri = new URI(clientKey);
+					
+					clientList.put(uri, new TCPThread2(myService, uri, clientSocket));
 				}
 
 				serverSocket.close();
@@ -296,32 +305,45 @@ public class RemoteAdapter extends Service implements Communicator {
 		}
 		return ret;
 	}
+	
+	
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.ERROR);
+	//public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 
-		try {
-
-			int i = 2;
-			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
-			RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
-			Runtime.createAndStart(String.format("clock%d", i), "Clock");
-			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-
-			// FIXME - sholdn't this be sendRemote ??? or at least
-			// in an interface
-			// remote.sendRemote(uri, msg);
-			// xmpp1.sendMessage("xmpp 2", "robot02 02");
-		} catch (Exception e) {
-			Logging.logException(e);
-		}
-	}
-
+	
+	// FIXME - make URI keyed map - check for map - if not there
+	// make new TCP/UDPThread
+	// the datastore - is a uri client --to--> data store which is used to connect & communicate
+	// to endpoints
+	// endpoint is expected to be of the following format
+	// mrl://(name)/tcp://host:port/
 	@Override
 	public void sendRemote(URI uri, Message msg) {
-		// TODO Auto-generated method stub
+		log.info(String.format("host %s", uri.getHost()));
+		log.info(String.format("pathInfo %s", uri.getPath()));
+		log.info(String.format("getRawPath %s", uri.getRawPath()));
+		log.info(String.format("getQuery %s", uri.getQuery()));
 		log.info(String.format("sendRemote %s %s.%s", uri, msg.name, msg.method));
+		TCPThread2 t = null;
+		if (clientList.containsKey(uri))
+		{
+			t = clientList.get(uri);
+		} else {
+			try {
+				t = new TCPThread2(this, uri, null);
+				//clientList.put(new URI(String.format("mrl://%s/%s", getName(), uri.toString())), t);
+				clientList.put(uri, t);
+			} catch(Exception e){
+				Logging.logException(e);
+			}
+		}
+		
+		if (t == null)
+		{
+			log.info("here");
+		}
+		
+		t.send(msg);
 	}
 
 	// FIXME - remote
@@ -345,6 +367,28 @@ public class RemoteAdapter extends Service implements Communicator {
 
 	public void setTCPPort(Integer tcpPort) {
 		this.tcpPort = tcpPort;
+	}
+
+
+	public static void main(String[] args) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.ERROR);
+
+		try {
+
+			int i = 2;
+			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
+			RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
+			Runtime.createAndStart(String.format("clock%d", i), "Clock");
+			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+
+			// FIXME - sholdn't this be sendRemote ??? or at least
+			// in an interface
+			// remote.sendRemote(uri, msg);
+			// xmpp1.sendMessage("xmpp 2", "robot02 02");
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 	}
 
 }

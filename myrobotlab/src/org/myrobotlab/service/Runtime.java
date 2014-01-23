@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -87,22 +88,11 @@ public class Runtime extends Service {
 	// ---- Runtime members begin -----------------
 	// TODO make this singleton - so Runtime.update works
 	public final ServiceInfo serviceInfo = new ServiceInfo();
-
-	/*
-	 * @Element public String proxyHost;
-	 * 
-	 * @Element public String proxyPort;
-	 * 
-	 * @Element public String proxyUserName;
-	 * 
-	 * @Element public String proxyPassword;
-	 */
-
 	static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
 	public final static Logger log = LoggerFactory.getLogger(Runtime.class);
-
+	
 	/**
 	 * Object used to synchronize initializing this singleton.
 	 */
@@ -117,6 +107,8 @@ public class Runtime extends Service {
 	// private static boolean isAutoUpdateEnabled = false;
 	// default eveery 5 minutes
 	private static int autoUpdateCheckIntervalSeconds = 300;
+
+	private static String[] startingArgs;
 
 	public static void startAutoUpdate(int seconds) {
 		Runtime runtime = Runtime.getInstance();
@@ -201,6 +193,55 @@ public class Runtime extends Service {
 		synchronized (instanceLockObject) {
 			localInstance = this;
 		}
+		
+		// TODO - spin through all to search for useful info
+		
+		String libararyPath = System.getProperty("java.library.path");
+		String userDir = System.getProperty("user.dir");
+		String userHome = System.getProperty("user.home");
+
+		String vmName = System.getProperty("java.vm.name");
+		// TODO this should be a single log statement
+		// http://developer.android.com/reference/java/lang/System.html
+		log.info("---------------normalized-------------------");
+		log.info(String.format("ivy [runtime,%s.%d.%s]", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
+		log.info(String.format("os.name [%s] getOS [%s]", System.getProperty("os.name"), Platform.getOS()));
+		log.info(String.format("os.arch [%s] getArch [%s]", System.getProperty("os.arch"), Platform.getArch()));
+		log.info(String.format("getBitness [%d]", Platform.getBitness()));
+		log.info(String.format("java.vm.name [%s] getVMName [%s]", vmName, Platform.getVMName()));
+		log.info(String.format("version [%s]", FileIO.getResourceFile("version.txt")));
+		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
+		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
+		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
+
+		
+		log.info("---------------non-normalized---------------");
+		log.info(String.format("java.vm.name [%s]", vmName));
+		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
+		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.vm.vendor")));
+		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
+		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.runtime.version")));
+
+		//System.getProperty("pi4j.armhf")
+		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
+		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
+
+		log.info(String.format("java.home [%s]", System.getProperty("java.home")));
+		log.info(String.format("java.class.path [%s]", System.getProperty("java.class.path")));
+		log.info(String.format("java.library.path [%s]", libararyPath));
+		log.info(String.format("user.dir [%s]", userDir));
+		log.info(String.format("user.home [%s]", userHome));
+		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576));
+		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
+
+		// load root level configuration
+		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
+		// deprecate
+		// rootcfg.load(host + ".properties");
+		//hostInitialized = true;
+
+		// create local configuration directory
+		new File(cfgDir).mkdir();
 
 		hideMethods.add("main");
 		hideMethods.add("loadDefaultConfiguration");
@@ -210,7 +251,7 @@ public class Runtime extends Service {
 
 		// load the current set of possible service
 		serviceInfo.getLocalServiceData();
-
+		
 		// starting this
 		startService();
 	}
@@ -595,7 +636,7 @@ public class Runtime extends Service {
 	 * url.
 	 * 
 	 * @param s
-	 * @param url
+	 * @param uri
 	 * @return
 	 */
 	private static boolean areEqual(ServiceEnvironment s) {
@@ -732,8 +773,6 @@ public class Runtime extends Service {
 	 * 
 	 * @return
 	 * 
-	 *         TODO DEPRECATE - SECURITY SERVICE SHOULD FILTER - is already in
-	 *         XMPP
 	 */
 	public static ServiceEnvironment getLocalServicesForExport() {
 		if (!hosts.containsKey(null)) {
@@ -752,7 +791,7 @@ public class Runtime extends Service {
 		while (it.hasNext()) {
 			name = it.next();
 			sw = local.serviceDirectory.get(name);
-			if (security != null && security.allowExport(name)) {
+			if (security == null || security.allowExport(name)) {
 				// log.info(String.format("exporting service: %s of type %s",
 				// name, sw.getServiceType()));
 				export.serviceDirectory.put(name, sw); // FIXME !! make note
@@ -761,7 +800,7 @@ public class Runtime extends Service {
 														// they have to reset
 														// this !!
 			} else {
-				log.info(String.format("%s will not be exported", name));
+				log.info(String.format("security prevents export of %s", name));
 				continue;
 			}
 		}
@@ -1316,6 +1355,28 @@ public class Runtime extends Service {
 		Runtime.release(name);
 	}
 
+	static String createRestartScript(String[] args){
+		//String
+		return null; 
+	}
+
+	/**
+	 * hack from
+	 * http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
+	 * @param newPath
+	 */
+	static void setJavaLibraryPath(String newPath) {
+		try {
+			System.setProperty("java.library.path", "/path/to/libs");
+
+			Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+			fieldSysPath.setAccessible(true);
+			fieldSysPath.set(null, null);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
 	/**
 	 * Main starting method of MyRobotLab Parses command line options
 	 * 
@@ -1324,6 +1385,8 @@ public class Runtime extends Service {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		startingArgs = args;
 
 		CMDLine cmdline = new CMDLine();
 		cmdline.splitLine(args);
@@ -1546,13 +1609,13 @@ public class Runtime extends Service {
 			log.debug("ABOUT TO LOAD CLASS");
 			// TODO reduce the amount of log calls and put them in one log
 			// statement
-			log.info("loader for this class " + Runtime.class.getClassLoader().getClass().getCanonicalName());
-			log.info("parent " + Runtime.class.getClassLoader().getParent().getClass().getCanonicalName());
-			log.info("system class loader " + ClassLoader.getSystemClassLoader());
-			log.info("parent should be null" + ClassLoader.getSystemClassLoader().getParent().getClass().getCanonicalName());
-			log.info("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
-			log.info("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
-			log.info("refreshing classloader");
+			log.debug("loader for this class " + Runtime.class.getClassLoader().getClass().getCanonicalName());
+			log.debug("parent " + Runtime.class.getClassLoader().getParent().getClass().getCanonicalName());
+			log.debug("system class loader " + ClassLoader.getSystemClassLoader());
+			log.debug("parent should be null" + ClassLoader.getSystemClassLoader().getParent().getClass().getCanonicalName());
+			log.debug("thread context " + Thread.currentThread().getContextClassLoader().getClass().getCanonicalName());
+			log.debug("thread context parent " + Thread.currentThread().getContextClassLoader().getParent().getClass().getCanonicalName());
+			log.debug("refreshing classloader");
 
 			Runtime runtime = Runtime.getInstance();
 			if (!runtime.isInstalled(fullTypeName)) {
@@ -1937,7 +2000,7 @@ public class Runtime extends Service {
 			processBuilder.directory(new File(System.getProperty("user.dir")));
 			processBuilder.redirectErrorStream(true);
 			Process process = processBuilder.start();
-			
+
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -1954,7 +2017,6 @@ public class Runtime extends Service {
 		process.waitFor();
 		System.out.println("Fin");
 	}
-
 
 	/**
 	 * unique id's are need for sendBlocking - to uniquely identify the message
@@ -1993,11 +2055,12 @@ public class Runtime extends Service {
 		return list;
 	}
 
-	// --------  network begin ------------------------
-	
+	// -------- network begin ------------------------
+
 	/**
-	 * although "fragile" since it relies on a external source - its useful to find
-	 * the external ip address of NAT'd systems
+	 * although "fragile" since it relies on a external source - its useful to
+	 * find the external ip address of NAT'd systems
+	 * 
 	 * @return external or routers ip
 	 * @throws Exception
 	 */
@@ -2018,9 +2081,10 @@ public class Runtime extends Service {
 			}
 		}
 	}
-	
+
 	/**
 	 * gets all non-loopback, active, non-virtual ip addresses
+	 * 
 	 * @return list of local IP addresses
 	 * @throws SocketException
 	 */
@@ -2048,12 +2112,12 @@ public class Runtime extends Service {
 
 		return ret;
 	}
-	// --------  network end ------------------------
-	
+
+	// -------- network end ------------------------
+
 	/**
-	 * Runtime's setLogLevel will set the root log level
-	 * if its called from a service - it will only set that
-	 * Service type's log level
+	 * Runtime's setLogLevel will set the root log level if its called from a
+	 * service - it will only set that Service type's log level
 	 * 
 	 */
 	public String setLogLevel(String level) {

@@ -34,6 +34,9 @@
  *  Communicators
  *  
  *  A dead heartbeat would mean removal of all references of the dead system from the running system
+ *  
+ *  FIXME FIXME FIXME !!!!
+ *  remove this class - RemoteAdapter should have all logic
  * 
  * */
 
@@ -49,8 +52,10 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.ServiceEnvironment;
@@ -149,10 +154,44 @@ public class CommObjectStreamOverTCP implements Communicator, Serializable {
 						if (msg.method.equals("register")) {
 							try {
 								ServiceInterface sw = (ServiceInterface) msg.data[0];
-								if (sw == null) {
-									sw.setHost(new URI(String.format("tcp://%s:%s", socket.getInetAddress().getHostAddress(), socket.getPort())));
+							
+								// IMPORTANT - (should be in Encoder) - create the key for foreign service environment
+								String mrlURI = String.format("mrl://%s/tcp://%s:%d", myService.getName(), socket.getInetAddress().getHostAddress(), socket.getPort());
+								URI uri = new URI(mrlURI);
+								
+								// check if the URI is already defined - if not - we will
+								// send back the services which we want to export - Security will filter appropriately 
+								ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
+								if (foreignProcess == null){
+									// not defined we will send export
+									// TODO - Security filters - default export (include exclude) - mapset of name
+									ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
+									
+									Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
+									String name;
+									ServiceInterface si;
+									while (it.hasNext()) {
+										name = it.next();
+										si = localProcess.serviceDirectory.get(name);
+										
+										Message sendService = myService.createMessage("", "register", si);
+										sendRemote(uri, sendService);
+									}
+									
 								}
-								Runtime.getInstance().register(sw);
+								
+								// HMMM a vote for String vs URI here - since we need to
+								// catch syntax !!!
+								sw.setHost(uri);
+
+								// if security ... msg within msg
+								// getOutbox().add(createMessage(Runtime.getInstance().getName(),
+								// "register", inboundMsg));
+								Runtime.register(sw, uri);// <-- not an INVOKE !!!
+								
+								
+								
+								
 							} catch (Exception e) {
 								Logging.logException(e);
 							}
@@ -292,7 +331,7 @@ public class CommObjectStreamOverTCP implements Communicator, Serializable {
 		}
 	}
 
-	@Override
+	// TODO - Communicator - shutdown communicator
 	public void stopService() {
 		// TODO Auto-generated method stub
 		for (Map.Entry<URI, TCPThread> o : clientList.entrySet()) {

@@ -33,13 +33,29 @@ import org.myrobotlab.net.CommData;
 
 public interface Communicator {
 
+	
+	/**
+	 * will send a message to the mrl key'ed uri
+	 * the expectation is the uri is directly from the hosts registry in runtime
+	 * therefore it has the following format
+	 * 
+	 * mrl://[hostname]/proto://protohost:protoport/otherkeyinfo
+	 * 
+	 * e.g. a tcp connection throughh a RemoteAdapter instance named "remote" would be
+	 * 		
+	 * 		mrl://remote/tcp://somehost:6767
+	 * 
+	 * @param uri
+	 * @param msg
+	 */
 	public void sendRemote(final URI uri, final Message msg); 
 
 	// FIXME - remove - not needed now that all Communictors are Services ?
-	// should be shutdown ???
-	public void stopService();
+	// should be shutdown - pauseCommunication - stopCommunication ?
 
 	/**
+	 * DEPRICATE
+	 * 
 	 * adds remote client data - the uri key will be used for
 	 * messages which need to be sent to the remote client
 	 * the commData is all the data necessary to communicate to that client
@@ -50,15 +66,6 @@ public interface Communicator {
 	 * @param commData
 	 */
 	public void addClient(URI uri, Object commData);
-	
-	// TODO
-	// public remoteClient(uri);
-
-	/* TODO - make these work
-	public void startHeartbeat();
-
-	public void stopHeartbeat();
-	*/
 
 	public HashMap<URI, CommData> getClients();
 	

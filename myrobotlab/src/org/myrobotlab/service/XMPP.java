@@ -312,7 +312,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		if (auditors.size() > 0) {
 			for (String auditor : auditors) {
 				RosterEntry re = getEntry(auditor);
-				sendMessage(String.format("%s %s", msg.getFrom(), msg.getBody()), re.getName());
+				sendMessage(String.format("%s %s", re.getName(), msg.getBody()), msg.getFrom());
 			}
 		}
 
@@ -417,6 +417,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 
 		if (body.startsWith(Encoder.SCHEME_BASE64)) {
+			// BASE 64 Messages
 			org.myrobotlab.framework.Message inboundMsg = Encoder.base64ToMsg(body);
 
 			log.info(String.format("********* remote inbound message from %s -to-> %s.%s *********", inboundMsg.sender, inboundMsg.name, inboundMsg.method));
@@ -442,33 +443,21 @@ public class XMPP extends Service implements Communicator, MessageListener {
 					
 					// check if the URI is already defined - if not - we will
 					// send back the services which we want to export - Security will filter appropriately 
-					// deprecate - getLocalServicesForExport
 					ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
 					if (foreignProcess == null){
 						// not defined we will send export
 						// TODO - Security filters - default export (include exclude) - mapset of name
-						ServiceEnvironment localProcess = Runtime.getServiceEnvironment(null);
+						ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
 						
 						Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
 						String name;
 						ServiceInterface si;
 						while (it.hasNext()) {
 							name = it.next();
-							if (security != null && !security.allowExport(name)) {
-								log.info(String.format("security prevent export of %s", name));
-								continue;
-							}
-
 							si = localProcess.serviceDirectory.get(name);
-							/* FIXME - implement in security
-							if (sw.allowExport()) {
-							}
-							*/
 							
 							org.myrobotlab.framework.Message sendService = createMessage("", "register", si);
 							String base64 = Encoder.msgToBase64(sendService);
-							//sendMessage(base64, "incubator incubator");
-							// echoed back whenc'd it came
 							sendMessage(base64, from);
 						}
 						
@@ -529,6 +518,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		}
 		String buddyJID = entry.getUser();
 		auditors.add(buddyJID);
+		broadcast(String.format("added buddy %s", entry.getName()));
 		return true;
 	}
 
@@ -586,7 +576,8 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	public void sendRemote(URI uri, org.myrobotlab.framework.Message msg) {
 		// decompose uri or use as key (mmm specified encoding???)
 		// FIXME - Encoder should do this !!!
-		String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
+		//String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
+		String remoteURI = uri.getPath().substring(1); // remove the root "/"
 		// log.info(remoteURI);
 		msg.historyList.add(getName());
 		String base64 = Encoder.msgToBase64(msg);
@@ -620,6 +611,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 			Runtime.createAndStart(String.format("clock%d", i), "Clock");
 			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
 			xmpp1.connect("talk.google.com", 5222, "incubator@myrobotlab.org", "hatchMe!");
+			xmpp1.addAuditor("Greg Perry");
 			// xmpp1.sendMessage("hello from incubator by name " +
 			// System.currentTimeMillis(), "Greg Perry");
 			xmpp1.sendMessage("xmpp 2", "robot02 02");

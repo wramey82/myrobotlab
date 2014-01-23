@@ -32,7 +32,7 @@ import com.google.gson.GsonBuilder;
  * xmpp for example assumes (/api/string/gson)/service/method/param1/param2/ ...
  * 
  * scheme = alpha *( alpha | digit | "+" | "-" | "." )
- * 
+ * Components of all URIs: [<scheme>:]<scheme-specific-part>[#<fragment>]
  * http://stackoverflow.com/questions/3641722/valid-characters-for-uri-schemes
  */
 public class Encoder {
