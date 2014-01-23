@@ -132,7 +132,7 @@ public class GestureRecognition extends Service {
 				Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
 				bimg.setData(raster);
 				simg = new SerializableImage(bimg, getName());
-				invoke("publishDisplay", simg);
+				invoke("publishFrame", simg);
 				for (int i = 0; i < sinks.size(); ++i) {
 // FIXME - videosource/sink					sinks.get(i).add(simg);
 				}
@@ -230,8 +230,8 @@ public class GestureRecognition extends Service {
 		GestureRecognition gr = new GestureRecognition("gr");
 		gr.startService();
 
-		GUIService gui = new GUIService("gui");
-		gui.startService();
+		Runtime.createAndStart("gui", "GUIService");
+		
 
 		/*
 		 * JFrame f = new JFrame("OpenNI User Tracker"); f.addWindowListener(new

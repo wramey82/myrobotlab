@@ -52,22 +52,25 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	transient public RasPi raspi;
 	transient public WebGUI webgui;
 
+	transient public Worker worker;
+	
 	public final static Logger log = LoggerFactory.getLogger(PickToLight.class);
 
 	ObjectFactory of = new ObjectFactory();
 
 	// item# Module
 	static HashMap<String, ModuleControl> modules = new HashMap<String, ModuleControl>();
-	public Worker worker;
+	transient HashMap<String, Worker> workers = new HashMap<String, Worker>();
+	
+	private String mode = "kitting";
 
+	
 	String messageGoodPick = "GOOD";
-
-	HashMap<String, Worker> workers = new HashMap<String, Worker>();
 
 	// FIXME - you will need to decouple initialization until after raspibus is
 	// set
 	private int rasPiBus = 0;
-
+	// FIXME - who will update me ?
 	private String updateURL;
 
 	public static Peers getPeers(String name) {
@@ -134,7 +137,12 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		super(n);
 		webgui = (WebGUI) createPeer("webgui");
 		webgui.autoStartBrowser(false);
+		webgui.useLocalResources(true);
 		raspi = (RasPi) createPeer("raspi");
+	}
+	
+	public String getVersion(){
+		return Runtime.getVersion();
 	}
 
 	@Override
@@ -483,6 +491,14 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		 * gui.display();
 		 */
 
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 
 }

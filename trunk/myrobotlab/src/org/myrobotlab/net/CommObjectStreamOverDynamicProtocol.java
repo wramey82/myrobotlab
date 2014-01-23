@@ -312,7 +312,7 @@ public class CommObjectStreamOverDynamicProtocol implements Communicator, Serial
 		}
 	}
 
-	@Override
+	// TODO Communicator interface - shutdownCommunication()
 	public void stopService() {
 		// TODO Auto-generated method stub
 		for (Map.Entry<URI, TCPThread> o : clientList.entrySet()) {

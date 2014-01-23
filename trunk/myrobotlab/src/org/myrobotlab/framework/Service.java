@@ -119,8 +119,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	transient protected CommunicationInterface cm = null;
 
-	protected final static String cfgDir = String.format("%1$s%2$s.myrobotlab", System.getProperty("user.dir"), File.separator);
-	private static boolean hostInitialized = false;
+	protected final static String cfgDir = String.format("%s%s.myrobotlab", System.getProperty("user.dir"), File.separator);
 
 	protected Set<String> methodSet;
 
@@ -361,18 +360,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	static public void mergePeerDNA(String myKey, String className) {
 		buildDNA(dna, myKey, className, "merged dna");
-		log.info("merged dna \n{}", dna);
-
-		/*
-		 * if (peerDNA != null) { ArrayList<ServiceReservation> dnaList =
-		 * peerDNA.flatten(); for (int i = 0; i < dnaList.size(); ++i) {
-		 * ServiceReservation peersr = dnaList.get(i);
-		 * 
-		 * // ------------ merge begin ------------------ ServiceReservation sr
-		 * = dna.get(name) // ------------ merge end ------------------
-		 * 
-		 * } }
-		 */
+		log.debug("merged dna \n{}", dna);
 	}
 
 	/**
@@ -435,7 +423,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 
 		} catch (Exception e) {
-			log.info(String.format("%s does not have a getPeers", serviceClass));
+			log.debug(String.format("%s does not have a getPeers", serviceClass));
 		}
 	}
 
@@ -640,10 +628,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		this.inbox = new Inbox(name);
 		this.outbox = new Outbox(this);
 
-		if (!hostInitialized) {
-			initialize();
-		}
-
 		cm = new CommunicationManager(this);
 
 		TSFormatter.setCalendar(cal);
@@ -651,57 +635,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Runtime.register(this, null);
 	}
 
-	public static synchronized void initialize() {
-		
-		// TODO - spin through all to search for useful info
-		
-		String libararyPath = System.getProperty("java.library.path");
-		String userDir = System.getProperty("user.dir");
-		String userHome = System.getProperty("user.home");
-
-		String vmName = System.getProperty("java.vm.name");
-		// TODO this should be a single log statement
-		// http://developer.android.com/reference/java/lang/System.html
-		log.info("---------------normalized-------------------");
-		log.info(String.format("ivy [runtime,%1$s.%2$d.%3$s]", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
-		log.info(String.format("os.name [%1$s] getOS [%2$s]", System.getProperty("os.name"), Platform.getOS()));
-		log.info(String.format("os.arch [%1$s] getArch [%2$s]", System.getProperty("os.arch"), Platform.getArch()));
-		log.info(String.format("getBitness [%1$d]", Platform.getBitness()));
-		log.info(String.format("java.vm.name [%1$s] getVMName [%2$s]", vmName, Platform.getVMName()));
-		log.info(String.format("version [%s]", FileIO.getResourceFile("version.txt")));
-		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
-		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
-		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
-
-		
-		log.info("---------------non-normalized---------------");
-		log.info(String.format("java.vm.name [%s]", vmName));
-		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
-		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.vm.vendor")));
-		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
-		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.runtime.version")));
-
-		//System.getProperty("pi4j.armhf")
-		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
-		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
-
-		log.info(String.format("java.home [%s]", System.getProperty("java.home")));
-		log.info(String.format("java.class.path [%s]", System.getProperty("java.class.path")));
-		log.info(String.format("java.library.path [%s]", libararyPath));
-		log.info(String.format("user.dir [%s]", userDir));
-		log.info(String.format("user.home [%s]", userHome));
-		log.info(String.format("total mem [%d] Mb", Runtime.getTotalMemory() / 1048576));
-		log.info(String.format("total free [%d] Mb", Runtime.getFreeMemory() / 1048576));
-
-		// load root level configuration
-		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
-		// deprecate
-		// rootcfg.load(host + ".properties");
-		hostInitialized = true;
-
-		// create local configuration directory
-		new File(cfgDir).mkdir();
-	}
 
 	/**
 	 * 
@@ -743,7 +676,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public boolean save(Object o, String cfgFileName) {
 
 		try {
-			File cfg = new File(String.format("%1$s%2$s%3$s", cfgDir, File.separator, cfgFileName));
+			File cfg = new File(String.format("%s%s%s", cfgDir, File.separator, cfgFileName));
 			serializer.write(o, cfg);
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -762,7 +695,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// saves user data in the .myrobotlab directory
 		// with the file naming convention of name.<cfgFileName>
 		try {
-			FileIO.stringToFile(String.format("%1$s%2$s%3$s.%4$s", cfgDir, File.separator, this.getName(), cfgFileName), data);
+			FileIO.stringToFile(String.format("%s%s%s.%s", cfgDir, File.separator, this.getName(), cfgFileName), data);
 		} catch (Exception e) {
 			Logging.logException(e);
 			return false;
@@ -800,7 +733,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				serializer.read(o, cfg);
 				return true;
 			}
-			log.info(String.format("cfg file %1$s does not exist", filename));
+			log.info(String.format("cfg file %s does not exist", filename));
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -1157,7 +1090,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			for (int i = 0; i < nes.size(); ++i) {
 				MRLListener entry = nes.get(i);
 				if (entry.equals(listener)) {
-					log.warn(String.format("attempting to add duplicate MRLListener %1$s", listener));
+					log.warn(String.format("attempting to add duplicate MRLListener %s", listener));
 					found = true;
 					break;
 				}
@@ -1213,7 +1146,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				}
 			}
 		} else {
-			log.error(String.format("removeListener requested %1$s.%2$s to be removed - but does not exist", serviceName, outMethod));
+			log.error(String.format("removeListener requested %s.%s to be removed - but does not exist", serviceName, outMethod));
 		}
 	}
 
@@ -1238,7 +1171,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public void removeListener(MRLListener listener) {
 		if (!outbox.notifyList.containsKey(listener.outMethod.toString())) {
-			log.error(String.format("removeListener requested %1$s to be removed - but does not exist", listener));
+			log.error(String.format("removeListener requested %s to be removed - but does not exist", listener));
 			return;
 		}
 		ArrayList<MRLListener> nel = outbox.notifyList.get(listener.outMethod.toString());
@@ -1412,7 +1345,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 					out(method, retobj);
 					return retobj;
 				} catch (Exception e1) {
-					log.error(String.format("boom goes method %1$s", m.getName()));
+					log.error(String.format("boom goes method %s", m.getName()));
 					Logging.logException(e1);
 				}
 			}
@@ -1752,7 +1685,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return
 	 */
 	public IPAndPort noConnection(IPAndPort conn) {
-		log.error(String.format("could not connect to %1$s:%2$d", conn.IPAddress, conn.port));
+		log.error(String.format("could not connect to %s:%d", conn.IPAddress, conn.port));
 		return conn;
 	}
 
@@ -1762,7 +1695,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * @return
 	 */
 	public IPAndPort connectionBroken(IPAndPort conn) {
-		log.error(String.format("the connection %1$s:%2$d has been broken", conn.IPAddress, conn.port));
+		log.error(String.format("the connection %s:%d has been broken", conn.IPAddress, conn.port));
 		return conn;
 	}
 
@@ -1849,12 +1782,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				Field f = fields[j];
 
 				if (!(Modifier.isPublic(f.getModifiers()) && !(f.getName().equals("log")) && !Modifier.isTransient(f.getModifiers()))) {
-					log.debug(String.format("skipping %1$s", f.getName()));
+					log.debug(String.format("skipping %s", f.getName()));
 					continue;
 				}
 				Type t = f.getType();
 
-				log.info(String.format("setting %1$s", f.getName()));
+				log.info(String.format("setting %s", f.getName()));
 				if (t.equals(java.lang.Boolean.TYPE)) {
 					targetClass.getDeclaredField(f.getName()).setBoolean(target, f.getBoolean(source));
 				} else if (t.equals(java.lang.Character.TYPE)) {
@@ -1872,7 +1805,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 				} else if (t.equals(java.lang.Double.TYPE)) {
 					targetClass.getDeclaredField(f.getName()).setDouble(target, f.getDouble(source));
 				} else {
-					log.info(String.format("setting reference to remote object %1$s", f.getName()));
+					log.info(String.format("setting reference to remote object %s", f.getName()));
 					targetClass.getDeclaredField(f.getName()).set(target, f.get(source));
 				}
 			} catch (Exception e) {
@@ -2162,7 +2095,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public HashSet<String> getMessageSet() {
 		HashSet<String> ret = new HashSet<String>();
 		Method[] methods = getMethods();
-		log.info(String.format("%s loading %d non-sub-routable methods", getName(), methods.length));
+		log.info(String.format("loading %d non-sub-routable methods", methods.length));
 		for (int i = 0; i < methods.length; ++i) {
 			ret.add(methods[i].getName());
 		}

@@ -30,6 +30,6 @@ public class ServiceEnvironment implements Serializable {
 	public ServiceEnvironment(URI url) {
 		this.accessURL = url;
 		serviceDirectory = new HashMap<String, ServiceInterface>();
-		platform = Platform.getPlatform();
+		platform = Platform.getLocalInstance();
 	}
 }

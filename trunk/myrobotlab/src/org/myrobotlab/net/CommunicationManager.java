@@ -27,6 +27,7 @@ package org.myrobotlab.net;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.HashMap;
 
 import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
@@ -46,6 +47,8 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 	Service myService = null;
 	Outbox outbox = null;
 
+	static HashMap<URI,URI> localToRemote = new HashMap<URI,URI>();
+	
 	private Communicator comm = null;
 
 	public CommunicationManager(Service myService) {
@@ -87,7 +90,9 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 			sw.in(msg);
 		} else {
 			//log.info(String.format("remote %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
-			getComm(host).sendRemote(host, msg);
+			
+			URI remote = localToRemote.get(host);
+			getComm(host).sendRemote(remote, msg);
 		}
 	}
 

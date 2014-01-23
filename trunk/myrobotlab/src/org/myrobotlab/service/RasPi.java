@@ -42,7 +42,7 @@ public class RasPi extends Service {
 	public RasPi(String n) {
 		super(n);
 
-		log.info(String.format("platform is %s", Platform.getPlatform()));
+		log.info(String.format("platform is %s", Platform.getLocalInstance()));
 		if ("arm".equals(Platform.getArch())) {
 			// init I2C
 			GpioController gpio = GpioFactory.getInstance();

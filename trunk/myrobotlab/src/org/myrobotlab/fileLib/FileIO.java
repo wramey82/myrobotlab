@@ -32,6 +32,7 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,19 +114,17 @@ public class FileIO {
 	}
 
 	// TODO - NOT IMPLMENENTED
-	public final static String getResourceBinary(String filename) {
-		InputStream isr = FileIO.class.getResourceAsStream("/resource/" + filename);
-		if (isr == null) {
-			log.error("could not locate resource " + filename);
-		}
+	public final byte[] getResource(String filename) throws FileNotFoundException {
+		File file = new File(String.format("/resource/%s", filename));
+		FileInputStream isr = new FileInputStream(file);
+	
 		DataInputStream input = new DataInputStream(isr);
-		String stringData = null;
 
 		byte b[] = new byte[1024];
 		try {
 			while (true) {
 				input.readFully(b);
-				stringData = input.readUTF();
+				//stringData = input.readUTF();
 			}
 		} catch (EOFException e) {
 			// Do nothing if it is the end of file.
@@ -140,7 +139,7 @@ public class FileIO {
 			}
 		}
 
-		return stringData;
+		return b;
 	}
 
 	/**
@@ -300,26 +299,6 @@ public class FileIO {
 		return listInternalContents("/resource" + path);
 	}
 
-	public static void main(String[] args) throws ZipException, IOException {
-
-		LoggingFactory.getInstance().configure();
-		// LoggingFactory.getInstance().setLevel(Level.INFO);
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-
-		ArrayList<String> files = listInternalContents("resource/images");
-		for (int i = 0; i < files.size(); ++i) {
-			log.info(files.get(i));
-		}
-
-		files = Zip.listDirectoryContents("myrobotlab.jar", "resource/images");
-		for (int i = 0; i < files.size(); ++i) {
-			log.info(files.get(i));
-		}
-
-		log.info("done");
-
-	}
-
 	public static byte[] getBytes(InputStream is) {
 
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -354,5 +333,26 @@ public class FileIO {
 		}
 		return list.toArray(new File[] {});
 	}
+	
+	public static void main(String[] args) throws ZipException, IOException {
+
+		LoggingFactory.getInstance().configure();
+		// LoggingFactory.getInstance().setLevel(Level.INFO);
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		ArrayList<String> files = listInternalContents("resource/images");
+		for (int i = 0; i < files.size(); ++i) {
+			log.info(files.get(i));
+		}
+
+		files = Zip.listDirectoryContents("myrobotlab.jar", "resource/images");
+		for (int i = 0; i < files.size(); ++i) {
+			log.info(files.get(i));
+		}
+
+		log.info("done");
+
+	}
+
 
 }

@@ -49,6 +49,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
 
+// FIXME remove communication interface
 public class CommObjectStreamOverUDP implements Communicator, Serializable {
 
 	public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverUDP.class.getCanonicalName());
@@ -208,7 +209,7 @@ public class CommObjectStreamOverUDP implements Communicator, Serializable {
 		clientList.put(url, phone);
 	}
 
-	@Override
+	// TODO shutdown Communicator
 	public void stopService() {
 
 		if (clientList != null) {

@@ -27,6 +27,7 @@ public class InMoov extends Service {
 	// services which do not require a body part
 	// or can influence multiple body parts
 	transient public Sphinx ear;
+
 	transient public Speech mouth;
 	transient public Python python;
 	transient public WebGUI webgui;
@@ -342,6 +343,116 @@ public class InMoov extends Service {
 	}
 
 	// gestures end --------------
+
+	
+	/* ------------------------- GETTERS SETTERS BEGIN ----------------------------- */
+	
+	public Sphinx getEar() {
+		return ear;
+	}
+
+	public void setEar(Sphinx ear) {
+		this.ear = ear;
+	}
+
+	public Speech getMouth() {
+		return mouth;
+	}
+
+	public void setMouth(Speech mouth) {
+		this.mouth = mouth;
+	}
+
+	public Python getPython() {
+		return python;
+	}
+
+	public void setPython(Python python) {
+		this.python = python;
+	}
+
+	public WebGUI getWebgui() {
+		return webgui;
+	}
+
+	public void setWebgui(WebGUI webgui) {
+		this.webgui = webgui;
+	}
+
+	public Keyboard getKeyboard() {
+		return keyboard;
+	}
+
+	public void setKeyboard(Keyboard keyboard) {
+		this.keyboard = keyboard;
+	}
+
+	public XMPP getXmpp() {
+		return xmpp;
+	}
+
+	public void setXmpp(XMPP xmpp) {
+		this.xmpp = xmpp;
+	}
+
+	public InMoovHead getHead() {
+		return head;
+	}
+
+	public void setHead(InMoovHead head) {
+		this.head = head;
+	}
+
+	public InMoovHand getRightHand() {
+		return rightHand;
+	}
+
+	public void setRightHand(InMoovHand rightHand) {
+		this.rightHand = rightHand;
+	}
+
+	public InMoovHand getLeftHand() {
+		return leftHand;
+	}
+
+	public void setLeftHand(InMoovHand leftHand) {
+		this.leftHand = leftHand;
+	}
+
+	public InMoovArm getRightArm() {
+		return rightArm;
+	}
+
+	public void setRightArm(InMoovArm rightArm) {
+		this.rightArm = rightArm;
+	}
+
+	public InMoovArm getLeftArm() {
+		return leftArm;
+	}
+
+	public void setLeftArm(InMoovArm leftArm) {
+		this.leftArm = leftArm;
+	}
+
+	public OpenCV getOpencv() {
+		return opencv;
+	}
+
+	public void setOpencv(OpenCV opencv) {
+		this.opencv = opencv;
+	}
+
+	public void setEyesTracking(Tracking eyesTracking) {
+		this.eyesTracking = eyesTracking;
+	}
+
+	public void setHeadTracking(Tracking headTracking) {
+		this.headTracking = headTracking;
+	}
+
+	/* ------------------------- GETTERS SETTERS END ----------------------------- */
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
@@ -366,6 +477,8 @@ public class InMoov extends Service {
 		
 		i01.addRoutes();
 		i01.startMouth();
+		
+		i01.getRightArm().getShoulder().setRest(39);
 		
 		head.rothead.moveTo(96);
 		head.rothead.moveTo(150);

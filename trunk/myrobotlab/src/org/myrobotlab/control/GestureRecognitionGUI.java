@@ -95,7 +95,7 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 		// subscribe & ask for the initial state of the service
 		subscribe("publishState", "getState", GestureRecognition.class);
 		// subscribe("publishDisplay", "publishDisplay", ShortBuffer.class);
-		subscribe("publishDisplay", "publishDisplay", SerializableImage.class);
+		subscribe("publishFrame", "publishFrame", SerializableImage.class);
 		myService.send(boundServiceName, "publishState");
 
 	}

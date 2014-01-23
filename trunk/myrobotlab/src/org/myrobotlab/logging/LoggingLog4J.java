@@ -24,7 +24,7 @@ public class LoggingLog4J extends Logging {
 	}
 
 	public void setLevel(String level) {
-
+		setLevel(null, level);
 	}
 
 	@Override

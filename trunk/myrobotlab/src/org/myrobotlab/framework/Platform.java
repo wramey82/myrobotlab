@@ -1,9 +1,10 @@
 package org.myrobotlab.framework;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 
-import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.runtime.ProcParser;
 
 public class Platform implements Serializable {
@@ -20,67 +21,110 @@ public class Platform implements Serializable {
 	public final static String OS_WINDOWS = "windows";
 
 	public final static String UNKNOWN = "unknown";
-	
+
 	// arch names
 	public final static String ARCH_X86 = "x86";
 	public final static String ARCH_ARM = "arm";
 
-	final public String os;
-	final public String arch;
-	final public int bitness;
-	final public String vmName;
-	final public String mrlVersion;
+	private String os;
+	private String arch;
+	private int bitness;
+	private String vmName;
+	private String mrlVersion;
 
-	public Platform(String os, String arch, int bitness, String vmName, String mrlVersion) {
-		this.os = os;
-		this.arch = arch;
-		this.bitness = bitness;
-		this.vmName = vmName;
-		this.mrlVersion = mrlVersion;
+	static Platform localInstance = getLocalInstance();
+
+	public Platform() {
 	}
 
 	// -------------pass through begin -------------------
-	public static Platform getPlatform() {
-		return new Platform(getOS(), getArch(), getBitness(), getVMName(), getMRLVersion());
-	}
+	public static Platform getLocalInstance() {
+		if (localInstance == null) {
+			Platform platform = new Platform();
 
-	private static String getMRLVersion() {
-		return FileIO.getResourceFile("version.txt");
-	}
+			// os
+			platform.os = System.getProperty("os.name").toLowerCase();
+			if (platform.os.indexOf("win") >= 0) {
+				platform.os = OS_WINDOWS;
+			}
 
-	public static String getOS() {
-		String os = System.getProperty("os.name").toLowerCase();
-		if ((os.indexOf(OS_LINUX) >= 0)) {
-			return OS_LINUX;
-		} else if ((os.indexOf(OS_MAC) >= 0)) {
-			return OS_MAC;
-		} else if ((os.indexOf("win") >= 0)) {
-			return OS_WINDOWS;
-		} else {
-			return UNKNOWN;
+			platform.vmName = System.getProperty("java.vm.name").toLowerCase();
+
+			// bitness
+			String model = System.getProperty("sun.arch.data.model");
+			if ("64".equals(model)) {
+				platform.bitness = 64;
+			} else {
+				platform.bitness = 32;
+			}
+
+			// arch
+			String arch = System.getProperty("os.arch").toLowerCase();
+			if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch) || arch.startsWith("x86")) {
+				platform.arch = "x86"; // don't care at the moment
+			}
+
+			if ("arm".equals(arch)) {
+				Integer armv = ProcParser.getArmInstructionVersion();
+				if (armv != null) {
+					platform.arch = String.format("armv%d", armv);
+				}
+				// arch = "armv6"; // assume its version 6 instruction set
+
+			}
+
+			if (platform.arch == null) {
+				platform.arch = arch;
+			}
+
+			// REMOVED EVIL RECURSION - you can't call a file which has static
+			// logging !!
+			// logging calls -> platform calls a util class -> calls logging --
+			// infinite loop
+			// platform.mrlVersion = FileIO.getResourceFile("version.txt");
+			StringBuffer sb = new StringBuffer();
+
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(Platform.class.getResourceAsStream("/resource/version.txt"), "UTF-8"));
+				for (int c = br.read(); c != -1; c = br.read())
+					sb.append((char) c);
+			} catch (Exception e) {
+				Logging.logException(e);
+			}
+			
+			// TODO - ProcParser
+
+			System.out.println(sb.toString());
+
+			localInstance = platform;
 		}
+
+		return localInstance;
 	}
 
-	public static String getVMName() {
-		String vmname = System.getProperty("java.vm.name").toLowerCase();
-
-		if (vmname.equals(VM_DALVIK)) {
-			return VM_DALVIK;
-		} else {
-			return VM_HOTSPOT;
-		}
+	static public String getMRLVersion() {
+		Platform p = getLocalInstance();
+		return p.mrlVersion;
 	}
 
-	public static boolean isDavlik() {
-		return VM_DALVIK.equals(getVMName());
+	static public String getOS() {
+		Platform p = getLocalInstance();
+		return p.os;
 	}
 
-	public static int getBitness() {
-		String model = System.getProperty("sun.arch.data.model");
-		if ("64".equals(model)) {
-			return 64;
-		}
-		return 32;
+	static public String getVMName() {
+		Platform p = getLocalInstance();
+		return p.vmName;
+	}
+
+	static public boolean isDavlik() {
+		Platform p = getLocalInstance();
+		return VM_DALVIK.equals(p.vmName);
+	}
+
+	static public int getBitness() {
+		Platform p = getLocalInstance();
+		return p.bitness;
 	}
 
 	/**
@@ -89,58 +133,40 @@ public class Platform implements Serializable {
 	 * 
 	 * @return hardware architecture
 	 */
-	public static String getArch() {
-		String arch = System.getProperty("os.arch").toLowerCase();
-		if ("i386".equals(arch) || "i686".equals(arch) || "i586".equals(arch) || "amd64".equals(arch) || arch.startsWith("x86")) {
-			arch = "x86"; // don't care at the moment
-		}
-		
-		if ("arm".equals(arch)){
-			Integer armv = ProcParser.getArmInstructionVersion();
-			if (armv != null){
-				arch = String.format("armv%d",armv);
-			}
-			//arch = "armv6"; // assume its version 6 instruction set
-			
-		}
-		return arch;
+	static public String getArch() {
+		return localInstance.arch;
 	}
 
-	public static boolean isMac() {
-		return getOS().equals(OS_MAC);
+	static public boolean isMac() {
+		return OS_MAC.equals(localInstance.arch);
 	}
 
-	public static boolean isLinux() {
-		return getOS().equals(OS_LINUX);
+	static public boolean isLinux() {
+		return OS_LINUX.equals(localInstance.arch);
 	}
 
-	public static boolean isWindows() {
-		return getOS().equals(OS_WINDOWS);
+	static public boolean isWindows() {
+		return OS_WINDOWS.equals(localInstance.arch);
 	}
-	
-	public static String getClassPathSeperator()
-	{
-		if (isWindows())
-		{
+
+	static public String getClassPathSeperator() {
+		if (isWindows()) {
 			return ";";
 		} else {
 			return ":";
 		}
 	}
-	
-	public static boolean isArm() {
+
+	static public boolean isArm() {
 		return getArch().startsWith(ARCH_ARM);
 	}
-	
-	public static boolean isX86() {
+
+	static public boolean isX86() {
 		return getArch().equals(ARCH_X86);
 	}
-	
-	public String toString()
-	{
+
+	public String toString() {
 		return String.format("%s.%d.%s", arch, bitness, os);
 	}
-	
-
 
 }

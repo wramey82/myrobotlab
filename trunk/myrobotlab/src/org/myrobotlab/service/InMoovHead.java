@@ -287,7 +287,7 @@ public class InMoovHead extends Service {
 
 	public void setSpeed(Float headXSpeed, Float headYSpeed, Float eyeXSpeed, Float eyeYSpeed, Float jawSpeed) {
 		if (log.isDebugEnabled()){
-			log.debug(String.format("%s setSpeed %d %d %d %d %d", headXSpeed, headYSpeed, eyeXSpeed, eyeYSpeed, jawSpeed));
+			log.debug(String.format("%s setSpeed %.2f %.2f %.2f %.2f %.2f", headXSpeed, headYSpeed, eyeXSpeed, eyeYSpeed, jawSpeed));
 		}
 		
 		rothead.setSpeed(headXSpeed);

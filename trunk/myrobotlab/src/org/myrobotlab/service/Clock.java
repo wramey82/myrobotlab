@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -141,63 +142,67 @@ public class Clock extends Service {
 	public static void main(String[] args) throws ClassNotFoundException, CloneNotSupportedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
 
-		try {
+		String test = "xmpp";
 
-			int i = 1;
+		if ("tcp".equals(test)) {
+			// TCP CONNECT WORKS BEGIN ---------------------------------
+			try {
+
+				int i = 1;
+				Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
+				// RemoteAdapter remote = (RemoteAdapter)
+				// Runtime.createAndStart(String.format("remote%d", i),
+				// "RemoteAdapter");
+				RemoteAdapter remote = new RemoteAdapter(String.format("remote%d", i));
+				remote.setUDPPort(7776);
+				remote.setTCPPort(7776);
+				remote.startService();
+				// remote.startListening(7776, 7776); FIXME - problem starting
+				// server threads which rely on isRunning() - which is false -
+				// cuz you have not started it yet
+				Clock clock = (Clock) Runtime.createAndStart(String.format("clock%d", i), "Clock");
+				Runtime.createAndStart(String.format("gui%d", i), "GUIService");
+
+				Message msg = remote.createMessage("", "register", clock);
+				URI uri = new URI("tcp://localhost:6767");
+				remote.sendRemote(uri, msg);
+
+				// FIXME - sholdn't this be sendRemote ??? or at least
+				// in an interface
+				// remote.sendRemote(uri, msg);
+				// xmpp1.sendMessage("xmpp 2", "robot02 02");
+			} catch (Exception e) {
+				Logging.logException(e);
+			}
+			// TCP CONNECT WORKS END ---------------------------------
+
+		} else if ("xmpp".equals(test)) {
+
+			// XMPP CONNECT WORKS BEGIN ---------------------------------
+			int i = 2;
+
 			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
-			//RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
-			RemoteAdapter remote = new RemoteAdapter(String.format("remote%d", i));
-			remote.setUDPPort(7776);
-			remote.setTCPPort(7776);
-			remote.startService();
-			// remote.startListening(7776, 7776); FIXME - problem starting server threads which rely on isRunning() - which is false - cuz you have not started it yet
-			Clock clock = (Clock)Runtime.createAndStart(String.format("clock%d", i), "Clock");
+			Security security = (Security) Runtime.createAndStart("security", "Security");
+			security.addUser("incubator incubator");
+			security.setGroup("incubator incubator", "authenticated");
+			security.allowExportByType("XMPP", false);
+			security.allowExportByType("Security", false);
+			security.allowExportByType("Runtime", false);
+			XMPP xmpp1 = (XMPP) Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
+			Clock clock = (Clock) Runtime.createAndStart(String.format("clock%d", i), "Clock");
 			Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-		//	clock.connect("blah", "blahpwd", "127.0.0.1", 6767);
-			/*
-			 *   FIXME FIXME FIXME - remoteRegister();
+
+			xmpp1.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
+
+			Message msg = null;
+
 			msg = xmpp1.createMessage("", "register", clock);
 			String base64 = Encoder.msgToBase64(msg);
 			xmpp1.sendMessage(base64, "incubator incubator");
-			*/
-			
-			Message msg = remote.createMessage("", "register", clock);
-			URI uri = new URI("tcp://localhost:6767");
-			remote.sendRemote(uri, msg);
-			
-			// FIXME - sholdn't this be sendRemote ??? or at least 
-			// in an interface
-			//remote.sendRemote(uri, msg);
-			//xmpp1.sendMessage("xmpp 2", "robot02 02");
-		} catch (Exception e) {
-			Logging.logException(e);
+
+			// XMPP CONNECT WORKS END ---------------------------------
 		}
-
-/*
-		int i = 2;
-
-		Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
-		Security security = (Security)Runtime.createAndStart("security","Security");
-		security.addUser("incubator incubator");
-		security.setGroup("incubator incubator", "authenticated");
-		security.allowExportByType("XMPP", false);
-		security.allowExportByType("Security", false);
-		security.allowExportByType("Runtime", false);
-		XMPP xmpp1 = (XMPP) Runtime.createAndStart(String.format("xmpp%d", i), "XMPP");
-		Clock clock = (Clock) Runtime.createAndStart(String.format("clock%d", i), "Clock");
-		Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-
-		xmpp1.connect("talk.google.com", 5222, "robot02@myrobotlab.org", "mrlRocks!");
-
-		Message msg = null;
-
-		msg = xmpp1.createMessage("", "register", clock);
-		String base64 = Encoder.msgToBase64(msg);
-		xmpp1.sendMessage(base64, "incubator incubator");
-		*/
-
 	}
 
 }
