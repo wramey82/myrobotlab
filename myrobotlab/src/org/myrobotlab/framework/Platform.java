@@ -65,7 +65,9 @@ public class Platform implements Serializable {
 			}
 
 			if ("arm".equals(arch)) {
-				Integer armv = ProcParser.getArmInstructionVersion();
+				// FIXME - procparser is unsafe and borked !!
+				//Integer armv = ProcParser.getArmInstructionVersion();
+				Integer armv = 6;
 				if (armv != null) {
 					platform.arch = String.format("armv%d", armv);
 				}
