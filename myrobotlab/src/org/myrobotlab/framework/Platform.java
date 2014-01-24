@@ -69,10 +69,12 @@ public class Platform implements Serializable {
 				//Integer armv = ProcParser.getArmInstructionVersion();
 				Integer armv = 6;
 				if (armv != null) {
-					platform.arch = String.format("armv%d", armv);
+					// FIXME - hacked for raspi = armv6.hfp
+					//platform.arch = String.format("armv%d", armv);
 				}
 				// arch = "armv6"; // assume its version 6 instruction set
-
+				// FIXME FIXME FIXME - hacked for raspi
+				platform.arch = "armv6.hfp";
 			}
 
 			if (platform.arch == null) {
