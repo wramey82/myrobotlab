@@ -31,7 +31,7 @@ public class Red5 extends Service {
 		template.startService();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

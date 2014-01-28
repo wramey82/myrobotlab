@@ -1,19 +1,35 @@
 package org.myrobotlab.service;
 
+
+
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
+/*
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.acl.Acl;
+import java.util.ArrayList;
+import java.util.List;
 
-public class _TemplateService extends Service {
+import javax.print.attribute.standard.Media;
+import com.google.api.client.http.FileContent;
+*/
 
+// https://developers.google.com/+/domains/quickstart/java
+public class GooglePlus extends Service {
+
+	
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(_TemplateService.class);
+	public final static Logger log = LoggerFactory.getLogger(GooglePlus.class);
 	
-	public _TemplateService(String n) {
+	public GooglePlus(String n) {
 		super(n);	
 	}
 	
@@ -22,11 +38,16 @@ public class _TemplateService extends Service {
 		return "used as a general template";
 	}
 
+	public void test()
+	{
+		
+	}
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 
-		_TemplateService template = new _TemplateService("template");
+		GooglePlus template = new GooglePlus("template");
 		template.startService();			
 		
 		Runtime.createAndStart("gui", "GUIService");

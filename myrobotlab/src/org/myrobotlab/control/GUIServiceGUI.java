@@ -413,26 +413,6 @@ public class GUIServiceGUI extends ServiceGUI {
 		return button;
 	}
 
-	public JButton getLoadButton() {
-		JButton button = new JButton("load");
-		button.setEnabled(true);
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				Runtime.releaseAll();
-
-				// load runtime
-				Runtime.load("runtime.bin");
-				Runtime.startLocalServices();
-			}
-
-		});
-
-		return button;
-	}
-
 	public void buildLocalServiceGraph() {
 
 		log.info("buildLocalServiceGraph-begin");
@@ -455,12 +435,11 @@ public class GUIServiceGUI extends ServiceGUI {
 			String toolTip;
 			String canonicalName;
 
-			
-				canonicalName = sw.getSimpleName();
-				displayName = serviceName + "\n\n\n\n\n.";// +
-				// sw.get().getSimpleName();
-				toolTip = sw.getDescription();
-			
+			canonicalName = sw.getSimpleName();
+			displayName = serviceName + "\n\n\n\n\n.";// +
+			// sw.get().getSimpleName();
+			toolTip = sw.getDescription();
+
 			String blockColor = null;
 
 			if (sw.getHost() == null) {
@@ -596,6 +575,5 @@ public class GUIServiceGUI extends ServiceGUI {
 	@Override
 	public void detachGUI() {
 	}
-
 
 }

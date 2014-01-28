@@ -196,7 +196,7 @@ public class Android extends Service implements SensorEventListener {
 		/*
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 		*/
 		
 	}

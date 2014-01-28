@@ -82,7 +82,7 @@ public class FSM extends Service {
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 	}
 
 }

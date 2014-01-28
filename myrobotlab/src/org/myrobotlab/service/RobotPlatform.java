@@ -498,6 +498,6 @@ public class RobotPlatform extends Service {
 	 * 
 	 * GUIService gui = new GUIService("gui"); DifferentialDrive platform = new
 	 * DifferentialDrive("platform"); platform.startService();
-	 * gui.startService(); gui.display(); //platform.startRobot(); }
+	 * gui.startService();  //platform.startRobot(); }
 	 */
 }

@@ -224,9 +224,18 @@ public class InMoov extends Service {
 
 		return Arm;
 	}
+	
+	public InMoovHead startHead(String port)
+	{
+		return startHead(port, null);
+	}
 
-	public InMoovHead startHead(String port) {
+	public InMoovHead startHead(String port, String type) {
 		head = (InMoovHead) createPeer("head");
+		if (type == null){
+			type = Arduino.BOARD_TYPE_ATMEGA2560;
+		}
+		head.getArduino().setBoard(type);
 		head.connect(port);
 		return head;
 	}
@@ -457,19 +466,22 @@ public class InMoov extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
-		log.warn(Runtime.buildDNA("i01", "InMoov").toString());
-
-		 // log.info(Runtime.buildDNA("i01.head", "InMoovHead").toString());
-		 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
 		InMoovHead head = i01.startHead("COM4");
+		
+		Runtime.createAndStart("gui", "GUIService");
+		
+		log.warn(Runtime.buildDNA("i01", "InMoov").toString());
+
+		
+		 // log.info(Runtime.buildDNA("i01.head", "InMoovHead").toString());
+		 
+		
+		
 		Tracking eyes = i01.getEyesTracking();
 		Tracking neck = i01.getHeadTracking();
 		
-		eyes.faceDetect();
-		
-		GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
-		
+		eyes.faceDetect();		
 		
 		i01.startRightHand("COM4");
 		

@@ -2,11 +2,9 @@ package org.myrobotlab.service;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -65,8 +63,8 @@ public class Runtime extends Service {
 	final static private long serialVersionUID = 1L;
 
 	// ---- rte members begin ----------------------------
-	static private HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();;
-	static private HashMap<String, ServiceInterface> registry = new HashMap<String, ServiceInterface>();
+	static private final HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();
+	static private final HashMap<String, ServiceInterface> registry = new HashMap<String, ServiceInterface>();
 
 	/**
 	 * map to hide methods we are not interested in
@@ -75,11 +73,12 @@ public class Runtime extends Service {
 
 	static private boolean needsRestart = false;
 
+	/**
+	 * the name of the local runtime
+	 */
 	static private String runtimeName;
 
 	static private Date startDate = new Date();
-
-	final static public String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 
 	// ---- rte members end ------------------------------
 
@@ -88,7 +87,7 @@ public class Runtime extends Service {
 	// ---- Runtime members begin -----------------
 	// TODO make this singleton - so Runtime.update works
 	public final ServiceInfo serviceInfo = new ServiceInfo();
-	static ServiceInterface gui = null;
+	//static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
 	public final static Logger log = LoggerFactory.getLogger(Runtime.class);
@@ -97,21 +96,18 @@ public class Runtime extends Service {
 	 * Object used to synchronize initializing this singleton.
 	 */
 	private static final Object instanceLockObject = new Object();
+	
 	/**
 	 * The singleton of this class.
 	 */
 	private static Runtime localInstance = null;
 
-	// auto update begin ------
-	// @Element
-	// private static boolean isAutoUpdateEnabled = false;
-	// default eveery 5 minutes
 	private static int autoUpdateCheckIntervalSeconds = 300;
 
 	private static String[] startingArgs;
 
 	public static void startAutoUpdate(int seconds) {
-		Runtime runtime = Runtime.getInstance();
+		Runtime.getInstance();
 		// isAutoUpdateEnabled = true;
 		autoUpdateCheckIntervalSeconds = seconds;
 		// only runtime can auto-update
@@ -193,8 +189,6 @@ public class Runtime extends Service {
 		synchronized (instanceLockObject) {
 			localInstance = this;
 		}
-		
-		// TODO - spin through all to search for useful info
 		
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
@@ -335,10 +329,7 @@ public class Runtime extends Service {
 		if (localInstance == null) {
 			synchronized (instanceLockObject) {
 				if (localInstance == null) {
-					// TODO should this be configurable?
 					if (runtimeName == null) {
-						// runtimeName = String.format("MRL%1$d", new
-						// Random().nextInt(99999));
 						runtimeName = "runtime";
 					}
 					localInstance = new Runtime(runtimeName);
@@ -508,13 +499,17 @@ public class Runtime extends Service {
 					Runtime rt = Runtime.getInstance();
 					// FIXME - Security determines what to export
 					Message msg = rt.createMessage("", "register", s);
-					((Communicator) gateway).sendRemote(uri, msg);
+					//((Communicator) gateway).sendRemote(uri, msg); //mrl://remote2/tcp://127.0.0.1:50488 <-- wrong sendingRemote is wrong
+					// FIXME - optimize gateway.send(msg) && URI TO URI MAP IN RUNTIME !!!
+					gateway.in(msg);
 				}
 			}
 		}
 
+		
 		// ServiceInterface sw = new ServiceInterface(s, se.accessURL);
 		se.serviceDirectory.put(s.getName(), s);
+		// WARNING - SHOULDN'T THIS BE DONE FIRST AVOID DEADLOCK / RACE CONDITION ????
 		registry.put(s.getName(), s); // FIXME FIXME FIXME FIXME !!!!!! pre-pend
 										// URI if not NULL !!!
 		if (localInstance != null) {
@@ -1024,38 +1019,6 @@ public class Runtime extends Service {
 		return true;
 	}
 
-	/**
-	 * DEPRICATE loads binary definition of MRL
-	 * 
-	 * @param filename
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static boolean load(String filename) {
-		ObjectInputStream in = null;
-		try {
-			FileInputStream fis;
-			fis = new FileInputStream(filename);
-			in = new ObjectInputStream(fis);
-			// instance = (RuntimeEnvironment)in.readObject();
-			hosts = (HashMap<URI, ServiceEnvironment>) in.readObject();
-			registry = (HashMap<String, ServiceInterface>) in.readObject();
-			hideMethods = (HashSet<String>) in.readObject();
-		} catch (Exception e) {
-			Logging.logException(e);
-			return false;
-		} finally {
-			if (in != null) {
-				try {
-					// TODO do we need to flush first?
-					in.close();
-				} catch (Exception e) {
-				}
-			}
-		}
-
-		return true;
-	}
 
 	/**
 	 * 
@@ -1077,7 +1040,7 @@ public class Runtime extends Service {
 			 */
 		}
 		/*
-		 * if (hasGUI) { gui.display(); }
+		 * if (hasGUI) {  }
 		 */
 	}
 
@@ -1241,6 +1204,7 @@ public class Runtime extends Service {
 		System.out.println("-logLevel        	# log level [DEBUG | INFO | WARNING | ERROR | FATAL]");
 		System.out.println("-service [Service Name] [Service Type] ...  # create and start list of services, e.g. -service gui GUIService");
 		System.out.println("example:");
+		String helpString = "java -Djava.library.path=./libraries/native/x86.32.windows org.myrobotlab.service.Runtime -service gui GUIService -logLevel INFO -logToConsole";
 		System.out.println(helpString);
 	}
 
@@ -1271,17 +1235,6 @@ public class Runtime extends Service {
 					log.error(String.format("could not create service %1$s %2$s", name, type));
 				}
 
-				// if the service has a display
-				// delay the display untill all Services have
-				// been created
-				if (s.hasDisplay()) {
-					gui = s;
-				}
-			}
-			// if the system is going to have a display
-			// display it
-			if (gui != null) {
-				gui.display();
 			}
 			return;
 		} /*
@@ -1500,7 +1453,6 @@ public class Runtime extends Service {
 	static public ServiceInterface createAndStart(String name, String type) {
 		ServiceInterface s = create(name, type);
 		s.startService();
-		s.display();
 		return s;
 	}
 

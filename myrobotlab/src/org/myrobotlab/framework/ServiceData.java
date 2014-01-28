@@ -16,6 +16,7 @@ import org.simpleframework.xml.Root;
 @Root
 public class ServiceData implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	/**
 	 * list of relationships from Service to dependency key. Dependency
 	 * information is stored in a normalized (TreeMap) list of Service types
@@ -33,11 +34,12 @@ public class ServiceData implements Serializable {
 	public TreeMap<String, CategoryList> categories = new TreeMap<String, CategoryList>();
 
 	// Master source is ONLY ivy resolved xml files ! no need to serialize or
-	// deserialize
+	// de-serialize
 	@ElementMap(entry = "org", value = "dependency", attribute = true, inline = true, required = false)
 	public TreeMap<String, Dependency> thirdPartyLibs = new TreeMap<String, Dependency>();
 
 	public static class CategoryList implements Serializable {
+		private static final long serialVersionUID = 1L;
 		@ElementList(entry = "include", inline = true)
 		public ArrayList<String> services = new ArrayList<String>();
 

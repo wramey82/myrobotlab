@@ -1001,6 +1001,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}
 
+	public void startService(){
+		super.startService();
+		display();
+	}
+	
 	public void getStatus(Status inStatus) {
 		/*
 		 * if (msg.startsWith("error")) { status.setOpaque(true);
@@ -1047,6 +1052,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
 
 		gui2.startService();
+		
+		Clock clock = new Clock("clock");
+		clock.startClock();
+		
+		Runtime.createAndStart("opencv", "OpenCV");
 		// gui2.display();
 
 		// gui2.startRecording();

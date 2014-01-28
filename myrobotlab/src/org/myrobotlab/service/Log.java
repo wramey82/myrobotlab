@@ -80,7 +80,7 @@ public class Log extends Service {
 
 		/*
 		 * GUIService gui = new GUIService("loggui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 
 	}

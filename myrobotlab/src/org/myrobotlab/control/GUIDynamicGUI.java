@@ -135,7 +135,7 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 		top.add(filters);
 
 		display.add(top, BorderLayout.PAGE_START);
-        
+
 		accessURLButton.addActionListener(buttonListener);
 		rebuildButton.addActionListener(buttonListener);
 		hideRoutesButton.addActionListener(buttonListener);
@@ -414,26 +414,6 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 		return button;
 	}
 
-	public JButton getLoadButton() {
-		JButton button = new JButton("load");
-		button.setEnabled(true);
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				Runtime.releaseAll();
-
-				// load runtime
-				Runtime.load("runtime.bin");
-				Runtime.startLocalServices();
-			}
-
-		});
-
-		return button;
-	}
-
 	public void buildLocalServiceGraph() {
 
 		log.info("buildLocalServiceGraph-begin");
@@ -601,6 +581,5 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 	@Override
 	public void detachGUI() {
 	}
-
 
 }

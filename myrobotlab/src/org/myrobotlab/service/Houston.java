@@ -143,7 +143,7 @@ public class Houston extends Service {
 		houston.startService();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

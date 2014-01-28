@@ -31,7 +31,7 @@ public class ROS extends Service {
 		ros.startService();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 
