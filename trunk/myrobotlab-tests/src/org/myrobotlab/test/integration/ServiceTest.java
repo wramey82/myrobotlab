@@ -459,7 +459,7 @@ public class ServiceTest {
 		TestThrower thrower01 = new TestThrower("thrower01");
 		RemoteAdapter remote01 = new RemoteAdapter("remote01");
 		TestCatcher catcher01 = new TestCatcher("catcher01");
-		GUIService gui01 = new GUIService("gui01");
+		//GUIService gui01 = new GUIService("gui01");
 		//remote01.setCFG("servicePort", "6565");
 
 		// manually setting an entry for the catcher01 in thrower01's config
@@ -474,7 +474,7 @@ public class ServiceTest {
 		remote01.startService();
 		catcher01.startService();
 		thrower01.startService();
-		gui01.startService();
+		//gui01.startService();
 		// gui01.display();
 
 		// set addListener list
