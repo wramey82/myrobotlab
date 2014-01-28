@@ -466,6 +466,8 @@ public class InMoov extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
+		log.warn(Runtime.buildDNA("head", "InMoovHead").toString());
+		
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
 		InMoovHead head = i01.startHead("COM4");
 		

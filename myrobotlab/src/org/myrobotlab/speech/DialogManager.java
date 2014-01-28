@@ -12,20 +12,15 @@
 
 package org.myrobotlab.speech;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.speech.recognition.GrammarException;
 import javax.speech.recognition.RuleGrammar;
 import javax.speech.recognition.RuleParse;
 
-import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 

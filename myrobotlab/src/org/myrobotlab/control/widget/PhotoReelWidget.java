@@ -29,9 +29,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -40,7 +37,6 @@ import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.control.ServiceGUI;
-import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.GUI;
