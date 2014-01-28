@@ -109,6 +109,7 @@ public class InMoovHead extends Service {
 		Peers peers = new Peers(name);
 		
 		peers.suggestAs("mouthControl.arduino", "headArduino", "Arduino", "shared head Arduino");
+		peers.suggestAs("mouthControl.jaw", "jaw", "Servo", "shared servo");		
 		peers.suggestAs("headTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
 		peers.suggestAs("eyesTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
 		peers.suggestAs("headArduino", "headArduino", "Arduino", "shared head Arduino");
@@ -119,7 +120,6 @@ public class InMoovHead extends Service {
 		peers.suggestAs("eyesTracking.x", "eyeX", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.y", "eyeY", "Servo", "shared servo");		
 		peers.suggestAs("opencv", "opencv", "OpenCV", "shared head OpenCV");	
-		peers.suggestAs("mouthControl.jaw", "jaw", "Servo", "shared servo");		
 		
 		peers.put("mouthControl", "MouthControl", "MouthControl");	
 		peers.put("opencv", "OpenCV", "shared OpenCV instance");
@@ -147,8 +147,8 @@ public class InMoovHead extends Service {
 		opencv = (OpenCV)createPeer("opencv");
 		headTracking = (Tracking)createPeer("headTracking");
 		eyesTracking = (Tracking)createPeer("eyesTracking");
-		mouthControl = (MouthControl) createPeer("mouthControl");
 		jaw = (Servo) createPeer("jaw");
+		mouthControl = (MouthControl) createPeer("mouthControl");
 		eyeX = (Servo) createPeer("eyeX");
 		eyeY = (Servo) createPeer("eyeY");
 		rothead = (Servo) createPeer("rothead");

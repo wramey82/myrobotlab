@@ -1007,14 +1007,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 	
 	public void getStatus(Status inStatus) {
-		/*
-		 * if (msg.startsWith("error")) { status.setOpaque(true);
-		 * status.setForeground(Color.white); status.setBackground(Color.red); }
-		 * else if (msg.startsWith("error")) { status.setOpaque(true);
-		 * status.setForeground(Color.white);
-		 * status.setBackground(Color.yellow); } else {
-		 * status.setForeground(Color.black); status.setOpaque(false); }
-		 */
 
 		if (inStatus.isError()) {
 			status.setOpaque(true);

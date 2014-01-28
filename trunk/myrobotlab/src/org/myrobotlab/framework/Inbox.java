@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 public class Inbox implements Serializable {

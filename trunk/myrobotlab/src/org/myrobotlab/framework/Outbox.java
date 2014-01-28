@@ -30,11 +30,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
-
 import org.myrobotlab.service.interfaces.CommunicationInterface;
+import org.slf4j.Logger;
 
 /*
  * Outbox is a message based thread which sends messages based on addListener lists and current
@@ -54,13 +52,9 @@ public class Outbox implements Runnable, Serializable {
 	static public final String BROADCAST = "BROADCAST";
 	static public final String PROCESSANDBROADCAST = "PROCESSANDBROADCAST";
 	
-	private String outboxMsgHandling = RELAY;
-
 	Service myService = null;
 	LinkedList<Message> msgBox = new LinkedList<Message>();
-	// TODO - these all have to be CFG'd
 	boolean isRunning = false;
-	boolean bufferOverrun = false;
 	boolean blocking = false;
 	int maxQueue = 1024;
 	int initialThreadCount = 1;
@@ -190,7 +184,6 @@ public class Outbox implements Runnable, Serializable {
 			// we warn if over 10 messages are in the queue - but we will still
 			// process them
 			if (msgBox.size() > maxQueue) {
-				bufferOverrun = true;
 				log.warn(String.format("%s outbox BUFFER OVERRUN size %d", myService.getName(), msgBox.size()));
 			}
 			msgBox.addFirst(msg);
