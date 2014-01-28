@@ -56,7 +56,7 @@ public class MainTest implements MessageListener {
 		// start a gui if you want
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 
 		while (cnt < 100) {
 			++cnt;

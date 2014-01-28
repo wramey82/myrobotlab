@@ -531,7 +531,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		 * 
 		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 		/*
 		 * Serial serial = new Serial("serial"); serial.startService();
@@ -546,7 +546,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

@@ -34,7 +34,7 @@ public class ServiceDescriptor implements Serializable {
 	public String description = "this is a service";
 
 	@ElementList(name = "list")
-	private ArrayList<String> dependencyList = new ArrayList<String>();
+	public ArrayList<String> dependencyList = new ArrayList<String>();
 
 	public ServiceDescriptor() {
 	}

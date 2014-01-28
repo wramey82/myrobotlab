@@ -774,8 +774,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		 */
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
-
+		
 	}
 
 	@Override

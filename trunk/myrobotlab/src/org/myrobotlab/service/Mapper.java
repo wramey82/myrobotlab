@@ -31,7 +31,7 @@ public class Mapper extends Service {
 		mapper.startService();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

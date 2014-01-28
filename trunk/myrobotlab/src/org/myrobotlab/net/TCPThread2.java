@@ -14,6 +14,7 @@ import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
@@ -59,57 +60,64 @@ public class TCPThread2 extends Thread {
 				o = in.readObject();
 				msg = (Message) o;
 
-				if (msg == null) {
-					log.error("msg deserialized to null");
-				} else {
-					// FIXME - normalize to single method - check for data
-					// type too ? !!!
-					if (msg.method.equals("register")) {
+				// FIXME - normalize to single method - check for data
+				// type too ? !!!
+				if (msg.method.equals("register")) { 
+					// BEGIN ENCAPSULATION --- ENCODER BEGIN -------------
+					// IMPORTANT - (should be in Encoder) - create the key
+					// for foreign service environment
+					URI protoKey = new URI(String.format("tcp://%s:%d", socket.getInetAddress().getHostAddress(), socket.getPort()));
+					String mrlURI = String.format("mrl://%s/%s", myService.getName(), protoKey.toString());
+					URI uri = new URI(mrlURI);
 
-						ServiceInterface sw = (ServiceInterface) msg.data[0];
+					// IMPORTANT - this is an optimization and probably
+					// should be in the Comm interface defintion
+					CommunicationInterface cm = myService.getComm();
+					cm.addRemote(uri, protoKey);
 
-						// IMPORTANT - (should be in Encoder) - create the
-						// key for foreign service environment
-						String mrlURI = String.format("mrl://%s/tcp://%s:%d", myService.getName(), socket.getInetAddress().getHostAddress(), socket.getPort());
-						URI uri = new URI(mrlURI);
-
-						// check if the URI is already defined - if not - we
-						// will
-						// send back the services which we want to export -
-						// Security will filter appropriately
-						ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
+					// check if the URI is already defined - if not - we
+					// will
+					// send back the services which we want to export -
+					// Security will filter appropriately
+					ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
+					if (foreignProcess == null) {
 						
-						// HMMM a vote for String vs URI here - since we
-						// need to
+						ServiceInterface si = (ServiceInterface) msg.data[0];
+						// HMMM a vote for String vs URI here - since we need to
 						// catch syntax !!!
-						sw.setHost(uri);
+						si.setHost(uri);
 
 						// if security ... msg within msg
 						// getOutbox().add(createMessage(Runtime.getInstance().getName(),
 						// "register", inboundMsg));
-						Runtime.register(sw, uri);// <-- not an INVOKE !!!
+						Runtime.register(si, uri);// <-- not an INVOKE !!! // -
+						// no security ! :P
 						
-						if (foreignProcess == null) {
-							// not defined we will send export
-							// TODO - Security filters - default export
-							// (include exclude) - mapset of name
-							ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
+						// not defined we will send export
+						// TODO - Security filters - default export (include
+						// exclude) - mapset of name
+						ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
 
-							Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
-							String name;
-							ServiceInterface si;
-							while (it.hasNext()) {
-								name = it.next();
-								si = localProcess.serviceDirectory.get(name);
+						Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
+						String name;
+						ServiceInterface toRegister;
+						while (it.hasNext()) {
+							name = it.next();
+							toRegister = localProcess.serviceDirectory.get(name);
 
-								Message sendService = myService.createMessage("", "register", si);
-								send(sendService);
-							}
-
+							Message sendService = myService.createMessage(si.getName(), "register", toRegister);
+							// send(sendService); <-- BASTARD OF A BUG - 2 days problem with 2 threads writing
+							// and not reading and running out of buffered i/o !!!
+							// THIS THREAD MUST NEVER EVER WRITE DIRECTLY !!! 
+							
+							myService.getOutbox().add(sendService);
 						}
 
-						//  FIXME - I moved the registration before sending service - fix in XMPP !
 					}
+
+					
+					// BEGIN ENCAPSULATION --- ENCODER END -------------
+				} else {
 					++data.rx;
 					myService.getOutbox().add(msg);
 				}
@@ -146,12 +154,17 @@ public class TCPThread2 extends Thread {
 		}
 	}
 
-
 	public synchronized void send(Message msg) {
 		try {
-			
-			if (msg.data != null && msg.data[0] != null && msg.data[0] instanceof Service){
-				log.info(String.format("serializing %s", ((Service)msg.data[0]).getName()));
+
+			if (msg.data != null && msg.data[0] != null && msg.data[0] instanceof Service) {
+				String n = ((Service) msg.data[0]).getName();
+				log.info(String.format("serializing %s", n));
+				if (n.equals("r1")){
+					log.info("here");
+					//return;
+				}
+				
 			}
 			out.writeObject(msg);
 			out.flush();

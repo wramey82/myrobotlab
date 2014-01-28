@@ -560,7 +560,7 @@ public class Plantoid extends Service {
 		// Runtime.createAndStart("webgui", "WebGUI");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

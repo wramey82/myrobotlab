@@ -144,24 +144,6 @@ public class ServiceInfo implements Serializable {
 	}
 
 	/**
-	 * static info - share it with a singleton
-	 * 
-	 * @return
-	 */
-	/*
-	public static ServiceInfo getInstance() {
-		if (instance == null) {
-			synchronized (instanceObject) {
-				if (instance == null) {
-					instance = new ServiceInfo();
-				}
-			}
-		}
-		return instance;
-	}
-	*/
-
-	/**
 	 * Get all the keys.
 	 * 
 	 * @return

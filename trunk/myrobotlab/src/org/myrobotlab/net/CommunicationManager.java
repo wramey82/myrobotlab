@@ -47,7 +47,7 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 	Service myService = null;
 	Outbox outbox = null;
 
-	static HashMap<URI,URI> localToRemote = new HashMap<URI,URI>();
+	static HashMap<URI,URI> mrlToProtocol = new HashMap<URI,URI>();
 	
 	private Communicator comm = null;
 
@@ -64,6 +64,11 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 
 		setComm(c);
 
+	}
+	
+	// FIXME - put in Runtime
+	public void addRemote(URI mrlHost, URI protoKey){
+		mrlToProtocol.put(mrlHost, protoKey);
 	}
 
 	/**
@@ -91,7 +96,7 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 		} else {
 			//log.info(String.format("remote %s.%s->%s/%s.%s(%s)", msg.sender, msg.sendingMethod, sw.getHost(), msg.name, msg.method, Encoder.getParameterSignature(msg.data)));
 			
-			URI remote = localToRemote.get(host);
+			URI remote = mrlToProtocol.get(host);
 			getComm(host).sendRemote(remote, msg);
 		}
 	}

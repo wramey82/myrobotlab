@@ -20,5 +20,7 @@ public interface CommunicationInterface {
 	 * @return
 	 */
 	public Communicator getComm(final URI uri);
+	
+	public void addRemote(URI mrlHost, URI protoKey);
 
 }

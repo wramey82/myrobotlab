@@ -55,11 +55,11 @@ public class GUIDynamic extends GUIService {
 
 		GUIDynamic gui = new GUIDynamic("GUIDynamic");
 		gui.startService();		
-		gui.display();
+		
 		//Runtime.createAndStart("gui", "GUIService");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

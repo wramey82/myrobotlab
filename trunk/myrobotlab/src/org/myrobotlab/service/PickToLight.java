@@ -488,7 +488,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		// Runtime.createAndStart("webgui", "WebGUI");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 
 	}

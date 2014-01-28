@@ -130,7 +130,8 @@ public class Outbox implements Runnable, Serializable {
 			// if the msg name is not my name - then
 			// relay it
 			// WARNING - broadcast apparently means name == ""
-			if (msg.name.length() > 0 && !myService.getName().equals(msg.name)) { //&& myService.outboxMsgHandling.equals(RELAY)) {
+			// why would a message with my name be in my outbox ??? - FIXME deprecate that logic
+			if (msg.name.length() > 0 && !myService.getName().equals(msg.name)) {
 				log.debug("{} configured to RELAY ", msg.getName());
 				comm.send(msg);
 				// recently added -

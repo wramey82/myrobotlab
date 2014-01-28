@@ -194,7 +194,7 @@ public class Graphics extends Service {
 		gui.startService();
 		graph.startService();
 
-		gui.display();
+		
 		graph.attach(gui.getName());
 		graph.createGraph(640, 480);
 		graph.setColor(new Color(0x666666));

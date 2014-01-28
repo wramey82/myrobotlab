@@ -95,7 +95,7 @@ public class CleverBot extends Service {
 		log.info("here");
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

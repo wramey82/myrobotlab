@@ -230,7 +230,7 @@ public class AudioCapture extends Service {
 		audioIn.startService();
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 		
 		audioIn.captureAudio();
 		Thread.sleep(3000);

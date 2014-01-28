@@ -143,13 +143,13 @@ public class Clock extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		String test = "xmpp";
+		String test = "tcp";
 
 		if ("tcp".equals(test)) {
 			// TCP CONNECT WORKS BEGIN ---------------------------------
 			try {
 
-				int i = 1;
+				int i = 3;
 				Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
 				// RemoteAdapter remote = (RemoteAdapter)
 				// Runtime.createAndStart(String.format("remote%d", i),
@@ -165,7 +165,7 @@ public class Clock extends Service {
 				Runtime.createAndStart(String.format("gui%d", i), "GUIService");
 
 				Message msg = remote.createMessage("", "register", clock);
-				URI uri = new URI("tcp://localhost:6767");
+				URI uri = new URI("tcp://127.0.0.1:6767");
 				remote.sendRemote(uri, msg);
 
 				// FIXME - sholdn't this be sendRemote ??? or at least

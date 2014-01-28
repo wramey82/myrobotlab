@@ -339,7 +339,7 @@ public class PID extends Service {
 		
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 
 		for (int i = 0; i < 200; ++i) {
 			pid.setInput(i);

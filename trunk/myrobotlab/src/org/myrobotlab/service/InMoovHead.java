@@ -119,6 +119,7 @@ public class InMoovHead extends Service {
 		peers.suggestAs("eyesTracking.x", "eyeX", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.y", "eyeY", "Servo", "shared servo");		
 		peers.suggestAs("opencv", "opencv", "OpenCV", "shared head OpenCV");	
+		peers.suggestAs("mouthControl.jaw", "jaw", "Servo", "shared servo");		
 		
 		peers.put("mouthControl", "MouthControl", "MouthControl");	
 		peers.put("opencv", "OpenCV", "shared OpenCV instance");
@@ -171,6 +172,8 @@ public class InMoovHead extends Service {
 		jaw.setRest(10);
 		eyeX.setRest(80);
 		eyeY.setRest(90);
+		
+		//mouthControl.set
 		
 	}
 
@@ -383,7 +386,7 @@ public class InMoovHead extends Service {
 		
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

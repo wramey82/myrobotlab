@@ -218,7 +218,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 
 		// GUIService gui = new GUIService("gui");
 		// gui.startService();
-		// gui.display();
+		// 
 
 		/*
 		 * FileOutputStream fos = null; ObjectOutputStream out = null; try {
@@ -233,7 +233,7 @@ public class PICAXE extends Service // implements SerialPortEventListener,
 		 * 
 		 * PICAXE.startService(); PICAXE.startPICAXE();
 		 * 
-		 * gui.startService(); gui.display();
+		 * gui.startService(); 
 		 * 
 		 * 
 		 * } catch (Exception e) { log.error(e.getMessage());

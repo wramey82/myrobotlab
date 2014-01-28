@@ -323,7 +323,7 @@ public class WiiDAR extends Service {
 	 * //wii.addListener(
 	 * 
 	 * 
-	 * gui.display();
+	 * 
 	 * 
 	 * sweepMonolith(); //calibrateLaserServoSweep();
 	 * 

@@ -231,7 +231,7 @@ public class IPCamera extends Service {
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 
 	}
 	

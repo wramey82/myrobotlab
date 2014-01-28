@@ -203,8 +203,6 @@ public class Rose extends Service {
 			center();
 			mouth.play("state/ready");
 
-			gui.display();
-
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

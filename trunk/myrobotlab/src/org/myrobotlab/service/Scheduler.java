@@ -303,7 +303,7 @@ public class Scheduler extends Service {
 		// sched.stopService();
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * gui.display();
+		 * 
 		 */
 	}
 

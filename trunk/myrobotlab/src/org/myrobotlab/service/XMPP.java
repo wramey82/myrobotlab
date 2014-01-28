@@ -436,10 +436,15 @@ public class XMPP extends Service implements Communicator, MessageListener {
 			// own message and send it
 			if (inboundMsg.method.equals("register")) {
 				try {
-
+					
+					// BEGIN ENCAPSULATION --- ENCODER BEGIN -------------
 					// IMPORTANT - (should be in Encoder) - create the key for foreign service environment
-					String mrlURI = String.format("mrl://%s/xmpp://%s", getName(), from);
+					URI protoKey = new URI(String.format("xmpp://%s",from));
+					String mrlURI = String.format("mrl://%s/%s", getName(), protoKey.toString());
 					URI uri = new URI(mrlURI);
+					
+					// IMPORTANT - this is an optimization and probably should be in the Comm interface defintion
+					cm.addRemote(uri, protoKey);
 					
 					// check if the URI is already defined - if not - we will
 					// send back the services which we want to export - Security will filter appropriately 
@@ -471,9 +476,10 @@ public class XMPP extends Service implements Communicator, MessageListener {
 					// if security ... msg within msg
 					// getOutbox().add(createMessage(Runtime.getInstance().getName(),
 					// "register", inboundMsg));
-					Runtime.register(si, uri);// <-- not an INVOKE !!!
-														// -
+					Runtime.register(si, uri);// <-- not an INVOKE !!!														// -
 					// no security ! :P
+					// BEGIN ENCAPSULATION --- ENCODER END -------------
+
 				} catch (Exception e) {
 					Logging.logException(e);
 				}
@@ -577,7 +583,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		// decompose uri or use as key (mmm specified encoding???)
 		// FIXME - Encoder should do this !!!
 		//String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
-		String remoteURI = uri.getPath().substring(1); // remove the root "/"
+		String remoteURI = uri.toString().substring("xmpp://".length()); // remove the root "/"
 		// log.info(remoteURI);
 		msg.historyList.add(getName());
 		String base64 = Encoder.msgToBase64(msg);

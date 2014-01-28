@@ -644,7 +644,7 @@ public class OpenCV extends VideoSource {
 		vs.attach(opencv);
 */				
 		GUIService gui = (GUIService)Runtime.createAndStart("gui", "GUIService");
-		gui.display();
+		
 		
 		
 

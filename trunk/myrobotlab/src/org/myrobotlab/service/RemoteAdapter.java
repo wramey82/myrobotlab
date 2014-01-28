@@ -47,7 +47,6 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.CommData;
-import org.myrobotlab.net.CommObjectStreamOverTCP;
 import org.myrobotlab.net.TCPThread2;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.slf4j.Logger;
@@ -56,11 +55,7 @@ import org.slf4j.Logger;
  * 
  * @author GroG
  * 
- *         This is a service which allows foreign clients to connect. It
- *         maintains a list of currently connected clients. Most of the
- *         communication details are left up to a configurable Communicator and
- *         Serializer. At this point the RemoteAdapter has the ability to
- *         filter, block, or re-route any inbound messages.
+ *         This is a service which allows foreign clients to connect
  * 
  */
 
@@ -76,17 +71,11 @@ public class RemoteAdapter extends Service implements Communicator {
 
 	private Integer udpPort = 6767;
 	private Integer tcpPort = 6767;
-	
-	// FIXME static map of clients is within this object - 
-	// simplify - remove all data maps and put in this service 
-	//CommObjectStreamOverTCP tcp;
 
 	transient HashMap<URI, TCPThread2> clientList = new HashMap<URI, TCPThread2>();
-	
+
 	public RemoteAdapter(String n) {
 		super(n);
-		
-		//tcp = new CommObjectStreamOverTCP(this);
 	}
 
 	@Override
@@ -130,13 +119,19 @@ public class RemoteAdapter extends Service implements Communicator {
 				myService.info(String.format("listening on %s tcp", serverSocket.getLocalSocketAddress()));
 
 				while (isRunning()) {
-					// FIXME - on contact register the "environment" regardless if a service registers !!!
-					Socket clientSocket = serverSocket.accept(); // FIXME ENCODER SHOULD BE DOING THIS
-					String clientKey = String.format("tcp://%s:%d",clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
-					//String newHostEntryKey = String.format("mrl://%s/%s", myService.getName(), clientKey);
-					//info(String.format("connection from %s", newHostEntryKey));
+					// FIXME - on contact register the "environment" regardless
+					// if a service registers !!!
+					Socket clientSocket = serverSocket.accept(); // FIXME
+																	// ENCODER
+																	// SHOULD BE
+																	// DOING
+																	// THIS
+					String clientKey = String.format("tcp://%s:%d", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
+					// String newHostEntryKey = String.format("mrl://%s/%s",
+					// myService.getName(), clientKey);
+					// info(String.format("connection from %s",
+					// newHostEntryKey));
 					URI uri = new URI(clientKey);
-					
 					clientList.put(uri, new TCPThread2(myService, uri, clientSocket));
 				}
 
@@ -305,15 +300,14 @@ public class RemoteAdapter extends Service implements Communicator {
 		}
 		return ret;
 	}
-	
-	
 
-	//public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
+	// public transient HashMap<URI, TCPThread> clientList = new HashMap<URI,
+	// TCPThread>();
 
-	
 	// FIXME - make URI keyed map - check for map - if not there
 	// make new TCP/UDPThread
-	// the datastore - is a uri client --to--> data store which is used to connect & communicate
+	// the datastore - is a uri client --to--> data store which is used to
+	// connect & communicate
 	// to endpoints
 	// endpoint is expected to be of the following format
 	// mrl://(name)/tcp://host:port/
@@ -325,25 +319,26 @@ public class RemoteAdapter extends Service implements Communicator {
 		log.info(String.format("getQuery %s", uri.getQuery()));
 		log.info(String.format("sendRemote %s %s.%s", uri, msg.name, msg.method));
 		TCPThread2 t = null;
-		if (clientList.containsKey(uri))
-		{
-			t = clientList.get(uri);
-		} else {
-			try {
+		try {
+			if (clientList.containsKey(uri)) {
+				t = clientList.get(uri);
+			} else {
+
 				t = new TCPThread2(this, uri, null);
-				//clientList.put(new URI(String.format("mrl://%s/%s", getName(), uri.toString())), t);
+				// clientList.put(new URI(String.format("mrl://%s/%s",
+				// getName(), uri.toString())), t);
 				clientList.put(uri, t);
-			} catch(Exception e){
-				Logging.logException(e);
 			}
+
+			if (t == null) {
+				log.info("here");
+			}
+
+			t.send(msg);
+
+		} catch (Exception e) {
+			Logging.logException(e);
 		}
-		
-		if (t == null)
-		{
-			log.info("here");
-		}
-		
-		t.send(msg);
 	}
 
 	// FIXME - remote
@@ -352,7 +347,7 @@ public class RemoteAdapter extends Service implements Communicator {
 		// TODO Auto-generated method stub
 		log.info("add client");
 	}
-	
+
 	public Integer getUdpPort() {
 		return udpPort;
 	}
@@ -369,14 +364,13 @@ public class RemoteAdapter extends Service implements Communicator {
 		this.tcpPort = tcpPort;
 	}
 
-
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.ERROR);
 
 		try {
 
-			int i = 2;
+			int i = 1;
 			Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
 			RemoteAdapter remote = (RemoteAdapter) Runtime.createAndStart(String.format("remote%d", i), "RemoteAdapter");
 			Runtime.createAndStart(String.format("clock%d", i), "Clock");

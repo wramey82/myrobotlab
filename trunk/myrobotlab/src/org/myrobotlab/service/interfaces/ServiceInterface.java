@@ -13,6 +13,12 @@ public interface ServiceInterface {
 	
 	public String getName();
 
+	/**
+	 * in will put a message in the Service's inbox - it will require the Service's thread
+	 * to process it.
+	 * 
+	 * @param msg - message to process
+	 */
 	public void in(Message msg);
 
 	public void stopService();
@@ -28,10 +34,6 @@ public interface ServiceInterface {
 	public String getSimpleName();
 
 	public String getDescription();
-
-	public boolean hasDisplay();
-	
-	public void display();
 	
 	public boolean save();
 	
@@ -45,6 +47,10 @@ public interface ServiceInterface {
 
 	public Object invoke(String method, Object...params);
 	
+	/**
+	 * asked by the framework - to determin if the service needs to be secure
+	 * @return
+	 */
 	public boolean requiresSecurity();
 
 	public boolean isLocal();

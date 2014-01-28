@@ -61,7 +61,7 @@ public class SEAR extends Service {
         //Start the GUI service
         GUIService gui = new GUIService("gui");
         gui.startService();
-        gui.display();
+        
 
     }
 

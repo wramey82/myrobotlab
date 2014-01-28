@@ -127,7 +127,7 @@ public class FSMTest extends Service {
 
 		// start vision
 		opencv.videoProcessor.grabberType = "com.googlecode.javacv.OpenKinectFrameGrabber";
-		gui.display();
+		
 		opencv.capture();
 
 		initPhrases();

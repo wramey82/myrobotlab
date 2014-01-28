@@ -268,7 +268,7 @@ public class Cortex extends Service implements MemoryChangeListener {
 
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		gui.display();
+		
 
 		// cortex.add("root", new Node("background"));
 		// cortex.add("root", new Node("foreground"));

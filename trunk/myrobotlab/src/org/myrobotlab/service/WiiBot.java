@@ -72,7 +72,7 @@ public class WiiBot extends Service {
 		// servo.attach(arduino.getName(), 9);
 
 		// gui.start();
-		// gui.display();
+		// 
 
 		// setting up wii
 		wii.getWiimotes();
@@ -107,7 +107,7 @@ public class WiiBot extends Service {
 		// wii.addListener("publishPin", wiidar.getName(), "publishPin",
 		// IRData.class);
 		arduino.addListener(wiidar.getName(), "publishPin", Pin.class);
-		gui.display();
+		
 	}
 
 	int speedRight = 0;
