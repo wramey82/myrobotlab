@@ -19,7 +19,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Date;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -31,9 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.ServiceEntry;
 import org.myrobotlab.framework.StopWatch;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.TestCatcher;
@@ -461,14 +458,6 @@ public class ServiceTest {
 		TestCatcher catcher01 = new TestCatcher("catcher01");
 		//GUIService gui01 = new GUIService("gui01");
 		//remote01.setCFG("servicePort", "6565");
-
-		// manually setting an entry for the catcher01 in thrower01's config
-		ServiceEntry se = new ServiceEntry();
-		se.host = "localhost";
-		se.lastModified = new Date();
-		se.name = "catcher01";
-		se.serviceClass = TestCatcher.class.getCanonicalName();
-		se.servicePort = 6565;
 
 		// start services
 		remote01.startService();
