@@ -9,9 +9,12 @@ neck.startLKTracking()
 #!!!my eyeY servo and jaw servo are reverted, Gael should delete this part !!!!
 i01.head.eyeY.setInverted(True)
 i01.head.eyeY.setMinMax(22,85)
+i01.head.eyeY.setRest(45)
+i01.head.eyeY.moveTo(45)
 i01.head.jaw.setInverted(True)
-i01.head.jaw.setMinMax(20,40)
+i01.head.jaw.setMinMax(0,50)
 i01.head.jaw.moveTo(20)
+i01.head.mouthControl.setmouth(50,0)
 ############################################################
 
 i01.head.headTracking.xpid.setPID(15.0,5.0,0.1)
@@ -23,9 +26,8 @@ eyes = i01.getEyesTracking()
 eyes.startLKTracking()
 
 ear = runtime.createAndStart("ear","Sphinx")
-mouth = runtime.createAndStart("mouth", "Speech")
  
-ear.attach(mouth)
+ear.attach(i01.head.mouthControl.mouth)
 ear.addCommand("attach", "i01.head", "attach")
 ear.addCommand("detach", "i01.head", "detach")
 ear.addCommand("search humans", "i01.head.headTracking", "findFace")
