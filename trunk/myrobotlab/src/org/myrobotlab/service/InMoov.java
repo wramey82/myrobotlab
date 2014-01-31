@@ -62,6 +62,9 @@ public class InMoov extends Service {
 		peers.put("leftHand", "InMoovHand", "left hand");
 		peers.put("rightArm", "InMoovArm", "right arm");
 		peers.put("leftArm", "InMoovArm", "left arm");
+		
+		
+		
 		return peers;
 	}
 
@@ -212,7 +215,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovArm startArm(String side, String port) {
-		InMoovArm Arm = (InMoovArm) createPeer(String.format("%Arm", side));
+		InMoovArm Arm = (InMoovArm) createPeer(String.format("%sArm", side));
 		// connect will start if not already started
 		if (!Arm.arduino.isConnected()) {
 			Arm.connect(port);
