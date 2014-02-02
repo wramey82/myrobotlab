@@ -80,18 +80,19 @@ public class TCPThread2 extends Thread {
 					// send back the services which we want to export -
 					// Security will filter appropriately
 					ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
-					if (foreignProcess == null) {
-						
-						ServiceInterface si = (ServiceInterface) msg.data[0];
-						// HMMM a vote for String vs URI here - since we need to
-						// catch syntax !!!
-						si.setHost(uri);
+					
+					ServiceInterface si = (ServiceInterface) msg.data[0];
+					// HMMM a vote for String vs URI here - since we need to
+					// catch syntax !!!
+					si.setHost(uri);
 
-						// if security ... msg within msg
-						// getOutbox().add(createMessage(Runtime.getInstance().getName(),
-						// "register", inboundMsg));
-						Runtime.register(si, uri);// <-- not an INVOKE !!! // -
-						// no security ! :P
+					// if security ... msg within msg
+					// getOutbox().add(createMessage(Runtime.getInstance().getName(),
+					// "register", inboundMsg));
+					Runtime.register(si, uri);// <-- not an INVOKE !!! // -
+					// no security ! :P
+					
+					if (foreignProcess == null) {
 						
 						// not defined we will send export
 						// TODO - Security filters - default export (include
@@ -105,12 +106,15 @@ public class TCPThread2 extends Thread {
 							name = it.next();
 							toRegister = localProcess.serviceDirectory.get(name);
 
-							Message sendService = myService.createMessage(si.getName(), "register", toRegister);
-							// send(sendService); <-- BASTARD OF A BUG - 2 days problem with 2 threads writing
-							// and not reading and running out of buffered i/o !!!
-							// THIS THREAD MUST NEVER EVER WRITE DIRECTLY !!! 
-							
-							myService.getOutbox().add(sendService);
+							// the following will wrap a message within a message and send it remotely
+							// This Thread CANNOT Write on The ObjectOutputStream directly - 
+							// IT SHOULD NEVER DO ANY METHOD WHICH CAN BLOCK !!!! - 3 days of bug chasing when
+							// it wrote to ObjectOutputStream and oos blocked when the buffer was full - causing deadlock
+							// putting it on the inbox will move it to a different thread
+							Message sendService = myService.createMessage("", "register", toRegister);
+							Message outbound = myService.createMessage(myService.getName(), "sendRemote", new Object[]{protoKey, sendService});
+							myService.getInbox().add(outbound);
+						
 						}
 
 					}

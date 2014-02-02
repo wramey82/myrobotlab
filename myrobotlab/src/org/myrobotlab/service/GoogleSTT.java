@@ -381,8 +381,11 @@ public class GoogleSTT extends Service implements SpeechRecognizer {
 		
 	}
 
-
-
+	public void releaseService(){
+		super.releaseService();
+		stopAudioCapture();
+	}
+	
 	@Override
 	public void resumeListening() {
 		// TODO Auto-generated method stub

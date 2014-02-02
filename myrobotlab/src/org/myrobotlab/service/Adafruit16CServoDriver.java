@@ -11,6 +11,7 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -40,8 +41,6 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	// have!
 	public final static int SERVOMIN = 150; // this is the 'minimum' pulse length count (out of 4096)
 	public final static int SERVOMAX = 600; // this is the 'maximum' pulse length count (out of 4096)
-	
-	public String arduinoName = "arduino";
 
 	transient public Arduino arduino = null;
 	HashMap<String, Integer> servoMap = new HashMap<String, Integer>();
@@ -54,14 +53,23 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	private boolean pwmFreqSet = false;
 
 	public transient final static Logger log = LoggerFactory.getLogger(Adafruit16CServoDriver.class.getCanonicalName());
+	
+	public static Peers getPeers(String name)
+	{
+		Peers peers = new Peers(name);
+		//peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
+		//peers.put("keyboard", "Keyboard", "Keyboard service");
+		peers.put("arduino", "Arduino", "our Arduino");
+		return peers;
+	}
 
 	public Adafruit16CServoDriver(String n) {
 		super(n);
+		arduino = (Arduino) createPeer("arduino");
 	}
 
 	public void startService() {
 		super.startService();
-		arduino = new Arduino(arduinoName);
 		attach(arduino);
 		arduino.startService();
 		// TODO - request myArduino - re connect

@@ -11,6 +11,7 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -66,7 +67,6 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	transient public HashMap<String, Servo> servos = new HashMap<String, Servo>();
 
 	transient public Arduino arduino = null;
-	public String arduinoName;
 
 	final int AF_DCMOTOR_ATTACH = 51;
 	final int AF_DCMOTOR_DETACH = 52;
@@ -81,6 +81,15 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	final int AF_STEPPER_STEP = 59;
 	final int AF_STEPPER_SET_SPEED = 60;
 	// FIXME - COMPLETE IMPLEMENTATION END --
+	
+	public static Peers getPeers(String name)
+	{
+		Peers peers = new Peers(name);
+		//peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
+		//peers.put("keyboard", "Keyboard", "Keyboard service");
+		peers.put("arduino", "Arduino", "our Arduino");
+		return peers;
+	}
 	
 	public static final String ADAFRUIT_DEFINES = 
 
@@ -97,12 +106,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 					" #define AF_STEPPER_RELEASE 58\n" +
 					" #define AF_STEPPER_STEP 59\n" + 
 					" #define AF_STEPPER_SET_SPEED 60\n" +
-
-/*					" AF_DCMotor m1(1);\n" + 
-					" AF_DCMotor m2(2);\n" + 
-					" AF_DCMotor m3(3);\n" + 
-					" AF_DCMotor m4(4);\n" + 
-*/					
+		
 					" AF_DCMotor* motorMap[4];\n" + 
 					" AF_Stepper* stepperMap[2];\n" + 
 					"\n\n";
@@ -117,12 +121,12 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	public AdafruitMotorShield(String n) {
 		super(n);
-		arduinoName = String.format("%s_%s", n, "arduino");
+		arduino = (Arduino) createPeer("arduino");
 	}
 
 	public void startService() {
 		super.startService();
-		arduino = (Arduino) Runtime.createAndStart(arduinoName, "Arduino");
+		arduino.startService();
 		attach(arduino);
 	}
 

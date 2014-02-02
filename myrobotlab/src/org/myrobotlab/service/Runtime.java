@@ -1982,6 +1982,7 @@ public class Runtime extends Service {
 		return uniqueID;
 	}
 
+	// FIXME - is this
 	public boolean isInstalled(String fullTypeName) {
 		return !getServiceInfo().hasUnfulfilledDependencies(fullTypeName);
 	}
@@ -2064,8 +2065,18 @@ public class Runtime extends Service {
 
 		return ret;
 	}
-
 	// -------- network end ------------------------
+	
+	// http://stackoverflow.com/questions/16610525/how-to-determine-if-graphicsenvironment-exists
+	
+	static public boolean isHeadless(){
+		//String awt = "java.awt.GraphicsEnvironment";
+		//java.awt.GraphicsEnvironment.isHeadless()
+		//  String nm = System.getProperty("java.awt.headless");
+		// should return true if Linux != display
+		String b = System.getProperty("java.awt.headless");
+		return Boolean.parseBoolean(b);
+	}
 
 	/**
 	 * Runtime's setLogLevel will set the root log level if its called from a

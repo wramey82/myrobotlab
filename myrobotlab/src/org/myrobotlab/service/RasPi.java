@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.myrobotlab.framework.Platform;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.i2c.I2CFactory;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -14,12 +15,14 @@ import org.slf4j.Logger;
 import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinMode;
+import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
-//import com.pi4j.io.i2c.I2CFactory;
-import org.myrobotlab.i2c.I2CFactory;
+import com.pi4j.wiringpi.SoftPwm;
 
 public class RasPi extends Service {
 
@@ -28,6 +31,9 @@ public class RasPi extends Service {
 	public final static Logger log = LoggerFactory.getLogger(RasPi.class.getCanonicalName());
 
 	// the 2 pins for I2C on the raspberry
+	GpioController gpio; 	  
+	
+	// FIXME - do a 
 	GpioPinDigitalOutput gpio01;
 	GpioPinDigitalOutput gpio03;
 
@@ -38,6 +44,8 @@ public class RasPi extends Service {
 		public I2CDevice device;
 		public String type;
 	}
+	
+	
 
 	public RasPi(String n) {
 		super(n);
@@ -45,7 +53,7 @@ public class RasPi extends Service {
 		log.info(String.format("platform is %s", Platform.getLocalInstance()));
 		if ("arm".equals(Platform.getArch())) {
 			// init I2C
-			GpioController gpio = GpioFactory.getInstance();
+			gpio = GpioFactory.getInstance();
 			gpio01 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
 			gpio03 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03);
 
@@ -55,6 +63,11 @@ public class RasPi extends Service {
 		}
 
 	}
+	
+	/* FIXME - make these methods
+	createDigitalAndPwmPin
+	public GpioPinDigitalOutput  provisionDigitalOutputPin
+	*/
 
 	@Override
 	public String getDescription() {
@@ -197,6 +210,40 @@ public class RasPi extends Service {
 			Logging.logException(e);
 		}
 		return -1;
+	}
+	
+	
+	public void testGPIOOutput(){
+		GpioPinDigitalMultipurpose pin = gpio.provisionDigitalMultipurposePin(RaspiPin.GPIO_02, PinMode.DIGITAL_INPUT, PinPullResistance.PULL_DOWN);
+
+	}
+	
+	public void testPWM(){
+		try {
+		
+		 // initialize wiringPi library
+        com.pi4j.wiringpi.Gpio.wiringPiSetup();
+
+        // create soft-pwm pins (min=0 ; max=100)
+        SoftPwm.softPwmCreate(1, 0, 100);
+
+        // continuous loop
+        while (true) {            
+            // fade LED to fully ON
+            for (int i = 0; i <= 100; i++) {
+                SoftPwm.softPwmWrite(1, i);
+                Thread.sleep(100);
+            }
+
+            // fade LED to fully OFF
+            for (int i = 100; i >= 0; i--) {
+                SoftPwm.softPwmWrite(1, i);
+                Thread.sleep(100);
+            }
+        }
+		} catch (Exception e) {
+			
+		}
 	}
 
 	public static void main(String[] args) {

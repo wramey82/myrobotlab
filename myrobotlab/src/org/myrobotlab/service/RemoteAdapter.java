@@ -26,6 +26,7 @@
 package org.myrobotlab.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,16 +40,20 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.ServiceEnvironment;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.CommData;
 import org.myrobotlab.net.TCPThread2;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
+import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 /***
@@ -71,6 +76,10 @@ public class RemoteAdapter extends Service implements Communicator {
 
 	private Integer udpPort = 6767;
 	private Integer tcpPort = 6767;
+
+	private int udpRx = 0;
+	private int udpTx = 0;
+	private int tcpTx = 0;
 
 	transient HashMap<URI, TCPThread2> clientList = new HashMap<URI, TCPThread2>();
 
@@ -163,17 +172,15 @@ public class RemoteAdapter extends Service implements Communicator {
 
 		// FIXME FIXME FIXME - large amount of changes to tcp - application
 		// logic which handles the "Messaging" should be common to both
-		// tcp & udp
+		// tcp & udp & xmpp
 		public void run() {
 
 			try {
 				socket = new DatagramSocket(listeningPort);
-
 				log.info(String.format("%s listening on udp %s:%d", getName(), socket.getLocalAddress(), socket.getLocalPort()));
 
-				Communicator comm = (Communicator) cm.getComm(new URI(String.format("mrl:%s/udp://%s:%d", getName(), socket.getLocalAddress(), socket.getLocalPort())));
-
-				byte[] b = new byte[65535]; // max udp size
+				byte[] b = new byte[65507]; // max udp size 65507 + 8 byte
+											// header = 65535
 				ByteArrayInputStream b_in = new ByteArrayInputStream(b);
 				DatagramPacket dgram = new DatagramPacket(b, b.length);
 
@@ -185,18 +192,81 @@ public class RemoteAdapter extends Service implements Communicator {
 						Message msg = (Message) o_in.readObject();
 						dgram.setLength(b.length); // must reset length field!
 						b_in.reset();
-						if ("registerServices".equals(msg.method)) {
-							URI url = new URI("tcp://" + dgram.getAddress().getHostAddress() + ":" + dgram.getPort());
-							comm.addClient(url, socket);
-							invoke("registerServices", dgram.getAddress().getHostAddress(), dgram.getPort(), msg);
-							// broadcastState();
-							continue;
-						}
+						// FIXME name should be "Runtime" representing the
+						// static
+						if ("register".equals(msg.method)) {
+							// BEGIN ENCAPSULATION --- ENCODER BEGIN
+							// -------------
+							// IMPORTANT - (should be in Encoder) - create the
+							// key
+							// for foreign service environment
+							// Runtime.addServiceEnvironment(name, protoKey)
+							URI protoKey = new URI(String.format("udp://%s:%d", socket.getInetAddress().getHostAddress(), socket.getPort()));
+							String mrlURI = String.format("mrl://%s/%s", myService.getName(), protoKey.toString());
+							URI uri = new URI(mrlURI);
 
-						if (msg.getName().equals(getName())) {
-							getInbox().add(msg);
+							// IMPORTANT - this is an optimization and probably
+							// should be in the Comm interface defintion
+							CommunicationInterface cm = myService.getComm();
+							cm.addRemote(uri, protoKey);
+
+							// check if the URI is already defined - if not - we
+							// will
+							// send back the services which we want to export -
+							// Security will filter appropriately
+							ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
+
+							ServiceInterface si = (ServiceInterface) msg.data[0];
+							// HMMM a vote for String vs URI here - since we
+							// need to
+							// catch syntax !!!
+							si.setHost(uri);
+
+							// if security ... msg within msg
+							// getOutbox().add(createMessage(Runtime.getInstance().getName(),
+							// "register", inboundMsg));
+							Runtime.register(si, uri);// <-- not an INVOKE !!!
+														// // -
+							// no security ! :P
+
+							if (foreignProcess == null) {
+
+								// not defined we will send export
+								// TODO - Security filters - default export
+								// (include
+								// exclude) - mapset of name
+								ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
+
+								Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
+								String name;
+								ServiceInterface toRegister;
+								while (it.hasNext()) {
+									name = it.next();
+									toRegister = localProcess.serviceDirectory.get(name);
+
+									// the following will wrap a message within
+									// a message and send it remotely
+									// This Thread CANNOT Write on The
+									// ObjectOutputStream directly -
+									// IT SHOULD NEVER DO ANY METHOD WHICH CAN
+									// BLOCK !!!! - 3 days of bug chasing when
+									// it wrote to ObjectOutputStream and oos
+									// blocked when the buffer was full -
+									// causing deadlock
+									// putting it on the inbox will move it to a
+									// different thread
+									Message sendService = myService.createMessage("", "register", toRegister);
+									Message outbound = myService.createMessage(myService.getName(), "sendRemote", new Object[] { protoKey, sendService });
+									myService.getInbox().add(outbound);
+
+								}
+
+							}
+
+							// BEGIN ENCAPSULATION --- ENCODER END -------------
 						} else {
-							getOutbox().add(msg);
+							++udpRx;
+							myService.getOutbox().add(msg);
 						}
 
 					} catch (Exception e) {
@@ -294,30 +364,25 @@ public class RemoteAdapter extends Service implements Communicator {
 					ret.add(inetAddress);
 				}
 			}
-			;
 		} catch (Exception e) {
 			logException(e);
 		}
 		return ret;
 	}
 
-	// public transient HashMap<URI, TCPThread> clientList = new HashMap<URI,
-	// TCPThread>();
-
-	// FIXME - make URI keyed map - check for map - if not there
-	// make new TCP/UDPThread
-	// the datastore - is a uri client --to--> data store which is used to
-	// connect & communicate
-	// to endpoints
-	// endpoint is expected to be of the following format
-	// mrl://(name)/tcp://host:port/
 	@Override
-	public void sendRemote(URI uri, Message msg) {
-		log.info(String.format("host %s", uri.getHost()));
-		log.info(String.format("pathInfo %s", uri.getPath()));
-		log.info(String.format("getRawPath %s", uri.getRawPath()));
-		log.info(String.format("getQuery %s", uri.getQuery()));
-		log.info(String.format("sendRemote %s %s.%s", uri, msg.name, msg.method));
+	synchronized public void sendRemote(URI uri, Message msg) {
+		String scheme = uri.getScheme();
+		if ("tcp".equals(scheme)) {
+			sendRemoteTCP(uri, msg);
+		} else if ("tcp".equals(scheme)) {
+			sendRemoteUDP(uri, msg);
+		} else {
+			error(String.format("%s not supported", uri.toString()));
+		}
+	}
+
+	public void sendRemoteTCP(URI uri, Message msg) {
 		TCPThread2 t = null;
 		try {
 			if (clientList.containsKey(uri)) {
@@ -339,6 +404,24 @@ public class RemoteAdapter extends Service implements Communicator {
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
+	}
+
+	public void sendRemoteUDP(URI uri, Message msg) {
+		try {
+			
+			// FIXME - could use some optimization e.g. .reset()
+			ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+			ObjectOutputStream o_out = new ObjectOutputStream(b_out);
+			o_out.writeObject(msg);
+			o_out.flush();
+			b_out.flush();
+			byte[] b = b_out.toByteArray();
+			DatagramPacket dgram = new DatagramPacket(b, b.length);
+			
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
 	}
 
 	// FIXME - remote
