@@ -37,10 +37,11 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 	public final static Logger log = LoggerFactory.getLogger(XMPP.class.getCanonicalName());
 	static final int packetReplyTimeout = 500; // millis
-	
-	// not sure how to initialize requirements .. probably a register Security event
+
+	// not sure how to initialize requirements .. probably a register Security
+	// event
 	// thread safe ???
-	HashMap<String,String> xmppSecurity = new HashMap<String,String>();
+	HashMap<String, String> xmppSecurity = new HashMap<String, String>();
 
 	String user;
 	String password;
@@ -63,7 +64,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	 */
 	// FIXME ?? - change to HashMap<String, RosterEntry>
 	HashSet<String> auditors = new HashSet<String>();
-	//HashSet<String> responseRelays = new HashSet<String>();
+	// HashSet<String> responseRelays = new HashSet<String>();
 	HashSet<String> allowCommandsFrom = new HashSet<String>();
 	transient HashMap<String, Chat> chats = new HashMap<String, Chat>();
 
@@ -81,7 +82,6 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	public String getDescription() {
 		return "xmpp service to access the jabber network";
 	}
-
 
 	// FIXME - user name and password - default the host and port (duh)
 	public boolean connect(String user, String password) {
@@ -163,7 +163,9 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 	public boolean login(String username, String password) {
 		log.info(String.format("login %s xxxxxxxx", username));
-		if (connection != null && connection.isConnected()) {
+		if (connection == null || !connection.isConnected()) {
+			return connect(hostname, port, username, password);
+		} else {
 			try {
 				connection.login(username, password);
 				// getRoster();
@@ -171,11 +173,9 @@ public class XMPP extends Service implements Communicator, MessageListener {
 				Logging.logException(e);
 				return false;
 			}
-			return true;
-		} else {
-			log.error("not connected !!!");
-			return false;
 		}
+		return true;
+
 	}
 
 	public void setStatus(boolean available, String status) {
@@ -203,12 +203,12 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		RosterEntry entry = null;
 		String id = null;
 		int pos = userOrBuddyId.indexOf("/");
-		if (pos > 0){
+		if (pos > 0) {
 			id = userOrBuddyId.substring(0, pos);
 		} else {
 			id = userOrBuddyId;
 		}
-		
+
 		entry = roster.getEntry(id);
 		if (entry != null) {
 			return entry;
@@ -375,19 +375,18 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		}
 		return sb.toString();
 	}
-	
+
 	/**
-	 *  processMessage is the XMPP / Smack API override which handles incoming
-	 *  chat messages - XMPP comes with well defined and extendable capabilities,
-	 *  however, Google Talk does not support much more than text messages with
-	 *  started open xmpp .. sad :(
-	 *  
-	 *  So we'd like to send binary mrl messages - since google doesn't support any
-	 *  binary extentions .. we will base64 encode our messages and send them as
-	 *  regular chats ;)
-	 *  
+	 * processMessage is the XMPP / Smack API override which handles incoming
+	 * chat messages - XMPP comes with well defined and extendable capabilities,
+	 * however, Google Talk does not support much more than text messages with
+	 * started open xmpp .. sad :(
+	 * 
+	 * So we'd like to send binary mrl messages - since google doesn't support
+	 * any binary extentions .. we will base64 encode our messages and send them
+	 * as regular chats ;)
+	 * 
 	 */
-	
 
 	// FIXME - get clear about different levels of authorization -
 	// Security/Framework to handle at message/method level
@@ -406,68 +405,72 @@ public class XMPP extends Service implements Communicator, MessageListener {
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Received %s message [%s] from [%s]", type, body, from));
 		}
-		
-		// Security HERE !
-		// check each message here ??? versus CommunicationManager 
-		// someone wants to do a instance.method call 
-		// isAuthorized(id, name, method)
-		// "internally" Message can be broken up into id = security header, msg.name, msg.method
-		// "externally" there is an incoming id (which could map to an internal id?), msg.name, msg.method
-		
 
+		// Security HERE !
+		// check each message here ??? versus CommunicationManager
+		// someone wants to do a instance.method call
+		// isAuthorized(id, name, method)
+		// "internally" Message can be broken up into id = security header,
+		// msg.name, msg.method
+		// "externally" there is an incoming id (which could map to an internal
+		// id?), msg.name, msg.method
 
 		if (body.startsWith(Encoder.SCHEME_BASE64)) {
 			// BASE 64 Messages
 			org.myrobotlab.framework.Message inboundMsg = Encoder.base64ToMsg(body);
 
 			log.info(String.format("********* remote inbound message from %s -to-> %s.%s *********", inboundMsg.sender, inboundMsg.name, inboundMsg.method));
-			
+
 			// broadcast - then msg gets sent to restricted service issue !
-			// xmpp has its own security - how to integrate this with central security ??
+			// xmpp has its own security - how to integrate this with central
+			// security ??
 			xmppSecurity.put("user", getEntry(from).getName());
 			if (security != null && !security.isAuthorized(xmppSecurity, inboundMsg.name, inboundMsg.method)) {
 				log.error("Security does not allow processing of %s message", inboundMsg);
 				return;
 			}
 
-
 			// must add key for registration ??? - foreign system has no
 			// idea what my runtime's name is - I will wrap it in a my
 			// own message and send it
 			if (inboundMsg.method.equals("register")) {
 				try {
-					
+
 					// BEGIN ENCAPSULATION --- ENCODER BEGIN -------------
-					// IMPORTANT - (should be in Encoder) - create the key for foreign service environment
-					URI protoKey = new URI(String.format("xmpp://%s",from));
+					// IMPORTANT - (should be in Encoder) - create the key for
+					// foreign service environment
+					URI protoKey = new URI(String.format("xmpp://%s", from));
 					String mrlURI = String.format("mrl://%s/%s", getName(), protoKey.toString());
 					URI uri = new URI(mrlURI);
-					
-					// IMPORTANT - this is an optimization and probably should be in the Comm interface defintion
+
+					// IMPORTANT - this is an optimization and probably should
+					// be in the Comm interface defintion
 					cm.addRemote(uri, protoKey);
-					
+
 					// check if the URI is already defined - if not - we will
-					// send back the services which we want to export - Security will filter appropriately 
+					// send back the services which we want to export - Security
+					// will filter appropriately
 					ServiceEnvironment foreignProcess = Runtime.getServiceEnvironment(uri);
-					if (foreignProcess == null){
+					if (foreignProcess == null) {
 						// not defined we will send export
-						// TODO - Security filters - default export (include exclude) - mapset of name
+						// TODO - Security filters - default export (include
+						// exclude) - mapset of name
 						ServiceEnvironment localProcess = Runtime.getLocalServicesForExport();
-						
+
 						Iterator<String> it = localProcess.serviceDirectory.keySet().iterator();
 						String name;
 						ServiceInterface si;
 						while (it.hasNext()) {
 							name = it.next();
 							si = localProcess.serviceDirectory.get(name);
-							
+
 							org.myrobotlab.framework.Message sendService = createMessage("", "register", si);
 							String base64 = Encoder.msgToBase64(sendService);
 							sendMessage(base64, from);
 						}
-						
+
 					}
-					
+
 					ServiceInterface si = (ServiceInterface) inboundMsg.data[0];
 					// HMMM a vote for String vs URI here - since we need to
 					// catch syntax !!!
@@ -476,7 +479,7 @@ public class XMPP extends Service implements Communicator, MessageListener {
 					// if security ... msg within msg
 					// getOutbox().add(createMessage(Runtime.getInstance().getName(),
 					// "register", inboundMsg));
-					Runtime.register(si, uri);// <-- not an INVOKE !!!														// -
+					Runtime.register(si, uri);// <-- not an INVOKE !!! // -
 					// no security ! :P
 					// BEGIN ENCAPSULATION --- ENCODER END -------------
 
@@ -490,7 +493,6 @@ public class XMPP extends Service implements Communicator, MessageListener {
 
 			return;
 		}
-
 
 		// chat client interface
 		if (body.charAt(0) == '/') {
@@ -540,28 +542,16 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	}
 
 	/*
-	public boolean addRelay(String id) {
-		RosterEntry entry = getEntry(id);
-		if (entry == null) {
-			error("can not add relay %s", id);
-			return false;
-		}
-		String buddyJID = entry.getUser();
-		responseRelays.add(buddyJID);
-		return true;
-	}
-
-	public boolean removeRelay(String id) {
-		RosterEntry entry = getEntry(id);
-		if (entry == null) {
-			error("can not remove relay %s", id);
-			return false;
-		}
-		String buddyJID = entry.getUser();
-		responseRelays.remove(buddyJID);
-		return true;
-	}
-	*/
+	 * public boolean addRelay(String id) { RosterEntry entry = getEntry(id); if
+	 * (entry == null) { error("can not add relay %s", id); return false; }
+	 * String buddyJID = entry.getUser(); responseRelays.add(buddyJID); return
+	 * true; }
+	 * 
+	 * public boolean removeRelay(String id) { RosterEntry entry = getEntry(id);
+	 * if (entry == null) { error("can not remove relay %s", id); return false;
+	 * } String buddyJID = entry.getUser(); responseRelays.remove(buddyJID);
+	 * return true; }
+	 */
 
 	/**
 	 * publishing point for XMPP messages
@@ -582,8 +572,12 @@ public class XMPP extends Service implements Communicator, MessageListener {
 	public void sendRemote(URI uri, org.myrobotlab.framework.Message msg) {
 		// decompose uri or use as key (mmm specified encoding???)
 		// FIXME - Encoder should do this !!!
-		//String remoteURI = uri.getPath().substring(1 + "xmpp://".length()); // remove
-		String remoteURI = uri.toString().substring("xmpp://".length()); // remove the root "/"
+		// String remoteURI = uri.getPath().substring(1 + "xmpp://".length());
+		// // remove
+		String remoteURI = uri.toString().substring("xmpp://".length()); // remove
+																			// the
+																			// root
+																			// "/"
 		// log.info(remoteURI);
 		msg.historyList.add(getName());
 		String base64 = Encoder.msgToBase64(msg);

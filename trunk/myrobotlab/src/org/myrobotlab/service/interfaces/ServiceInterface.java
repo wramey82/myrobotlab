@@ -7,6 +7,16 @@ import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 
 public interface ServiceInterface {
+	
+	// FIXME !!!!
+	// need public Test() - unimplemented by Service !!!! :D
+	
+	// getTestEnvironment() - hasServo hasArduino ???
+	
+	// getLastError()
+	
+	// hasError() - publish subscribe - getError().getSourceName()
+	
 	public URI getHost();
 		
 	public void setHost(URI uri);
@@ -26,6 +36,12 @@ public interface ServiceInterface {
 	public void startService();
 
 	public void releaseService();
+	
+	/**
+	 * recursive release - releases all peers and their peers etc.
+	 * then releases this service
+	 */
+	public void releasePeers();
 
 	public ArrayList<String> getNotifyListKeySet();
 
@@ -46,6 +62,11 @@ public interface ServiceInterface {
 	public Object invoke(String method);
 
 	public Object invoke(String method, Object...params);
+	
+	public boolean hasDisplay();
+	
+	public boolean hasPeers();
+	
 	
 	/**
 	 * asked by the framework - to determin if the service needs to be secure

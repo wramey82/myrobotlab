@@ -142,7 +142,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 * Short description of the service
 	 */
 	abstract public String getDescription();
-	
+
 	static public void logTimeEnable(Boolean b) {
 		Logging.logTimeEnable(b);
 	}
@@ -175,6 +175,56 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 	public boolean hasDisplay() {
 		return false;
+	}
+
+	public void releasePeers() {
+		log.info(String.format("dna - %s", dna.toString()));
+		String myKey = getName();
+		log.info(String.format("createReserves (%s, %s)", myKey, serviceClass));
+		try {
+			Class<?> theClass = Class.forName(serviceClass);
+			Method method = theClass.getMethod("getPeers", String.class);
+			Peers peers = (Peers) method.invoke(null, new Object[] { myKey });
+			IndexNode<ServiceReservation> myNode = peers.getDNA().getNode(myKey);
+			// LOAD CLASS BY NAME - and do a getReservations on it !
+			HashMap<String, IndexNode<ServiceReservation>> peerRequests = myNode.getBranches();
+			for (Entry<String, IndexNode<ServiceReservation>> o : peerRequests.entrySet()) {
+				String peerKey = o.getKey();
+				IndexNode<ServiceReservation> p = o.getValue();
+
+				String fullKey = Peers.getPeerKey(myKey, peerKey);
+				ServiceReservation peersr = p.getValue();
+				ServiceReservation globalSr = dna.get(fullKey);
+
+				// TODO -
+				if (globalSr != null) {
+					
+					log.info(String.format("*releasing** key %s -> %s %s %s", fullKey, globalSr.actualName, globalSr.fullTypeName, globalSr.comment));
+					ServiceInterface si = Runtime.getService(fullKey);
+					if (si == null){
+						log.info(String.format("%s is not registered - skipping", fullKey));
+					} else {
+						si.releasePeers();
+						si.releaseService();
+					}
+					
+				}
+			}
+
+		} catch (Exception e) {
+			log.debug(String.format("%s does not have a getPeers", serviceClass));
+		}
+	}
+
+	public boolean hasPeers() {
+		try {
+			Class<?> theClass = Class.forName(serviceClass);
+			Method method = theClass.getMethod("getPeers", String.class);
+		} catch (Exception e) {
+			log.debug(String.format("%s does not have a getPeers", serviceClass));
+			return false;
+		}
+		return true;
 	}
 
 	public String getName() {
@@ -404,19 +454,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 				// TODO -
 				if (globalSr == null) {
-					reserveRoot(fullKey, peersr.fullTypeName, peersr.comment); // FIXME
-																				// -
-																				// if
-																				// this
-																				// method
-																				// accepted
-																				// an
-																				// Index<?>
-																				// then
-																				// Peers
-																				// could
-																				// use
-																				// it
+					// FIXME if this method accepted an Index<?> then Peers
+					// could use it
+					reserveRoot(fullKey, peersr.fullTypeName, peersr.comment);
 				} else {
 					log.info(String.format("*found** key %s -> %s %s %s", fullKey, globalSr.actualName, globalSr.fullTypeName, globalSr.comment));
 				}
@@ -443,15 +483,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			Class<?> theClass = Class.forName(fullClassName);
 			Method method = theClass.getMethod("getPeers", String.class);
 			Peers peers = (Peers) method.invoke(null, new Object[] { name });
-			/*
-			 * HashMap<String, ServiceReservation> reservations = peers.peers;
-			 * // LOAD CLASS BY NAME - and do a getReservations on it ! for
-			 * (Map.Entry<String, ServiceReservation> o :
-			 * reservations.entrySet()) {
-			 * 
-			 * reserveRoot(o.getKey(), o.getValue().simpleTypeName,
-			 * o.getValue().comment); }
-			 */
 			return peers;
 
 		} catch (Exception e) {
@@ -634,7 +665,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		Runtime.register(this, null);
 	}
-
 
 	/**
 	 * 
@@ -1185,9 +1215,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	// FIXME SecurityProvider
 	protected static AuthorizationProvider security = null;
-	
+
 	@Override
-	public boolean requiresSecurity(){
+	public boolean requiresSecurity() {
 		return security != null;
 	}
 
@@ -1208,30 +1238,23 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// WebGUI (remote in genera) - user / group ALLOW
 
 	/*
-	private boolean hasAccess(Message msg) {
-		// turn into single key ???
-		// type.name.method
+	 * private boolean hasAccess(Message msg) { // turn into single key ??? //
+	 * type.name.method
+	 * 
+	 * // check this type <-- not sure i want to support this
+	 * 
+	 * // check this name & method // if any access limitations exist which
+	 * might be applicable if (accessRules.containsKey(msg.name) ||
+	 * accessRules.containsKey(String.format("%s.%s", msg.name, msg.method))) {
+	 * // restricted service - check for authorization // Security service only
+	 * provides authorization ? if (security == null) { return false; } else {
+	 * return security.isAuthorized(msg); }
+	 * 
+	 * }
+	 * 
+	 * // invoke - SecurityException - log error return false; }
+	 */
 
-		// check this type <-- not sure i want to support this
-
-		// check this name & method
-		// if any access limitations exist which might be applicable
-		if (accessRules.containsKey(msg.name) || accessRules.containsKey(String.format("%s.%s", msg.name, msg.method))) {
-			// restricted service - check for authorization
-			// Security service only provides authorization ?
-			if (security == null) {
-				return false;
-			} else {
-				return security.isAuthorized(msg);
-			}
-
-		}
-
-		// invoke - SecurityException - log error
-		return false;
-	}
-	*/
-	
 	/**
 	 * This is where all messages are routed to and processed
 	 * 
@@ -1257,12 +1280,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 		// check for access
 		// if access FAILS ! - check for authenticated access
-		// not needed "centrally" - instead will impement in Communicators 
+		// not needed "centrally" - instead will impement in Communicators
 		// which hand foriegn connections
 		// if (security == null || security.isAuthorized(msg)) {
 
-			retobj = invokeOn(this, msg.method, msg.data);
-		//}
+		retobj = invokeOn(this, msg.method, msg.data);
+		// }
 
 		// retobject will be returned as another
 		// message

@@ -488,9 +488,13 @@ public class Speech extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
+	
 		Speech speech = new Speech("speech");
 		speech.startService();
+		speech.setGoogleURI("http://tts-api.com/tts.mp3?q=");
+		speech.speak("hello there world");
+		speech.speak("dood this is awesome");
+		
 		speech.setGenderMale();
 		speech.setBackendType(BACKEND_TYPE_FREETTS);
 		// speech.setBackendType(BACKEND_TYPE_GOOGLE);

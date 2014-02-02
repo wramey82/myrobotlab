@@ -108,7 +108,7 @@ public class Outbox implements Runnable, Serializable {
 					log.debug("outbox run INTERRUPTED ");
 					// msgBox.notifyAll();
 					isRunning = false;
-					continue;
+					return;
 				}
 				msg = msgBox.removeLast();
 				// chase network bugs

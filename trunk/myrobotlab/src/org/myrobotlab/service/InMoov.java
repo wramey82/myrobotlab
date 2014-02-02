@@ -51,6 +51,13 @@ public class InMoov extends Service {
 	public static Peers getPeers(String name) {
 		Peers peers = new Peers(name);
 				
+		peers.suggestAs("rightArm.arduino", "right", "Arduino", "shared right arduino");
+		peers.suggestAs("rightHand.arduino", "right", "Arduino", "shared right arduino");
+
+		peers.suggestAs("leftArm.arduino", "left", "Arduino", "shared left arduino");
+		peers.suggestAs("leftHand.arduino", "left", "Arduino", "shared left arduino");
+		peers.suggestAs("head.headArduino", "left", "Arduino", "shared left arduino");
+		
 		peers.put("ear", "Sphinx", "InMoov spech recognition service");
 		peers.put("mouth", "Speech", "InMoov speech service");
 		peers.put("python", "Python", "Python service");
@@ -62,8 +69,6 @@ public class InMoov extends Service {
 		peers.put("leftHand", "InMoovHand", "left hand");
 		peers.put("rightArm", "InMoovArm", "right arm");
 		peers.put("leftArm", "InMoovArm", "left arm");
-		
-		
 		
 		return peers;
 	}
@@ -192,11 +197,9 @@ public class InMoov extends Service {
 
 	public InMoovHand startHand(String side, String port) {
 		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
-		// connect will start if not already started
-		if (!hand.arduino.isConnected()) {
-			hand.connect(port);
-		}
-
+		
+		hand.connect(port);
+		
 		if (!hand.isValid()) {
 			error("%s hand is not valid", side);
 		}
@@ -217,9 +220,7 @@ public class InMoov extends Service {
 	public InMoovArm startArm(String side, String port) {
 		InMoovArm Arm = (InMoovArm) createPeer(String.format("%sArm", side));
 		// connect will start if not already started
-		if (!Arm.arduino.isConnected()) {
-			Arm.connect(port);
-		}
+		Arm.connect(port);
 
 		if (!Arm.isValid()) {
 			error("%s Arm is not valid", side);

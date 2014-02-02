@@ -11,9 +11,10 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.pickToLight.ControllerType;
+//import org.myrobotlab.pickToLight.ControllerType;
+import org.myrobotlab.pickToLight.Controller2;
 import org.myrobotlab.pickToLight.KitRequest;
-import org.myrobotlab.pickToLight.ModuleControl;
+import org.myrobotlab.pickToLight.Module2;
 import org.myrobotlab.pickToLight.ObjectFactory;
 import org.slf4j.Logger;
 
@@ -56,10 +57,10 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	
 	public final static Logger log = LoggerFactory.getLogger(PickToLight.class);
 
-	ObjectFactory of = new ObjectFactory();
+	//ObjectFactory of = new ObjectFactory();
 
 	// item# Module
-	static HashMap<String, ModuleControl> modules = new HashMap<String, ModuleControl>();
+	static HashMap<String, Module2> modules = new HashMap<String, Module2>();
 	transient HashMap<String, Worker> workers = new HashMap<String, Worker>();
 	
 	private String mode = "kitting";
@@ -69,7 +70,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	// FIXME - you will need to decouple initialization until after raspibus is
 	// set
-	private int rasPiBus = 0;
+	private int rasPiBus = 1;
 	// FIXME - who will update me ?
 	private String updateURL;
 
@@ -114,8 +115,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 					case "cycleAll":
 
-						TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
-						for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+						TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
+						for (Map.Entry<String, Module2> o : sorted.entrySet()) {
 							o.getValue().cycle((String) data.get("msg"));
 						}
 						isWorking = false;
@@ -181,7 +182,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public boolean createModule(int bus, int address) {
 		String key = makeKey(address);
 		log.info(String.format("create module key %s (bus %d address %d)", key, bus, address));
-		ModuleControl box = new ModuleControl(bus, address);
+		Module2 box = new Module2(bus, address);
 		modules.put(key, box);
 		return true;
 	}
@@ -199,11 +200,11 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public ArrayList<String> displayAddresses() {
-		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
+		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
 		ArrayList<String> ret = new ArrayList<String>();
 
-		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
-			ModuleControl mc = o.getValue();
+		for (Map.Entry<String, Module2> o : sorted.entrySet()) {
+			Module2 mc = o.getValue();
 			ret.add(o.getKey());
 			mc.display(o.getKey());
 		}
@@ -317,9 +318,11 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		createModules();
 	}
 
-	public ControllerType getController() {
+	public Controller2 getController() {
 
-		ControllerType controller = of.createControllerType();
+		//ControllerType controller = of.createControllerType();
+		
+		Controller2 controller = new Controller2();
 
 		controller.setVersion("svnVersion");
 		controller.setName(getName());
@@ -328,22 +331,16 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			if (addresses.size() != 1) {
 				log.error(String.format("incorrect number of ip addresses %d", addresses.size()));
 			} else {
-				controller.setIpaddress(addresses.get(0));
+				controller.setIpAddress(addresses.get(0));
 			}
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 
-		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
-		ArrayList<String> ret = new ArrayList<String>();
-
-		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
-			ModuleControl mc = o.getValue();
-			controller.getModuleList().add(mc.getModule());
-			ret.add(o.getKey());
-			mc.display(o.getKey());
-		}
-
+		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
+		
+		controller.setModules(sorted);
+		
 		return controller;
 	}
 
@@ -361,24 +358,15 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	}
 
-	/**
-	 * will let you change the overall brightness of the entire display. 0 is
-	 * least bright, 15 is brightest and is what is initialized by the display
-	 * when you start
-	 * 
-	 * @param address
-	 * @param level
-	 * @return
-	 */
 	public int setBrightness(Integer address, Integer level) {
 		return level;
 	}
 
-	public ModuleControl getModule(Integer address) {
+	public Module2 getModule(Integer address) {
 		return getModule(rasPiBus, address);
 	}
 
-	public ModuleControl getModule(Integer bus, Integer address) {
+	public Module2 getModule(Integer bus, Integer address) {
 		String key = makeKey(bus, address);
 		if (!modules.containsKey(key)) {
 			log.error(String.format("get module - could not find module with key %s", key));
@@ -405,15 +393,15 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public void cycleAll(int delay, String msg) {
-		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
-		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
+		for (Map.Entry<String, Module2> o : sorted.entrySet()) {
 			o.getValue().cycle(msg, delay);
 		}
 	}
 
 	public void cycleAllStop() {
-		TreeMap<String, ModuleControl> sorted = new TreeMap<String, ModuleControl>(modules);
-		for (Map.Entry<String, ModuleControl> o : sorted.entrySet()) {
+		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
+		for (Map.Entry<String, Module2> o : sorted.entrySet()) {
 			o.getValue().cycleStop();
 		}
 	}
@@ -446,51 +434,28 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	public void writeToDisplay (int address, byte b0, byte b1, byte b2, byte b3 ) {
 		try {
-			
-			
 /*
 		    sudo i2cset -y 0 0x10 0x80
 		    sudo i2cset -y 0 0x38 0 0x17 0xXX 0xXX 0xXX 0xXX i
 		    sudo i2cset -y 0 0x10 0x83
+		    
+		    1.	sudo i2cset -y 0 DA 0x80 
+			2.	sudo i2cset -y 0 0x38 0 0x17 AA BB CC DD i
+			3.	sudo i2cset -y 0 DA 0x83
+
 */
-			
 			// TODO abtract out Pi4J
 			I2CBus i2cbus = I2CFactory.getInstance(rasPiBus);
 			I2CDevice device = i2cbus.getDevice(address);
 			device.write(address, (byte)0x80);
-			device.write(address, new byte[]{(byte) 0x38, 0, (byte)0x17, b0, b1, b2, b3}, 0, 4);
+			device.write(new byte[]{0x38, 0, 0x17, b0, b1, b2, b3}, 0, 6);
+			//device.write(address, new byte[]{(byte) 0x38, 0, (byte)0x17, b0, b1, b2, b3}, 0, 4);
+			device.write(0x38, new byte[]{0, 0x17, b0, b1, b2, b3}, 0, 6);
 			device.write(address, (byte)0x83);
 
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
-	}
-
-	// ------------ TODO - IMPLEMENT - END ----------------------
-
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-
-		PickToLight pickToLight = new PickToLight("pick.1");
-		pickToLight.startService();
-
-		// String binList = pickToLight.getBoxList();
-		// pickToLight.display(binList, "helo");
-		/*
-		 * pickToLight.display("01", "1234"); pickToLight.display(" 01 02 03 ",
-		 * "1234  1"); pickToLight.display("01 03", " 1234"); //
-		 * pickToLight.display(binList, "1234 ");
-		 */
-
-		// Runtime.createAndStart("web", "WebGUI");
-
-		// Runtime.createAndStart("webgui", "WebGUI");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * 
-		 */
-
 	}
 
 	public String getMode() {
@@ -500,5 +465,32 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public void setMode(String mode) {
 		this.mode = mode;
 	}
+	
+	// ------------ TODO - IMPLEMENT - END ----------------------
+
+		public static void main(String[] args) {
+			LoggingFactory.getInstance().configure();
+			LoggingFactory.getInstance().setLevel(Level.DEBUG);
+
+			PickToLight pickToLight = new PickToLight("pick.1");
+			pickToLight.startService();
+
+			// String binList = pickToLight.getBoxList();
+			// pickToLight.display(binList, "helo");
+			/*
+			 * pickToLight.display("01", "1234"); pickToLight.display(" 01 02 03 ",
+			 * "1234  1"); pickToLight.display("01 03", " 1234"); //
+			 * pickToLight.display(binList, "1234 ");
+			 */
+
+			// Runtime.createAndStart("web", "WebGUI");
+
+			// Runtime.createAndStart("webgui", "WebGUI");
+			/*
+			 * GUIService gui = new GUIService("gui"); gui.startService();
+			 * 
+			 */
+
+		}
 
 }

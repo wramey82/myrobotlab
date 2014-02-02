@@ -149,7 +149,7 @@ public class Clock extends Service {
 			// TCP CONNECT WORKS BEGIN ---------------------------------
 			try {
 
-				int i = 3;
+				int i = 5;
 				Runtime.main(new String[] { "-runtimeName", String.format("r%d", i) });
 				// RemoteAdapter remote = (RemoteAdapter)
 				// Runtime.createAndStart(String.format("remote%d", i),
