@@ -212,7 +212,7 @@ public class InMoov extends Service {
 		return rightArm;
 	}
 
-	public InMoovArm startleftArm(String port) {
+	public InMoovArm startLeftArm(String port) {
 		leftArm = startArm(left, port);
 		return leftArm;
 	}
