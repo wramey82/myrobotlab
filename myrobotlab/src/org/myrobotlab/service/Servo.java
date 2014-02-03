@@ -289,6 +289,10 @@ public class Servo extends Service implements ServoControl {
 			return;
 		}
 
+		if (controller == null){
+			error("setSpeed - controller not set");
+			return;
+		}
 		controller.setServoSpeed(getName(), speed);
 	}
 	

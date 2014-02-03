@@ -38,12 +38,6 @@ import org.slf4j.Logger;
 public abstract class ServiceGUI {
 
 	public final static Logger log = LoggerFactory.getLogger(ServiceGUI.class.getCanonicalName());
-
-	// FIXME - Why a GUI interface - Swing will be Swing (too much abstraction)
-	// FIXME - cheesy - have resizer in GUIService too because its a lame
-	// updating the interface all the time
-	// final static public ComponentResizer resizer = new ComponentResizer();
-
 	public final String boundServiceName;
 	public final GUI myService;
 
@@ -55,17 +49,6 @@ public abstract class ServiceGUI {
 	public JPanel display = new JPanel();
 
 	public abstract void init();
-
-	/*
-	 * public class DetachListener implements ActionListener {
-	 * 
-	 * @Override public void actionPerformed(ActionEvent e) {
-	 * log.error("undock " + boundServiceName);
-	 * //releaseServiceButton.setVisible(false); - FIXME same functionality
-	 * myService.undockPanel(boundServiceName); }
-	 * 
-	 * }
-	 */
 
 	public ServiceGUI(final String boundServiceName, final GUI myService) {
 		this.boundServiceName = boundServiceName;

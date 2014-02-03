@@ -470,7 +470,7 @@ public class Runtime extends Service {
 			log.info(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
 			if (localInstance != null) {
 				localInstance.invoke("collision", s.getName());
-				localInstance.error("collision registering %s", s.getName());
+				localInstance.warn("collision registering %s", s.getName());
 				Runtime.getInstance().info(String.format(" name collision with %s", s.getName()));
 			}
 			return s;

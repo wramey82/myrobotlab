@@ -138,9 +138,13 @@ public class InMoovArm extends Service {
 	public boolean attach() {
 		boolean result = true; 
 		result &= arduino.servoAttach(bicep);
+		sleep(InMoov.MSG_DELAY);
 		result &= arduino.servoAttach(rotate);
-		result &= arduino.servoAttach(shoulder);
+		sleep(InMoov.MSG_DELAY);
+		result &= arduino.servoAttach(shoulder);		
+		sleep(InMoov.MSG_DELAY);
 		result &= arduino.servoAttach(omoplate);
+		sleep(InMoov.MSG_DELAY);
 		return result;
 	}
 
@@ -187,20 +191,17 @@ public class InMoovArm extends Service {
 	}
 
 	public void detach() {
-		if (bicep != null) {
 			bicep.detach();
-		}
-		if (rotate != null) {
+			sleep(InMoov.MSG_DELAY);
 			rotate.detach();
-		}
-		if (shoulder != null) {
+			sleep(InMoov.MSG_DELAY);
 			shoulder.detach();
-		}
-		if (omoplate != null) {
+			sleep(InMoov.MSG_DELAY);
 			omoplate.detach();
-		}
+			sleep(InMoov.MSG_DELAY);
 	}
 
+	// FIXME - releasePeers()
 	public void release() {
 		detach();
 		if (bicep != null) {

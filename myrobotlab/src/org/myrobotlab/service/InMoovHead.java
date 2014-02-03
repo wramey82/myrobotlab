@@ -222,10 +222,15 @@ public class InMoovHead extends Service {
 	 */
 	public boolean attach() {
 		arduino.servoAttach(eyeX);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(eyeY);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(jaw);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(rothead);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(neck);
+		sleep(InMoov.MSG_DELAY);
 		return true;
 	}
 
@@ -273,10 +278,15 @@ public class InMoovHead extends Service {
 
 	public void detach() {	
 		rothead.detach();
+		sleep(InMoov.MSG_DELAY);
 		neck.detach();
+		sleep(InMoov.MSG_DELAY);
 		eyeX.detach();
+		sleep(InMoov.MSG_DELAY);
 		eyeY.detach();
+		sleep(InMoov.MSG_DELAY);
 		jaw.detach();
+		sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {
