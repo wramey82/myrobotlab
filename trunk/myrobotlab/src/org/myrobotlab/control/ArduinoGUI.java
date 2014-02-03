@@ -98,6 +98,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	 * component array - to access all components by name
 	 */
 	public Arduino myArduino;
+	public ArduinoGUI myRef;
 	HashMap<String, Component> components = new HashMap<String, Component>();
 
 	static final long serialVersionUID = 1L;
@@ -164,21 +165,27 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	ArrayList<Pin> pinList = null;
 
 	public void init() {
-		display.setLayout(new BorderLayout());
+		myRef = this;
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				display.setLayout(new BorderLayout());
 
-		// ---------------- tabs begin ----------------------
-		tabs.setTabPlacement(JTabbedPane.RIGHT);
+				// ---------------- tabs begin ----------------------
+				tabs.setTabPlacement(JTabbedPane.RIGHT);
 
-		getPinPanel();
-		getOscopePanel();
-		getEditorPanel();
+				getPinPanel();
+				getOscopePanel();
+				getEditorPanel();
 
-		display.add(tabs, BorderLayout.CENTER);
-		tabs.setSelectedIndex(0);
+				display.add(tabs, BorderLayout.CENTER);
+				tabs.setSelectedIndex(0);
 
-		serialRefresh.addActionListener(this);
-		softReset.addActionListener(this);
-		serialDisconnect.addActionListener(this);
+				serialRefresh.addActionListener(myRef);
+				softReset.addActionListener(myRef);
+				serialDisconnect.addActionListener(myRef);
+
+			}
+		});
 	}
 
 	public JLayeredPane getPinPanel() {
@@ -186,9 +193,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		if (myArduino != null && boardName != null && boardName.contains("Mega")) {
 			return getMegaPanel();
 		}
-
 		return getDuemilanovePanel();
-
 	}
 
 	class SerialMenuListener implements ActionListener {
@@ -606,6 +611,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	public JLayeredPane getMegaPanel() {
+		
 
 		if (imageMap != null) {
 			tabs.remove(imageMap);

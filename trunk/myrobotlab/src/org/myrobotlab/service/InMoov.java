@@ -45,6 +45,10 @@ public class InMoov extends Service {
 	transient public Tracking eyesTracking;
 	transient public Tracking headTracking;
 	transient public OpenCV opencv;
+	
+	// FIXME - needs to be at the Arduino end
+	// and related to max message speed for current serial baud rate
+	public static int MSG_DELAY = 50;
 
 	// static in Java are not overloaded but overwritten - there is no
 	// polymorphism for statics

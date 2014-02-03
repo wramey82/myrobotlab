@@ -196,9 +196,13 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	// servo related
 	public static final int SERVO_STOP_AND_REPORT = 10;
-	// FIXME - more depending on board (mega)
-	public static final int MAX_SERVOS = 12;
 
+	// FIXME - more depending on board (mega)
+	// http://playground.arduino.cc/Code/MegaServo
+	// Servos[NBR_SERVOS] ; // max servos is 48 for mega, 12 for other boards int pos
+	//public static final int MAX_SERVOS = 12;
+	public static final int MAX_SERVOS = 48;
+	
 	// vendor specific pins start at 50
 	public static final String VENDOR_DEFINES_BEGIN = "// --VENDOR DEFINE SECTION BEGIN--";
 	public static final String VENDOR_SETUP_BEGIN = "// --VENDOR SETUP BEGIN--";
@@ -400,6 +404,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		// log.debug("sendMsg magic | fn " + function + " p1 " + param1 + " p2 "
 		// + param2);
 		try {
+			
+			// FIXME - determin bus speed e.g. 50Khz - and limit the messages (buffer them?) until they
+			// are under that max message send value :P
+			
 			// not CRC16 - but cheesy error correction of bytestream
 			// http://www.java2s.com/Open-Source/Java/6.0-JDK-Modules-sun/misc/sun/misc/CRC16.java.htm
 			// #include <util/crc16.h>
@@ -535,7 +543,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return false;
 		}
 
-		// serialPort == null ??? make sure you chown it correctly !
 		log.info("servoAttach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_ATTACH);
 		if (servos.containsKey(servoName)) {
 			log.warn("servo already attach - detach first");

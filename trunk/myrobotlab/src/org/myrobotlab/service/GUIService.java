@@ -204,7 +204,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			log.error("attempting to update sub-gui - sender " + m.sender + " not available in map " + getName());
 		} else {
 			// FIXME - NORMALIZE - Instantiator or Service - not both !!!
-			//Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method, m.data);
+			// Instantiator.invokeMethod(serviceGUIMap.get(m.sender), m.method,
+			// m.data);
 			invokeOn(serviceGUIMap.get(m.sender), m.method, m.data);
 		}
 
@@ -263,21 +264,13 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	}
 
 	// TODO - get index based on name
-	public void addTab(String serviceName) {
+	// synchronized probably does not make a diff - but i'm desperate
+	synchronized public void addTab(String serviceName) {
 		// ================= begin addTab(name) =============================
 		ServiceInterface sw = Runtime.getService(serviceName);
 
 		if (sw == null) {
 			log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
-			return;
-		}
-
-		// SW sent in registerServices - yet Service is null due to incompatible
-		// Service Types
-		// FIXME - Solution ??? - send SW with "suggested type ???" Android
-		// --becomes--> AndroidController :)
-		if (sw == null) {
-			log.error(String.format("%1$s does not have a valid Service - not exported ???", serviceName));
 			return;
 		}
 
@@ -303,20 +296,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		if (guiServiceGUI != null) {
 			guiServiceGUI.rebuildGraph();
 		}
-		/***
-		 * UNDOCKED if (undockedPanels.containsKey(serviceName)) { UndockedPanel
-		 * panel = undockedPanels.get(serviceName); if (!panel.isDocked) {
-		 * undockPanel(serviceName); } }
-		 ***/
 
-		// iterate through tabcomponents
-
-		// if data - undock
-		// tabs.gett
-		// FIXME - put in addTab remove from here
-
-		// for (int i = 0; i < tabs.getTabCount() - 1; ++i)
-		// {
 		Component c = tabs.getTabComponentAt(index);
 		if (c instanceof TabControl) {
 			TabControl tc = (TabControl) c;
@@ -327,9 +307,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 					tc.undockPanel();
 				}
 			}
-
-			// }
-			log.info(c.toString());
 		}
 
 		frame.pack();
@@ -337,8 +314,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 	public void removeTab(String name) {
 		log.info("removeTab");
-		// log.info(String.format("removeTab removing [%1$s] current tab size is %d",
-		// name, serviceGUIMap.size()));
 
 		// detaching & removing the ServiceGUI
 		ServiceGUI sg = serviceGUIMap.get(name);
@@ -409,9 +384,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceInterface sw) {
 		ServiceGUI gui = null;
 		ServiceInterface se = sw;
-		if (serviceName.equals("python")) {
-			log.info("here");
-		}
+
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
 		if (gui == null) {
@@ -428,20 +401,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// TODO - all auto-subscribtions could be done here
 		subscribe("publishStatus", se.getName(), "getStatus", String.class);
 
-		tabs.addTab(serviceName, gui.getDisplay());
+		//if (!serviceName.startsWith("i0")) {
+			tabs.addTab(serviceName, gui.getDisplay());
 
-		if (sw.isLocal()) {
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
-		} else {
-			// create hash color for hsv from accessURI
-			// Color hsv = new
-			// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
-			// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
-			Color hsv = getColorFromURI(sw.getHost());
-			int index = tabs.indexOfTab(serviceName);
-			tabs.setBackgroundAt(index, hsv);
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
-		}
+			if (sw.isLocal()) {
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
+			} else {
+				// create hash color for hsv from accessURI
+				// Color hsv = new
+				// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
+				// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+				Color hsv = getColorFromURI(sw.getHost());
+				int index = tabs.indexOfTab(serviceName);
+				tabs.setBackgroundAt(index, hsv);
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
+			}
+		//}
 
 		return gui;
 	}
@@ -462,21 +437,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 		return compList;
 	}
-
-	/*
-	 * public class UndockedWidgetWindowAdapter extends WindowAdapter { private
-	 * String name; JFrame myFrame; GUI parent;
-	 * 
-	 * public UndockedWidgetWindowAdapter(JFrame myFrame, GUI parent, String
-	 * name) { this.myFrame = myFrame; this.parent = parent; this.name = name; }
-	 * 
-	 * public void windowClosing(WindowEvent winEvt) { //dockPanel(name);
-	 * myFrame.dispose(); } }
-	 */
-
-	// how to do re-entrant - reconstruct all correctly - or avoid building
-	// twice ?
-	// I'm going with the "easy" approach
 
 	public void display() {
 		if (!isDisplaying) {
@@ -1001,11 +961,11 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 	}
 
-	public void startService(){
+	public void startService() {
 		super.startService();
 		display();
 	}
-	
+
 	public void getStatus(Status inStatus) {
 
 		if (inStatus.isError()) {
@@ -1044,10 +1004,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
 
 		gui2.startService();
-		
+
 		Clock clock = new Clock("clock");
 		clock.startClock();
-		
+
 		Runtime.createAndStart("opencv", "OpenCV");
 		// gui2.display();
 

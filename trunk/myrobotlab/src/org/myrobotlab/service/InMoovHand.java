@@ -180,11 +180,17 @@ public class InMoovHand extends Service {
 	public boolean attach() 
 	{		
 		arduino.servoAttach(thumb);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(index);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(majeure);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(ringFinger);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(pinky);
+		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(wrist);
+		sleep(InMoov.MSG_DELAY);
 		
 		return true;
 	}
@@ -236,11 +242,17 @@ public class InMoovHand extends Service {
 	
 	public void detach() {
 		thumb.detach();
+		sleep(InMoov.MSG_DELAY);
 		index.detach();
+		sleep(InMoov.MSG_DELAY);
 		majeure.detach();
+		sleep(InMoov.MSG_DELAY);
 		ringFinger.detach();
+		sleep(InMoov.MSG_DELAY);
 		pinky.detach();
+		sleep(InMoov.MSG_DELAY);
 		wrist.detach();
+		sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {

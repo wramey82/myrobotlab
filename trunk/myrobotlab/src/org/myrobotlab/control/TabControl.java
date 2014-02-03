@@ -54,7 +54,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	TabControlWindowAdapter windowAdapter = new TabControlWindowAdapter();
 	// JFrame top;
 	GUIService myService;
-	
+
 	JMenuItem allowExportMenuItem;
 
 	String filename = null;
@@ -69,9 +69,10 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 * closes window and puts the panel back into the tabbed pane
 	 */
 	public void dockPanel() {
-		// docking panel will move the data of the frame to serializable position
+		// docking panel will move the data of the frame to serializable
+		// position
 		// FIXME - very hacked
-		myService.undockedPanels.get(boundServiceName).savePosition(); 
+		myService.undockedPanels.get(boundServiceName).savePosition();
 		myService.undockedPanels.get(boundServiceName).isDocked = true;
 
 		parent.add(myPanel);
@@ -92,53 +93,51 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 * 
 	 */
 	public void undockPanel() {
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
+				parent.remove(myPanel);
+				if (boundServiceName.equals(getText())) {
 
-		
-		parent.remove(myPanel);
-		if (boundServiceName.equals(getText())) {
+					// service tabs
+					undocked = new JFrame(boundServiceName);
+					// check to see if this frame was positioned before
+					UndockedPanel panel = null;
+					if (myService.undockedPanels.containsKey(boundServiceName)) {
+						// has been undocked before
+						panel = myService.undockedPanels.get(boundServiceName);
+						undocked.setLocation(new Point(panel.x, panel.y));
+						undocked.setPreferredSize(new Dimension(panel.width, panel.height));
+					} else {
+						// first time undocked
+						panel = new UndockedPanel(undocked);
+						myService.undockedPanels.put(boundServiceName, panel);
+						panel.x = undocked.getWidth();
+						panel.y = undocked.getHeight();
+					}
 
-			// service tabs
-			undocked = new JFrame(boundServiceName);
-			// check to see if this frame was positioned before
-			UndockedPanel panel = null;
-			if (myService.undockedPanels.containsKey(boundServiceName)) {
-				// has been undocked before
-				panel = myService.undockedPanels.get(boundServiceName);
-				undocked.setLocation(new Point(panel.x, panel.y));
-				undocked.setPreferredSize(new Dimension(panel.width, panel.height));
-			} else {
-				// first time undocked
-				panel = new UndockedPanel(undocked);
-				myService.undockedPanels.put(boundServiceName, panel);
-				panel.x = undocked.getWidth();
-				panel.y = undocked.getHeight();
-			}
+					panel.frame = undocked;
+					panel.isDocked = false;
 
-			panel.frame = undocked;
-			panel.isDocked = false;
+				} else {
+					// sub - tabs e.g. Arduino oscope, pins, editor
+					undocked = new JFrame(boundServiceName + " " + getText());
+				}
 
-		} else {
-			// sub - tabs e.g. Arduino oscope, pins, editor
-			undocked = new JFrame(boundServiceName + " " + getText());
-		}
+				// icon
+				URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+				Toolkit kit = Toolkit.getDefaultToolkit();
+				Image img = kit.createImage(url);
+				undocked.setIconImage(img);
 
-		// icon
-		URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.createImage(url);
-		undocked.setIconImage(img);
-
-		undocked.getContentPane().add(myPanel);
-		undocked.addWindowListener(windowAdapter);
-		// undocked.setTitle(boundServiceName);
-		undocked.setVisible(true);
-		undocked.pack();
-		myService.getFrame().pack();
-		myService.save();
+				undocked.getContentPane().add(myPanel);
+				undocked.addWindowListener(windowAdapter);
+				// undocked.setTitle(boundServiceName);
+				undocked.setVisible(true);
+				undocked.pack();
+				myService.getFrame().pack();
+				myService.save();
 
 			}
 		});
@@ -197,7 +196,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		allowExportMenuItem.addActionListener(this);
 		allowExportMenuItem.setIcon(Util.getImageIcon("preventExport.png"));
 		popup.add(allowExportMenuItem);
-		
+
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
@@ -224,8 +223,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (myService != null)
-		{
+		if (myService != null) {
 			myService.lastTabVisited = this.getText();
 		}
 		dispatchMouseEvent(e);
