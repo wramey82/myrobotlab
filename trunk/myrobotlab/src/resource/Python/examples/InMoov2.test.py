@@ -1,12 +1,12 @@
 headPort = "COM7"
 rightHandPort = "COM8"
 rightArmPort = "COM8"
-leftHandPort = "COM7"
+leftArmPort = "COM7"
 
 i01 = Runtime.createAndStart("i01", "InMoov")
 rightArm = i01.startRightArm(rightArmPort)
 rightHand = i01.startRightHand(rightHandPort)
-leftHand = i01.startLeftHand(leftHandPort)
+leftArm = i01.startLeftArm(leftArmPort)
 
 head = i01.startHead(headPort)
 neck = i01.getHeadTracking()
@@ -35,11 +35,11 @@ eyes.faceDetect()
 ear = runtime.createAndStart("ear","Sphinx")
  
 ear.attach(i01.head.mouthControl.mouth)
-ear.addCommand("attach", "i01.head", "attach")
-ear.addCommand("detach", "i01.head", "detach")
+ear.addCommand("attach", "python", "attach")
+ear.addCommand("detach", "python", "detach")
 ear.addCommand("search humans", "i01.head.headTracking", "findFace")
 ear.addCommand("stop searching", "i01.head.headTracking", "stopScan")
-ear.addCommand("rest", "i01.head", "rest")
+ear.addCommand("rest", "python", "rest")
  
 ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
 ear.addCommand("voice control", ear.getName(), "clearLock")
@@ -49,3 +49,21 @@ ear.addNegations("no", "wrong", "nope", "nah")
  
 # all commands MUST be before startListening
 ear.startListening()
+
+attach():
+    i01.head.attach()
+    i01.rightHand.attach()
+    i01.rightArm.attach()
+    i01.leftArm.attach()
+
+detach():
+    i01.head.detach()
+    i01.rightHand.detach()
+    i01.rightArm.detach()
+    i01.leftArm.detach()
+
+rest():
+    i01.head.rest()
+    i01.rightHand.rest()
+    i01.rightArm.rest()
+    i01.leftArm.rest()
