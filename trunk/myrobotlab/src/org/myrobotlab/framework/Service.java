@@ -159,6 +159,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return host == null;
 	}
 
+	public ArrayList<String> test(Object... data){
+		return null;
+	}
 	/**
 	 * framework interface for Services which can display themselves most will
 	 * not implement this method. keeps the framework display type agnostic
