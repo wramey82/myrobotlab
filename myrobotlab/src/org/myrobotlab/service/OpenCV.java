@@ -608,6 +608,21 @@ public class OpenCV extends VideoSource {
 		videoProcessor.recordingSource = source;
 		return source;
 	}
+	
+	public ArrayList<String> test(Object... data){
+		
+		int videoCameraIndex = 0;
+		if (data.length > 0){
+			if (data[0] instanceof Integer){
+				videoCameraIndex = (Integer)data[0];
+			}
+		}
+		
+		
+
+		return null;
+		
+	}
 
 	public static void main(String[] args) throws Exception {
 
@@ -622,6 +637,9 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		opencv.addFilter(new OpenCVFilterPyramidDown());
+		
+		
 		/*
 		opencv.capture();
 		

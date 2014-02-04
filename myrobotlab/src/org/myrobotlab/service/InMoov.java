@@ -48,7 +48,7 @@ public class InMoov extends Service {
 	
 	// FIXME - needs to be at the Arduino end
 	// and related to max message speed for current serial baud rate
-	public static int MSG_DELAY = 50;
+	public static int MSG_DELAY = 500;
 
 	// static in Java are not overloaded but overwritten - there is no
 	// polymorphism for statics

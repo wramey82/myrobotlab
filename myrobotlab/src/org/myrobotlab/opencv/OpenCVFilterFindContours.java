@@ -130,23 +130,31 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	}
 	*/
 	
-	int intX, intY;
 	public IplImage display(IplImage image, OpenCVData data) {
 		ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
 		if (boxes != null) {
 			for (Rectangle box : boxes) {
-				intX = (int)box.x;
-				intY = (int)box.y;
+				// cvDrawRect(image, cvPoint(x0, y0), cvPoint(x1, y1), CvScalar.RED, 1, 1, 0);
 				if (useFloatValues){
-					cvDrawRect(image, cvPoint(intX * width, intY * height), cvPoint(intX + (int)(box.width * width), intY + (int)(box.height * height)), null, 1, 1, 0);
+					int x = (int)(box.x*width);
+					int y = (int)(box.y*height);
+					int w = x + (int)(box.width*width);
+					int h = y + (int)(box.height*height);
+					cvDrawRect(image, cvPoint(x, y), cvPoint(w, h), CvScalar.WHITE, 1, 1, 0);
 				} else {
-					cvDrawRect(image, cvPoint(intX, intY), cvPoint(intX + (int)(box.width), intY + (int)(box.height)), null, 1, 1, 0);
+					int x = (int)box.x;
+					int y = (int)box.y;
+					int w = x+(int)box.width;
+					int h = y+(int)box.height;
+					cvDrawRect(image, cvPoint(x,y), cvPoint(w,h), CvScalar.WHITE, 1, 1, 0);
 				}
 			}
-			cvPutText(image, String.format("cnt %d", boxes.size()), cvPoint(10,10), font, CvScalar.BLACK);
+			cvPutText(image, String.format("cnt %d", boxes.size()), cvPoint(10,10), font, CvScalar.WHITE);
 		} else {
-			cvPutText(image, "null", cvPoint(10,10), font, CvScalar.BLACK);
+			cvPutText(image, "null", cvPoint(10,10), font, CvScalar.WHITE);
 		}
+		
+		//cvPutText(image, "killroy was here", cvPoint(10,10), font, CvScalar.WHITE);
 		
 		return image;
 	}
@@ -204,13 +212,20 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 					if (publishBoundingBox) {
 
-						Rectangle boundingBox = new Rectangle();
+						// FIXME !!! stoopid data conversion - just use the OpenCV rect !!!
+						Rectangle box = new Rectangle();
 						if (useFloatValues) {
-							
+							box.x = (float)rect.x()/width;
+							box.y = (float)rect.y()/height;
+							box.width = (float)rect.width()/width;
+							box.height = (float)rect.height()/height;
 						} else {
-							
+							box.x = rect.x();
+							box.y = rect.y();
+							box.width = rect.width();
+							box.height = rect.height();
 						}
-						data.add(boundingBox);
+						data.add(box);
 					}
 
 					if (publishPolygon) {
@@ -270,6 +285,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		// cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
 		// log.error("x");
 		cvClearMemStorage(cvStorage);
+		
+		//display(image, data);
+		
 		return image;
 	}
 

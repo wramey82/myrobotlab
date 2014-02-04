@@ -10,37 +10,33 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.Pin;
-import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
+
+
+// video0 = rgbpilot cam
+// video1 = pink plant static NIR - 
+// Imaged from there should be taken and put through the infrapix, then opencv Nope static camera view of the braaaains
+// video2 = NIR pilot cam
 
 public class Plantoid extends Service {
 	private static final long serialVersionUID = 1L;
 
-	transient public Servo leg1, leg2, leg3, leg4, pan, tilt;
-	transient public Tracking tracking;
-	transient public Arduino arduino;
-	// video0 = rgbpilot cam
-	// video1 = pink plant static NIR - 
-	// Imaged from there should be taken and put through the infrapix, then opencv Nope static camera view of the braaaains
-	// video2 = NIR pilot cam
+	transient private Arduino arduino;
+	transient private AudioFile audioFile;
+	transient private JFugue jFugue;
+	transient private Keyboard keyboard;
+	transient private OpenCV opencv;
+	transient private Servo leg1, leg2, leg3, leg4, pan, tilt;
+	transient private Speech speech;
+	transient private Tracking tracking;
+	transient private VideoStreamer streamer;
+	transient private WebGUI webgui;
+	transient private XMPP xmpp;
 	
-	/**
-	 * future services
-	 */
-	//transient public OpenCV IRCamera, camera;
-	transient public Keyboard keyboard;
-	transient public WebGUI webgui;
-	transient public JFugue jfugue;
-	transient public Speech speech;
-	transient public AudioFile audioFile;
-	transient public XMPP xmpp;
-		
 	int everyNHours = 8;
 	
 	HashMap<String, Object> p = new HashMap<String, Object>();
 	
-	// system specific data
-	@Element
 	public String port = "/dev/ttyACM0";
 
 	/**
@@ -154,17 +150,17 @@ public class Plantoid extends Service {
 	{
 		Peers peers = new Peers(name);
 		
+		// merge
 		peers.suggestAs("tracking.x", "pan", "Servo", "shared x");
 		peers.suggestAs("tracking.y", "tilt", "Servo", "shared y");
 		peers.suggestAs("tracking.opencv", "opencv", "OpenCV", "shared opencv");
-		//peers.put("ear", "Sphinx", "InMoov speech recognition service");
-		//peers.put("mouth", "Speech", "InMoov speech service");
-		//peers.put("python", "Python", "Python service");
-		//peers.put("webgui", "WebGUI", "WebGUI service");
-		//peers.put("keyboard", "Keyboard", "Keyboard service");
+	
+		peers.put("arduino", "Arduino", "arduino service");
+		peers.put("audioFile", "AudioFile", "audio file service");
+		peers.put("jFugue", "JFugue", "jfugue service");
+		
 		peers.put("webgui", "WebGUI", "WebGUI service");
 		peers.put("xmpp", "XMPP", "xmpp service");
-		peers.put("arduino", "Arduino", "our Arduino");
 		peers.put("leg1", "Servo", "leg1");
 		peers.put("leg2", "Servo", "leg2");
 		peers.put("leg3", "Servo", "leg3");
@@ -172,7 +168,8 @@ public class Plantoid extends Service {
 		peers.put("pan",  "Servo", "pan");
 		peers.put("tilt", "Servo", "tilt");
 		peers.put("tracking", "Tracking", "tracking service");
-		peers.put("camera", "OpenCV", "pilot camera");
+		peers.put("opencv", "OpenCV", "pilot camera");
+		peers.put("streamer", "VideoStreamer", "video streamer");
 		
 		return peers;
 	}
@@ -188,9 +185,9 @@ public class Plantoid extends Service {
 	public Plantoid(String n) {
 		super(n);
 
+		arduino = (Arduino) createPeer("arduino");
 		xmpp = (XMPP) createPeer("xmpp");
 		webgui = (WebGUI) createPeer("webgui");
-		arduino = (Arduino) createPeer("arduino");
 		leg1 = (Servo) createPeer("leg1");
 		leg2 = (Servo) createPeer("leg2");
 		leg3 = (Servo) createPeer("leg3");
@@ -198,7 +195,7 @@ public class Plantoid extends Service {
 		pan = (Servo) createPeer("pan");
 		tilt = (Servo) createPeer("tilt");
 		//camera = (OpenCV)createPeer("camera");
-		tracking = (Tracking) createPeer("tracking");
+		//tracking = (Tracking) createPeer("tracking");
 		
 		leg1.setPin(2);
 		leg2.setPin(3);
@@ -215,6 +212,8 @@ public class Plantoid extends Service {
 		leg2.setRest(90);
 		leg3.setRest(90);
 		leg4.setRest(90);
+		
+		streamer = (VideoStreamer) createPeer("streamer");
 
 	}
 
@@ -239,37 +238,18 @@ public class Plantoid extends Service {
 		try {
 			
 			xmpp.startService();
-			arduino.startService();
-			leg1.startService();
-			leg2.startService();
-			leg3.startService();
-			leg4.startService();
-			pan.startService();
-			tilt.startService();
-			
 			xmpp.connect("talk.google.com", 5222, "orbous@myrobotlab.org", "mrlRocks!");
-			
 			// gets all users it can send messages to
 			xmpp.setStatus(true, String.format("online all the time - %s", new Date()));
-			
-			/*
-			xmpp.addXMPPListener("supertick@gmail.com");			
-			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
-			xmpp.addXMPPListener("389iq8ajgim8w2xm2rb4ho5l0c@public.talk.google.com");
-			*/
-			// FIXME - add all roster to listeners method
 			xmpp.addAuditor("incubator incubator");
 			xmpp.addAuditor("David Ultis");
 			xmpp.addAuditor("Greg Perry");
-			//xmpp.addRelay("info@reuseum.com");
-			//xmpp.addRelay("grasshopperrocket@gmail.com");			
-
-			// send a message
 			xmpp.broadcast("reporting for duty *SIR* !");
 
 			if (tracking != null){
 				tracking.startService();
 			}
+			
 			arduino.connect(port);
 			// the BEPSL report
 			//timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
@@ -283,12 +263,14 @@ public class Plantoid extends Service {
 			
 			arduino.addListener(getName(), "publishPin");
 			
+			
 //			startPolling();
 			attachPanTilt();
 			
 //			attachServos();
 //			detachLegs(); // at the moment detach legs
-			stop();
+//			stop();
+			streamer.attach(opencv);
 			
 		} catch (Exception e) {
 			error(e);
@@ -548,6 +530,8 @@ public class Plantoid extends Service {
 	{
 		return Runtime.getUptime();
 	}
+
+
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();

@@ -448,9 +448,12 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			I2CBus i2cbus = I2CFactory.getInstance(rasPiBus);
 			I2CDevice device = i2cbus.getDevice(address);
 			device.write(address, (byte)0x80);
-			device.write(new byte[]{0x38, 0, 0x17, b0, b1, b2, b3}, 0, 6);
+			//device.write(new byte[]{0x38, 0, 0x17, b0, b1, b2, b3}, 0, 6);
+			
+			I2CDevice display = i2cbus.getDevice(0x38);
+			display.write(new byte[]{0, 0x17, b0, b1, b2, b3}, 0, 6);
 			//device.write(address, new byte[]{(byte) 0x38, 0, (byte)0x17, b0, b1, b2, b3}, 0, 4);
-			device.write(0x38, new byte[]{0, 0x17, b0, b1, b2, b3}, 0, 6);
+			//device.write(0x38, new byte[]{0, 0x17, b0, b1, b2, b3}, 0, 6);
 			device.write(address, (byte)0x83);
 
 		} catch (Exception e) {
