@@ -17,9 +17,11 @@ print xmpp.getRoster()
 # set your online status
 xmpp.setStatus(True, "online all the time")
 
-# add buddies you want this robot to chat with
-xmpp.addXMPPListener("buddy01@gmail.com")
-xmpp.addXMPPListener("buddy02@gmail.com")
+# add auditors you want this robot to chat with
+# auditors can issue commands and will be notified of 
+# commands being sent by others and what those commands return
+xmpp.addAuditor("Joe Smith")
+xmpp.addAuditor("Jane Smith")
 
 # send a message
 xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "supertick@gmail.com")
