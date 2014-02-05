@@ -24,7 +24,7 @@ xmpp.addAuditor("Joe Smith")
 xmpp.addAuditor("Jane Smith")
 
 # send a message
-xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "supertick@gmail.com")
+xmpp.sendMessage("hello this is robot01 - the current heatbed temperature is 40 degrees celcius", "Joe Smith")
 
 def publishMessage():
 	msg = msg_xmpp_publishMessage.data[0]
