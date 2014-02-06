@@ -362,7 +362,12 @@ public class OpenCVData implements Serializable {
 	}
 
 	public ArrayList<Rectangle> getBoundingBoxArray() {
-		return (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filter));
+		String key = String.format("%s.boundingboxes", filter);
+		if (data.containsKey(key)) {
+			return (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filter));
+		} else {
+			return null;
+		}
 	}
 	
 	public void set(ArrayList<Point2Df> pointsToPublish) {
