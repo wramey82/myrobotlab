@@ -17,7 +17,7 @@ import com.pi4j.io.i2c.I2CFactory;
  0x02 = LED (Write 0 to turn ON the LED; write 1 to turn OFF) 
  0x01 = "Chip select" for 7-segment display controller 
 
- Since the 0x80 bit must be written with a “1” to enable the sensor input, it is recommended that 
+ Since the 0x80 bit must be written with a 1 to enable the sensor input, it is recommended that 
  ALL writes to the I/O expander write that bit high.  
  As a result, there are only four possible values that should be written:
 
