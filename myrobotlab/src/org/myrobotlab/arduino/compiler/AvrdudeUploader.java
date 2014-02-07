@@ -90,8 +90,6 @@ public class AvrdudeUploader extends Uploader {
 			myArduino.message(String.format("opened serial device %s", portName));
 		}
 
-		// myArduino.setSerialDevice(name, rate, databits, stopbits, parity)
-
 		// avrdude wants "stk500v1" to distinguish it from stk500v2
 		if (protocol.equals("stk500"))
 			protocol = "stk500v1";

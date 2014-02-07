@@ -15,7 +15,7 @@ arduino = Runtime.createAndStart("arduino", "Arduino")
 ear = Runtime.createAndStart("ear", "Sphinx")
 
 # connect mrl to the arduino - change the port on your system
-arduino.setSerialDevice("COM10")
+arduino.connect("COM10")
 
 # attaching the mouth to the ear
 # prevents listening when speaking

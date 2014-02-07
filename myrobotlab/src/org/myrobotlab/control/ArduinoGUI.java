@@ -201,7 +201,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		public void actionPerformed(ActionEvent e) {
 			JRadioButtonMenuItem checkbox = (JRadioButtonMenuItem) e.getSource();
 			if (checkbox.isSelected()) {
-				myService.send(boundServiceName, "setSerialDevice", checkbox.getText(), 57600, 8, 1, 0);
+				myService.send(boundServiceName, "connect", checkbox.getText(), 57600, 8, 1, 0);
 			} else {
 				myService.send(boundServiceName, "disconnect");
 			}

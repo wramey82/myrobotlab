@@ -66,7 +66,7 @@ runtime.createAndStart("rothead","Servo")
  
 # configuration for the arduino & quick test
 arduino.setBoard("atmega1280") # atmega328 | atmega168 | mega2560 | atmega1280 etc
-arduino.setSerialDevice("COM7",57600,8,1,0)
+arduino.connect("COM7",57600,8,1,0)
 sleep(2)
 arduino.pinMode(17,0)
 arduino.analogReadPollingStart(17)

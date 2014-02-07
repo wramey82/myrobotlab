@@ -38,10 +38,6 @@ public class GooglePlus extends Service {
 		return "used as a general template";
 	}
 
-	public void test()
-	{
-		
-	}
 	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();

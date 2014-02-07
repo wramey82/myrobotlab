@@ -66,18 +66,20 @@
 #define DIGITAL_TRIGGER_ONLY_ON          23
 #define DIGITAL_TRIGGER_ONLY_OFF         24
 #define SET_SERIAL_RATE			         25
-#define SET_SERIAL_RATE			         25
 #define GET_MRLCOMM_VERSION				 26
 #define SET_SAMPLE_RATE				 	 27
+#define SERVO_WRITE_MICROSECONDS		 28
 
+
+/*
+// FIXME - finish implementation Stepper* steppers[MAX_STEPPERS];
 // http://arduino.cc/en/Reference/StepperStep
-#define STEPPER_ATTACH				 	27
-#define STEPPER_DETACH				 	28
-#define STEPPER_STEP				 	29
-//#define STEPPER_DETACH				 	30
-
+#define STEPPER_ATTACH				 	xx
+#define STEPPER_DETACH				 	xx
+#define STEPPER_STEP				 	xx
 // lame - shuold determine max stepper based on board pins / pins required
 #define MAX_STEPPERS 2 
+*/
 
 // need a method to identify type of board
 // http://forum.arduino.cc/index.php?topic=100557.0
@@ -100,13 +102,23 @@
 // -- FIXME - modified by board type BEGIN --
 #define ANALOG_PIN_COUNT 16 // mega
 #define DIGITAL_PIN_COUNT 54 // mega
+#define MAX_SERVOS 48 
 // -- FIXME - modified by board type END --
 
-long debounceDelay = 50; // in ms
+/*
+* getCommand - retrieves a command message
+* inbound and outbound messages are the same format, the following represents a basic message
+* format
+*
+* MAGIC_NUMBER|NUM_BYTES|FUNCTION|DATA0|DATA1|....|DATA(N)
+*
+*/
+
+int msgSize = 0; // the NUM_BYTES of current message
+
+unsigned int debounceDelay = 50; // in ms
 long lastDebounceTime[DIGITAL_PIN_COUNT];
 
-
-// FIXME - finish implementation Stepper* steppers[MAX_STEPPERS];
 Servo servos[MAX_SERVOS];
 int servoSpeed[MAX_SERVOS];    // 0 - 100 corresponding to the 0.0 - 1.0 Servo.setSpeed - not a float at this point
 int servoTargetPosition[MAX_SERVOS];  // when using a fractional speed - servo's must remember their end destination
@@ -119,7 +131,7 @@ int byteCount               = 0;
 unsigned char newByte 		= 0;
 unsigned char ioCommand[64];  // most io fns can cleanly be done with a 4 byte code
 int readValue;
-int sampleRate = 1; // modulus of the loopcount - allowing you to sample less
+unsigned int sampleRate = 1; // 1 - 65,535 modulus of the loopcount - allowing you to sample less
 
 int digitalReadPin[DIGITAL_PIN_COUNT];        // array of pins to read from
 int digitalReadPollingPinCount = 0;           // number of pins currently reading
@@ -134,7 +146,6 @@ int analogPinService[ANALOG_PIN_COUNT];       // the services this pin is involv
 bool analogTriggerOnly = false;         // send data back only if its different
 
 unsigned long retULValue;
-
 unsigned int errorCount = 0;
 
 void setup() {
@@ -146,10 +157,8 @@ void setup() {
 	// --VENDOR SETUP END--
 }
 
-//
 void softReset()
 {
-
 	for (int i = 0; i < MAX_SERVOS - 1; ++i)
 	{
 		servoSpeed[i] = 100;
@@ -223,18 +232,6 @@ void removeAndShift (int array [], int& len, int removeValue)
 	}
 }
 
-
-/*
-* getCommand - retrieves a command message
-* inbound and outbound messages are the same format, the following represents a basic message
-* format
-*
-* MAGIC_NUMBER|NUM_BYTES|FUNCTION|DATA0|DATA1|....|DATA(N)
-*
-*/
-
-int msgSize = 0;
-
 boolean getCommand ()
 {
 	// handle serial data begin
@@ -276,10 +273,31 @@ boolean getCommand ()
 	return false;
 }
 
-/*
-set pollingRead = true if any of the pins are commanded to read
-default behavior should be to poll read
-*/
+void moveServo(bool isWriteMicroSecond){
+
+	if (servoSpeed[ioCommand[1]] == 100) // move at regular/full 100% speed
+	{
+		// move at regular/full 100% speed
+		// although not completely accurate
+		// target position & current position are
+		// updated immediately
+		if (isWriteMicroSecond) {
+			int ms = (ioCommand[2]<<8) + ioCommand[3];
+			servos[ioCommand[1]].writeMicroseconds(ms);
+		} else {
+			servos[ioCommand[1]].write(ioCommand[2]);
+		}
+		servoTargetPosition[ioCommand[1]] = ioCommand[2];
+		servoCurrentPosition[ioCommand[1]] = ioCommand[2];
+	} else if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
+		// start moving a servo at fractional speed
+		servoTargetPosition[ioCommand[1]] = ioCommand[2];
+		movingServos[movingServosCount]=ioCommand[1];
+		++movingServosCount;
+	} else {
+		// NOP - 0 speed - don't move
+	}
+}
 
 void loop () {
 
@@ -305,23 +323,10 @@ void loop () {
 			servos[ioCommand[1]].attach(ioCommand[2]);
 			break;
 		case SERVO_WRITE:
-			if (servoSpeed[ioCommand[1]] == 100) // move at regular/full 100% speed
-			{
-				// move at regular/full 100% speed
-				// although not completely accurate
-				// target position & current position are
-				// updated immediately
-				servos[ioCommand[1]].write(ioCommand[2]);
-				servoTargetPosition[ioCommand[1]] = ioCommand[2];
-				servoCurrentPosition[ioCommand[1]] = ioCommand[2];
-			} else if (servoSpeed[ioCommand[1]] < 100 && servoSpeed[ioCommand[1]] > 0) {
-				// start moving a servo at fractional speed
-				servoTargetPosition[ioCommand[1]] = ioCommand[2];
-				movingServos[movingServosCount]=ioCommand[1];
-				++movingServosCount;
-			} else {
-				// NOP - 0 speed - don't move
-			}
+			moveServo(false);
+			break;
+		case SERVO_WRITE_MICROSECONDS:
+		    moveServo(true);
 			break;
 		case SERVO_STOP_AND_REPORT:
 			// a stop can only be issued to a moving servo under speed control
@@ -371,7 +376,8 @@ void loop () {
 			++analogReadPollingPinCount;
 			break;
 		case DIGITAL_DEBOUNCE_ON:
-			debounceDelay = 50;
+			// debounceDelay = 50;
+			debounceDelay = (ioCommand[1]<<8) + ioCommand[2];
 			break;
 		case DIGITAL_DEBOUNCE_OFF:
 			debounceDelay = 0;
@@ -389,15 +395,15 @@ void loop () {
 			break;
 		case GET_MRLCOMM_VERSION:
 			Serial.write(MAGIC_NUMBER);
-			Serial.write(3); // size
+			Serial.write(2); // size
 			Serial.write(GET_MRLCOMM_VERSION);
-			Serial.write((byte)1);
-			Serial.write((byte)5);
-			//Serial.write((byte)0);
+			Serial.write((byte)7); // version lucky 7 !
 			break;
 		case SET_SAMPLE_RATE:
-			// 2 byte int - valid range 1-32,767
+			// 2 byte int - valid range 1-65,535
 			sampleRate = (ioCommand[1]<<8) + ioCommand[2];
+			if (sampleRate == 0)
+				{ sampleRate = 1; } // avoid /0 error - FIXME - time estimate param
 			break;
 		case SOFT_RESET:
 			softReset();
@@ -415,7 +421,7 @@ void loop () {
 			// No Operation
 			break;
 		default:
-			//             Serial.print("unknown command!\n");
+			//             Serial.print("unknown command!\n"); 
 			break;
 		}
 

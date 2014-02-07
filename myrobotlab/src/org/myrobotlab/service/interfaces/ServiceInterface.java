@@ -18,6 +18,7 @@ public interface ServiceInterface {
 	// hasError() - publish subscribe - getError().getSourceName()
 	
 	public ArrayList<String> test(Object... data);
+	public ArrayList<String> test();
 	
 	public URI getHost();
 		

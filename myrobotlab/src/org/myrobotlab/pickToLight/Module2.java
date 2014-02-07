@@ -8,44 +8,70 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
+import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+
+/*
+ * 0x80 = The I/R sensor input (must write a 1 bit initially) 
+ 0x7C = Unused bits 
+ 0x02 = LED (Write 0 to turn ON the LED; write 1 to turn OFF) 
+ 0x01 = "Chip select" for 7-segment display controller 
+
+ Since the 0x80 bit must be written with a “1” to enable the sensor input, it is recommended that 
+ ALL writes to the I/O expander write that bit high.  
+ As a result, there are only four possible values that should be written:
+
+ 0x80 = LED ON and display selected 
+ 0x81 = LED ON and display de-selected 
+ 0x82 = LED OFF and display selected 
+ 0x83 = LED OFF and display de-selected
+
+ */
 
 public class Module2 {
 
 	public final static Logger log = LoggerFactory.getLogger(Module2.class);
 
-	// TODO abtract out Pi4J
 	transient private com.pi4j.io.i2c.I2CBus i2cbus;
 	transient private com.pi4j.io.i2c.I2CDevice device;
 
-	protected Address2 address = new Address2();
-	protected String type;
-	protected String version; // hardware version
-	protected String state;
+	Address2 address = new Address2();
+	String type;
+	String version; // hardware version
+	String state;
+	int selector = 0x83; // IR selected - LED OFF
+
+	static final int MASK_DISPLAY = 0x01;
+	static final int MASK_LED = 0x02;
+	static final int MASK_SENSOR = 0x80;
 
 	private String lastValue = "";
-	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
 
 	static private boolean translationInitialized = false;
+	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
+
 	CycleThread ct = null;
 
 	public class BlinkThread extends Thread {
-		public int number = 5;
-		public int delay = 100;
+		public int blinkNumber = 5;
+		public int blinkDelay = 100;
 		public String value = "";
 		public boolean leaveOn = true;
 
 		public void run() {
 			int count = 0;
 			while (count < 5) {
+				selector &= ~MASK_LED;
 				display(value);
-				Service.sleep(delay);
-				display("   ");
-				Service.sleep(delay);
+				Service.sleep(blinkDelay);
+				display("");
+				selector |= MASK_LED;
+				Service.sleep(blinkDelay);
 				++count;
 			}
 
 			if (leaveOn) {
+				selector &= ~MASK_LED;
 				display(value);
 			}
 		}
@@ -53,9 +79,6 @@ public class Module2 {
 
 	public static void initTranslation() {
 
-		if (translationInitialized) {
-			return;
-		}
 		translation.put("", (byte) 0);
 		translation.put(" ", (byte) 0);
 
@@ -110,8 +133,27 @@ public class Module2 {
 		String s = String.valueOf(c).toLowerCase();
 		if (translation.containsKey(s)) {
 			b = translation.get(s);
+		} else {
+			log.error(String.format("character %s not translated", c));
 		}
 		return b;
+	}
+
+	public void logByteArray(byte[] data) {
+		logByteArray("", data);
+	}
+
+	public void logByteArray(String prefix, byte[] data) {
+
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < data.length; ++i) {
+			sb.append(data[i]);
+			if (i != data.length) {
+				sb.append(",");
+			}
+		}
+
+		log.info(String.format("%s %s", prefix, sb.toString()));
 	}
 
 	public byte[] writeDisplay(byte[] data) {
@@ -121,7 +163,18 @@ public class Module2 {
 		}
 
 		try {
-			device.write(0x00, data, 0, 16);
+
+			logByteArray("writeDisplay", data);
+
+			// select display
+			device.write((byte) (selector &= ~MASK_DISPLAY));
+
+			I2CDevice display = i2cbus.getDevice(0x38);
+			display.write(data, 0, data.length);
+
+			// de-select display
+			device.write((byte) (selector |= MASK_DISPLAY));
+
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
@@ -131,11 +184,9 @@ public class Module2 {
 
 	public String display(String str) {
 		lastValue = str;
-		if (translationInitialized) {
-			initTranslation();
-		}
+
 		// d1 d2 : d3 d4
-		byte[] display = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		byte[] display = new byte[] { 0, 0x17, 0, 0, 0, 0 };
 
 		if (str == null || str == "") {
 			writeDisplay(display);
@@ -146,10 +197,10 @@ public class Module2 {
 			str = String.format("%4s", str);
 		}
 
-		display[0] = translate(str.charAt(0));
-		display[2] = translate(str.charAt(1));
-		display[6] = translate(str.charAt(2));
-		display[8] = translate(str.charAt(3));
+		display[5] = translate(str.charAt(0));
+		display[4] = translate(str.charAt(1));
+		display[3] = translate(str.charAt(2));
+		display[2] = translate(str.charAt(3));
 
 		writeDisplay(display);
 
@@ -164,17 +215,21 @@ public class Module2 {
 		return address.getI2CBus();
 	}
 
-	public void blinkOff(String msg) {
+	public void blinkOff(String msg, int blinkNumber, int blinkDelay) {
 		log.info(String.format("blinkOff %s", msg));
 		BlinkThread b = new BlinkThread();
+		b.blinkNumber = blinkNumber;
+		b.blinkDelay = blinkDelay;
 		b.value = msg;
 		b.leaveOn = false;
 		b.start();
 	}
 
-	public void blinkOn(String value) {
+	public void blinkOn(String msg, int blinkNumber, int blinkDelay) {
 		BlinkThread b = new BlinkThread();
-		b.value = value;
+		b.blinkNumber = blinkNumber;
+		b.blinkDelay = blinkDelay;
+		b.value = msg;
 		b.start();
 	}
 
@@ -226,6 +281,60 @@ public class Module2 {
 		}
 	}
 
+	public void clear() {
+		cycleStop();
+		selector |= MASK_LED;
+		display("");
+	}
+
+	// TODO - should only have to wrap the highest level transaction (WebGUI
+	// Thread) -
+	// such that smaller transaction handling is not necessary
+	public void ledOn() {
+		try {
+			selector &= ~MASK_LED;
+			device.write((byte) selector);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
+	public void ledOff() {
+		try {
+			selector |= MASK_LED;
+			device.write((byte) selector);
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
+	public int readSensor() {
+		try {
+			// sudo i2cset -y 1 0x10 0x83
+			// sudo i2cget -y 1 0x10
+
+			// lame should bitwise this
+			// I have a feeling LED and display affect
+			// YOU CANT HAVE LED ON WHEN POLLING SENSOR ??
+			device.write((byte) 0x83);
+			return device.read();
+			
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return -1;
+	}
+	
+	public void sensorStart()
+	{
+		// polling
+		
+	}
+	
+	public void sensorStop() {
+		// stop polling
+	}
+
 	public Module2(int bus, int i2cAddress) {
 		try {
 
@@ -240,7 +349,7 @@ public class Module2 {
 				device = i2cbus.getDevice(i2cAddress);
 			}
 
-			if (translationInitialized) {
+			if (!translationInitialized) {
 				initTranslation();
 			}
 
@@ -250,5 +359,4 @@ public class Module2 {
 
 	}
 
-	// FIXME - add PCFBLAHBLAH
 }

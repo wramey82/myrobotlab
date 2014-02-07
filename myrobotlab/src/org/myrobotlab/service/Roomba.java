@@ -636,7 +636,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		return roombacomm.bump();
 	}
 
-	public void test() {
+	public ArrayList<String> test() {
 		// must pause after every playNote to let to note sound
 		System.out.println("Playing some notes");
 		roombacomm.playNote(72, 10);
@@ -670,6 +670,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		roombacomm.pause(1000);
 		roombacomm.spinRightAt(15);
 		roombacomm.pause(1000);
+		return null;
 	}
 
 	public void purr() {

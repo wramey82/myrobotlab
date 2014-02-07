@@ -36,8 +36,8 @@ public class MainTest implements MessageListener {
 		Arduino arduino = new Arduino("arduino");
 		arduino.startService();
 		// connect default 8 N 1 to serial device
-		arduino.setSerialDevice("/dev/ttyACM0"); 
-		//arduino.setSerialDevice("COM10");
+		arduino.connect("/dev/ttyACM0"); 
+		//arduino.connect("COM10");
 		//arduino.setBoard("diecimila");
 		arduino.connect();
 		

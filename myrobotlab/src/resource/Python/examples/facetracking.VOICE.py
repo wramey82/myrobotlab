@@ -41,7 +41,7 @@ xpid = Runtime.create("xpid","PID");
 ypid = Runtime.create("ypid","PID");
  
 # adjust values
-arduino.setSerialDevice("COM3")
+arduino.connect("COM3")
 eye = Runtime.create("eye","OpenCV")
 opencv = Runtime.create("opencv","OpenCV")
 opencv.startService()

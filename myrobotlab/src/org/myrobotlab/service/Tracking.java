@@ -501,7 +501,7 @@ public class Tracking extends Service {
 		opencv.removeFilters();
 	}
 
-	public void test() {
+	public ArrayList<String> test() {
 		for (int i = 0; i < 1000; ++i) {
 			// invoke("trackPoint", 0.5, 0.5);
 			// faceDetect();
@@ -512,6 +512,8 @@ public class Tracking extends Service {
 			searchForeground();
 			removeFilters();
 		}
+		
+		return null;
 	}
 
 	public void trackPoint() {

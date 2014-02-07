@@ -10,7 +10,7 @@ tracker = Runtime.create("tracker","Tracking")
 rotation = Runtime.create("rotation","Servo")
 neck = Runtime.create("neck","Servo")
 arduino = Runtime.create("arduino","Arduino")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
+arduino.connect("COM3", 57600, 8, 1, 0)
 eye = Runtime.create("eye","OpenCV")
 eye.setCameraIndex(1)
 

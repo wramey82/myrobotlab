@@ -12,7 +12,7 @@ thing = runtime.createAndStart("thing","ThingSpeak")
  
 arduino.setBoard(boardType) # atmega168 | mega2560 | etc
 if not arduino.isConnected():
-  arduino.setSerialDevice(comPort)
+  arduino.connect(comPort)
 
  
 thing.setWriteKey("AO4DMKQZY4RLWNNU")

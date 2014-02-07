@@ -14,6 +14,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -87,16 +88,16 @@ public class Runtime extends Service {
 	// ---- Runtime members begin -----------------
 	// TODO make this singleton - so Runtime.update works
 	public final ServiceInfo serviceInfo = new ServiceInfo();
-	//static ServiceInterface gui = null;
+	// static ServiceInterface gui = null;
 	// ---- Runtime members end -----------------
 
 	public final static Logger log = LoggerFactory.getLogger(Runtime.class);
-	
+
 	/**
 	 * Object used to synchronize initializing this singleton.
 	 */
 	private static final Object instanceLockObject = new Object();
-	
+
 	/**
 	 * The singleton of this class.
 	 */
@@ -189,7 +190,7 @@ public class Runtime extends Service {
 		synchronized (instanceLockObject) {
 			localInstance = this;
 		}
-		
+
 		String libararyPath = System.getProperty("java.library.path");
 		String userDir = System.getProperty("user.dir");
 		String userHome = System.getProperty("user.home");
@@ -208,7 +209,6 @@ public class Runtime extends Service {
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
 
-		
 		log.info("---------------non-normalized---------------");
 		log.info(String.format("java.vm.name [%s]", vmName));
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
@@ -216,7 +216,7 @@ public class Runtime extends Service {
 		log.info(String.format("java.vm.version [%s]", System.getProperty("java.vm.version")));
 		log.info(String.format("java.vm.vendor [%s]", System.getProperty("java.runtime.version")));
 
-		//System.getProperty("pi4j.armhf")
+		// System.getProperty("pi4j.armhf")
 		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
 		log.info(String.format("os.version [%s]", System.getProperty("os.version")));
 
@@ -232,7 +232,7 @@ public class Runtime extends Service {
 		// ConfigurationManager rootcfg = new ConfigurationManager(); // FIXME -
 		// deprecate
 		// rootcfg.load(host + ".properties");
-		//hostInitialized = true;
+		// hostInitialized = true;
 
 		// create local configuration directory
 		new File(cfgDir).mkdir();
@@ -245,7 +245,7 @@ public class Runtime extends Service {
 
 		// load the current set of possible service
 		serviceInfo.getLocalServiceData();
-		
+
 		// starting this
 		startService();
 	}
@@ -499,17 +499,20 @@ public class Runtime extends Service {
 					Runtime rt = Runtime.getInstance();
 					// FIXME - Security determines what to export
 					Message msg = rt.createMessage("", "register", s);
-					//((Communicator) gateway).sendRemote(uri, msg); //mrl://remote2/tcp://127.0.0.1:50488 <-- wrong sendingRemote is wrong
-					// FIXME - optimize gateway.send(msg) && URI TO URI MAP IN RUNTIME !!!
+					// ((Communicator) gateway).sendRemote(uri, msg);
+					// //mrl://remote2/tcp://127.0.0.1:50488 <-- wrong
+					// sendingRemote is wrong
+					// FIXME - optimize gateway.send(msg) && URI TO URI MAP IN
+					// RUNTIME !!!
 					gateway.in(msg);
 				}
 			}
 		}
 
-		
 		// ServiceInterface sw = new ServiceInterface(s, se.accessURL);
 		se.serviceDirectory.put(s.getName(), s);
-		// WARNING - SHOULDN'T THIS BE DONE FIRST AVOID DEADLOCK / RACE CONDITION ????
+		// WARNING - SHOULDN'T THIS BE DONE FIRST AVOID DEADLOCK / RACE
+		// CONDITION ????
 		registry.put(s.getName(), s); // FIXME FIXME FIXME FIXME !!!!!! pre-pend
 										// URI if not NULL !!!
 		if (localInstance != null) {
@@ -1019,7 +1022,6 @@ public class Runtime extends Service {
 		return true;
 	}
 
-
 	/**
 	 * 
 	 */
@@ -1040,7 +1042,7 @@ public class Runtime extends Service {
 			 */
 		}
 		/*
-		 * if (hasGUI) {  }
+		 * if (hasGUI) { }
 		 */
 	}
 
@@ -1308,14 +1310,15 @@ public class Runtime extends Service {
 		Runtime.release(name);
 	}
 
-	static String createRestartScript(String[] args){
-		//String
-		return null; 
+	static String createRestartScript(String[] args) {
+		// String
+		return null;
 	}
 
 	/**
-	 * hack from
-	 * http://blog.cedarsoft.com/2010/11/setting-java-library-path-programmatically/
+	 * hack from http://blog.cedarsoft.com/2010/11/setting-java-library-path-
+	 * programmatically/
+	 * 
 	 * @param newPath
 	 */
 	static void setJavaLibraryPath(String newPath) {
@@ -2040,9 +2043,12 @@ public class Runtime extends Service {
 	 * 
 	 * @return list of local IP addresses
 	 * @throws SocketException
+	 * @throws UnknownHostException
 	 */
-	static public ArrayList<String> getLocalAddresses() throws SocketException {
+	static public ArrayList<String> getLocalAddresses() throws SocketException, UnknownHostException {
+		log.info("getLocalAddresses");
 		ArrayList<String> ret = new ArrayList<String>();
+
 		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 		while (interfaces.hasMoreElements()) {
 			NetworkInterface current = interfaces.nextElement();
@@ -2065,14 +2071,70 @@ public class Runtime extends Service {
 
 		return ret;
 	}
+
+	static public String getLocalAddress() {
+		log.info("getLocalMacAddress");
+
+		try {
+			InetAddress ip = InetAddress.getLocalHost();
+			log.info("{}", ip);
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+			byte[] mac = network.getHardwareAddress();
+
+			System.out.print("Current MAC address : ");
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < mac.length; i++) {
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+			}
+
+			log.info(sb.toString());
+
+			return ip.getHostAddress();
+
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return null;
+	}
+
+	static public String getLocalMacAddress() {
+		log.info("getLocalMacAddress");
+
+		try {
+			InetAddress ip = InetAddress.getLocalHost();
+			log.info("{}", ip);
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+			byte[] mac = network.getHardwareAddress();
+
+			System.out.print("Current MAC address : ");
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < mac.length; i++) {
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+			}
+
+			log.info(sb.toString());
+
+			return sb.toString();
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return null;
+	}
+
 	// -------- network end ------------------------
-	
+
 	// http://stackoverflow.com/questions/16610525/how-to-determine-if-graphicsenvironment-exists
-	
-	static public boolean isHeadless(){
-		//String awt = "java.awt.GraphicsEnvironment";
-		//java.awt.GraphicsEnvironment.isHeadless()
-		//  String nm = System.getProperty("java.awt.headless");
+
+	static public boolean isHeadless() {
+		// String awt = "java.awt.GraphicsEnvironment";
+		// java.awt.GraphicsEnvironment.isHeadless()
+		// String nm = System.getProperty("java.awt.headless");
 		// should return true if Linux != display
 		String b = System.getProperty("java.awt.headless");
 		return Boolean.parseBoolean(b);
@@ -2087,6 +2149,50 @@ public class Runtime extends Service {
 		Logging logging = LoggingFactory.getInstance();
 		logging.setLevel(level);
 		return level;
+	}
+
+	public static String getLocalMacAddress2() {
+		try {
+			log.info("getLocalMacAddress2");
+
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface current = interfaces.nextElement();
+				System.out.println(current);
+				if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+					log.info("skipping interface is down, a loopback or virtual");
+					continue;
+				}
+				Enumeration<InetAddress> addresses = current.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					InetAddress currentAddress = addresses.nextElement();
+					if (currentAddress.isLoopbackAddress()) {
+						log.info("skipping loopback address");
+						continue;
+					}
+					System.out.println(currentAddress.getHostAddress());
+
+					NetworkInterface network = NetworkInterface.getByInetAddress(currentAddress);
+
+					byte[] mac = network.getHardwareAddress();
+
+					System.out.print("Current MAC address : ");
+
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < mac.length; i++) {
+						sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+					}
+
+					return sb.toString();
+
+				}
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		log.info("not found");
+		return null;
 	}
 
 }

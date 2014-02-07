@@ -30,10 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import org.myrobotlab.arduino.compiler.MessageConsumer;
-import org.myrobotlab.arduino.compiler.Preferences;
 import org.myrobotlab.arduino.compiler.SerialNotFoundException;
 import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.serial.SerialDeviceEvent;

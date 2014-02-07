@@ -22,7 +22,7 @@ arduino = runtime.createAndStart("arduino","Arduino")
 arduino.setBoard(boardType) # atmega168 | mega2560 | etc
 
 # set serial device
-arduino.setSerialDevice(comPort,57600,8,1,0)
+arduino.connect(comPort,57600,8,1,0)
 sleep(1) # give it a second for the serial device to get ready
 
 # update the gui with configuration changes

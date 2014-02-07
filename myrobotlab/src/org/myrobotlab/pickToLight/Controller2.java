@@ -8,12 +8,21 @@ public class Controller2 {
 	private String name;
 	private String version;
 	private String ipAddress;
-	private Map <String, Module2> modules = new HashMap <String, Module2>();
+	private String macAddress;
+	
+	private HashMap <String, Module2> modules = new HashMap <String, Module2>();
 	
 	public Controller2(){
-		
 	}
 
+	public String getMacAddress() {
+		return macAddress;
+	}
+
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -38,11 +47,11 @@ public class Controller2 {
 		this.ipAddress = ipAddress;
 	}
 
-	public Map<String, Module2> getModules() {
+	public HashMap<String, Module2> getModules() {
 		return modules;
 	}
 
-	public void setModules(Map<String, Module2> modules) {
+	public void setModules(HashMap<String, Module2> modules) {
 		this.modules = modules;
 	}
 

@@ -15,7 +15,7 @@ xpid = Runtime.create("xpid","PID");
 ypid = Runtime.create("ypid","PID");
 
 # adjust values
-arduino.setSerialDevice("COM12")
+arduino.connect("COM12")
 eye = Runtime.create("eye","OpenCV")
 eye.setCameraIndex(1)
 

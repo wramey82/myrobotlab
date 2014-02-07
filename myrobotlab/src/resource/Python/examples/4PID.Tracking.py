@@ -33,7 +33,7 @@ xpidb = Runtime.create("xpidb","PID");
 ypidb = Runtime.create("ypidb","PID");
  
 # adjust values
-arduino.setSerialDevice("COM3")
+arduino.connect("COM3")
 eye = Runtime.create("eye","OpenCV")
 eye.setCameraIndex(1)
  

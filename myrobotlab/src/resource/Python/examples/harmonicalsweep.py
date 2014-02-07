@@ -2,7 +2,7 @@ import math
 
 arduino = Runtime.createAndStart("arduino","Arduino")
 sinusoidal = Runtime.createAndStart("sinusoidal","Servo")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
+arduino.connect("COM3", 57600, 8, 1, 0)
 sleep(4)
 arduino.attach(sinusoidal.getName() , 3)
 
