@@ -210,12 +210,12 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 		return arduino != null;
 	}
 
-	public void setSerialDevice(String comPort) {
-		arduino.setSerialDevice(comPort);
+	public void connect(String comPort) {
+		arduino.connect(comPort);
 	}
 	// motor controller api
 	
-	public void test()
+	public ArrayList<String> test()
 	{
 
 		setServo(0, SERVOMIN);
@@ -248,6 +248,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 		setPWM(0, 0, SERVOMIN);
 		setPWM(0, 0, SERVOMAX);
 		
+		return null;
 
 	}
 
@@ -320,7 +321,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 		Runtime.createAndStart("gui01", "GUIService");
 		
 		
-		pwm.setSerialDevice("COM12");
+		pwm.connect("COM12");
 		
 		pwm.test();
 		

@@ -27,7 +27,7 @@ ypid.setSetpoint(60) #set point is now 60 instead of 120 because of 2 PD filters
 arduino = Runtime.createAndStart("arduino","Arduino")
 pan  = Runtime.createAndStart("pan","Servo")
 tilt = Runtime.createAndStart("tilt","Servo")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
+arduino.connect("COM3", 57600, 8, 1, 0)
 sleep(4)
 arduino.attach(pan.getName() , 3)
 arduino.attach(tilt.getName(), 9)

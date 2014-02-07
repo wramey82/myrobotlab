@@ -30,7 +30,7 @@ ypid.setSetpoint(120)
 arduino = Runtime.createAndStart("arduino","Arduino")
 pan 	= Runtime.createAndStart("pan","Servo")
 tilt	= Runtime.createAndStart("tilt","Servo")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
+arduino.connect("COM3", 57600, 8, 1, 0)
 
 arduino.attach(pan.getName() , 12)
 arduino.attach(tilt.getName(), 13)

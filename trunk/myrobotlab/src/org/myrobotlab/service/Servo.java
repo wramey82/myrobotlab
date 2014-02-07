@@ -25,6 +25,7 @@
 
 package org.myrobotlab.service;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import org.myrobotlab.framework.Service;
@@ -314,7 +315,7 @@ public class Servo extends Service implements ServoControl {
 		}
 	}
 
-	public void test() {
+ public ArrayList<String> test() {
 		for (int i = 0; i < 10000; ++i) {
 			setSpeed(0.6f);
 			moveTo(90);
@@ -329,6 +330,8 @@ public class Servo extends Service implements ServoControl {
 			moveTo(90);
 			moveTo(180);
 		}
+		
+		return null;
 
 	}
 
@@ -370,7 +373,7 @@ public class Servo extends Service implements ServoControl {
 
 		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
 
-		arduino.setSerialDevice("COM4");
+		arduino.connect("COM4");
 
 		Servo right = new Servo("servo01");
 		right.startService();

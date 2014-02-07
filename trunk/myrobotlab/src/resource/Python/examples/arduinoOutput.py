@@ -13,7 +13,7 @@ arduino = runtime.createAndStart("arduino","Arduino")
 arduino.setBoard("atmega168") # atmega168 | mega2560 | etc
 
 # set serial device
-arduino.setSerialDevice("/dev/ttyUSB0",57600,8,1,0)
+arduino.connect("/dev/ttyUSB0",57600,8,1,0)
 sleep(1) # give it a second for the serial device to get ready
 
 # update the gui with configuration changes

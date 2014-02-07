@@ -128,7 +128,7 @@ public class WSServer extends WebSocketServer {
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		ex.printStackTrace();
+		Logging.logException(ex);
 		if (conn != null) {
 			// some errors like port binding failed may not be assignable to a
 			// specific websocket

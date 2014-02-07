@@ -179,6 +179,9 @@ public class VideoProcessor implements Runnable, Serializable {
 
 			Class<?>[] paramTypes = new Class[1];
 			Object[] params = new Object[1];
+			
+			// determine by file type - what input it is
+			
 
 			if (OpenCV.INPUT_SOURCE_CAMERA.equals(inputSource)) {
 				paramTypes[0] = Integer.TYPE;

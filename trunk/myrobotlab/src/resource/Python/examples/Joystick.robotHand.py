@@ -1,7 +1,7 @@
 arduino = Runtime.createAndStart("arduino","Arduino")
 joystick = runtime.createAndStart("joystick","Joystick")
 hand  = Runtime.createAndStart("hand","Servo")
-arduino.setSerialDevice("COM3", 57600, 8, 1, 0)
+arduino.connect("COM3", 57600, 8, 1, 0)
 sleep(4)
 arduino.attach(hand.getName() , 2)
 

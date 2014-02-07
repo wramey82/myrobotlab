@@ -3,7 +3,7 @@
 servo1 = Runtime.createAndStart("servo1", "Servo")	
 pwm =  Runtime.createAndStart("pwm", "Adafruit16CServoDriver")
 		
-pwm.setSerialDevice("COM12")
+pwm.connect("COM12")
 
 # attach servo1 to pin 0 on the servo driver
 pwm.attach(servo1, 0)

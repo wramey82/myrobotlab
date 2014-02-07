@@ -15,7 +15,7 @@ pan 	= Runtime.createAndStart("pan","Servo")
 tilt	= Runtime.createAndStart("tilt","Servo")
 joystick = Runtime.createAndStart("joystick","Joystick")
 
-arduino.setSerialDevice("COM10", 57600, 8, 1, 0)
+arduino.connect("COM10", 57600, 8, 1, 0)
 
 sleep(2)
 

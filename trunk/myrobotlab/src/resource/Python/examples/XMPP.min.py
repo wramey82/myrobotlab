@@ -1,7 +1,7 @@
 # simple script to show how to send a message to and recieve a message from
 # using a robot with the XMPP service 
 
-# create ear and mouth
+# create an xmpp service
 xmpp = Runtime.createAndStart("xmpp","XMPP")
 
 # adds the python service as a listener for messages

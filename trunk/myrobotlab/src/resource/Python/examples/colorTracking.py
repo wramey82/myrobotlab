@@ -48,8 +48,8 @@ from org.myrobotlab.service import Arduino
 arduino = runtime.createAndStart('arduino','Arduino')
 
 # set and open the serial device 
-# arduino.setSerialDevice('/dev/ttyUSB0', 57600, 8, 1, 0)
-arduino.setSerialDevice(comPort, 57600, 8, 1, 0)
+# arduino.connect('/dev/ttyUSB0', 57600, 8, 1, 0)
+arduino.connect(comPort, 57600, 8, 1, 0)
 
 sleep(3) # sleep because even after initialization the serial port still takes time to be ready
 arduino.pinMode(16, Arduino.INPUT)

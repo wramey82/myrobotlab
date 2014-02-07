@@ -155,8 +155,11 @@ public class OpenCVFilterFaceDetect extends OpenCVFilter {
 		// Find whether the cascade is loaded, to find the faces. If yes, then:
 		if (cascade != null) {
 
-			// CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1,
-			// 1, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
+			// CV_HAAR_DO_CANNY_PRUNING - causes flat regions (no lines) to be skipped
+			// CV_HAAR_SCALE_IMAGE
+			// CV_HAAR_FIND_BIGGEST_OBJECT - tells the detector to return the biggest - hence # of objects will be 1 or none
+			// CV_HAAR_DO_ROUGH_SEARCH
+			 
 			// faces = cvHaarDetectObjects(grayImage, classifier, storage, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH | CV_HAAR_FIND_BIGGEST_OBJECT);
 		    // faces = cvHaarDetectObjects(grayImage, classifier_eyes, storage, 1.1, 3, CV_HAAR_DO_CANNY_PRUNING);
 			CvSeq faces = cvHaarDetectObjects(image, cascade, storage, 1.1, 1, CV_HAAR_DO_CANNY_PRUNING | CV_HAAR_FIND_BIGGEST_OBJECT);
