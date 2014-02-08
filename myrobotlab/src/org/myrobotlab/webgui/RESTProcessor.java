@@ -176,7 +176,8 @@ public class RESTProcessor implements HTTPProcessor {
 					Logging.logException(e);
 				}
 
-				Response response = new Response(Status.OK, "text/text", encodedResponse);
+				//Response response = new Response(Status.OK, "text/text", encodedResponse);
+				Response response = new Response(Status.OK, "application/json", encodedResponse);
 
 				return response;
 			}
