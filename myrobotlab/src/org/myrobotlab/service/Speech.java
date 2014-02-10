@@ -491,8 +491,8 @@ public class Speech extends Service {
 	
 		Speech speech = new Speech("speech");
 		speech.startService();
-		speech.setGoogleURI("http://tts-api.com/tts.mp3?q=");
-		speech.speak("hello there world");
+		//speech.setGoogleURI("http://tts-api.com/tts.mp3?q=");
+		speech.speak("system check completed sir");
 		speech.speak("dood this is awesome");
 		
 		speech.setGenderMale();

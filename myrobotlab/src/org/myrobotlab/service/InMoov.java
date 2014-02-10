@@ -140,11 +140,6 @@ public class InMoov extends Service {
 		return true;
 	}
 
-	public void detachAll() {
-		if (rightHand != null) {
-			rightHand.detach();
-		}
-	}
 
 	public Speech startMouth() {
 		mouth = (Speech) startPeer("mouth");
@@ -188,20 +183,35 @@ public class InMoov extends Service {
 	public final String right = "right";
 
 	// ------ initialization begin ---------
-
+	
 	public InMoovHand startRightHand(String port) {
-		rightHand = startHand(right, port);
-		return rightHand;
+		return startRightHand(port, null);
 	}
 
+	public InMoovHand startRightHand(String port, String type) {
+		rightHand = startHand(right, port, type);
+		return rightHand;
+	}
+	
 	public InMoovHand startLeftHand(String port) {
-		leftHand = startHand(left, port);
+		return startLeftHand(port, null);
+	}
+
+	public InMoovHand startLeftHand(String port, String type) {
+		leftHand = startHand(left, port, type);
 		return leftHand;
 	}
 
-	public InMoovHand startHand(String side, String port) {
+	public InMoovHand startHand(String side, String port, String type) {
 		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
 		
+		if (type == null && right.equals(side)){
+			type = Arduino.BOARD_TYPE_UNO;
+		} else if (type == null) {
+			type = Arduino.BOARD_TYPE_ATMEGA2560;
+		}
+		
+		hand.getArduino().setBoard(type);
 		hand.connect(port);
 		
 		if (!hand.isValid()) {
@@ -210,20 +220,35 @@ public class InMoov extends Service {
 
 		return hand;
 	}
-
+	
 	public InMoovArm startRightArm(String port) {
-		rightArm = startArm(right, port);
-		return rightArm;
+		return startRightArm(port, null);
 	}
 
+	public InMoovArm startRightArm(String port, String type) {
+		rightArm = startArm(right, port, type);
+		return rightArm;
+	}
+	
 	public InMoovArm startLeftArm(String port) {
-		leftArm = startArm(left, port);
+		return startLeftArm(port, null);
+	}
+
+	public InMoovArm startLeftArm(String port, String type) {
+		leftArm = startArm(left, port, type);
 		return leftArm;
 	}
 
-	public InMoovArm startArm(String side, String port) {
+	public InMoovArm startArm(String side, String port, String type) {
 		InMoovArm Arm = (InMoovArm) createPeer(String.format("%sArm", side));
 		// connect will start if not already started
+		
+		if (type == null && right.equals(side)){
+			type = Arduino.BOARD_TYPE_UNO;
+		} else {
+			type = Arduino.BOARD_TYPE_ATMEGA2560;
+		}
+		
 		Arm.connect(port);
 
 		if (!Arm.isValid()) {
@@ -268,6 +293,13 @@ public class InMoov extends Service {
 		}
 	}
 
+
+	public void detachAll() {
+		if (rightHand != null) {
+			rightHand.detach();
+		}
+	}
+	
 	public void detach() {
 		if (head != null) {
 			head.detach();
@@ -338,6 +370,28 @@ public class InMoov extends Service {
 		}
 	}
 
+	public void broadcastState() {
+		if (leftHand != null){
+			leftHand.broadcastState();
+		}
+		
+		if (rightHand != null){
+			rightHand.broadcastState();
+		}
+		
+		if (leftArm != null){
+			leftArm.broadcastState();
+		}
+		
+		if (rightArm != null){
+			rightArm.broadcastState();
+		}
+		
+		if (head != null){
+			head.broadcastState();
+		}
+	}
+	
 	// ------ composites end -----------
 	// ------ deep gets begin -----------
 	public Tracking getHeadTracking() {

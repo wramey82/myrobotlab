@@ -247,7 +247,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 			closeFile();
 		} else if (m.getActionCommand().equals("examples")) {
 			String filename = String.format("Python/examples/%1$s", m.getText());
-			Script script = new Script(filename, FileIO.getResourceFile(filename));
+			Script script = new Script(filename, FileIO.resourceToString(filename));
 			addNewEditorPanel(script);
 		}
 	}

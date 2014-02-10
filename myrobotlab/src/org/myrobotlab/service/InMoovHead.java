@@ -155,11 +155,18 @@ public class InMoovHead extends Service {
 		neck = (Servo) createPeer("neck");
 		arduino = (Arduino) createPeer("headArduino");
 
+		// connection details
 		neck.setPin(12);
 		rothead.setPin(13);
 		jaw.setPin(26); 
 		eyeX.setPin(22);
 		eyeY.setPin(24);
+		
+		neck.setController(arduino);
+		rothead.setController(arduino);
+		jaw.setController(arduino);
+		eyeX.setController(arduino);
+		eyeY.setController(arduino);
 		
 		neck.setMinMax(20, 160);
 		rothead.setMinMax(30, 150);
@@ -221,6 +228,12 @@ public class InMoovHead extends Service {
 	 * @return
 	 */
 	public boolean attach() {
+		eyeX.attach();
+		eyeY.attach();
+		jaw.attach();
+		rothead.attach();
+		neck.attach();
+		/*
 		arduino.servoAttach(eyeX);
 		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(eyeY);
@@ -231,6 +244,8 @@ public class InMoovHead extends Service {
 		sleep(InMoov.MSG_DELAY);
 		arduino.servoAttach(neck);
 		sleep(InMoov.MSG_DELAY);
+		*/
+		
 		return true;
 	}
 
@@ -278,15 +293,15 @@ public class InMoovHead extends Service {
 
 	public void detach() {	
 		rothead.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		neck.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		eyeX.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		eyeY.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		jaw.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {

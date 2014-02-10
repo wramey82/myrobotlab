@@ -39,6 +39,8 @@ public class MouthControl extends Service {
 		mouth = (Speech) createPeer("mouth");
 
 		jaw.setPin(7);
+		jaw.setController(arduino);
+		
 		if (mouth != null) {
 			mouth.addListener(getName(), "saying");
 		}
@@ -80,7 +82,8 @@ public class MouthControl extends Service {
 			return false;
 		}
 
-		arduino.servoAttach(jaw);
+		//arduino.servoAttach(jaw);
+		jaw.attach();
 		return true;
 	}
 

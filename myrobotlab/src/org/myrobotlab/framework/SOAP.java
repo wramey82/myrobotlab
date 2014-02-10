@@ -213,7 +213,7 @@ public class SOAP {
 			// log.info("[{}]", types);
 
 			// get <!-- [[%wsdl:message%]] --> message
-			String messagesTemplate = FileIO.getResourceFile("soap/messages.xml");
+			String messagesTemplate = FileIO.resourceToString("soap/messages.xml");
 			
 			// for (int i = 0; i < methods.length; ++i) {
 			// Method m = methods[i];
@@ -232,7 +232,7 @@ public class SOAP {
 			// }
 
 			// get <!-- [[%portType:wsdl:operation%]] --> porttype
-			String portTypesTemplate = FileIO.getResourceFile("soap/portTypes.xml");
+			String portTypesTemplate = FileIO.resourceToString("soap/portTypes.xml");
 			// for (int i = 0; i < methods.length; ++i) {
 			// Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
@@ -240,7 +240,7 @@ public class SOAP {
 			}
 			// }
 
-			String bindingsTemplate = FileIO.getResourceFile("soap/bindings.xml");
+			String bindingsTemplate = FileIO.resourceToString("soap/bindings.xml");
 			// for (int i = 0; i < methods.length; ++i) {
 			// Method m = methods[i];
 			if ((!filter.contains(m.getName()) && !includeFilter) || (filter.contains(m.getName()) && includeFilter)) {
@@ -249,7 +249,7 @@ public class SOAP {
 		}
 
 		// put it all together
-		String wsdlTemplate = FileIO.getResourceFile("soap/wsdl.tmp.xml");
+		String wsdlTemplate = FileIO.resourceToString("soap/wsdl.tmp.xml");
 		wsdlTemplate = wsdlTemplate.replaceAll("<!-- \\[\\[%wsdl:types%\\]\\] -->", types.toString());
 		wsdlTemplate = wsdlTemplate.replaceAll("<!-- \\[\\[%wsdl:messages%\\]\\] -->", messages.toString());
 		wsdlTemplate = wsdlTemplate.replaceAll("<!-- \\[\\[%wsdl:portTypes%\\]\\] -->", portTypes.toString());

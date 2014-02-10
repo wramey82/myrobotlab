@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -45,15 +44,21 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
-import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServoController;
+import org.slf4j.Logger;
 
+/**
+ * Servo GUI - displays details of Servo state
+ * Lesson learned !  Servos to properly function need to be attached to a controller
+ * This gui previously sent messages to the controller.  To simplify things its important to send
+ * messages only to the bound Servo - and let it attach to the controller versus sending messages
+ * directly to the controller.  1 display - 1 service - keep it simple
+ *
+ */
 public class ServoGUI extends ServiceGUI implements ActionListener, MouseListener {
 
 	public final static Logger log = LoggerFactory.getLogger(ServoGUI.class.getCanonicalName());
@@ -69,11 +74,11 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	BasicArrowButton right = new BasicArrowButton(BasicArrowButton.EAST);
 	BasicArrowButton left = new BasicArrowButton(BasicArrowButton.WEST);
 
-	JComboBox controller = new JComboBox();
-	JComboBox pin = new JComboBox();
+	JComboBox<String> controller = new JComboBox<String>();
+	JComboBox<Integer> pin = new JComboBox<Integer>();
 
-	DefaultComboBoxModel controllerModel = new DefaultComboBoxModel();
-	DefaultComboBoxModel pinModel = new DefaultComboBoxModel();
+	DefaultComboBoxModel<String> controllerModel = new DefaultComboBoxModel<String>();
+	DefaultComboBoxModel<Integer> pinModel = new DefaultComboBoxModel<Integer>();
 
 	JTextField posMin = new JTextField("0");
 	JTextField posMax = new JTextField("180");
@@ -98,6 +103,12 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	public ServoGUI(final String boundServiceName, final GUI myService) {
 		super(boundServiceName, myService);
 		myServo = (Servo) Runtime.getService(boundServiceName);
+		
+		pinModel.addElement(null);
+		for (int i = 2; i < 54; i++){
+			pinModel.addElement(i);
+		}
+		// determine not worth querying the controller to its pin list
 	}
 
 	public void init() {
@@ -162,6 +173,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 
 		display.add(limits, gc);
 
+		updateLimitsButton.addActionListener(this);
 		left.addActionListener(this);
 		right.addActionListener(this);
 		controller.addActionListener(this);
@@ -207,16 +219,34 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		});
 	}
 
-	public void getState(final Servo servo) {
+	
+	public void removeListeners(){
+		controller.removeActionListener(this);
+		pin.removeActionListener(this);
+	}
+	
+	public void restoreListeners(){
+		controller.addActionListener(this);
+		pin.addActionListener(this);
+	}
+	
+	synchronized public void getState(final Servo servo) {
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-
+			
+				removeListeners();
 				controller.setSelectedItem(servo.getControllerName());
 				pin.setSelectedItem(servo.getPin());
+				
 				if (servo.isAttached()) {
 					attachButton.setText("detach");
+					controller.setEnabled(false);
+					pin.setEnabled(false);
 				} else {
 					attachButton.setText("attach");
+					controller.setEnabled(true);
+					pin.setEnabled(true);
 				}
 
 				if (servo.getPosition() == null) {
@@ -229,21 +259,48 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 				}
 				posMin.setText(servo.getMin().toString());
 				posMax.setText(servo.getMax().toString());
+				
+				restoreListeners();
 			}
 		});
+		
 	}
 
 	public void attachGUI() {
 		subscribe("publishState", "getState", Servo.class);
+		//subscribe("controllerSet", "controllerSet");
+		//subscribe("pinSet", "pinSet");
+		//subscribe("attached", "attached");
+		//subscribe("detached", "detached");
 		myService.send(boundServiceName, "publishState");
 	}
 
 	@Override
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", Servo.class);
+		//unsubscribe("controllerSet", "controllerSet");
+		//unsubscribe("pinSet", "pinSet");
+		//subscribe("attached", "attached");
+		//subscribe("detached", "detached");
 	}
 
-	// GUI's action processing section
+	// a controller has been set
+	/*
+	 * public void displayController(final ServoController sc, final ServoGUI
+	 * mygui) { SwingUtilities.invokeLater(new Runnable() { public void run() {
+	 * controller.removeActionListener(mygui); pinModel.removeAllElements(); //
+	 * FIXME - get Local services relative to the servo
+	 * pinModel.addElement(null);
+	 * 
+	 * ArrayList<Pin> pinList = sc.getPinList(); for (int i = 0; i <
+	 * pinList.size(); ++i) { pinModel.addElement(pinList.get(i).pin); }
+	 * 
+	 * pin.invalidate(); } });
+	 * 
+	 * }
+	 */
+
+	// GUI's action processing section - data from user
 	@Override
 	public void actionPerformed(final ActionEvent event) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -254,37 +311,38 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 					log.info(String.format("controller event %s", controllerName));
 					if (controllerName != null && controllerName.length() > 0) {
 
-						@SuppressWarnings("unchecked")
-						ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList");
-						log.info("{}", pinList.size());
+						// NOT WORTH IT - JUST BUILD 48 PINS !!!
+						//ServoController sc = (ServoController) Runtime.getService(controllerName);
 
-						pinModel.removeAllElements();
+						// NOT WORTH THE TROUBLE !!!! 
+						//@SuppressWarnings("unchecked")
+						//ArrayList<Pin> pinList = (ArrayList<Pin>) myService.sendBlocking(controllerName, "getPinList");
+						//log.info("{}", pinList.size());
+
 						// FIXME - get Local services relative to the servo
-						pinModel.addElement("");
+						//pinModel.removeAllElements();
+						//pinModel.addElement(null);
 
-						for (int i = 0; i < pinList.size(); ++i) {
-							pinModel.addElement(pinList.get(i).pin);
-						}
+						//for (int i = 0; i < pinList.size(); ++i) {
+						//	pinModel.addElement(pinList.get(i).pin);
+						//}
 
-						pin.invalidate();
+						//pin.invalidate();
 
 					}
 				}
 
 				if (o == attachButton) {
 					if (attachButton.getText().equals("attach")) {
-						myService.send(controller.getSelectedItem().toString(), "servoAttach", boundServiceName, pin.getSelectedItem());
-						attachButton.setText("detach");
+						send("attach", controller.getSelectedItem(), pin.getSelectedItem());
 					} else {
-						myService.send(controller.getSelectedItem().toString(), "servoDetach", boundServiceName);
-						attachButton.setText("attach");
+						send("detach");
 					}
 					return;
 				}
 
 				if (o == updateLimitsButton) {
-					myService.send(boundServiceName, "setMin", Integer.parseInt(posMin.getText()));
-					myService.send(boundServiceName, "setMax", Integer.parseInt(posMax.getText()));
+					send("setMinMax", Integer.parseInt(posMin.getText()), Integer.parseInt(posMax.getText()));
 					return;
 				}
 

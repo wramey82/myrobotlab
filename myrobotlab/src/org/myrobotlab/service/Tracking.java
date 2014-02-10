@@ -164,7 +164,9 @@ public class Tracking extends Service {
 		ypid.setOutputRange(-10, 10); // <- not correct - based on maximum
 		ypid.setSampleTime(30);
 		ypid.setSetpoint(0.5); // set center
-
+		
+		x.setController(arduino);
+		y.setController(arduino);
 	}
 	
 	public String getState() {
@@ -204,8 +206,8 @@ public class Tracking extends Service {
 			return false;
 		}
 
-		arduino.servoAttach(x);
-		arduino.servoAttach(y);
+		x.attach();
+		y.attach();
 		// TODO - think of a "validate" method
 		x.moveTo(x.getRest() + 2);
 		sleep(300);

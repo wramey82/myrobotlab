@@ -38,7 +38,11 @@ public interface ServoControl {
 	 * the servo, to be used directly.
 	 */
 	public boolean setController(ServoController controller);
-
+	
+	
+	public boolean setController(String controller);
+	
+	
 	/**
 	 * The command accepts a parameter of offset which can be of the range -1.0
 	 * to 1.0. Negative values are in one direction and positive values are in
@@ -67,31 +71,24 @@ public interface ServoControl {
 	public Integer getPosition();
 
 	/**
-	 * safety limit for the Servo
-	 * 
-	 * @param min
-	 */
-	public void setMin(Integer min);
-
-	/**
-	 * afetly limit for the Servo
+	 * limits input of servo - to prevent damage or problems
+	 * if servos should not move thier full range
 	 * 
 	 * @param max
 	 */
-	public void setMax(Integer max);
+	public void setMinMax(int min, int max);
 
 	public String getControllerName();
 
 	public Integer getPin();
 	
 	/**
-	 * called by the controller for Servo
-	 * memory of pin - so that it can be re-attached
+	 * memory of the controllers pin - so that it can be re-attached
 	 * after a detach
 	 * @return
 	 */
-	public void setPin(int pin);
-
+	public boolean setPin(int pin);
+	
 	public void setSpeed(Float speed);
 	
 	/**
@@ -100,4 +97,39 @@ public interface ServoControl {
 	 * a stop to work (setSpeed < 1.0)
 	 */
 	public void stopServo();
+	
+	/**
+	 * re-attaches servo to controller it was last
+	 * attached to
+	 * @return
+	 */
+	public boolean attach();	
+	
+	public boolean attach(String controller, int pin);
+	
+	/**
+	 * detaches the servo from the controller
+	 * @return
+	 */
+	public boolean detach();
+	
+	/**
+	 * published event of a successful attach
+	 * @return
+	 */
+	// public ServoControl attached(ServoControl sc);
+
+	/**
+	 * published detach event
+	 * @return
+	 */
+	// public ServoControl detached(ServoControl sc);	
+	
+	/**
+	 * published event when the pin is sent
+	 * @param pin
+	 * @return
+	 */
+	// public int pinSet(int pin);
+
 }

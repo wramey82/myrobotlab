@@ -113,6 +113,14 @@ public abstract class ServiceGUI {
 		myService.send(boundServiceName, "addListener", listener);
 
 	}
+	
+	public void send(String method){
+		send(method, (Object[])null);
+	}
+	
+	public void send(String method, Object...params){
+		myService.send(boundServiceName, method, params);
+	}
 
 	// TODO - more closely model java event system with addNotification or
 	// addListener

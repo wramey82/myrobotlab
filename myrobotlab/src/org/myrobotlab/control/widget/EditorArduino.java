@@ -151,7 +151,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	public void loadResourceFile(String filename) {
 		String resourcePath = String.format("Arduino/%s/%s", filename.substring(0, filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
-		String sketch = FileIO.getResourceFile(resourcePath);
+		String sketch = FileIO.resourceToString(resourcePath);
 		textArea.setText(sketch);
 	}
 

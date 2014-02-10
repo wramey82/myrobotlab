@@ -39,7 +39,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 	JButton noWorky = null;
 	JButton ok = null;
 	JFrame parent = null;
-	JLabel versionLabel = new JLabel(FileIO.getResourceFile("version.txt"));
+	JLabel versionLabel = new JLabel(FileIO.resourceToString("version.txt"));
 
 	public AboutDialog(JFrame parent) {
 		super(parent, "about", true);
@@ -107,7 +107,7 @@ public class AboutDialog extends JDialog implements ActionListener, MouseListene
 			dispose();
 		} else if (source == bleedingEdge) {
 			String newVersion = Runtime.getBleedingEdgeVersionString();
-			String currentVersion = FileIO.getResourceFile("version.txt");
+			String currentVersion = FileIO.resourceToString("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
 			if (newVersion == null)
 			{

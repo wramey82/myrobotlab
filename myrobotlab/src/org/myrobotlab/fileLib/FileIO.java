@@ -26,30 +26,22 @@ package org.myrobotlab.fileLib;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipException;
 
-import org.myrobotlab.framework.Platform;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
@@ -60,133 +52,94 @@ public class FileIO {
 
 	public final static Logger log = LoggerFactory.getLogger(FileIO.class.getCanonicalName());
 
+	// --- string interface begin ---
 	public final static String fileToString(File file) {
-		String result = null;
-		DataInputStream in = null;
-
-		try {
-			// File f = new File(filename);
-			byte[] buffer = new byte[(int) file.length()];
-			in = new DataInputStream(new FileInputStream(file));
-			in.readFully(buffer);
-			result = new String(buffer);
-		} catch (IOException e) {
-			log.error("could not open filename " + file.getName());
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) { /* ignore it */
-			}
+		byte[] bytes = fileToByteArray(file);
+		if (bytes == null) {
+			return null;
 		}
-		return result;
+		return new String(bytes);
 	}
 
 	public final static String fileToString(String filename) {
 		return fileToString(new File(filename));
 	}
 
-	public static void stringToFile(String filename, String data) {
-		stringToFile(filename, data, null);
-	}
-
-	public static void stringToFile(String filename, String data, String encoding) {
-		Writer out = null;
-		try {
-			if (encoding != null) {
-				out = new OutputStreamWriter(new FileOutputStream(filename), encoding);
-			} else {
-				out = new OutputStreamWriter(new FileOutputStream(filename));
-			}
-			out.write(data);
-		} catch (Exception e) {
-			log.error(Logging.stackToString(e));
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException e) {
-				log.error(Logging.stackToString(e));
-			}
+	public final static String resourceToString(String filename) {
+		byte[] bytes = resourceToByteArray(filename);
+		if (bytes == null) {
+			return null;
 		}
+		return new String(bytes);
 	}
 
-	// TODO - NOT IMPLMENENTED
-	public final byte[] getResource(String filename) throws FileNotFoundException {
-		File file = new File(String.format("/resource/%s", filename));
-		FileInputStream isr = new FileInputStream(file);
-	
-		DataInputStream input = new DataInputStream(isr);
+	public static void stringToFile(String filename, String data) {
+		byteArrayToFile(filename, data.getBytes());
+	}
 
-		byte b[] = new byte[1024];
+	// --- string interface end --------------------
+
+	// --- byte[] interface begin ------------------
+	// rename getBytes getResourceBytes / String File InputStream
+
+	static public boolean byteArrayToFile(String filename, byte[] data) {
 		try {
-			while (true) {
-				input.readFully(b);
-				//stringData = input.readUTF();
-			}
-		} catch (EOFException e) {
-			// Do nothing if it is the end of file.
+			FileOutputStream fos = new FileOutputStream(filename);
+			fos.write(data);
+			fos.close();
+			return true;
 		} catch (Exception e) {
 			Logging.logException(e);
-		} finally {
-			try {
-				isr.close();
-			} catch (IOException e) {
-				/* ignore */
-				return null;
-			}
 		}
-
-		return b;
+		return false;
 	}
 
-	/**
-	 * Safe method for trying to read the content of a resource file.
-	 * 
-	 * @param filename
-	 * @return
-	 */
-	public final static String getResourceFile(String filename) {
-		StringBuffer str = new StringBuffer();
-		BufferedReader br = null;
-
-		String davlikPrefix = "";
-		if (Platform.isDavlik()) {
-			davlikPrefix = "/assets";
-		}
-
+	public final static byte[] fileToByteArray(File file) {
 		try {
-			InputStream is = FileIO.class.getResourceAsStream(String.format("%s/resource/%s", davlikPrefix, filename));
-
-			if (is == null) {
-				log.error(String.format("resource %s not found", filename));
-				return null;
-			}
-
-			InputStreamReader isr = new InputStreamReader(is);
-			br = new BufferedReader(isr);
-
-			String s;
-			while ((s = br.readLine()) != null) {
-				str.append(s);
-				str.append("\n");
-			}
-		} catch (IOException e) {
-			log.error(String.format("could not open filename %s/resource/%s", davlikPrefix, filename));
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-				}
-			}
+			FileInputStream fis = new FileInputStream(file);
+			return toByteArray(fis);
+		} catch (Exception e) {
+			Logging.logException(e);
 		}
-
-		return str.toString();
+		return null;
 	}
 
+	public static final byte[] resourceToByteArray(String resourceName) {
+		String filename = String.format("/resource/%s", resourceName);
+		InputStream isr = FileIO.class.getResourceAsStream(filename);
+		if (isr == null) {
+			log.error(String.format("can not find resource [%s]", filename));
+			return null;
+		}
+		return toByteArray(isr);
+	}
+
+	public static byte[] toByteArray(InputStream is) {
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		// DataInputStream input = new DataInputStream(isr);
+		try {
+
+			int nRead;
+			byte[] data = new byte[16384];
+
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				baos.write(data, 0, nRead);
+			}
+
+			baos.flush();
+			baos.close();
+			return baos.toByteArray();
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+
+		return null;
+	}
+
+	// getBytes end ------------------
+
+	// --- object interface begin ------
 	public final static boolean writeBinary(String filename, Object toSave) {
 		try {
 			// use buffering
@@ -222,13 +175,9 @@ public class FileIO {
 		}
 	}
 
-	static public String streamToString(InputStream is) {
-		try {
-			return new java.util.Scanner(is).useDelimiter("\\A").next();
-		} catch (java.util.NoSuchElementException e) {
-			return "";
-		}
-	}
+	// --- object interface end --------
+
+	// jar pathing begin ---------------
 
 	static public String getResouceLocation() {
 		URL url = File.class.getResource("/resource");
@@ -299,28 +248,6 @@ public class FileIO {
 		return listInternalContents("/resource" + path);
 	}
 
-	public static byte[] getBytes(InputStream is) {
-
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		try {
-
-			int nRead;
-			byte[] data = new byte[16384];
-
-			while ((nRead = is.read(data, 0, data.length)) != -1) {
-				buffer.write(data, 0, nRead);
-			}
-
-			buffer.flush();
-		} catch (Exception e) {
-			Logging.logException(e);
-			return null;
-		}
-
-		return buffer.toByteArray();
-
-	}
-
 	public static File[] getPackageContent(String packageName) throws IOException {
 		ArrayList<File> list = new ArrayList<File>();
 		Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(packageName);
@@ -333,12 +260,45 @@ public class FileIO {
 		}
 		return list.toArray(new File[] {});
 	}
-	
+
+	// jar pathing end ---------------
+	// -- os primitives begin -------
+
+	static public boolean copyResource(String from, String to) {
+		try {
+			byte[] b = resourceToByteArray(from);
+			byteArrayToFile(to, b);
+			return true;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return false;
+	}
+
+	static public boolean copy(String from, String to) {
+		try {
+			byte[] b = fileToByteArray(new File(from));
+			byteArrayToFile(to, b);
+			return true;
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+		return false;
+	}
+
 	public static void main(String[] args) throws ZipException, IOException {
 
 		LoggingFactory.getInstance().configure();
 		// LoggingFactory.getInstance().setLevel(Level.INFO);
 		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		String hello = resourceToString("blah.txt");
+
+		copyResource("mrl_logo.jpg", "mrl_logo.jpg");
+
+		byte[] b = resourceToByteArray("mrl_logo.jpg");
+
+		log.info("{}", b);
 
 		ArrayList<String> files = listInternalContents("resource/images");
 		for (int i = 0; i < files.size(); ++i) {
@@ -353,6 +313,5 @@ public class FileIO {
 		log.info("done");
 
 	}
-
 
 }

@@ -28,6 +28,7 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -38,6 +39,10 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
+/**
+ * @author grperry
+ *
+ */
 @Root
 public class Servo extends Service implements ServoControl {
 
@@ -48,20 +53,32 @@ public class Servo extends Service implements ServoControl {
 	ServoController controller;
 
 	@Element
-	private Integer position; 
+	private Integer position;
 	@Element
-	private int positionMin = 0;
+	private int limitMin = 0; // IS minY ???
 	@Element
-	private int positionMax = 180;
+	private int limitMax = 180; // IS maxY ???
+
+	// private boolean isMapped = false;
+
+	@Element
+	private int minX;
+	@Element
+	private int maxX;
+	@Element
+	private int minY;
+	@Element
+	private int maxY;
+
 	private int rest = 90;
-	
+
 	/**
-	 * the pin is a necessary part of servo - even though this is really controller's information
-	 * a pin is a integral part of a "servo" - so it is beneficial to store it
-	 * allowing a re-attach during runtime
+	 * the pin is a necessary part of servo - even though this is really
+	 * controller's information a pin is a integral part of a "servo" - so it is
+	 * beneficial to store it allowing a re-attach during runtime
 	 */
 	private Integer pin;
-	
+
 	private boolean inverted = false;
 
 	Vector<String> controllers;
@@ -77,6 +94,8 @@ public class Servo extends Service implements ServoControl {
 	boolean sweeperRunning = false;
 	transient Thread sweeper = null;
 
+	private boolean isAttached = false;
+
 	public Servo(String n) {
 		super(n);
 		load();
@@ -86,16 +105,83 @@ public class Servo extends Service implements ServoControl {
 		detach();
 		super.releaseService();
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.ServoControl#setController(org.myrobotlab.service.interfaces.ServoController)
+	 */
 	@Override
 	public boolean setController(ServoController controller) {
+		log.info(String.format("setting %s pin to %s", getName(), controller));
+		
+		if (isAttached())
+		{
+			error("can not set pin when servo is attached");
+			return false;
+		}
+		
 		if (controller == null) {
 			error("setting null as controller");
 			return false;
 		}
 		this.controller = controller;
+		broadcastState();
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.ServoControl#setPin(int)
+	 */
+	@Override
+	public boolean setPin(int pin) {
+		log.info(String.format("setting %s pin to %d", getName(), pin));
+		if (isAttached())
+		{
+			error("can not set pin when servo is attached");
+			return false;
+		}
+		this.pin = pin;
+		broadcastState();
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.ServoControl#attach(java.lang.String, int)
+	 */
+	public boolean attach(String controller, int pin) {
+		setPin(pin);
+		
+		if (setController(controller)){
+			return attach();
+		}
+		
+		return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.ServoControl#attach()
+	 */
+	public boolean attach() {
+		if (isAttached){
+			log.info(String.format("%s.attach() - already attached - detach first", getName()));
+			return false;
+		}
+		
+		if (controller == null) {
+			error("no valid controller can not attach %s", getName());
+			return false;
+		}
 
+		isAttached  = controller.servoAttach(getName(), pin);
+		
+		if (isAttached){
+			// changed state
+			broadcastState();
+		}
+		
+		return isAttached;
+	}
+	
+	
 	public void setInverted(boolean isInverted) {
 		inverted = isInverted;
 	}
@@ -104,8 +190,18 @@ public class Servo extends Service implements ServoControl {
 		return inverted;
 	}
 
+	public boolean map(int minX, int maxX, int minY, int maxY) {
+		this.minX = minX;
+		this.maxX = maxX;
+		this.minY = minY;
+		this.maxY = maxY;
+
+		return true;
+	}
+
 	/**
-	 * simple move servo to the location desired
+	 * simple move servo to the location desired TODO Float Version - is range 0
+	 * - 1.0 ???
 	 */
 	@Override
 	public void moveTo(Integer pos) {
@@ -117,7 +213,8 @@ public class Servo extends Service implements ServoControl {
 			error(String.format("%s's controller is not set", getName()));
 			return;
 		}
-		if (newPos >= positionMin && newPos <= positionMax) {
+		if (newPos >= limitMin && newPos <= limitMax) {
+			log.info("servoWrite({})", newPos);
 			controller.servoWrite(getName(), newPos);
 			position = newPos;
 		} else {
@@ -141,7 +238,7 @@ public class Servo extends Service implements ServoControl {
 			return;
 		}
 
-		int range = positionMax - positionMin;
+		int range = limitMax - limitMin;
 		int newPos = Math.abs((int) (range / 2 * amount - range / 2));
 
 		controller.servoWrite(getName(), newPos);
@@ -150,51 +247,39 @@ public class Servo extends Service implements ServoControl {
 	}
 
 	public boolean isAttached() {
-		return controller != null;
-	}
-	
-	public void setMinMax(Integer min, Integer max)
-	{
-		setMin(min);
-		setMax(max);
+		return isAttached;
 	}
 
-	public void setMin(Integer min) {
+	public void setMinMax(int min, int max) {
 		if (inverted) {
-			this.positionMax = 180 - min;
+			this.limitMin = 180 - max;
+			this.limitMax = 180 - min;
 		} else {
-			this.positionMin = min;
+			this.limitMin = min;
+			this.limitMax = max;
 		}
+		
+		broadcastState();
 	}
 
 	public Integer getMin() {
 		if (inverted) {
-			return 180 - this.positionMax;
+			return 180 - this.limitMax;
 		} else {
-			return positionMin;
-		}
-	}
-
-	@Override
-	public void setMax(Integer max) {
-		if (inverted) {
-			this.positionMin = 180 - max;
-		} else {
-			this.positionMax = max;
+			return limitMin;
 		}
 	}
 
 	public Integer getMax() {
 		if (inverted) {
-			return 180 - this.positionMin;
+			return 180 - this.limitMin;
 		} else {
-			return positionMax;
+			return limitMax;
 		}
 	}
 
 	public Integer getPosition() {
-		if (position == null)
-		{
+		if (position == null) {
 			// unknown position - never set
 			return null;
 		}
@@ -275,13 +360,12 @@ public class Servo extends Service implements ServoControl {
 
 	@Override
 	public Integer getPin() {
-		/* valiant attempt of normalizing - but Servo needs to know its own pin
-		if (controller == null) {
-			return null;
-		}
-
-		return controller.getServoPin(getName());
-		*/
+		/*
+		 * valiant attempt of normalizing - but Servo needs to know its own pin
+		 * if (controller == null) { return null; }
+		 * 
+		 * return controller.getServoPin(getName());
+		 */
 		return pin;
 	}
 
@@ -290,32 +374,70 @@ public class Servo extends Service implements ServoControl {
 			return;
 		}
 
-		if (controller == null){
+		if (controller == null) {
 			error("setSpeed - controller not set");
 			return;
 		}
 		controller.setServoSpeed(getName(), speed);
 	}
+
 	
-	// FIXME PUT IN INTERFACE
-	public boolean attach(){
-		if (controller == null)
-		{
-			error("no valid controller can not attach %s", getName());
+	public boolean detach() {
+		if (!isAttached){
+			log.info(String.format("%s.detach() - already detach - attach first", getName()));
 			return false;
 		}
 		
-		controller.servoAttach(getName(), pin);
-		return true;
-	}
-
-	public void detach() {
 		if (controller != null) {
-			controller.servoDetach(getName());
+			if (controller.servoDetach(getName())){
+				isAttached = false;
+				// changed state
+				broadcastState();
+				return true;
+			}
 		}
+		
+		return false;
 	}
-
- public ArrayList<String> test() {
+	
+	
+	public ArrayList<String> test() {
+		
+		ArrayList<String> errors = new ArrayList<String>();
+		
+		// test standard Python service page script
+		log.info("service python script begin---");
+		Python python = (Python)Runtime.createAndStart("python","Python");
+		String resourceName = "Python/examples/bork.py";
+		python.execResource(resourceName);
+		if (python.getLastError() != null){
+			errors.add(String.format("service python script error [%s]", python.getLastError()));
+			python.clearLastError();
+		}
+		
+		log.info("service python script end---");
+		
+		// start peers ?
+		Arduino arduino = (Arduino)Runtime.createAndStart("arduino","Arduino");
+		
+		// TEST RE-ENTRANT attach !!
+	 
+		// test limits
+		
+		// test refreshControllers 
+		
+		// if it gets in a limit - must be able to move out.. no?
+		// TODO - testing invalid states
+		setController("arduino");
+		attach();
+		
+		
+		//put in testMode - collect controller data
+		
+	 	moveTo(0);
+	 	moveTo(180);
+	 
+	 
 		for (int i = 0; i < 10000; ++i) {
 			setSpeed(0.6f);
 			moveTo(90);
@@ -340,34 +462,47 @@ public class Servo extends Service implements ServoControl {
 		return controllers;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.myrobotlab.service.interfaces.ServoControl#stopServo()
+	 */
 	@Override
 	public void stopServo() {
 		controller.servoStop(getName());
 	}
-
-	@Override
-	public void setPin(int pin) {
-		log.info(String.format("setting %s pin to %d", getName(), pin));
-		this.pin = pin;
-	}
+	
 
 	public int setRest(int i) {
 		rest = i;
 		return rest;
 	}
-	
+
 	public int getRest() {
 		return rest;
 	}
-	
-	public void rest(){
+
+	public void rest() {
 		moveTo(rest);
 	}
 
+	@Override
+	public boolean setController(String controller) {
+		
+		ServoController sc = (ServoController) Runtime.getService(controller);
+		if (sc == null){
+			return false;
+		}
+		
+		return setController(sc);
+	}
+	
 	public static void main(String[] args) throws InterruptedException {
 
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		
+		Servo right = new Servo("servo01");
+		right.startService();
+		right.test();
 
 		// FIXME - routing of servo.attach("arduino", 3);
 
@@ -375,9 +510,7 @@ public class Servo extends Service implements ServoControl {
 
 		arduino.connect("COM4");
 
-		Servo right = new Servo("servo01");
-		right.startService();
-
+		
 		arduino.servoAttach(right.getName(), 13);
 
 		right.test();
@@ -404,4 +537,10 @@ public class Servo extends Service implements ServoControl {
 		 */
 
 	}
+
+	
+
+
+	
+	
 }
