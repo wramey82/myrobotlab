@@ -54,7 +54,7 @@ public class SOAPProcessor implements HTTPProcessor {
 	}
 
 	public SOAPProcessor() {
-		templateResponse = FileIO.getResourceFile("soap/response.xml");
+		templateResponse = FileIO.resourceToString("soap/response.xml");
 	}
 
 	// FIXME - can't throw out - kills thread...

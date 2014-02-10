@@ -112,6 +112,14 @@ public class InMoovHand extends Service {
 		wrist = (Servo) createPeer("wrist");
 		arduino = (Arduino) createPeer("arduino");
 		
+		thumb.setRest(0);
+		index.setRest(0);
+		majeure.setRest(0);
+		ringFinger.setRest(0);
+		pinky.setRest(0);
+		wrist.setRest(90);
+		
+		// connection details
 		thumb.setPin(2);
 		index.setPin(3);
 		majeure.setPin(4);
@@ -119,12 +127,12 @@ public class InMoovHand extends Service {
 		pinky.setPin(6);
 		wrist.setPin(7);
 
-		thumb.setRest(0);
-		index.setRest(0);
-		majeure.setRest(0);
-		ringFinger.setRest(0);
-		pinky.setRest(0);
-		wrist.setRest(90);
+		thumb.setController(arduino);
+		index.setController(arduino);
+		majeure.setController(arduino);
+		ringFinger.setController(arduino);
+		pinky.setController(arduino);
+		wrist.setController(arduino);
 	}
 	
 	// FIXME make 
@@ -178,20 +186,13 @@ public class InMoovHand extends Service {
 	 * @return
 	 */
 	public boolean attach() 
-	{		
-		arduino.servoAttach(thumb);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(index);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(majeure);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(ringFinger);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(pinky);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(wrist);
-		sleep(InMoov.MSG_DELAY);
-		
+	{	
+		thumb.attach();
+		index.attach();
+		majeure.attach();
+		ringFinger.attach();
+		pinky.attach();
+		wrist.attach();
 		return true;
 	}
 
@@ -242,17 +243,17 @@ public class InMoovHand extends Service {
 	
 	public void detach() {
 		thumb.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		index.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		majeure.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		ringFinger.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		pinky.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 		wrist.detach();
-		sleep(InMoov.MSG_DELAY);
+		//sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {

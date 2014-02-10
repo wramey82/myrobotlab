@@ -138,10 +138,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int MOTOR_BACKWARD = 0;
 
 	private boolean connected = false;
-	// should be null
-	private String boardType = "";
+	private String boardType;
 
 	BlockingQueue<String> blockingData = new LinkedBlockingQueue<String>();
+
+	public final String expectedVersion = "7";
 
 	/**
 	 * MotorData is the combination of a Motor and any controller data needed to
@@ -194,6 +195,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public static final int GET_MRLCOMM_VERSION = 26;
 	public static final int SET_SAMPLE_RATE = 27;
 	public static final int SERVO_WRITE_MICROSECONDS = 28;
+	public static final int MRLCOMM_RX_ERROR = 29;
 
 	// Arduino ---> MRL methods
 	public static final int DIGITAL_VALUE = 1;
@@ -311,11 +313,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		String filename = "MRLComm.ino";
 		String resourcePath = String.format("Arduino/%s/%s", filename.substring(0, filename.indexOf(".")), filename);
 		log.info(String.format("loadResourceFile %s", resourcePath));
-		String defaultSketch = FileIO.getResourceFile(resourcePath);
+		String defaultSketch = FileIO.resourceToString(resourcePath);
 		this.sketch = defaultSketch;
 	}
 
-	// FIXME - add const BOARD TYPE strings
 	public void setBoard(String board) {
 		preferences.set("board", board);
 		createPinList();
@@ -502,12 +503,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	// ----------ServoController begin-------------
 	// FIXME - is this re-entrant ???
-	// FIXME - refactor - don't use name use Servo type
-	// FIXME - use attach(Servo servo)
-	// FIXME SYNCHRONIZED !!!
 
-	// FIXME - put in interface
-	public boolean servoAttach(String servoName) {
+	public synchronized boolean servoAttach(String servoName) {
 		Servo servo = (Servo) Runtime.getService(servoName);
 		if (servo == null) {
 			error("servoAttach can not attach %s no service exists", servoName);
@@ -531,20 +528,41 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	@Override
-	public boolean servoAttach(String servoName, Integer pin) {
+	public synchronized boolean servoAttach(String servoName, Integer pin) {
 		log.info(String.format("servoAttach %s pin %d", servoName, pin));
 
 		if (serialDevice == null) {
-			error("could not attach servo to pin " + pin + " serial port in null - not initialized?");
+			error("could not attach servo to pin " + pin + " serial port is null - not initialized?");
 			return false;
 		}
-
-		log.info("servoAttach (" + pin + ") to " + serialDevice.getName() + " function number " + SERVO_ATTACH);
+		
 		if (servos.containsKey(servoName)) {
 			log.warn("servo already attach - detach first");
 			return false;
 		}
 
+		// simple re-map - to guarantee the same MRL Servo gets the same
+		// MRLComm.ino servo
+		if (pin < 2 || pin > MAX_SERVOS + 2)
+		{
+			error("pin out of range 2 < %d < %d", pin, MAX_SERVOS + 2);
+			return false;
+		}
+		
+		// complex formula to calculate servo index
+		int servoIndex = pin - 2;
+		
+		//       attach  index  pin
+		sendMsg(SERVO_ATTACH, servoIndex, pin);
+		
+		ServoData sd = new ServoData();
+		sd.pin = pin;
+		sd.servoIndex = servoIndex;
+		servos.put(servoName, sd);
+		servosInUse[servoIndex] = true;
+		
+		
+		/*
 		ServoData sd = new ServoData();
 		sd.pin = pin;
 
@@ -572,21 +590,21 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 				}
 			}
 		}
+		*/
 
-		log.error("servo " + pin + " attach failed - no idle servos");
-		return false;
+		log.info("servo index %d pin %d attached ", servoIndex, pin);
+		return true;
 	}
 
-	// TODO probably should be synchronized !!!
 	@Override
-	public boolean servoDetach(String servoName) {
+	public synchronized boolean servoDetach(String servoName) {
 		log.info(String.format("servoDetach(%s)", servoName));
 
 		if (servos.containsKey(servoName)) {
 			ServoData sd = servos.get(servoName);
 			sendMsg(SERVO_DETACH, sd.servoIndex, 0);
 			servosInUse[sd.servoIndex] = false;
-			sd.servo.setController(null);
+			//sd.servo.setController((ServoController)null);
 			servos.remove(servoName);
 			return true;
 		}
@@ -731,8 +749,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 	}
 
-	int txErrors = 0;
-	int rxErrors = 0;
 	static final public int MAX_MSG_LEN = 64;
 	StringBuffer rxDebug = new StringBuffer();
 
@@ -753,6 +769,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	private int stopbits = 1;
 	@Element
 	private int parity = 0;
+	private int error_mrl_rx;
+	private int error_arduino_rx;
 
 	@Override
 	public void serialEvent(SerialDeviceEvent event) {
@@ -793,10 +811,10 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 					if (byteCount == 1) {
 						if (newByte != MAGIC_NUMBER) {
-							++rxErrors;
+							++error_mrl_rx;
 							byteCount = 0;
 							msgSize = 0;
-							error(String.format("%d rx errors", rxErrors));
+							error(String.format("%d rx errors", error_mrl_rx));
 							log.error("MAGIC_NUMBER {}", newByte);
 							dump.setLength(0);
 						}
@@ -806,7 +824,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						if (newByte > 64) {
 							byteCount = 0;
 							msgSize = 0;
-							error(String.format("%d rx sz errors", ++rxErrors));
+							error(String.format("%d rx sz errors", ++error_mrl_rx));
 							continue;
 						}
 						msgSize = (byte) newByte;
@@ -825,6 +843,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 						// dump.setLength(0);
 
 						switch (msg[0]) {
+						
+
+						case MRLCOMM_RX_ERROR: {
+							++error_arduino_rx;
+							error("errors MRL rx %d Arduino rx %d", error_mrl_rx, error_arduino_rx);
+							break;
+						}
+						
 						case GET_MRLCOMM_VERSION: {
 							// TODO - get vendor version
 							String version = String.format("%d", msg[1]);
@@ -1325,8 +1351,6 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public String publishMessage(String msg) {
 		return msg;
 	}
-
-	public final String expectedVersion = "7";
 
 	public boolean connect() {
 		return connect(portName, rate, databits, stopbits, parity);

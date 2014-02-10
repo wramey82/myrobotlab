@@ -248,7 +248,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 			closeFile();
 		} else if (m.getActionCommand().equals("examples")) {
 			String filename = String.format("Python/examples/%1$s", m.getText());
-			Script script = new Script(filename, FileIO.getResourceFile(filename));
+			Script script = new Script(filename, FileIO.resourceToString(filename));
 			addNewEditorPanel(script);
 		}
 	}

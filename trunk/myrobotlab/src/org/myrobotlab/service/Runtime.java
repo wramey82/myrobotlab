@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -118,7 +120,7 @@ public class Runtime extends Service {
 	}
 
 	public static String getVersion() {
-		return FileIO.getResourceFile("version.txt");
+		return FileIO.resourceToString("version.txt");
 	}
 
 	public static String getUptime() {
@@ -153,7 +155,7 @@ public class Runtime extends Service {
 			runtime.info("starting auto-update check");
 
 			String newVersion = Runtime.getBleedingEdgeVersionString();
-			String currentVersion = FileIO.getResourceFile("version.txt");
+			String currentVersion = FileIO.resourceToString("version.txt");
 			log.info(String.format("comparing new version %s with current version %s", newVersion, currentVersion));
 			if (newVersion == null) {
 				runtime.info("newVersion == null - nothing available");
@@ -198,13 +200,20 @@ public class Runtime extends Service {
 		String vmName = System.getProperty("java.vm.name");
 		// TODO this should be a single log statement
 		// http://developer.android.com/reference/java/lang/System.html
+
 		log.info("---------------normalized-------------------");
+		Date now = new Date();
+		String format = "yyyy/MM/dd HH:mm:ss";
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		SimpleDateFormat gmtf = new SimpleDateFormat(format);
+		gmtf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		log.info("{} - GMT - {}", sdf.format(now), gmtf.format(now));
 		log.info(String.format("ivy [runtime,%s.%d.%s]", Platform.getArch(), Platform.getBitness(), Platform.getOS()));
 		log.info(String.format("os.name [%s] getOS [%s]", System.getProperty("os.name"), Platform.getOS()));
 		log.info(String.format("os.arch [%s] getArch [%s]", System.getProperty("os.arch"), Platform.getArch()));
 		log.info(String.format("getBitness [%d]", Platform.getBitness()));
 		log.info(String.format("java.vm.name [%s] getVMName [%s]", vmName, Platform.getVMName()));
-		log.info(String.format("version [%s]", FileIO.getResourceFile("version.txt")));
+		log.info(String.format("version [%s]", FileIO.resourceToString("version.txt")));
 		log.info(String.format("/resource [%s]", FileIO.getResouceLocation()));
 		log.info(String.format("jar path [%s]", FileIO.getResourceJarPath()));
 		log.info(String.format("sun.arch.data.model [%s]", System.getProperty("sun.arch.data.model")));
@@ -1197,7 +1206,7 @@ public class Runtime extends Service {
 	 * prints help to the console
 	 */
 	static void mainHelp() {
-		System.out.println(String.format("Runtime %s", FileIO.getResourceFile("version.txt")));
+		System.out.println(String.format("Runtime %s", FileIO.resourceToString("version.txt")));
 		System.out.println("-h       			# help ");
 		System.out.println("-v        			# print version");
 		System.out.println("-update  			# force update");
@@ -1357,7 +1366,7 @@ public class Runtime extends Service {
 			}
 
 			if (cmdline.containsKey("-v") || cmdline.containsKey("--version")) {
-				System.out.print(FileIO.getResourceFile("version.txt"));
+				System.out.print(FileIO.resourceToString("version.txt"));
 				return;
 			}
 			if (cmdline.containsKey("-runtimeName")) {
@@ -2138,6 +2147,13 @@ public class Runtime extends Service {
 		// should return true if Linux != display
 		String b = System.getProperty("java.awt.headless");
 		return Boolean.parseBoolean(b);
+	}
+
+	public ArrayList<String> test() {
+		// TODO - need method to releaseAll - except runtime - test it
+		// create all services
+
+		return null;
 	}
 
 	/**

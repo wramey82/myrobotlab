@@ -69,6 +69,8 @@
 #define GET_MRLCOMM_VERSION				 26
 #define SET_SAMPLE_RATE				 	 27
 #define SERVO_WRITE_MICROSECONDS		 28
+#define MRLCOMM_RX_ERROR				29
+
 
 
 /*
@@ -247,6 +249,11 @@ boolean getCommand ()
 			// ERROR !!!!!
 			// TODO - call modulus error method - notify sender
 			++errorCount;
+			
+			Serial.write(MAGIC_NUMBER);
+			Serial.write(1); // size
+			Serial.write(MRLCOMM_RX_ERROR);
+			
 			// reset - try again
 			byteCount = 0; 
 			return false;
@@ -255,6 +262,7 @@ boolean getCommand ()
 		if (byteCount == 2)
 		{
 		   // get the size of message
+		   // todo check msg < 64 (MAX_MSG_SIZE)
 		   msgSize = newByte;
 		}
 		

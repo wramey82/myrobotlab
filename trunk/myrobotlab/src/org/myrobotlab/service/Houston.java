@@ -79,13 +79,20 @@ public class Houston extends Service {
 		sleep(1); // give it a second for the serial device to get ready;
 
 		// attach Servos & Motors to arduino;
-		arduino.servoAttach(lshoulder.getName(), 46);
-		arduino.servoAttach(lbicep.getName(), 47);
-		arduino.servoAttach(lelbow.getName(), 48);
-		arduino.servoAttach(rshoulder.getName(), 50);
-		arduino.servoAttach(rbicep.getName(), 51);
-		arduino.servoAttach(relbow.getName(), 52);
-
+		lshoulder.setController(arduino);
+		lbicep.setController(arduino);
+		lelbow.setController(arduino);
+		rshoulder.setController(arduino);
+		rbicep.setController(arduino);
+		relbow.setController(arduino);
+		
+		lshoulder.setPin(46);
+		lshoulder.setPin(47);
+		lshoulder.setPin(48);
+		lshoulder.setPin(50);
+		lshoulder.setPin(51);
+		lshoulder.setPin(52);
+		
 		arduino.motorAttach(lfmotor.getName(), 4, 30);
 		arduino.motorAttach(rfmotor.getName(), 5, 31);
 		arduino.motorAttach(lbmotor.getName(), 6, 32);

@@ -460,6 +460,11 @@ public class Python extends Service {
 		String script = FileIO.fileToString(filename);
 		exec(script);
 	}
+	
+	public void execResource(String filename) {
+		String script = FileIO.resourceToString(filename);
+		exec(script);
+	}
 
 	/**
 	 * Get a compiled version of the python call.

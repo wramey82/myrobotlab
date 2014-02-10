@@ -205,6 +205,14 @@ public class Plantoid extends Service {
 		pan.setPin(6);
 		tilt.setPin(7);
 		
+		leg1.setController(arduino);
+		leg2.setController(arduino);
+		leg3.setController(arduino);
+		leg4.setController(arduino);
+
+		pan.setController(arduino);
+		tilt.setController(arduino);
+
 		pan.setRest(90);
 		tilt.setRest(90);
 		
@@ -253,13 +261,13 @@ public class Plantoid extends Service {
 			arduino.connect(port);
 			// the BEPSL report
 			//timer.scheduleAtFixedRate(new SendReport(this), 0, 1000 * 60 * 60 * everyNHours);
-			
-			arduino.servoAttach(leg1);
-			arduino.servoAttach(leg2);
-			arduino.servoAttach(leg3);
-			arduino.servoAttach(leg4);
-			arduino.servoAttach(pan);
-			arduino.servoAttach(tilt);
+
+			leg1.attach();
+			leg2.attach();
+			leg3.attach();
+			leg4.attach();
+			pan.attach();
+			tilt.attach();
 			
 			arduino.addListener(getName(), "publishPin");
 			

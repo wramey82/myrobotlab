@@ -27,11 +27,9 @@ ypid.setSetpoint(0.5)
  
 # set safety limits - servos
 # will not go beyond these limits
-eyeX.setMin(65)
-eyeX.setMax(90)
+eyeX.setMinMax(65,90)
  
-eyeY.setMin(22)
-eyeY.setMax(85)
+eyeY.setMinMax(22,85)
  
 # here we are attaching to the
 # manually created peer services

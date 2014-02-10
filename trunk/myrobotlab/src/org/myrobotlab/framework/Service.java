@@ -83,8 +83,6 @@ import org.slf4j.Logger;
  * Service. The other is the "InBox" thread which processes all incoming
  * messages.
  * 
- * @author GroG
- * 
  */
 public abstract class Service implements Runnable, Serializable, ServiceInterface {
 
@@ -125,8 +123,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	transient private Serializer serializer = new Persister();
 
-	transient SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-	transient Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+	transient protected SimpleDateFormat TSFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+	transient protected Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 
 	// recordings
 	static private boolean isRecording = false;
@@ -1981,7 +1979,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	 */
 
 	public String getServiceResourceFile(String subpath) {
-		return FileIO.getResourceFile(String.format("%s/%s", this.getSimpleName(), subpath));
+		return FileIO.resourceToString(String.format("%s/%s", this.getSimpleName(), subpath));
 	}
 
 	/**
@@ -2103,6 +2101,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public String getLastError() {
 		return lastErrorMsg;
+	}
+	
+	public String clearLastError(){
+		String le = lastErrorMsg;
+		lastErrorMsg = null;
+		return le;
 	}
 
 	public void warn(String msg) {

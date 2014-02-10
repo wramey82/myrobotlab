@@ -20,11 +20,10 @@ arduino.attach(neck.getName(), 12)
 
 # set safety limits - servos
 # will not go beyond these limits
-rotation.setMin(50)
-rotation.setMax(170)
+rotation.setMinMax(50,170)
  
-neck.setMin(50)
-neck.setMax(170)
+neck.setMinMax(50,170)
+ 
  
 # here we are binding are new servos with different names
 # to the tracking service.  If not specified the tracking service

@@ -263,8 +263,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.pack();
 	}
 
-	// TODO - get index based on name
-	// synchronized probably does not make a diff - but i'm desperate
 	synchronized public void addTab(String serviceName) {
 		// ================= begin addTab(name) =============================
 		ServiceInterface sw = Runtime.getService(serviceName);
@@ -312,6 +310,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		frame.pack();
 	}
 
+	// DEPRECATED - NOT USED !?!?!?!?
 	public void removeTab(String name) {
 		log.info("removeTab");
 
@@ -401,22 +400,22 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		// TODO - all auto-subscribtions could be done here
 		subscribe("publishStatus", se.getName(), "getStatus", String.class);
 
-		//if (!serviceName.startsWith("i0")) {
-			tabs.addTab(serviceName, gui.getDisplay());
+		// if (!serviceName.startsWith("i0")) {
+		tabs.addTab(serviceName, gui.getDisplay());
 
-			if (sw.isLocal()) {
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
-			} else {
-				// create hash color for hsv from accessURI
-				// Color hsv = new
-				// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
-				// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
-				Color hsv = getColorFromURI(sw.getHost());
-				int index = tabs.indexOfTab(serviceName);
-				tabs.setBackgroundAt(index, hsv);
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
-			}
-		//}
+		if (sw.isLocal()) {
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
+		} else {
+			// create hash color for hsv from accessURI
+			// Color hsv = new
+			// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
+			// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
+			Color hsv = getColorFromURI(sw.getHost());
+			int index = tabs.indexOfTab(serviceName);
+			tabs.setBackgroundAt(index, hsv);
+			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
+		}
+		// }
 
 		return gui;
 	}
@@ -983,6 +982,48 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		status.setText(inStatus.detail);
 	}
+
+	/*
+	 * public void undockPanel(final String tabName) {
+	 * SwingUtilities.invokeLater(new Runnable() { public void run() {
+	 * 
+	 * JPanel movingPanel = serviceGUIMap.get(tabName).getDisplay();
+	 * tabs.remove(movingPanel);
+	 * 
+	 * JFrame undocked; // icon URL url =
+	 * getClass().getResource("/resource/mrl_logo_36_36.png"); Toolkit kit =
+	 * Toolkit.getDefaultToolkit(); Image img = kit.createImage(url);
+	 * 
+	 * // if is a service tab if (Runtime.getRegistry().containsKey(tabName)) {
+	 * 
+	 * // service tabs undocked = new JFrame(tabName); // check to see if this
+	 * frame was positioned before UndockedPanel panel = null; if
+	 * (undockedPanels.containsKey(tabName)) { // has been undocked before panel
+	 * = undockedPanels.get(tabName); undocked.setLocation(new Point(panel.x,
+	 * panel.y)); undocked.setPreferredSize(new Dimension(panel.width,
+	 * panel.height)); } else { // first time undocked panel = new
+	 * UndockedPanel(undocked);
+	 * 
+	 * undockedPanels.put(tabName, panel); panel.x = undocked.getWidth();
+	 * panel.y = undocked.getHeight(); }
+	 * 
+	 * panel.frame = undocked; panel.isDocked = false; //
+	 * undocked.setVisible(false);
+	 * 
+	 * undocked.setIconImage(img); undocked.getContentPane().add(movingPanel);
+	 * //undocked.addWindowListener(windowAdapter); undocked.setVisible(true);
+	 * undocked.pack();
+	 * 
+	 * getFrame().pack(); save();
+	 * 
+	 * } else { // must be sub-tab .. eg Arduino oscope, pins, editor //undocked
+	 * = new JFrame(tabName + " " + getText()); }
+	 * 
+	 * 
+	 * } });
+	 * 
+	 * }
+	 */
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {
 		LoggingFactory.getInstance().configure();

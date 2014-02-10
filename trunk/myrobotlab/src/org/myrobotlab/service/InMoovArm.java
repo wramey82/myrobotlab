@@ -82,10 +82,16 @@ public class InMoovArm extends Service {
 		omoplate = (Servo) createPeer("omoplate");
 		arduino = (Arduino) createPeer("arduino");
 		
+		// connection details
 		bicep.setPin(8);
 		rotate.setPin(9);
 		shoulder.setPin(10);
 		omoplate.setPin(11);
+		
+		bicep.setController(arduino);
+		rotate.setController(arduino);
+		shoulder.setController(arduino);
+		omoplate.setController(arduino);
 		
 		bicep.setMinMax(0, 90);
 		rotate.setMinMax(40, 180);
@@ -137,6 +143,12 @@ public class InMoovArm extends Service {
 	 */
 	public boolean attach() {
 		boolean result = true; 
+		result &= bicep.attach();
+		result &= rotate.attach();
+		result &= shoulder.attach();
+		result &= omoplate.attach();
+		
+		/*
 		result &= arduino.servoAttach(bicep);
 		sleep(InMoov.MSG_DELAY);
 		result &= arduino.servoAttach(rotate);
@@ -145,6 +157,7 @@ public class InMoovArm extends Service {
 		sleep(InMoov.MSG_DELAY);
 		result &= arduino.servoAttach(omoplate);
 		sleep(InMoov.MSG_DELAY);
+		*/
 		return result;
 	}
 
@@ -192,13 +205,13 @@ public class InMoovArm extends Service {
 
 	public void detach() {
 			bicep.detach();
-			sleep(InMoov.MSG_DELAY);
+			//sleep(InMoov.MSG_DELAY);
 			rotate.detach();
-			sleep(InMoov.MSG_DELAY);
+			//sleep(InMoov.MSG_DELAY);
 			shoulder.detach();
-			sleep(InMoov.MSG_DELAY);
+			//sleep(InMoov.MSG_DELAY);
 			omoplate.detach();
-			sleep(InMoov.MSG_DELAY);
+			//sleep(InMoov.MSG_DELAY);
 	}
 
 	// FIXME - releasePeers()

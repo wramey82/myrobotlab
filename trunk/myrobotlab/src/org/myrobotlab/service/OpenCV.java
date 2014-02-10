@@ -594,6 +594,11 @@ public class OpenCV extends VideoSource {
 		videoProcessor.grabberType = "org.myrobotlab.opencv.PipelineFrameGrabber";
 	}
 
+	/**
+	 * minimum time between processing frames - time unit is in
+	 * milliseconds 
+	 * @param time
+	 */
 	public void setMinDelay(int time) {
 		videoProcessor.setMinDelay(time);
 	}

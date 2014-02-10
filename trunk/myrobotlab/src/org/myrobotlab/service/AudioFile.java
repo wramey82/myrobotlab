@@ -318,7 +318,7 @@ public class AudioFile extends Service {
 
 			AudioFormat format = audioInputStream.getFormat();
 
-			byte[] bytes = convert(FileIO.getBytes(fileStream), format);
+			byte[] bytes = convert(FileIO.toByteArray(fileStream), format);
 
 			FileOutputStream fileOuputStream = new FileOutputStream("out.wav");
 			fileOuputStream.write(bytes);

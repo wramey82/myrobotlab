@@ -77,8 +77,10 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 
 		parent.add(myPanel);
 		parent.setTabComponentAt(parent.getTabCount() - 1, this);
-		undocked.dispose();
-		undocked = null;
+		if (undocked != null) {
+			undocked.dispose();
+			undocked = null;
+		}
 
 		// frame.pack(); - call pack
 		myService.getFrame().pack();
@@ -93,6 +95,9 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 	 * 
 	 */
 	public void undockPanel() {
+		
+		//myService.undockPanel(boundServiceName);
+		//return;
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -100,28 +105,34 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 				parent.remove(myPanel);
 				if (boundServiceName.equals(getText())) {
 
-					// service tabs
-					undocked = new JFrame(boundServiceName);
-					// check to see if this frame was positioned before
-					UndockedPanel panel = null;
-					if (myService.undockedPanels.containsKey(boundServiceName)) {
-						// has been undocked before
-						panel = myService.undockedPanels.get(boundServiceName);
-						undocked.setLocation(new Point(panel.x, panel.y));
-						undocked.setPreferredSize(new Dimension(panel.width, panel.height));
-					} else {
-						// first time undocked
-						panel = new UndockedPanel(undocked);
-						myService.undockedPanels.put(boundServiceName, panel);
-						panel.x = undocked.getWidth();
-						panel.y = undocked.getHeight();
-					}
+					boolean hide = true;
+					//if (!hide) {
+						// service tabs
+						undocked = new JFrame(boundServiceName);
+						// check to see if this frame was positioned before
+						UndockedPanel panel = null;
+						if (myService.undockedPanels.containsKey(boundServiceName)) {
+							// has been undocked before
+							panel = myService.undockedPanels.get(boundServiceName);
+							undocked.setLocation(new Point(panel.x, panel.y));
+							undocked.setPreferredSize(new Dimension(panel.width, panel.height));
+						} else {
+							// first time undocked
+							panel = new UndockedPanel(undocked);
+							myService.undockedPanels.put(boundServiceName, panel);
+							panel.x = undocked.getWidth();
+							panel.y = undocked.getHeight();
+						}
 
-					panel.frame = undocked;
-					panel.isDocked = false;
+						panel.frame = undocked;
+						panel.isDocked = false;
+						//undocked.setVisible(false);
+				//	}
 
 				} else {
 					// sub - tabs e.g. Arduino oscope, pins, editor
+					// TABS ONLY FOR Arduino - sub tabs
+					// GAH !! works but confusing !!
 					undocked = new JFrame(boundServiceName + " " + getText());
 				}
 
@@ -129,19 +140,21 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 				URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
 				Toolkit kit = Toolkit.getDefaultToolkit();
 				Image img = kit.createImage(url);
-				undocked.setIconImage(img);
+				if (undocked != null) {
+					undocked.setIconImage(img);
 
-				undocked.getContentPane().add(myPanel);
-				undocked.addWindowListener(windowAdapter);
-				// undocked.setTitle(boundServiceName);
-				undocked.setVisible(true);
-				undocked.pack();
+					undocked.getContentPane().add(myPanel);
+					undocked.addWindowListener(windowAdapter);
+					// undocked.setTitle(boundServiceName);
+					undocked.setVisible(true);
+					undocked.pack();
+				}
 				myService.getFrame().pack();
 				myService.save();
 
 			}
 		});
-
+	
 	}
 
 	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background) {
