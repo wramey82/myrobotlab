@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class JoystickServiceGUI extends ServiceGUI {
 
@@ -46,7 +46,7 @@ public class JoystickServiceGUI extends ServiceGUI {
 	private JTextField rOffset = null;
 	private JTextField zOffset = null;
 
-	public JoystickServiceGUI(final String boundServiceName, final GUI myService) {
+	public JoystickServiceGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

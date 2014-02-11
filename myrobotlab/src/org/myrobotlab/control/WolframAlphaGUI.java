@@ -38,7 +38,7 @@ import javax.swing.SwingUtilities;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.WolframAlpha;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
@@ -48,7 +48,7 @@ public class WolframAlphaGUI extends ServiceGUI implements ActionListener {
 	private JEditorPane result=new JEditorPane();
 	private JTextField query=new JTextField();
 
-	public WolframAlphaGUI(final String boundServiceName, final GUI myService) {
+	public WolframAlphaGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

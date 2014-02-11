@@ -180,7 +180,7 @@ public class MemoryWidget {
 		}
 		
 		
-		// FIXXED - NO LONGER CREATE BOGUS NODE GUI'S --- YAY ! - JUST SIMPLY DISPLAY A NODE
+		// FIXXED - NO LONGER CREATE BOGUS NODE GUIService'S --- YAY ! - JUST SIMPLY DISPLAY A NODE
 		// IMPORANT TO BE TRANSPARENT - MEMORY IS !
 
 		// FIXME - for a pre-existing NodeGUI - regen ?? all children ??? or refresh ???

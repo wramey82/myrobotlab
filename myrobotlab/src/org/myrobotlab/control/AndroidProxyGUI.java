@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.RobotPlatform;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class AndroidProxyGUI extends ServiceGUI {
 
@@ -72,7 +72,7 @@ public class AndroidProxyGUI extends ServiceGUI {
 
 	JLabel inMotion = new JLabel("false");
 
-	public AndroidProxyGUI(final String boundServiceName, final GUI myService) {
+	public AndroidProxyGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

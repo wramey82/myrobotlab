@@ -1193,18 +1193,16 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					String version = getVersion();
 					// String version = null;
 					if (version == null) {
-						warn("did not get response from arduino....");
+						error("did not get response from arduino....");
 					} else if (!version.equals(expectedVersion)) {
-						warn(String.format("MRLComm.ino responded with version %s expected version is %s", version, expectedVersion));
+						error(String.format("MRLComm.ino responded with version %s expected version is %s", version, expectedVersion));
 					} else {
-						info(String.format("responded with expected version %s ... goodtimes...", version));
+						info(String.format("connected %s responded version %s ... goodtimes...", serialDevice.getName(), version));
 					}
 				} else {
 					warn(String.format("\n%s is already open, close first before opening again\n", serialDevice.getName()));
 				}
 
-				info(String.format("connected to serial device %s", serialDevice.getName()));
-				info("good times...");
 				connected = true;
 				// -----------------end connect -------
 

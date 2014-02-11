@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.service.RobotPlatform;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class TweedleBotGUI extends ServiceGUI {
 
@@ -72,7 +72,7 @@ public class TweedleBotGUI extends ServiceGUI {
 
 	JLabel inMotion = new JLabel("false");
 
-	public TweedleBotGUI(final String boundServiceName, final GUI myService) {
+	public TweedleBotGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

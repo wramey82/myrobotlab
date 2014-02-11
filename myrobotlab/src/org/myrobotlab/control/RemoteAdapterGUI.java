@@ -39,7 +39,7 @@ import org.myrobotlab.net.CommData;
 import org.myrobotlab.service.RemoteAdapter;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class RemoteAdapterGUI extends ServiceGUI {
 
@@ -48,7 +48,7 @@ public class RemoteAdapterGUI extends ServiceGUI {
 	
 	CommunicationNodeList list = new CommunicationNodeList();
 
-	public RemoteAdapterGUI(final String boundServiceName, final GUI myService) {
+	public RemoteAdapterGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

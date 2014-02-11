@@ -39,7 +39,7 @@ import javax.swing.border.TitledBorder;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class PhotoReelWidget extends ServiceGUI {
 
@@ -59,7 +59,7 @@ public class PhotoReelWidget extends ServiceGUI {
 
 	public int lastImageWidth = 0;
 
-	public PhotoReelWidget(final String boundServiceName, final GUI myService) {
+	public PhotoReelWidget(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

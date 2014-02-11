@@ -34,7 +34,7 @@ import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.RasPi;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 import org.slf4j.Logger;
 
@@ -44,7 +44,7 @@ public class RasPiGUI extends ServiceGUI implements ActionListener, MemoryDispla
 	public final static Logger log = LoggerFactory.getLogger(RasPiGUI.class.getCanonicalName());
 
 
-	public RasPiGUI(final String boundServiceName, final GUI myService) {
+	public RasPiGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

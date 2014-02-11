@@ -34,7 +34,7 @@ import javax.swing.ImageIcon;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class VideoWidget extends ServiceGUI {
 
@@ -44,12 +44,12 @@ public class VideoWidget extends ServiceGUI {
 	int videoDisplayXPos = 0;
 	int videoDisplayYPos = 0;
 
-	public VideoWidget(final String boundFilterName, final GUI myService, boolean allowFork) {
+	public VideoWidget(final String boundFilterName, final GUIService myService, boolean allowFork) {
 		this(boundFilterName, myService);
 		this.allowFork = allowFork;
 	}
 
-	public VideoWidget(final String boundServiceName, final GUI myService) {
+	public VideoWidget(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

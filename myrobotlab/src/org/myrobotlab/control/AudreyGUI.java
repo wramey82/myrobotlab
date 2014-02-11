@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -77,7 +77,7 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public AudreyGUI(final String boundServiceName, final GUI myService) {
+	public AudreyGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

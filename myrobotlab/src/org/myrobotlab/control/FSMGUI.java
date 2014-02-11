@@ -46,7 +46,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class FSMGUI extends ServiceGUI {
 
@@ -57,7 +57,7 @@ public class FSMGUI extends ServiceGUI {
 	JTable table = new JTable(8, 4);
 	BasicArrowButton addServiceButton = null;
 
-	public FSMGUI(final String boundServiceName, final GUI myService) {
+	public FSMGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

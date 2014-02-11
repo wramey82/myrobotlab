@@ -50,7 +50,7 @@ import org.myrobotlab.control.widget.JoystickButtonsPanel;
 import org.myrobotlab.control.widget.JoystickCompassPanel;
 import org.myrobotlab.service.Joystick;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class JoystickGUI extends ServiceGUI implements ActionListener {
 
@@ -67,7 +67,7 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 
 	private JoystickCompassPanel xyPanel, zrzPanel, hatPanel;
 
-	public JoystickGUI(final String boundServiceName, final GUI myService) {
+	public JoystickGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

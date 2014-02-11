@@ -38,7 +38,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public abstract class OpenCVFilterGUI {
@@ -48,7 +48,7 @@ public abstract class OpenCVFilterGUI {
 	JPanel main = new JPanel(new BorderLayout());
 	JPanel display = new JPanel(new GridBagLayout());
 	final String boundServiceName;
-	final GUI myGUI;
+	final GUIService myGUI;
 	final public GridBagConstraints gc = new GridBagConstraints();
 	
 	FilterWrapper boundFilter = null;

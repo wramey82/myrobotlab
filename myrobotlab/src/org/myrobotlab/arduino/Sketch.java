@@ -936,14 +936,14 @@ public class Sketch {
 	}
 
 	/**
-	 * Export to application via GUI.
+	 * Export to application via GUIService.
 	 */
 	protected boolean exportApplication() throws IOException, RunnerException {
 		return false;
 	}
 
 	/**
-	 * Export to application without GUI.
+	 * Export to application without GUIService.
 	 */
 	public boolean exportApplication(String destPath, int exportPlatform) throws IOException, RunnerException {
 		return false;

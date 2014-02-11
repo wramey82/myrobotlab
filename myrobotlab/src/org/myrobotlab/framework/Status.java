@@ -4,10 +4,12 @@ import java.io.Serializable;
 
 public class Status implements Serializable {
 	
-	public final static String DEBUG = "DEBUG";
-	public final static String INFO = "INFO";
-	public final static String WARN = "WARN";
-	public final static String ERROR = "ERROR";
+	private static final long serialVersionUID = 1L;
+	
+	public final static String DEBUG = "debug";
+	public final static String INFO = "info";
+	public final static String WARN = "warn";
+	public final static String ERROR = "error";
 	
 	public String name;
 	public String level;

@@ -40,7 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.myrobotlab.service.Clock;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class ClockGUI extends ServiceGUI implements ActionListener {
 
@@ -59,7 +59,7 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	JTextField interval = new JTextField("1000");
 	JTextField data = new JTextField(10);
 
-	public ClockGUI(final String boundServiceName, final GUI myService) {
+	public ClockGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

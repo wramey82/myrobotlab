@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.wiiusejevents.physicalevents.IREvent;
@@ -60,7 +60,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoG
 
 	public Random rand = new Random();
 
-	public SLAMGUI(final String boundServiceName, final GUI myService) {
+	public SLAMGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

@@ -64,7 +64,7 @@ import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SensorMonitor;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.data.Trigger;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.SensorDataPublisher;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
@@ -108,7 +108,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 	final int DATA_HEIGHT = 512;
 
 	SensorMonitor myBoundService = null;
-	// trace data is owned by the GUI
+	// trace data is owned by the GUIService
 	HashMap<String, TraceData> traceData = new HashMap<String, TraceData>();
 	// trigger data is owned by the Service
 
@@ -191,7 +191,7 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	}
 
-	public SensorMonitorGUI(final String boundServiceName, final GUI myService) {
+	public SensorMonitorGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

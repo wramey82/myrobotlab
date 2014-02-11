@@ -48,7 +48,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.ToolTip;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class GUIServiceOutMethodDialog extends JDialog implements ActionListener {
 
@@ -56,7 +56,7 @@ public class GUIServiceOutMethodDialog extends JDialog implements ActionListener
 
 	private static final long serialVersionUID = 1L;
 
-	GUI myService = null;
+	GUIService myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
 
 	public class MethodData {
@@ -75,7 +75,7 @@ public class GUIServiceOutMethodDialog extends JDialog implements ActionListener
 
 	ArrayList<MethodData> data = new ArrayList<MethodData>();
 
-	GUIServiceOutMethodDialog(GUI myService, String title, GUIServiceGraphVertex v) {
+	GUIServiceOutMethodDialog(GUIService myService, String title, GUIServiceGraphVertex v) {
 		super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;

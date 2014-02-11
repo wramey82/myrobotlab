@@ -59,7 +59,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.AWTRobot;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class AWTRobotGUI extends ServiceGUI implements ActionListener,
@@ -76,7 +76,7 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener,
 	private JFrame window;
 	private MyCanvas canvas;
 
-	public AWTRobotGUI(final String boundServiceName, final GUI myService) {
+	public AWTRobotGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

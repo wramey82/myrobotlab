@@ -30,7 +30,7 @@ import java.awt.event.ActionListener;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Proxy;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class ProxyGUI extends ServiceGUI implements ActionListener {
@@ -38,7 +38,7 @@ public class ProxyGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(ProxyGUI.class.getCanonicalName());
 
-	public ProxyGUI(final String boundServiceName, final GUI myService) {
+	public ProxyGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Adafruit16CServoDriver;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class Adafruit16CServoDriverGUI extends ServiceGUI implements ActionListener {
@@ -41,7 +41,7 @@ public class Adafruit16CServoDriverGUI extends ServiceGUI implements ActionListe
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(Adafruit16CServoDriverGUI.class.getCanonicalName());
 
-	public Adafruit16CServoDriverGUI(final String boundServiceName, final GUI myService) {
+	public Adafruit16CServoDriverGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

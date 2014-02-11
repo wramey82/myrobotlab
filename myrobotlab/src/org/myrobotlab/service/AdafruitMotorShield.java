@@ -41,7 +41,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 
 	/* TODO - make step calls NON BLOCKING
 	 1. make step calls non-blocking - they don't block MRL - but they block the processing of the Arduino which is not needed (or desired)
-	 2. nice GUI for steppers
+	 2. nice GUIService for steppers
 	 3. release functionality
 	 4. style set <-- easy
 	*/

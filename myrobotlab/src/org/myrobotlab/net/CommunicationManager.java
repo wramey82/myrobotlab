@@ -56,13 +56,15 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 		this.myService = myService;
 		this.outbox = myService.getOutbox();
 
+  		//GOOD IDEA - outbox communicator - however now Remote communication is done with gateway Services
 		String communicatorClass = "org.myrobotlab.net.CommObjectStreamOverTCP";
 		log.info("instanciating a " + communicatorClass);
-		Communicator c = (Communicator) Service.getNewInstance(communicatorClass, myService);
+		Communicator c = (Communicator) Service.getNewInstance(Service.class, communicatorClass,  myService);
 
 		outbox.setCommunicationManager(this);
 
 		setComm(c);
+
 
 	}
 	

@@ -187,7 +187,7 @@ public class Java extends Service {
 
 	/**
 	 * runs the javaConsole.java script which creates a Java Console object and
-	 * redirect stdout & stderr to published data - these are hooked by the GUI
+	 * redirect stdout & stderr to published data - these are hooked by the GUIService
 	 */
 	public void attachPythonConsole() {
 		if (!javaConsoleInitialized) {
@@ -414,9 +414,9 @@ public class Java extends Service {
 
 	/**
 	 * this method can be used to load a Java script from the Java's local file
-	 * system, which may not be the GUI's local system. Because it can be done
+	 * system, which may not be the GUIService's local system. Because it can be done
 	 * programatically on a different machine we want to broadcast our changed
-	 * state to other listeners (possibly the GUI)
+	 * state to other listeners (possibly the GUIService)
 	 * 
 	 * @param filename
 	 *            - name of file to load

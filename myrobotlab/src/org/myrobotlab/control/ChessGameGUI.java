@@ -49,14 +49,14 @@ import org.myrobotlab.chess.Constants;
 import org.myrobotlab.chess.HMove;
 import org.myrobotlab.chess.Search;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.op.chess.ChessBoard;
 
 public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChangeListener, PropertyChangeListener {
 
 	static final long serialVersionUID = 1L;
 
-	public ChessGameGUI(String name, GUI myService) {
+	public ChessGameGUI(String name, GUIService myService) {
 		super(name, myService);
 	}
 

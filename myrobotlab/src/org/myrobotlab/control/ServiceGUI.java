@@ -25,53 +25,50 @@
 
 package org.myrobotlab.control;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public abstract class ServiceGUI {
 
-	public final static Logger log = LoggerFactory.getLogger(ServiceGUI.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ServiceGUI.class);
 	public final String boundServiceName;
-	public final GUI myService;
+	public final GUIService myService;
 
 	public GridBagConstraints gc = new GridBagConstraints();
-	// index of tab in the tab panel -1 would be not displayed or displayed in
-	// custom tab
-	public int myIndex = -1;
-
 	public JPanel display = new JPanel();
+	
+	public TabControl2 tabControl;
 
 	public abstract void init();
 
-	public ServiceGUI(final String boundServiceName, final GUI myService) {
+	public ServiceGUI(final String boundServiceName, final GUIService myService) {
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
-
+		this.tabControl = new TabControl2(myService, myService.tabs, display, boundServiceName);
+		
 		gc.anchor = GridBagConstraints.FIRST_LINE_END;
 
 		// place menu
 		gc.gridx = 0;
 		gc.gridy = 0;
-
-		// resizer.registerComponent(display);
-		// resizer.registerComponent(widgetFrame);
-
 		display.setLayout(new GridBagLayout());
-
 		// gc.fill = GridBagConstraints.HORIZONTAL;
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
 
 	}
 
 	/**
-	 * hook for GUI framework to query each panel before release checking if any
+	 * hook for GUIService framework to query each panel before release checking if any
 	 * panel needs user input before shutdown
 	 * 
 	 * @return
@@ -80,13 +77,7 @@ public abstract class ServiceGUI {
 		return true;
 	}
 
-	/**
-	 * call-back from framework for qui to get ready for shutdown
-	 */
-	public void makeReadyForRelease() {
-
-	}
-
+	
 	public JPanel getDisplay() {
 		return display;
 	}
@@ -151,6 +142,14 @@ public abstract class ServiceGUI {
 	public int test(int i, double d) {
 		int x = 0;
 		return x;
+	}
+
+	public void makeReadyForRelease() {
+	
+	}
+
+	public Component getTabControl() {
+		return tabControl;
 	}
 
 }

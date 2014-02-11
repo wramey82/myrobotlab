@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Twitter;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class TwitterGUI extends ServiceGUI implements ActionListener {
@@ -57,7 +57,7 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	JButton tweet = new JButton("tweet");
 	Twitter twitter = null;
 	
-	public TwitterGUI(final String boundServiceName, final GUI myService) {
+	public TwitterGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		display.setLayout(new BorderLayout());
 		JPanel keyInfo = new JPanel(new GridLayout(5,2));

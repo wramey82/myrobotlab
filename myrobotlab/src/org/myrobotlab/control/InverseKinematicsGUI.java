@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.InverseKinematics;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class InverseKinematicsGUI extends ServiceGUI implements ActionListener {
@@ -40,7 +40,7 @@ public class InverseKinematicsGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(InverseKinematicsGUI.class.getCanonicalName());
 
-	public InverseKinematicsGUI(final String boundServiceName, final GUI myService) {
+	public InverseKinematicsGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

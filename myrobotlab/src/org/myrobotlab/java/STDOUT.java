@@ -8,7 +8,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Class STDOUT creates a Java Console for GUI based Java Applications. Once
+ * Class STDOUT creates a Java Console for GUIService based Java Applications. Once
  * created, a Console component receives all the data directed to the standard
  * output (System.out) and error (System.err) streams.
  * <p>

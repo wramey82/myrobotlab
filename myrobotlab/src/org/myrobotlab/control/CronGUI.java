@@ -38,7 +38,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.Cron;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 import org.slf4j.Logger;
 
@@ -47,7 +47,7 @@ public class CronGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(CronGUI.class.getCanonicalName());
 
-	public CronGUI(final String boundServiceName, final GUI myService) {
+	public CronGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

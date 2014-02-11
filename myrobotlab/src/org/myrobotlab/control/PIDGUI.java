@@ -36,7 +36,7 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.PID;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class PIDGUI extends ServiceGUI implements ActionListener {
@@ -52,7 +52,7 @@ public class PIDGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(PIDGUI.class.getCanonicalName());
 
-	public PIDGUI(final String boundServiceName, final GUI myService) {
+	public PIDGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

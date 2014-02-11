@@ -64,7 +64,7 @@ public class Stepper_AdafruitMotorShieldGUI extends StepperControllerPanel imple
 	}
 
 	/**
-	 * method to update the GUI from StepperController data
+	 * method to update the GUIService from StepperController data
 	 */
 	@Override
 	public void setData(Object[] data) {

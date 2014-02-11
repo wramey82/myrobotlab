@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 /**
  * @author GroG
  * 
- *         TODO - implement Servo interface or Servo Shield create a GUI for it
+ *         TODO - implement Servo interface or Servo Shield create a GUIService for it
  * 
  * 
  */

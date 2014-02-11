@@ -44,7 +44,7 @@ import org.myrobotlab.gp.GPMessageBestFound;
 import org.myrobotlab.gp.GPMessageEvaluatingIndividual;
 import org.myrobotlab.gp.RealPoint;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
@@ -75,7 +75,7 @@ public class GeneticProgrammingGUI extends ServiceGUI implements ListSelectionLi
 
 	GPMessageBestFound lastBest = null;
 
-	public GeneticProgrammingGUI(final String boundServiceName, final GUI myService) {
+	public GeneticProgrammingGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

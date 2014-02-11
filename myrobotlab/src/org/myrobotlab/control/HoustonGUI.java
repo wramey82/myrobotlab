@@ -32,14 +32,14 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.service.Houston;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class HoustonGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(HoustonGUI.class.getCanonicalName());
 
-	public HoustonGUI(final String boundServiceName, final GUI myService) {
+	public HoustonGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

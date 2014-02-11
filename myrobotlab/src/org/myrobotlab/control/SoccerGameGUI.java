@@ -49,7 +49,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -82,7 +82,7 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public SoccerGameGUI(final String boundServiceName, final GUI myService) {
+	public SoccerGameGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

@@ -31,7 +31,7 @@ import java.awt.event.ActionListener;
 import org.apache.log4j.Logger;
 import org.myrobotlab.service.SEAR;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import java.io.*;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,7 +57,7 @@ public class SEARGUI extends ServiceGUI implements ActionListener {
     static final long serialVersionUID = 1L;
     public final static Logger log = Logger.getLogger(SEARGUI.class.getCanonicalName());
 
-    public SEARGUI(final String boundServiceName, final GUI myService) {
+    public SEARGUI(final String boundServiceName, final GUIService myService) {
         super(boundServiceName, myService);
     }
 
@@ -261,7 +261,7 @@ public class SEARGUI extends ServiceGUI implements ActionListener {
 //    saveFilename=extensions[0];     //split it off and remove ".prj" from the string, the Filechooser will add it automatically.
 //}
 //} //end else string already had extension
-            //Example saveProject file overwrite dialog form here: http://www.coderanch.com/t/346251/GUI/java/deal-JFileChooser
+            //Example saveProject file overwrite dialog form here: http://www.coderanch.com/t/346251/GUIService/java/deal-JFileChooser
 
             if (inputFile.exists()) { // IF the file already exists, ask to overwrite
 
