@@ -72,7 +72,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
@@ -128,7 +128,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
 	ServiceEntry releasedTarget = null;
 
-	public RuntimeGUI(final String boundServiceName, final GUI myService) {
+	public RuntimeGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		
 		myRuntime = (Runtime) Runtime.getService(boundServiceName);

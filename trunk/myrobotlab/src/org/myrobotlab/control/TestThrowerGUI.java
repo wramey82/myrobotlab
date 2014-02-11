@@ -34,7 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class TestThrowerGUI extends ServiceGUI {
 
@@ -49,7 +49,7 @@ public class TestThrowerGUI extends ServiceGUI {
 	JLabel throwVideoLabel = new JLabel("");
 	JLabel throwSerialLabel = new JLabel("");
 
-	public TestThrowerGUI(final String boundServiceName, final GUI myService) {
+	public TestThrowerGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

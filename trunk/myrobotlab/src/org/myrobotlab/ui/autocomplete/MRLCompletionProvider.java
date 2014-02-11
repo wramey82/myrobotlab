@@ -65,7 +65,7 @@ public class MRLCompletionProvider extends JavaCompletionProvider {
 	}
 
 	/**
-	 * Create the modifiers HTML string that will be used in the GUI.
+	 * Create the modifiers HTML string that will be used in the GUIService.
 	 * 
 	 * @param modifiers
 	 * @return empty string if there are no modifiers that meet our criteria

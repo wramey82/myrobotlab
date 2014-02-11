@@ -49,7 +49,7 @@ import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.Cortex;
 import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.data.Rectangle;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 
 
@@ -66,7 +66,7 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 	
 	MemoryWidget tree = new MemoryWidget(this);
 
-	public CortexGUI(final String boundServiceName, final GUI myService) {
+	public CortexGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 
@@ -105,7 +105,7 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 	}
 	
 	// FIXME !!!! SHOULD BE IN NodeGUI !!!!
-	// Add a Node to the GUI - since a GUI Tree 
+	// Add a Node to the GUIService - since a GUIService Tree 
 	// is constructed to model the memory Tree
 	// this is a merge between what the user is interested in
 	// and what is in memory

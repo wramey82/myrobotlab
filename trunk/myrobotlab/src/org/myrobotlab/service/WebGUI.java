@@ -150,7 +150,7 @@ public class WebGUI extends Service {
 
 	@Override
 	public String getDescription() {
-		return "The new web enabled GUI 2.0 !";
+		return "The new web enabled GUIService 2.0 !";
 	}
 
 	public void startService() {

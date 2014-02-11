@@ -39,7 +39,7 @@ import org.myrobotlab.mapper.sim.Simulator;
 import org.myrobotlab.mapper.sim.World;
 
 /**
- * The GUI for controlling the world.
+ * The GUIService for controlling the world.
  */
 public class WorldControlGUI extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;

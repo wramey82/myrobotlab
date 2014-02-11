@@ -77,7 +77,7 @@ import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.opencv.VideoSources;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.slf4j.Logger;
 
@@ -135,7 +135,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	OpenCV myOpenCV;
 	final OpenCVGUI self;
 
-	public OpenCVGUI(final String boundServiceName, final GUI myService) {
+	public OpenCVGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		self = this;
 	}
@@ -328,7 +328,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 		currentFilterListModel.addElement(name);
 
 		// get a gui filter
-		String guiType = "org.myrobotlab.control.opencv.OpenCVFilter" + type + "GUI";
+		String guiType = "org.myrobotlab.control.opencv.OpenCVFilter" + type + "GUIService";
 		String defaultGUIType = "org.myrobotlab.control.opencv.OpenCVFilterDefaultGUI";
 		OpenCVFilterGUI filtergui = null;
 		try {
@@ -446,7 +446,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	};
 
 	/**
-	 * GUI defaults for grabber types
+	 * GUIService defaults for grabber types
 	 */
 	private ActionListener grabberTypeListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
@@ -611,8 +611,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	}
 
 	/*
-	 * getState is an interface function which allow the interface of the GUI
-	 * Bound service to update graphical portions of the GUI based on data
+	 * getState is an interface function which allow the interface of the GUIService
+	 * Bound service to update graphical portions of the GUIService based on data
 	 * changes.
 	 * 
 	 * The entire service is sent and it is this functions responsibility to
@@ -722,7 +722,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	
 	@Override
 	public void attachGUI() {
-		// TODO - bury in GUI Framework?
+		// TODO - bury in GUIService Framework?
 		subscribe("publishState", "getState", OpenCV.class);
 		myService.send(boundServiceName, "publishState");
 

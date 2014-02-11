@@ -55,7 +55,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.service.Roomba;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class RoombaGUI extends ServiceGUI implements ListSelectionListener, ActionListener, ChangeListener, KeyListener {
@@ -79,7 +79,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 	Roomba roombacomm; // in MRL'land can't have direct access to this - must
 						// message it
 
-	public RoombaGUI(final String boundServiceName, final GUI myService) {
+	public RoombaGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		roombacomm = (Roomba) Runtime.getService(boundServiceName);
 	}
@@ -94,7 +94,7 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 
 	/**
 	 * setPorts is called by getState - which is called when the Arduino changes
-	 * port state is NOT called by the GUI component
+	 * port state is NOT called by the GUIService component
 	 * 
 	 * @param p
 	 *            FIXME - there should be a corresponding gui element for the

@@ -47,12 +47,12 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.slf4j.Logger;
 
 /**
- * Servo GUI - displays details of Servo state
+ * Servo GUIService - displays details of Servo state
  * Lesson learned !  Servos to properly function need to be attached to a controller
  * This gui previously sent messages to the controller.  To simplify things its important to send
  * messages only to the bound Servo - and let it attach to the controller versus sending messages
@@ -100,7 +100,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		}
 	}
 
-	public ServoGUI(final String boundServiceName, final GUI myService) {
+	public ServoGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		myServo = (Servo) Runtime.getService(boundServiceName);
 		
@@ -300,7 +300,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 	 * }
 	 */
 
-	// GUI's action processing section - data from user
+	// GUIService's action processing section - data from user
 	@Override
 	public void actionPerformed(final ActionEvent event) {
 		SwingUtilities.invokeLater(new Runnable() {

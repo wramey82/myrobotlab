@@ -26,13 +26,13 @@ package org.myrobotlab.control;
 
 import javax.swing.JLabel;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class SpeechGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public SpeechGUI(final String boundServiceName, final GUI myService) {
+	public SpeechGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

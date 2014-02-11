@@ -52,7 +52,7 @@ import org.myrobotlab.service.Arduino;
  * iso8859-1, which is highly likely to be a problem when trying to save sketch
  * folders and locations.
  * <p>
- * The GUI portion in here is really ugly, as it uses exact layout. This was
+ * The GUIService portion in here is really ugly, as it uses exact layout. This was
  * done in frustration one evening (and pre-Swing), but that's long since past,
  * and it should all be moved to a proper swing layout like BoxLayout.
  * <p>

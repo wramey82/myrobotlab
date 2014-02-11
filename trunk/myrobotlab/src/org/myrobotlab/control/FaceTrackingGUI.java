@@ -40,7 +40,7 @@ import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.service.FaceTracking;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class FaceTrackingGUI extends ServiceGUI implements ActionListener {
 
@@ -57,7 +57,7 @@ public class FaceTrackingGUI extends ServiceGUI implements ActionListener {
 	JTextField pulseDataString = new JTextField(10);
 	JIntegerField pulseDataInteger = new JIntegerField(10);
 
-	public FaceTrackingGUI(final String boundServiceName, final GUI myService) {
+	public FaceTrackingGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

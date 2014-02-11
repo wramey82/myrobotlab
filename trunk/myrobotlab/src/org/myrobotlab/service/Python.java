@@ -295,7 +295,7 @@ public class Python extends Service {
 	/**
 	 * runs the pythonConsole.py script which creates a Python Console object
 	 * and redirect stdout & stderr to published data - these are hooked by the
-	 * GUI
+	 * GUIService
 	 */
 	public void attachPythonConsole() {
 		if (!pythonConsoleInitialized) {
@@ -548,9 +548,9 @@ public class Python extends Service {
 
 	/**
 	 * this method can be used to load a Python script from the Python's local
-	 * file system, which may not be the GUI's local system. Because it can be
+	 * file system, which may not be the GUIService's local system. Because it can be
 	 * done programatically on a different machine we want to broadcast our
-	 * changed state to other listeners (possibly the GUI)
+	 * changed state to other listeners (possibly the GUIService)
 	 * 
 	 * @param filename
 	 *            - name of file to load

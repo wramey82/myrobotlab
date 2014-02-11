@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.InMoovHead;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class InMoovHeadGUI extends ServiceGUI implements ActionListener {
@@ -40,7 +40,7 @@ public class InMoovHeadGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(InMoovHeadGUI.class.getCanonicalName());
 
-	public InMoovHeadGUI(final String boundServiceName, final GUI myService) {
+	public InMoovHeadGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

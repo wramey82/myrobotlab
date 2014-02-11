@@ -64,7 +64,7 @@ import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.Pin;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 /*
  * TODO - move menu into ArduinoGUI from editor
@@ -90,7 +90,7 @@ import org.myrobotlab.service.interfaces.GUI;
 
 public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener {
 
-	public ArduinoGUI(final String boundServiceName, final GUI myService) {
+	public ArduinoGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 
@@ -795,7 +795,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
 		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 
-		tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap, boundServiceName, "pins"));
+		// FIXME TabControl2 - tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap, boundServiceName, "pins"));
 		return imageMap;
 	}
 
@@ -877,7 +877,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
 		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 
-		tabs.setTabComponentAt(0, new TabControl(gui, tabs, editor.getDisplay(), boundServiceName, "editor"));
+		// FIXME TabControl2 - tabs.setTabComponentAt(0, new TabControl(gui, tabs, editor.getDisplay(), boundServiceName, "editor"));
 		myService.getFrame().pack();
 		return editor.getDisplay();
 	}

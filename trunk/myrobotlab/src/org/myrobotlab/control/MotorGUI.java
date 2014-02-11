@@ -48,7 +48,7 @@ import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Motor;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Pin;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MotorController;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 
@@ -104,7 +104,7 @@ public class MotorGUI extends ServiceGUI implements ActionListener, ChangeListen
 		}
 	}
 
-	public MotorGUI(final String boundServiceName, final GUI myService) {
+	public MotorGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

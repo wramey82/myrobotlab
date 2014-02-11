@@ -28,7 +28,7 @@ public class Console extends AppenderSkeleton {
 	}
 
 	/**
-	 * to begin logging call this function Log must not begin before the GUI
+	 * to begin logging call this function Log must not begin before the GUIService
 	 * has finished drawing. For some reason, if log entries are written to a
 	 * JScrollPane before the gui has complted the whole gui will tank
 	 * 

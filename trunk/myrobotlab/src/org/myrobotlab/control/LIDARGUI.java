@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class LIDARGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
@@ -66,7 +66,7 @@ public class LIDARGUI extends ServiceGUI implements ListSelectionListener, Video
     ArrayList<Integer> hist = new ArrayList<>();
     boolean staticInfo = false;
 
-    public LIDARGUI(final String boundServiceName, final GUI myService) {
+    public LIDARGUI(final String boundServiceName, final GUIService myService) {
         super(boundServiceName, myService);
     }
 

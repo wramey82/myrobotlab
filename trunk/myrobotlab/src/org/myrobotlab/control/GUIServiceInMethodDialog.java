@@ -44,7 +44,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
@@ -55,10 +55,10 @@ public class GUIServiceInMethodDialog extends JDialog implements ActionListener 
 
 	private static final long serialVersionUID = 1L;
 
-	GUI myService = null;
+	GUIService myService = null;
 	GUIServiceGraphVertex v = null; // vertex who generated this dialog
 
-	GUIServiceInMethodDialog(GUI myService, String title, GUIServiceGraphVertex v) {
+	GUIServiceInMethodDialog(GUIService myService, String title, GUIServiceGraphVertex v) {
 		super(myService.getFrame(), title, true);
 		this.v = v;
 		this.myService = myService;
@@ -103,7 +103,7 @@ public class GUIServiceInMethodDialog extends JDialog implements ActionListener 
 				String t[] = p.split("\\.");
 				ret.append(t[t.length - 1]);
 				if (i < me.parameterTypes.length - 1) {
-					ret.append(","); // TODO - NOT POSSIBLE TO CONNECT IN GUI -
+					ret.append(","); // TODO - NOT POSSIBLE TO CONNECT IN GUIService -
 										// FILTER OUT?
 				}
 			}

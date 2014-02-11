@@ -50,7 +50,7 @@ import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.w3c.dom.Document;
 
@@ -102,7 +102,7 @@ public class GUIServiceGUI extends ServiceGUI {
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
 
-	public GUIServiceGUI(final String boundServiceName, final GUI myService) {
+	public GUIServiceGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

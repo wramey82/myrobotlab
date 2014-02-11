@@ -45,7 +45,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.NodeDeprecate;
 import org.myrobotlab.service.FSMTest;
 import org.myrobotlab.service.FSMTest.MatchResult;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
@@ -62,7 +62,7 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	JLabel matchIndex = new JLabel("0");
 	JLabel matchWord = new JLabel();
 
-	public FSMTestGUI(final String boundServiceName, final GUI myService) {
+	public FSMTestGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

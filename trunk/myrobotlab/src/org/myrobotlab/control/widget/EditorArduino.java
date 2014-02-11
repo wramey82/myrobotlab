@@ -43,7 +43,7 @@ import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 
 public class EditorArduino extends Editor implements ActionListener {
@@ -68,7 +68,7 @@ public class EditorArduino extends Editor implements ActionListener {
 	JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
 	JCheckBoxMenuItem digitalTriggerOnly = new JCheckBoxMenuItem("Digital Trigger Only");
 
-	public EditorArduino(final String boundServiceName, final GUI myService) {
+	public EditorArduino(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
 		ServiceInterface sw = Runtime.getService(boundServiceName);
 		myArduino = (Arduino) sw;

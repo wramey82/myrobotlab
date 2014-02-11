@@ -30,7 +30,7 @@ import java.awt.event.ActionListener;
 
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SLAMBad;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 
@@ -38,7 +38,7 @@ public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 
 	SLAMBad mySimbad = null;
 
-	public SLAMBadGUI(final String boundServiceName, final GUI myService) {
+	public SLAMBadGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

@@ -628,7 +628,7 @@ public class FSMTest extends Service {
 		return result;
 	}
 
-	// event to clear the GUI's FSMTest video
+	// event to clear the GUIService's FSMTest video
 	public void clearVideo0() {
 	}
 

@@ -402,7 +402,7 @@ public class OpenCV extends VideoSource {
 	}
 
 	/**
-	 * Callback from the GUI to the appropriate filter funnel through here
+	 * Callback from the GUIService to the appropriate filter funnel through here
 	 */
 	public void invokeFilterMethod(String filterName, String method, Object... params) {
 		OpenCVFilter filter = getFilter(filterName);

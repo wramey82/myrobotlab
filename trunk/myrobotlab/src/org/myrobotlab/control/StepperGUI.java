@@ -48,7 +48,7 @@ import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Stepper;
 import org.myrobotlab.service.data.Pin;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.StepperController;
 
@@ -104,7 +104,7 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 		}
 	}
 
-	public StepperGUI(final String boundServiceName, final GUI myService) {
+	public StepperGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

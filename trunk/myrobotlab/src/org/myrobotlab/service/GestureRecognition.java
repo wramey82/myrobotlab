@@ -9,26 +9,22 @@ import java.util.ArrayList;
 import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
 import org.OpenNI.DepthMetaData;
-import org.OpenNI.GeneralException;
 import org.OpenNI.License;
 import org.OpenNI.MapOutputMode;
 import org.OpenNI.OutArg;
 import org.OpenNI.ScriptNode;
-
-import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.interfaces.VideoSink;
-import org.myrobotlab.service.interfaces.VideoSource;
+import org.slf4j.Logger;
 
 public class GestureRecognition extends Service {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(GestureRecognition.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(GestureRecognition.class);
 
 	// public UserTracker viewer;
 

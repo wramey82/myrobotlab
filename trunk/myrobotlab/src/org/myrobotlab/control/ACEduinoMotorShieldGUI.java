@@ -42,7 +42,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.ACEduinoMotorShield;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class ACEduinoMotorShieldGUI extends ServiceGUI {
@@ -68,7 +68,7 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 	ACEduinoMotorShield myServo = null;
 
-	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUI myService) {
+	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		myServo = (ACEduinoMotorShield) Runtime.getService(boundServiceName);
 	}

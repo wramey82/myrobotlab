@@ -37,7 +37,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.control.widget.Number;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Wii.IRData;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 import wiiusej.values.IRSource;
@@ -68,7 +68,7 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGU
 	public Random rand = new Random();
 	public IRData lastIRData = null;
 
-	public WiiGUI(final String boundServiceName, final GUI myService) {
+	public WiiGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

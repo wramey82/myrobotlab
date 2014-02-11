@@ -31,7 +31,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class AudioCaptureGUI extends ServiceGUI {
 
@@ -41,7 +41,7 @@ public class AudioCaptureGUI extends ServiceGUI {
 	final JButton stopBtn = new JButton("Stop");
 	final JButton playBtn = new JButton("Playback");
 
-	public AudioCaptureGUI(final String boundServiceName, final GUI myService) {
+	public AudioCaptureGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

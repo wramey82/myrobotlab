@@ -38,7 +38,7 @@ import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
 import org.myrobotlab.service.PointCloud;
 import org.myrobotlab.service.data.SensorData;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class PointCloudGUI extends ServiceGUI implements ActionListener {
 
@@ -55,7 +55,7 @@ public class PointCloudGUI extends ServiceGUI implements ActionListener {
 
 	JPanel eastPanel = new JPanel();
 
-	public PointCloudGUI(final String boundServiceName, final GUI myService) {
+	public PointCloudGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

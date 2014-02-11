@@ -32,13 +32,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import org.myrobotlab.control.widget.RadarWidget;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class SensorDisplayGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public SensorDisplayGUI(final String boundServiceName, final GUI myService) {
+	public SensorDisplayGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

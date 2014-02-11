@@ -47,7 +47,7 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.WiiDAR;
 import org.myrobotlab.service.WiiDAR.Point;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
@@ -74,7 +74,7 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, Vide
 	public Random rand = new Random();
 	public IRData lastIRData = null;
 
-	public WiiDARGUI(final String boundServiceName, final GUI myService) {
+	public WiiDARGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

@@ -40,7 +40,6 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -73,13 +72,14 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.control.GUIServiceGUI;
 import org.myrobotlab.control.ServiceGUI;
-import org.myrobotlab.control.TabControl;
+import org.myrobotlab.control.TabControl2;
 import org.myrobotlab.control.Welcome;
 import org.myrobotlab.control.widget.AboutDialog;
 import org.myrobotlab.control.widget.ConnectDialog;
 import org.myrobotlab.control.widget.Console;
 import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.Level;
@@ -87,11 +87,9 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.service.data.IPAndPort;
-import org.myrobotlab.service.interfaces.GUI;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.string.Util;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -99,31 +97,31 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
 
 /*
- * GUI -> Look at service registry
- * GUI -> attempt to create a panel for each registered service
- * 		GUI -> create panel
- *      GUI -> panel.init(this, serviceName);
+ * GUIService -> Look at service registry
+ * GUIService -> attempt to create a panel for each registered service
+ * 		GUIService -> create panel
+ *      GUIService -> panel.init(this, serviceName);
  *      	   panel.send(Notify, someoutputfn, GUIName, panel.inputfn, data);
  *  
  *       
  *       
- *       serviceName (source) --> GUI-> msg
+ *       serviceName (source) --> GUIService-> msg
  * Arduino arduino01 -> post message -> outbox -> outbound -> notifyList -> reference of sender? (NO) will not transport
  * across process boundry 
  * 
  * 		serviceGUI needs a Runtime
- * 		Arduino arduin-> post back (data) --> GUI - look up serviceGUI by senders name ServiceGUI->invoke(data)
+ * 		Arduino arduin-> post back (data) --> GUIService - look up serviceGUI by senders name ServiceGUI->invoke(data)
  * 
  * References :
  * http://www.scribd.com/doc/13122112/Java6-Rules-Adding-Components-To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
  */
 
 @Root
-public class GUIService extends GUI implements WindowListener, ActionListener, Serializable {
+public class GUIService extends Service implements WindowListener, ActionListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	transient public final static Logger log = LoggerFactory.getLogger(GUIService.class.getCanonicalName());
+	transient public final static Logger log = LoggerFactory.getLogger(GUIService.class);
 
 	public String graphXML = "";
 
@@ -140,7 +138,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * class to save the position and size of undocked panels
 	 * 
 	 */
-	@ElementMap(entry = "serviceType", value = "dependsOn", attribute = true, inline = true, required = false)
+	// @ElementMap(entry = "undockedPanels", value = "panel", attribute = true,
+	// inline = true, required = false)
 	transient public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
 
 	/**
@@ -175,9 +174,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	boolean isDisplaying = false;
 	transient JLabel status = new JLabel("status");
 
+	transient private GUIService myself;
+
 	public GUIService(String n) {
 		super(n);
 		load();// <-- HA was looking all over for it
+		myself = this;
 	}
 
 	public boolean hasDisplay() {
@@ -212,32 +214,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return false;
 	}
 
-	/**
-	 * method to construct ServiceGUIs - similar to the Service.getNewInstance
-	 * but specifically for swing GUIs
-	 * 
-	 * @param classname
-	 * @param boundServiceName
-	 * @param service
-	 * @return
-	 */
-	// FIXME - use instanciator !!!
-	static public Object getNewInstance(String classname, String boundServiceName, GUI service) {
-		try {
-			Object[] params = new Object[2];
-			params[0] = boundServiceName;
-			params[1] = service;
-			Class<?> c;
-			c = Class.forName(classname);
-			Constructor<?> mc = c.getConstructor(new Class[] { String.class, GUI.class });
-			return mc.newInstance(params);
-		} catch (Exception e) {
-			logException(e);
-		}
-
-		return null;
-	}
-
 	public void buildTabPanels() {
 		// add the welcome screen
 		if (!serviceGUIMap.containsKey("welcome")) {
@@ -245,7 +221,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			welcome.init();
 			tabs.addTab("Welcome", welcome.display);
 			tabs.setTabComponentAt(0, new JLabel("Welcome"));
-			serviceGUIMap.put("welcome", welcome);
+			serviceGUIMap.put("Welcome", welcome);
 		}
 
 		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
@@ -273,9 +249,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		// get service type class name TODO
-		String serviceClassName = sw.getClass().getCanonicalName();
-		String guiClass = serviceClassName.substring(serviceClassName.lastIndexOf("."));
-		guiClass = "org.myrobotlab.control" + guiClass + "GUI";
+		String guiClass = String.format("org.myrobotlab.control.%sGUI", sw.getClass().getSimpleName());
 
 		if (serviceGUIMap.containsKey(sw.getName())) {
 			log.debug(String.format("not creating %1$s gui - it already exists", sw.getName()));
@@ -296,12 +270,12 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		}
 
 		Component c = tabs.getTabComponentAt(index);
-		if (c instanceof TabControl) {
-			TabControl tc = (TabControl) c;
+		if (c instanceof TabControl2) {
+			TabControl2 tc = (TabControl2) c;
 			// String serviceName = tc.getText();
 			if (undockedPanels.containsKey(serviceName)) {
 				UndockedPanel up = undockedPanels.get(serviceName);
-				if (!up.isDocked) {
+				if (!up.isDocked()) {
 					tc.undockPanel();
 				}
 			}
@@ -345,9 +319,9 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.myrobotlab.service.interfaces.GUI#loadTabPanels() This is a bit
-	 * "big hammer" in that it destroys all panels and rebuilds the GUI don't
-	 * use except to initially build
+	 * @see org.myrobotlab.service.interfaces.GUIService#loadTabPanels() This is
+	 * a bit "big hammer" in that it destroys all panels and rebuilds the
+	 * GUIService don't use except to initially build
 	 * 
 	 * FIXME - remove - residual kruft
 	 */
@@ -379,7 +353,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 	 * @return
 	 */
 
-	// public ComponentResizer resizer = new ComponentResizer();
 	public ServiceGUI createTabbedPanel(String serviceName, String guiClass, ServiceInterface sw) {
 		ServiceGUI gui = null;
 		ServiceInterface se = sw;
@@ -387,7 +360,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
 
 		if (gui == null) {
-			log.warn("could not construct a " + guiClass + " object - creating generic template");
+			log.info(String.format("could not construct a %s object - creating generic template", guiClass));
 			gui = (ServiceGUI) getNewInstance("org.myrobotlab.control._TemplateServiceGUI", se.getName(), this);
 		}
 
@@ -399,24 +372,8 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 
 		// TODO - all auto-subscribtions could be done here
 		subscribe("publishStatus", se.getName(), "getStatus", String.class);
-
-		// if (!serviceName.startsWith("i0")) {
 		tabs.addTab(serviceName, gui.getDisplay());
-
-		if (sw.isLocal()) {
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName));
-		} else {
-			// create hash color for hsv from accessURI
-			// Color hsv = new
-			// Color(Color.HSBtoRGB(Float.parseFloat(String.format("0.%d",
-			// Math.abs(sw.getAccessURL().hashCode()))), 0.8f, 0.7f));
-			Color hsv = getColorFromURI(sw.getHost());
-			int index = tabs.indexOfTab(serviceName);
-			tabs.setBackgroundAt(index, hsv);
-			tabs.setTabComponentAt(tabs.getTabCount() - 1, new TabControl(this, tabs, gui.getDisplay(), serviceName, Color.white, hsv));
-		}
-		// }
-
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, gui.getTabControl());
 		return gui;
 	}
 
@@ -542,7 +499,7 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			String serviceName = pairs.getKey();
 			if (undockedPanels.containsKey(serviceName)) {
 				UndockedPanel up = undockedPanels.get(serviceName);
-				if (!up.isDocked) {
+				if (!up.isDocked()) {
 					up.savePosition();
 				}
 			}
@@ -597,7 +554,6 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		return "<html>Service used to graphically display and control other services</html>";
 	}
 
-	@Override
 	public void pack() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -606,82 +562,66 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		});
 	}
 
-	@Override
 	public JFrame getFrame() {
 		return frame;
 	}
 
-	@Override
 	public void setDstMethodName(String d) {
 		guiServiceGUI.dstMethodName.setText(d);
 	}
 
-	@Override
 	public void setDstServiceName(String d) {
 		guiServiceGUI.dstServiceName.setText(d);
 	}
 
-	@Override
 	public void setPeriod0(String s) {
 		guiServiceGUI.period0.setText(s);
 	}
 
-	@Override
 	public String getDstMethodName() {
 		return guiServiceGUI.dstMethodName.getText();
 	}
 
-	@Override
 	public String getDstServiceName() {
 		return guiServiceGUI.dstServiceName.getText();
 	}
 
-	@Override
 	public String getSrcMethodName() {
 		return guiServiceGUI.srcMethodName.getText();
 	}
 
-	@Override
 	public String getSrcServiceName() {
 		return guiServiceGUI.srcServiceName.getText();
 	}
 
-	@Override
 	public HashMap<String, mxCell> getCells() {
 		return guiServiceGUI.serviceCells;
 	}
 
-	@Override
 	public mxGraph getGraph() {
 		return guiServiceGUI.graph;
 	}
 
-	@Override
 	public void setSrcMethodName(String d) {
 		guiServiceGUI.srcMethodName.setText(d);
 	}
 
-	@Override
 	public void setSrcServiceName(String d) {
 		guiServiceGUI.srcServiceName.setText(d);
 	}
 
-	@Override
 	public void setArrow(String s) {
 		guiServiceGUI.arrow0.setText(s);
 	}
 
-	@Override
 	public void setPeriod1(String s) {
 		guiServiceGUI.period1.setText(s);
 	}
 
-	@Override
 	public String getGraphXML() {
 		return graphXML;
 	}
 
-	@Override
 	public void setGraphXML(String xml) {
 		graphXML = xml;
 	}
@@ -733,6 +673,16 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		systemMenu.add(load);
 		load.addActionListener(this);
 
+		JMenuItem unhideAll = new JMenuItem("unhide all");
+		unhideAll.setActionCommand("unhide all");
+		systemMenu.add(unhideAll);
+		unhideAll.addActionListener(this);
+
+		JMenuItem hideAll = new JMenuItem("hide all");
+		hideAll.setActionCommand("hide all");
+		systemMenu.add(hideAll);
+		hideAll.addActionListener(this);
+
 		JMenu m = new JMenu("logging");
 		systemMenu.add(m);
 
@@ -783,6 +733,10 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 			Runtime.saveAll();
 		} else if ("load".equals(cmd)) {
 			Runtime.loadAll();
+		} else if ("unhide all".equals(cmd)) {
+			unhideAll();
+		} else if ("hide all".equals(cmd)) {
+			hideAll();
 		} else if ("install latest".equals(cmd)) {
 			runtime.updateAll();
 		} else if (cmd.equals(Level.DEBUG) || cmd.equals(Level.INFO) || cmd.equals(Level.WARN) || cmd.equals(Level.ERROR) || cmd.equals(Level.FATAL)) {
@@ -983,47 +937,146 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		status.setText(inStatus.detail);
 	}
 
-	/*
-	 * public void undockPanel(final String tabName) {
-	 * SwingUtilities.invokeLater(new Runnable() { public void run() {
-	 * 
-	 * JPanel movingPanel = serviceGUIMap.get(tabName).getDisplay();
-	 * tabs.remove(movingPanel);
-	 * 
-	 * JFrame undocked; // icon URL url =
-	 * getClass().getResource("/resource/mrl_logo_36_36.png"); Toolkit kit =
-	 * Toolkit.getDefaultToolkit(); Image img = kit.createImage(url);
-	 * 
-	 * // if is a service tab if (Runtime.getRegistry().containsKey(tabName)) {
-	 * 
-	 * // service tabs undocked = new JFrame(tabName); // check to see if this
-	 * frame was positioned before UndockedPanel panel = null; if
-	 * (undockedPanels.containsKey(tabName)) { // has been undocked before panel
-	 * = undockedPanels.get(tabName); undocked.setLocation(new Point(panel.x,
-	 * panel.y)); undocked.setPreferredSize(new Dimension(panel.width,
-	 * panel.height)); } else { // first time undocked panel = new
-	 * UndockedPanel(undocked);
-	 * 
-	 * undockedPanels.put(tabName, panel); panel.x = undocked.getWidth();
-	 * panel.y = undocked.getHeight(); }
-	 * 
-	 * panel.frame = undocked; panel.isDocked = false; //
-	 * undocked.setVisible(false);
-	 * 
-	 * undocked.setIconImage(img); undocked.getContentPane().add(movingPanel);
-	 * //undocked.addWindowListener(windowAdapter); undocked.setVisible(true);
-	 * undocked.pack();
-	 * 
-	 * getFrame().pack(); save();
-	 * 
-	 * } else { // must be sub-tab .. eg Arduino oscope, pins, editor //undocked
-	 * = new JFrame(tabName + " " + getText()); }
-	 * 
-	 * 
-	 * } });
-	 * 
-	 * }
+	/**
+	 * closes window and puts the panel back into the tabbed pane
 	 */
+	public void dockPanel(final String label) {
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (!undockedPanels.containsKey(label)) {
+					log.warn("request to dock a non-undocked panel {}", label);
+					return;
+				}
+				UndockedPanel undocked = undockedPanels.get(label);
+
+				JPanel p = undocked.getDisplay();
+				tabs.add(label, p); // grrr.. JPanel should be a composite +
+									// tabControl
+				p.setVisible(true);
+				ServiceGUI sg = serviceGUIMap.get(label);
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, sg.getTabControl());
+
+				log.info("{}", tabs.indexOfTab(label));
+
+				// clear resources
+				undocked.close();
+				getFrame().invalidate();
+				getFrame().pack();
+				tabs.setSelectedComponent(p);
+
+			}
+		});
+	}
+
+	// must handle docked or undocked
+	public void hidePanel(final String label) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				log.info("hidePanel {}", label);
+				if (undockedPanels.containsKey(label) && !undockedPanels.get(label).isDocked()) {
+					// undocked
+					UndockedPanel undocked = undockedPanels.get(label);
+					undocked.hide();
+				} else {
+					// docked - must remove / insert tabs - versus make them
+					// visible
+					// "title" MUST be set if "indexOfTab" is to work !
+					int index = tabs.indexOfTab(label);
+					if (index != -1) {
+						tabs.remove(index);
+					} else {
+						log.error("{} - has -1 index", label);
+					}
+				}
+			}
+		});
+	}
+
+	public void hideAll() {
+		log.info("hideAll");
+		// spin through all undocked
+		for (Map.Entry<String, ServiceGUI> o : serviceGUIMap.entrySet()) {
+			hidePanel(o.getKey());
+		}
+	}
+
+	public void unhideAll() {
+		log.info("unhideAll");
+		// spin through all undocked
+		for (Map.Entry<String, ServiceGUI> o : serviceGUIMap.entrySet()) {
+			unhidePanel(o.getKey());
+		}
+	}
+
+	// must handle docked or undocked & re-entrant for unhidden
+	public void unhidePanel(final String label) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				log.info("unhidePanel {}", label);
+				if (undockedPanels.containsKey(label) && !undockedPanels.get(label).isDocked()) {
+					// undocked
+					UndockedPanel undocked = undockedPanels.get(label);
+					undocked.unhide();
+				} else {
+					// docked - must remove / insert tabs - versus make them
+					// visible
+					// "title" MUST be set if "indexOfTab" is to work !
+					if (tabs.indexOfTab(label) == -1) {
+						log.info("unhiding {}", label);
+						// tab can not be found --- warning - similar code in
+						// dockPanel
+						ServiceGUI sg = serviceGUIMap.get(label);
+						JPanel p = sg.getDisplay();
+						tabs.add(label, p); // grrr.. JPanel should be a
+											// composite + tabControl
+						if (!"Welcome".equals(label)) {
+							tabs.setTabComponentAt(tabs.getTabCount() - 1, sg.getTabControl());
+						}
+						p.setVisible(true);
+					}
+
+				}
+
+				getFrame().revalidate();
+				getFrame().pack();
+			}
+		});
+
+	}
+
+	public void undockPanel(final String label) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+				// get service gui
+				ServiceGUI sg = serviceGUIMap.get(label);
+
+				// remove from tabs
+				tabs.remove(sg.getDisplay());
+
+				// get undocked panel
+				UndockedPanel undocked;
+				// check to see if this frame was positioned before
+				if (undockedPanels.containsKey(label)) {
+					// has been undocked before
+					undocked = undockedPanels.get(label);
+				} else {
+					// first time undocked
+					undocked = new UndockedPanel(myself);
+					undockedPanels.put(label, undocked);
+				}
+
+				undocked.createFrame(label, sg.getDisplay());
+
+				getFrame().revalidate();
+				getFrame().pack();
+				save(); // ?
+
+			}
+		});
+
+	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {
 		LoggingFactory.getInstance().configure();
@@ -1042,14 +1095,19 @@ public class GUIService extends GUI implements WindowListener, ActionListener, S
 		 * 
 		 * log.info(d); log.info(String.format("0.%d",Math.abs(d.hashCode())));
 		 */
+		// Runtime.createAndStart("clock", "Clock");
+		
+		Runtime.createAndStart("i01", "InMoov");
+		
 		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
-
 		gui2.startService();
 
+		/*
 		Clock clock = new Clock("clock");
-		clock.startClock();
+		clock.startService();
+		*/
 
-		Runtime.createAndStart("opencv", "OpenCV");
+		// Runtime.createAndStart("opencv", "OpenCV");
 		// gui2.display();
 
 		// gui2.startRecording();

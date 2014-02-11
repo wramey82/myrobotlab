@@ -68,7 +68,7 @@ import org.slf4j.Logger;
 
 public class CommObjectStreamOverTCP implements Communicator, Serializable {
 
-	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class.getCanonicalName());
+	transient public final static Logger log = LoggerFactory.getLogger(CommObjectStreamOverTCP.class);
 	private static final long serialVersionUID = 1L;
 	static public transient HashMap<URI, TCPThread> clientList = new HashMap<URI, TCPThread>();
 	HashMap<URI, Heart> heartbeatList = new HashMap<URI, Heart>();

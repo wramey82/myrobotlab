@@ -58,7 +58,7 @@ public class SEAR extends Service {
         Python python = new Python("python");
         python.startService();
 
-        //Start the GUI service
+        //Start the GUIService service
         GUIService gui = new GUIService("gui");
         gui.startService();
         

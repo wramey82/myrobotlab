@@ -388,15 +388,7 @@ public class VideoProcessor implements Runnable, Serializable {
 		Object[] params = new Object[1];
 		params[0] = name;
 
-		OpenCVFilter filter = null;
-		try {
-
-			filter = (OpenCVFilter) Service.getNewInstance(type, params);
-		} catch (Exception e) {
-			Logging.logException(e);
-			return null;
-		}
-		
+		OpenCVFilter filter = (OpenCVFilter) Service.getNewInstance(type, params);
 		// returns filter if added - or if dupe returns actual
 		return addFilter(filter);
 	}

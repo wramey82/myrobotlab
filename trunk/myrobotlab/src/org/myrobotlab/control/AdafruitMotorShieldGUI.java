@@ -44,7 +44,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.AdafruitMotorShield;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionListener {
@@ -55,7 +55,7 @@ public class AdafruitMotorShieldGUI extends ServiceGUI implements ListSelectionL
 	private AdafruitMotorShield myAdafruitMotorShield = null;
 	JLayeredPane imageMap;
 
-	public AdafruitMotorShieldGUI(final String boundServiceName, final GUI myService) {
+	public AdafruitMotorShieldGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		myAdafruitMotorShield = (AdafruitMotorShield) Runtime.getService(boundServiceName);
 	}

@@ -84,7 +84,7 @@ public class Simbad extends JFrame implements ActionListener {
 
 	}
 
-	/** Create the main GUI. Only called once. */
+	/** Create the main GUIService. Only called once. */
 	private void createGUI() {
 		desktop.setFocusable(true);
 		getContentPane().add(desktop);

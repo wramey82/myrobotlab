@@ -67,11 +67,11 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Python;
 import org.myrobotlab.service.Python.Script;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.ui.autocomplete.MRLCompletionProvider;
 
 /**
- * Python GUI
+ * Python GUIService
  * 
  * @author SwedaKonsult
  *  
@@ -184,7 +184,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param boundServiceName
 	 * @param myService
 	 */
-	public PythonGUI(final String boundServiceName, final GUI myService) {
+	public PythonGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 
 		javaConsole = new Console();
@@ -315,7 +315,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param j
 	 */
 	public void getState(Python j) {
-		// TODO set GUI state debug from Service data
+		// TODO set GUIService state debug from Service data
 
 	}
 

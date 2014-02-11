@@ -64,7 +64,7 @@ public class Motor_AdafruitMotorShieldGUI extends MotorControllerPanel implement
 	}
 
 	/**
-	 * method to update the GUI from MotorController data
+	 * method to update the GUIService from MotorController data
 	 */
 	@Override
 	public void setData(Object[] data) {

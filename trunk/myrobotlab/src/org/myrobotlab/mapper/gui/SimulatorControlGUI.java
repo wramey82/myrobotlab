@@ -42,7 +42,7 @@ import javax.swing.JMenu;
 import org.myrobotlab.mapper.sim.Simulator;
 
 /**
- * The GUI panel for controlling the simulator.
+ * The GUIService panel for controlling the simulator.
  */
 public class SimulatorControlGUI extends JPanel implements ActionListener {
 

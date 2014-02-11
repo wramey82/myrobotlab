@@ -36,7 +36,7 @@ import javax.swing.JTextField;
 import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class Welcome extends ServiceGUI {
 
@@ -48,7 +48,7 @@ public class Welcome extends ServiceGUI {
 	JTextField hostnameValue = new JTextField("localhost", 15);
 	JIntegerField servicePortValue = new JIntegerField();
 
-	public Welcome(final String boundServiceName, final GUI myService) {
+	public Welcome(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

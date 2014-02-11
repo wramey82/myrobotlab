@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 
 public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
@@ -59,7 +59,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	BufferedImage graph = null;
 	Graphics g = null;
 
-	public GraphicsGUI(final String boundServiceName, final GUI myService) {
+	public GraphicsGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

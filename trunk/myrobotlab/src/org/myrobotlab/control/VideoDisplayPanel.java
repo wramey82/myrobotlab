@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class VideoDisplayPanel {
@@ -22,7 +22,7 @@ public class VideoDisplayPanel {
 	String boundFilterName;
 
 	public final String boundServiceName;
-	final GUI myService;
+	final GUIService myService;
 
 	JPanel myDisplay = new JPanel();
 	JLabel screen = new JLabel();
@@ -75,11 +75,11 @@ public class VideoDisplayPanel {
 
 	}
 
-	VideoDisplayPanel(String boundFilterName, VideoWidget p, GUI myService, String boundServiceName) {
+	VideoDisplayPanel(String boundFilterName, VideoWidget p, GUIService myService, String boundServiceName) {
 		this(boundFilterName, p, myService, boundServiceName, null);
 	}
 
-	VideoDisplayPanel(String boundFilterName, VideoWidget parent, GUI myService, String boundServiceName, ImageIcon icon) {
+	VideoDisplayPanel(String boundFilterName, VideoWidget parent, GUIService myService, String boundServiceName, ImageIcon icon) {
 		this.myService = myService;
 		this.boundServiceName = boundServiceName;
 		this.parent = parent;

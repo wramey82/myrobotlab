@@ -38,7 +38,7 @@ import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
 import org.myrobotlab.service.GestureRecognition;
 import org.myrobotlab.service.data.SensorData;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class GestureRecognitionGUI extends ServiceGUI implements ActionListener {
 
@@ -55,7 +55,7 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 
 	JPanel eastPanel = new JPanel();
 
-	public GestureRecognitionGUI(final String boundServiceName, final GUI myService) {
+	public GestureRecognitionGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 		video = new VideoWidget(boundServiceName, myService);
 	}

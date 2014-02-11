@@ -10,7 +10,7 @@ import javax.swing.JTextArea;
 
 import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class LogGUI extends ServiceGUI implements ActionListener {
 
@@ -19,7 +19,7 @@ public class LogGUI extends ServiceGUI implements ActionListener {
 	JTextArea log = new JTextArea(20, 40);
 	ImageButton clearButton;
 
-	public LogGUI(final String boundServiceName, final GUI myService) {
+	public LogGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 	}
 

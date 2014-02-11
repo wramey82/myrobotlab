@@ -157,13 +157,14 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return host == null;
 	}
 
-	public ArrayList<String> test(){
-		return test((Object[])null);
+	public ArrayList<String> test() {
+		return test((Object[]) null);
 	}
-	
-	public ArrayList<String> test(Object... data){
+
+	public ArrayList<String> test(Object... data) {
 		return null;
 	}
+
 	/**
 	 * framework interface for Services which can display themselves most will
 	 * not implement this method. keeps the framework display type agnostic
@@ -203,16 +204,16 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 				// TODO -
 				if (globalSr != null) {
-					
+
 					log.info(String.format("*releasing** key %s -> %s %s %s", fullKey, globalSr.actualName, globalSr.fullTypeName, globalSr.comment));
 					ServiceInterface si = Runtime.getService(fullKey);
-					if (si == null){
+					if (si == null) {
 						log.info(String.format("%s is not registered - skipping", fullKey));
 					} else {
 						si.releasePeers();
 						si.releaseService();
 					}
-					
+
 				}
 			}
 
@@ -940,113 +941,45 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// TODO - without class specific parameters it will get "the real class"
 	// regardless of casting
 
-	/**
-	 * 
-	 * @param classname
-	 * @return
-	 */
+	
 	static public Object getNewInstance(String classname) {
-		Class<?> c;
-		try {
-			c = Class.forName(classname);
-			return c.newInstance(); // Dynamically instantiate it
-		} catch (ClassNotFoundException e) {
-			log.error(stackToString(e));
-		} catch (InstantiationException e) {
-			log.error(stackToString(e));
-		} catch (IllegalAccessException e) {
-			log.error(stackToString(e));
-		}
-		return null;
+
+		return getNewInstance((Class<?>[])null, classname, (Object[]) null);
 	}
 
-	/**
-	 * Used by CommunicationManager to get new instances of Communicators
-	 * 
-	 * @param classname
-	 * @param service
-	 * @return
-	 */
-	static public Object getNewInstance(String classname, Service service) {
-		Class<?> c;
-		try {
-			c = Class.forName(classname);
-			Constructor<?> mc = c.getConstructor(new Class[] { Service.class });
-			return mc.newInstance(new Object[] { service });
-		} catch (ClassNotFoundException e) {
-			logException(e);
-		} catch (SecurityException e) {
-			logException(e);
-		} catch (NoSuchMethodException e) {
-			logException(e);
-		} catch (IllegalArgumentException e) {
-			logException(e);
-		} catch (InstantiationException e) {
-			logException(e);
-		} catch (IllegalAccessException e) {
-			logException(e);
-		} catch (InvocationTargetException e) {
-			logException(e);
-		}
-		return null;
+	static public Object getNewInstance(Class<?> cast, String classname, Object... params) {
+		return getNewInstance(new Class<?>[]{cast}, classname, params);
+	}
+	
+	static public Object getNewInstance(String classname, Object... params) {
+		return getNewInstance((Class<?>[])null, classname, params);
 	}
 
-	/**
-	 * 
-	 * @param classname
-	 * @param param
-	 * @return
-	 */
-	static public Object getNewInstance(String classname, String param) {
-		Object params[] = null;
-		if (param != null) {
-			params = new Object[1];
-			params[0] = param;
-		}
-
-		Class<?> c;
+	static public Object getNewInstance(Class<?>[] cast, String classname, Object... params) {
 		try {
-			c = Class.forName(classname);
-			Constructor<?> mc = c.getConstructor(new Class[] { param.getClass() });
-			return mc.newInstance(params); // Dynamically instantiate it
+			Class<?> c;
 
+			c = Class.forName(classname);
+			if (params == null) {
+				Constructor<?> mc = c.getConstructor();
+				return mc.newInstance();
+			} else {
+				Class<?>[] paramTypes = new Class[params.length];
+				for (int i = 0; i < params.length; ++i) {
+					paramTypes[i] = params[i].getClass();
+				}
+				Constructor<?> mc = null;
+				if (cast == null){
+					mc = c.getConstructor(paramTypes);
+				} else {
+					mc = c.getConstructor(cast);
+				}				
+				return mc.newInstance(params); // Dynamically instantiate it
+			}
 		} catch (Exception e) {
-			logException(e);
+			Logging.logException(e);
 		}
 		return null;
-	}
-
-	// TODO - make this the custom call
-	/**
-	 * 
-	 * @param classname
-	 * @param param
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchMethodException
-	 * @throws SecurityException
-	 * @throws InvocationTargetException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws IllegalArgumentException
-	 */
-	static public Object getNewInstance(String classname, Object... param) throws ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException,
-			InstantiationException, IllegalAccessException, InvocationTargetException {
-		Class<?> c;
-		// try {
-		c = Class.forName(classname);
-		Class<?>[] paramTypes = new Class[param.length];
-		for (int i = 0; i < param.length; ++i) {
-			paramTypes[i] = param[i].getClass();
-		}
-		Constructor<?> mc = c.getConstructor(paramTypes);
-		return mc.newInstance(param); // Dynamically instantiate it
-
-		// } catch (Exception e) {
-		// logException(e);
-		// }
-
-		// return null;
 	}
 
 	/**
@@ -2102,8 +2035,8 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String getLastError() {
 		return lastErrorMsg;
 	}
-	
-	public String clearLastError(){
+
+	public String clearLastError() {
 		String le = lastErrorMsg;
 		lastErrorMsg = null;
 		return le;

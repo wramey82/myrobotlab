@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
 
 import org.myrobotlab.service.ThingSpeak;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 
@@ -53,7 +53,7 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	JLabel lastUpdate = new JLabel("");
 	JButton save = new JButton("save");
 
-	public ThingSpeakGUI(final String boundServiceName, final GUI myService) {
+	public ThingSpeakGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
 
 	}

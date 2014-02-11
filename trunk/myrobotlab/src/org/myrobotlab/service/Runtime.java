@@ -44,6 +44,7 @@ import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.net.CommObjectStreamOverTCP;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.ServiceInterface;
@@ -68,7 +69,7 @@ public class Runtime extends Service {
 	// ---- rte members begin ----------------------------
 	static private final HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();
 	static private final HashMap<String, ServiceInterface> registry = new HashMap<String, ServiceInterface>();
-
+	
 	/**
 	 * map to hide methods we are not interested in
 	 */
@@ -1036,7 +1037,7 @@ public class Runtime extends Service {
 	 */
 	public static void startLocalServices() {
 		// boolean hasGUI = false;
-		// GUI gui = null;
+		// GUIService gui = null;
 		ServiceEnvironment se = getLocalServices();
 		Iterator<String> it = se.serviceDirectory.keySet().iterator();
 		String serviceName;
@@ -1046,8 +1047,8 @@ public class Runtime extends Service {
 			sw = se.serviceDirectory.get(serviceName);
 			sw.startService();
 			/*
-			 * if (sw.service.getClass().getSuperclass().equals(GUI.class)) {
-			 * gui = (GUI)sw.service; hasGUI = true; }
+			 * if (sw.service.getClass().getSuperclass().equals(GUIService.class)) {
+			 * gui = (GUIService)sw.service; hasGUI = true; }
 			 */
 		}
 		/*
@@ -1587,12 +1588,9 @@ public class Runtime extends Service {
 				// return null;
 			}
 
-			Class<?> cls = Class.forName(fullTypeName);
-			Constructor<?> constructor = cls.getConstructor(new Class[] { String.class });
-
 			// create an instance
-			Object newService = constructor.newInstance(new Object[] { name });
-			log.info("returning " + fullTypeName);
+			Object newService = Service.getNewInstance(fullTypeName, name);
+			log.info("returning {}", fullTypeName);
 			return (Service) newService;
 		} catch (Exception e) {
 			Logging.logException(e);

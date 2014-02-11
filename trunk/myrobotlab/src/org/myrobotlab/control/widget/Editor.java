@@ -56,7 +56,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Python;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 
 /**
  * Editor
@@ -125,7 +125,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	 * @param boundServiceName
 	 * @param myService
 	 */
-	public Editor(final String boundServiceName, final GUI myService, String syntaxStyle) {
+	public Editor(final String boundServiceName, final GUIService myService, String syntaxStyle) {
 		super(boundServiceName, myService);
 
 		this.syntaxStyle = syntaxStyle;
@@ -135,7 +135,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 		provider = createCompletionProvider();
 		ac = new AutoCompletion(provider);
 
-		// FYI - files are on the "Arduino" service not on the GUI - these
+		// FYI - files are on the "Arduino" service not on the GUIService - these
 		// potentially are remote objects
 		currentFile = null;
 		currentFilename = null;
@@ -219,7 +219,7 @@ public class Editor extends ServiceGUI implements ActionListener {
 	}
 
 	public void getState(Service j) {
-		// TODO set GUI state debug from Service data
+		// TODO set GUIService state debug from Service data
 
 	}
 

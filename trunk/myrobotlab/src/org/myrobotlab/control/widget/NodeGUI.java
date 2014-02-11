@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 
 /**
  * 
- * GUI representation of a Memory Node
+ * GUIService representation of a Memory Node
  */
 
 public class NodeGUI extends DefaultMutableTreeNode {
@@ -40,8 +40,8 @@ public class NodeGUI extends DefaultMutableTreeNode {
 	}
 	
 	/**
-	 * this is a 'GUI' node for subcomponent display of a "real" memory node
-	 * it has the same "memory" node as its GUI's parent
+	 * this is a 'GUIService' node for subcomponent display of a "real" memory node
+	 * it has the same "memory" node as its GUIService's parent
 	 * 
 	 * @param parent
 	 * @param name - display name of this node - often a sub-display component

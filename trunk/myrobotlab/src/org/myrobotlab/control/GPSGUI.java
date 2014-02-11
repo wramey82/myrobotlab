@@ -40,7 +40,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service._TemplateService;
-import org.myrobotlab.service.interfaces.GUI;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 import org.slf4j.Logger;
 
@@ -53,7 +53,7 @@ public class GPSGUI extends ServiceGUI implements ActionListener {
     private JTextField altitudeTextField = new JTextField(10);
     private JTextField stringTypeTextField = new JTextField(10);
 
-    public GPSGUI(final String boundServiceName, final GUI myService) {
+    public GPSGUI(final String boundServiceName, final GUIService myService) {
         super(boundServiceName, myService);
     }
 
