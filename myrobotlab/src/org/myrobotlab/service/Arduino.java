@@ -142,7 +142,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	BlockingQueue<String> blockingData = new LinkedBlockingQueue<String>();
 
-	public final String expectedVersion = "8";
+	public static final String MRLCOMM_VERSION = "9";
 
 	/**
 	 * MotorData is the combination of a Motor and any controller data needed to
@@ -1194,8 +1194,8 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 					// String version = null;
 					if (version == null) {
 						error("did not get response from arduino....");
-					} else if (!version.equals(expectedVersion)) {
-						error(String.format("MRLComm.ino responded with version %s expected version is %s", version, expectedVersion));
+					} else if (!version.equals(MRLCOMM_VERSION)) {
+						error(String.format("MRLComm.ino responded with version %s expected version is %s", version, MRLCOMM_VERSION));
 					} else {
 						info(String.format("connected %s responded version %s ... goodtimes...", serialDevice.getName(), version));
 					}
@@ -1360,7 +1360,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 * @return
 	 */
 	public boolean isValid() {
-		return expectedVersion.equals(getVersion());
+		return MRLCOMM_VERSION.equals(getVersion());
 	}
 
 	public boolean isConnected() {
