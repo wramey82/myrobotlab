@@ -80,7 +80,7 @@ public class Tracking extends Service {
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_STABILIZE = "state waiting for objects to stabilize";
 	public static final String STATE_WAITING_FOR_OBJECTS_TO_DISAPPEAR = "state waiting for objects to disappear";
 	public static final String STATE_STABILIZED = "state stabilized";
-	
+
 	public static final String STATE_FACE_DETECT = "state face detect";
 	public static final String STATE_FACE_DETECT_LOST_TRACK = "state face detect lost track";
 
@@ -110,11 +110,9 @@ public class Tracking extends Service {
 	public double ySetpoint = 0.5;
 
 	// ----- INITIALIZATION DATA END -----
-	
 
 	int scanYStep = 2;
 	int scanXStep = 2;
-
 
 	public String LKOpticalTrackFilterName;
 	public String FaceDetectFilterName;
@@ -164,11 +162,11 @@ public class Tracking extends Service {
 		ypid.setOutputRange(-10, 10); // <- not correct - based on maximum
 		ypid.setSampleTime(30);
 		ypid.setSetpoint(0.5); // set center
-		
+
 		x.setController(arduino);
 		y.setController(arduino);
 	}
-	
+
 	public String getState() {
 		return state;
 	}
@@ -248,12 +246,11 @@ public class Tracking extends Service {
 
 		setState(STATE_LK_TRACKING_POINT);
 	}
-	
-	public boolean isIdle()
-	{
+
+	public boolean isIdle() {
 		return STATE_IDLE.equals(state);
 	}
-	
+
 	public void stopTracking() {
 		opencv.removeFilters();
 		setState(STATE_IDLE);
@@ -498,7 +495,6 @@ public class Tracking extends Service {
 		}
 	}
 
-
 	public void removeFilters() {
 		opencv.removeFilters();
 	}
@@ -514,7 +510,7 @@ public class Tracking extends Service {
 			searchForeground();
 			removeFilters();
 		}
-		
+
 		return null;
 	}
 
@@ -533,20 +529,17 @@ public class Tracking extends Service {
 	public void scan() {
 
 	}
-	
-	public Servo getX()
-	{
+
+	public Servo getX() {
 		return x;
 	}
-	
-	public Servo getY()
-	{
+
+	public Servo getY() {
 		return y;
 	}
-	
-	public OpenCV getOpenCV()
-	{
-		
+
+	public OpenCV getOpenCV() {
+
 		return opencv;
 	}
 
@@ -559,7 +552,6 @@ public class Tracking extends Service {
 		}
 	}
 
-
 	/**
 	 * call back of all video data video calls this whenever a frame is
 	 * processed
@@ -567,60 +559,56 @@ public class Tracking extends Service {
 	 * @param data
 	 * @return
 	 */
-	
+
 	int faceFoundFrameCount = 0;
 	int faceFoundFrameCountMin = 20;
 	int faceLostFrameCount = 0;
 	int faceLostFrameCountMin = 20;
 	boolean scan = false;
-	
+
 	public OpenCVData setOpenCVData(OpenCVData data) {
 
 		switch (state) {
-		
+
 		case STATE_FACE_DETECT:
 			// check for bounding boxes
 			data.setFilterName(FaceDetectFilterName);
 			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
 
 			if (bb != null && bb.size() > 0) {
-				
-				
-				
+
 				// found face
-				// find centroid 	of first bounding box
+				// find centroid of first bounding box
 				lastPoint.x = bb.get(0).x + bb.get(0).width / 2;
 				lastPoint.y = bb.get(0).y + bb.get(0).height / 2;
 				updateTrackingPoint(lastPoint);
-				
+
 				++faceFoundFrameCount;
-				
+
 				// dead zone and state shift
-				if (faceFoundFrameCount > faceFoundFrameCountMin)
-				{
+				if (faceFoundFrameCount > faceFoundFrameCountMin) {
 					// TODO # of frames for verification
 					invoke("foundFace", data);
-					//data.saveToDirectory("data");
+					// data.saveToDirectory("data");
 				}
-				
+
 			} else {
 				// lost track
-				
+
 				faceFoundFrameCount = 0;
-				
+
 				if (scan) {
-				int xpos = x.getPosition();
-				
-				if (xpos + scanXStep >= x.getMax() && scanXStep > 0 || xpos + scanXStep <= x.getMin() && scanXStep < 0)
-				{ 
-					scanXStep = scanXStep * -1;
-					int newY = (int) (y.getMin() + (Math.random() * (y.getMax() - y.getMin())));
-					y.moveTo(newY);
-				} 
-				
-				x.moveTo(xpos + scanXStep);
+					int xpos = x.getPosition();
+
+					if (xpos + scanXStep >= x.getMax() && scanXStep > 0 || xpos + scanXStep <= x.getMin() && scanXStep < 0) {
+						scanXStep = scanXStep * -1;
+						int newY = (int) (y.getMin() + (Math.random() * (y.getMax() - y.getMin())));
+						y.moveTo(newY);
+					}
+
+					x.moveTo(xpos + scanXStep);
 				}
-				//state = STATE_FACE_DETECT_LOST_TRACK;
+				// state = STATE_FACE_DETECT_LOST_TRACK;
 			}
 
 			// if scanning stop scanning
@@ -633,23 +621,22 @@ public class Tracking extends Service {
 		// FIXME - remove not used
 		case STATE_FACE_DETECT_LOST_TRACK:
 			int xpos = x.getPosition();
-			
-			if (xpos >= x.getMax() && scanXStep > 0)
-			{
+
+			if (xpos >= x.getMax() && scanXStep > 0) {
 				scanXStep = scanXStep * -1;
-			} 
-			
-			if (xpos <= x.getMin() && scanXStep < 0)
-			{
+			}
+
+			if (xpos <= x.getMin() && scanXStep < 0) {
 				scanXStep = scanXStep * -1;
-			} 
-			
+			}
+
 			x.moveTo(xpos + scanXStep);
-			
+
 			break;
 
 		case STATE_IDLE:
-			// setForegroundBackgroundFilter(); FIXME - setFGBGFilters for different detection
+			// setForegroundBackgroundFilter(); FIXME - setFGBGFilters for
+			// different detection
 			break;
 
 		case STATE_LK_TRACKING_POINT:
@@ -665,12 +652,12 @@ public class Tracking extends Service {
 			waitInterval = 3000;
 			waitForObjects(data);
 			break;
-			
+
 		case STATE_SEARCHING_FOREGROUND:
 			waitInterval = 3000;
 			waitForObjects(data);
 			break;
-			
+
 		default:
 			error("recieved opencv data but unknown state");
 			break;
@@ -678,11 +665,10 @@ public class Tracking extends Service {
 
 		return data;
 	}
-	
+
 	public OpenCVData foundFace(OpenCVData data) {
 		return data;
 	}
-	
 
 	public void faceDetect() {
 		// opencv.addFilter("Gray"); needed ?
@@ -705,55 +691,54 @@ public class Tracking extends Service {
 		setState(STATE_FACE_DETECT);
 
 	}
-	
-	public Arduino getArduino()
-	{
+
+	public Arduino getArduino() {
 		return arduino;
 	}
-	
-	public PID getXPID()
-	{
+
+	public PID getXPID() {
 		return xpid;
 	}
-	
-	public PID getYPID()
-	{
+
+	public PID getYPID() {
 		return ypid;
 	}
-	
-	public void findFace()
-	{
+
+	public void findFace() {
 		scan = true;
 	}
-	
-	public void stopScan()
-	{
+
+	public void stopScan() {
 		scan = false;
 	}
 
 	public static void main(String[] args) {
 
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.ERROR);
+		try {
+			LoggingFactory.getInstance().configure();
+			LoggingFactory.getInstance().setLevel(Level.ERROR);
 
-		//Speech speech = new Speech("speech");
-		
-		// Y min max 79 - 127
-	
-		Tracking tracker = new Tracking("tracker");
-		tracker.getY().setMinMax(79, 127);
-		tracker.getX().setPin(13);
-		tracker.getY().setPin(12);
-		tracker.getOpenCV().setCameraIndex(1);
-		tracker.connect("COM12");
-		//tracker.connect("COM4");
-		tracker.startService();
-		tracker.faceDetect();
+			// Speech speech = new Speech("speech");
 
-		GUIService gui = new GUIService("gui");
-		gui.startService();
-		
-		// tracker.getGoodFeatures();
+			// Y min max 79 - 127
+
+			Tracking tracker = new Tracking("tracker");
+			tracker.getY().setMinMax(79, 127);
+			tracker.getX().setPin(13);
+			tracker.getY().setPin(12);
+			tracker.getOpenCV().setCameraIndex(1);
+			tracker.connect("COM12");
+			// tracker.connect("COM4");
+			tracker.startService();
+			tracker.faceDetect();
+
+			GUIService gui = new GUIService("gui");
+			gui.startService();
+
+			// tracker.getGoodFeatures();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
