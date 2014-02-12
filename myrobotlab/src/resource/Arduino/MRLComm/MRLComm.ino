@@ -385,7 +385,7 @@ void loop () {
 			break;
 		case DIGITAL_DEBOUNCE_ON:
 			// debounceDelay = 50;
-			debounceDelay = (ioCommand[1]<<8) + ioCommand[2];
+			debounceDelay = (ioCommand[1]<<8) + ioCommand[2]);
 			break;
 		case DIGITAL_DEBOUNCE_OFF:
 			debounceDelay = 0;
@@ -405,7 +405,7 @@ void loop () {
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(2); // size
 			Serial.write(GET_MRLCOMM_VERSION);
-			Serial.write((byte)7); // version lucky 7 !
+			Serial.write((byte)8); // version lucky 7 !
 			break;
 		case SET_SAMPLE_RATE:
 			// 2 byte int - valid range 1-65,535
