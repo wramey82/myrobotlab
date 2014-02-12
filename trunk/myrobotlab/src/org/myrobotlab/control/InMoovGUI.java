@@ -27,11 +27,11 @@ package org.myrobotlab.control;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.swing.ImageIcon;
@@ -51,8 +51,10 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 
 
 	HashSet<String> handTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sHand","%s.%sHand.index", "%s.%sHand.majeure", "%s.%sHand.ringFinger", "%s.%sHand.pinky", "%s.%sHand.thumb", "%s.%sHand.wrist"));
-	HashSet<String> armTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%Arm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
-	HashSet<String> headTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%Arm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
+	HashSet<String> armTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sArm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
+	HashSet<String> headTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sArm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
+	
+	HashMap<String, HashSet<String>> templates = new HashMap<String, HashSet<String>>();
 
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(InMoovGUI.class.getCanonicalName());
@@ -60,17 +62,20 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 	JLayeredPane imageMap;
 	
 	JButton leftHand = new JButton("start left hand");
-	JButton leftArm = new JButton("hide left arm");
+	JButton leftArm = new JButton("start left arm");
 
-	JButton rightHand = new JButton("hide right hand");
-	JButton rightArm = new JButton("hide right arm");
+	JButton rightHand = new JButton("start right hand");
+	JButton rightArm = new JButton("start right arm");
 	
-	JButton head = new JButton("hide head");
+	JButton head = new JButton("start head");
 	private String defaultLeftPort;
 	private String defaultRightPort;
 
 	public InMoovGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
+		templates.put("hand", handTemplate);
+		templates.put("arm", armTemplate);
+		templates.put("head", headTemplate);
 	}
 
 	public void init() {
@@ -146,48 +151,48 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 		return null;			
 	}
 	
+	public void processAction(JButton button, String side, String part){
+		log.info(String.format("processAction [%s], %s %s", button.getText(), side, part));
+		if (String.format("start %s %s", side, part).equals(button.getText())){
+			String port = getPort(side);
+			log.info(String.format("starting %s %s with port %s", side, part, port));
+			String upperPart = Character.toUpperCase(part.charAt(0)) + part.substring(1);
+			String upperSide = Character.toUpperCase(side.charAt(0)) + side.substring(1);
+			send(String.format("start%s%s", upperSide, upperPart), port);
+			button.setText(String.format("hide %s %s", side, part));
+			return;
+		} else if (String.format("hide %s %s", side, part).equals(button.getText())){
+			
+			HashSet<String> template = templates.get(part);
+			for (String s : template) {
+			    myService.hidePanel(String.format(s,boundServiceName, side));
+			}
+			button.setText(String.format("show %s %s", side, part));
+			
+		} else if  (String.format("show %s %s", side, part).equals(button.getText())){
+			HashSet<String> template = templates.get(part);
+			for (String s : template) {
+			    myService.unhidePanel(String.format(s,boundServiceName, side));
+			}
+			button.setText(String.format("hide %s %s", side, part));
+		} else {
+			log.error("can't process [{}]", button.getText());
+		}
+	}
+	
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 		if (o == leftHand){
-			if ("start left hand".equals(leftHand.getText())){
-				String port = getPort("left");
-				log.info("starting left hand with port {}", port);
-				send("startLeftHand", port);
-				leftHand.setText("hide left hand");
-				return;
-			}
-			if ("hide left hand".equals(leftHand.getText())){
-				
-				for (String s : handTemplate) {
-				    myService.hidePanel(String.format(s,boundServiceName,"left"));
-				}
-				
-			}
+			processAction(leftHand, "left", "hand");
 		} else if  (o == rightHand){
-			if ("hide right hand".equals(rightHand.getText())){
-				
-				for (String s : handTemplate) {
-				    myService.hidePanel(String.format(s,boundServiceName,"right"));
-				}
-				
-			}
+			processAction(rightHand, "right", "hand");
 		} else if  (o == leftArm){
-			if ("hide left arm".equals(leftArm.getText())){
-				
-				for (String s : armTemplate) {
-				    myService.hidePanel(String.format(s,boundServiceName,"left"));
-				}
-				
-			}
+			processAction(leftArm, "left", "arm");
 		} else if  (o == rightArm){
-			if ("hide right arm".equals(rightArm.getText())){
-				
-				for (String s : armTemplate) {
-				    myService.hidePanel(String.format(s,boundServiceName,"right"));
-				}
-				
-			}
+			processAction(rightArm, "right", "arm");
 		}
 
 	}
