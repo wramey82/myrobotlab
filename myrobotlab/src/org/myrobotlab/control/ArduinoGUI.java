@@ -304,7 +304,9 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	public void publishMessage(String msg) {
-		editor.console.append(msg);
+		if (editor != null){
+			editor.console.append(msg);
+		}
 	}
 
 	@Override

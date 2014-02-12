@@ -550,7 +550,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		this.mode = mode;
 	}
 
-	final public static String soapTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
+	final public static String soapTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
 	
 	public void register() {
 		try {
@@ -575,14 +575,23 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			
 			HttpPost post = new HttpPost("http://ttnacvdd018a:9501/MES/Materials/SoapService.svc");
 			
-			String body = String.format(soapTemplate, "name", Runtime.getLocalMacAddress2(), Runtime.getLocalAddresses());
+			//Runtime.getLocalAddress();
 			
-			StringEntity stringentity=new StringEntity(body,"UTF-8");
+			String body = String.format(soapTemplate, "name", Runtime.getLocalMacAddress2(), "52.7.77.77");
+			
+			//,"utf-8"
+			StringEntity stringentity = new StringEntity(body);
             stringentity.setChunked(true);
             post.setEntity(stringentity);
             post.addHeader("Accept" , "text/xml");
-            post.addHeader("SOAPAction", "RegisterController");
-			 
+            post.addHeader("SOAPAction", "http://tempuri.org/SoapService/RegisterController");
+            post.addHeader("Content-Type", "text/xml; charset=utf-8");
+			 /*
+            <tem:I2CAddresses>
+            <!--Zero or more repetitions:-->
+            <arr:string>?</arr:string>
+         </tem:I2CAddresses>
+			*/
 
 			//HttpResponse response = httpclient.execute(target, httpget, localContext);
 			HttpResponse response = httpclient.execute(post, localContext);

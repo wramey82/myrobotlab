@@ -941,45 +941,53 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	// TODO - without class specific parameters it will get "the real class"
 	// regardless of casting
 
-	
 	static public Object getNewInstance(String classname) {
 
-		return getNewInstance((Class<?>[])null, classname, (Object[]) null);
+		return getNewInstance((Class<?>[]) null, classname, (Object[]) null);
 	}
 
 	static public Object getNewInstance(Class<?> cast, String classname, Object... params) {
-		return getNewInstance(new Class<?>[]{cast}, classname, params);
+		return getNewInstance(new Class<?>[] { cast }, classname, params);
 	}
-	
+
 	static public Object getNewInstance(String classname, Object... params) {
-		return getNewInstance((Class<?>[])null, classname, params);
+		return getNewInstance((Class<?>[]) null, classname, params);
 	}
 
 	static public Object getNewInstance(Class<?>[] cast, String classname, Object... params) {
 		try {
-			Class<?> c;
-
-			c = Class.forName(classname);
-			if (params == null) {
-				Constructor<?> mc = c.getConstructor();
-				return mc.newInstance();
-			} else {
-				Class<?>[] paramTypes = new Class[params.length];
-				for (int i = 0; i < params.length; ++i) {
-					paramTypes[i] = params[i].getClass();
-				}
-				Constructor<?> mc = null;
-				if (cast == null){
-					mc = c.getConstructor(paramTypes);
-				} else {
-					mc = c.getConstructor(cast);
-				}				
-				return mc.newInstance(params); // Dynamically instantiate it
-			}
+			return getThrowableNewInstance(cast, classname, params);
+		} catch (ClassNotFoundException e) {
+			// quiet no class  
+			log.info("class %s not found", classname);
 		} catch (Exception e) {
+			// noisy otherwise
 			Logging.logException(e);
 		}
 		return null;
+	}
+
+	static public Object getThrowableNewInstance(Class<?>[] cast, String classname, Object... params) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Class<?> c;
+
+		c = Class.forName(classname);
+		if (params == null) {
+			Constructor<?> mc = c.getConstructor();
+			return mc.newInstance();
+		} else {
+			Class<?>[] paramTypes = new Class[params.length];
+			for (int i = 0; i < params.length; ++i) {
+				paramTypes[i] = params[i].getClass();
+			}
+			Constructor<?> mc = null;
+			if (cast == null) {
+				mc = c.getConstructor(paramTypes);
+			} else {
+				mc = c.getConstructor(cast);
+			}
+			return mc.newInstance(params); // Dynamically instantiate it
+		}
 	}
 
 	/**
