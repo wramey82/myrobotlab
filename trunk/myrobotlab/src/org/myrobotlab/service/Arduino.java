@@ -142,7 +142,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 
 	BlockingQueue<String> blockingData = new LinkedBlockingQueue<String>();
 
-	public final String expectedVersion = "7";
+	public final String expectedVersion = "8";
 
 	/**
 	 * MotorData is the combination of a Motor and any controller data needed to
@@ -1484,14 +1484,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	}
 
 	public void digitalDebounceOn(int delay) {
-		sendMsg(DIGITAL_DEBOUNCE_ON, 0, 0);
-
 		if (delay < 0 || delay > 32767) {
 			error(String.format("%d debounce delay must be 0 < delay < 32767", delay));
 		}
 		int lsb = delay & 0xff;
 		int msb = (delay >> 8) & 0xff;
-		sendMsg(SET_SAMPLE_RATE, msb, lsb);
+		sendMsg(DIGITAL_DEBOUNCE_ON, msb, lsb);
 
 	}
 
