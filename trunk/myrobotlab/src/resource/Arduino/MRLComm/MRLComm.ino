@@ -385,7 +385,7 @@ void loop () {
 			break;
 		case DIGITAL_DEBOUNCE_ON:
 			// debounceDelay = 50;
-			debounceDelay = (ioCommand[1]<<8) + ioCommand[2]);
+			debounceDelay = ((ioCommand[1]<<8) + ioCommand[2]);
 			break;
 		case DIGITAL_DEBOUNCE_OFF:
 			debounceDelay = 0;
