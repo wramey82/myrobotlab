@@ -31,10 +31,9 @@ public class ResourceProcessor implements HTTPProcessor {
 
 	public HashMap<String, String> searchAndReplace = new HashMap<String, String>();
 
-	public final static Logger log = LoggerFactory.getLogger(NanoHTTPD.class.getCanonicalName());
+	public final static Logger log = LoggerFactory.getLogger(ResourceProcessor.class);
 
 	private WebGUI webgui;
-
 
 	public ResourceProcessor(WebGUI webgui) {
 		this.webgui = webgui;

@@ -137,9 +137,11 @@ public class WebGUI extends Service {
 	 * @return true if both servers started
 	 */
 	public boolean start() {
-
 		boolean result = startWebSocketServer(port);
+		log.info("using local resources is {}", useLocalResources);
+		log.info("starting web socket server on port {} result is {}", port, result);
 		if (autoStartBrowser) {
+			log.info("auto starting default browser");
 			BareBonesBrowserLaunch.openURL(String.format(startURL, port));
 		}
 		if (!result) {

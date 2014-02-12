@@ -21,7 +21,7 @@
 *
 * Enjoy !
 *
-* arduinoSerial
+* MRLComm.ino
 * -----------------
 * Purpose: translate serial commands into Arduino language commands,
 * mostly relating to IO.  This would allow a computer to easily take
@@ -39,6 +39,8 @@
 */
 
 #include <Servo.h>
+
+#define MRLCOMM_VERSION      9
 
 #define DIGITAL_WRITE        0
 #define DIGITAL_VALUE        1
@@ -104,7 +106,7 @@
 // -- FIXME - modified by board type BEGIN --
 #define ANALOG_PIN_COUNT 16 // mega
 #define DIGITAL_PIN_COUNT 54 // mega
-#define MAX_SERVOS 48 
+// #define MAX_SERVOS 48 - is defined @ compile time !! 
 // -- FIXME - modified by board type END --
 
 /*
@@ -405,7 +407,7 @@ void loop () {
 			Serial.write(MAGIC_NUMBER);
 			Serial.write(2); // size
 			Serial.write(GET_MRLCOMM_VERSION);
-			Serial.write((byte)8); // version lucky 7 !
+			Serial.write((byte)MRLCOMM_VERSION);
 			break;
 		case SET_SAMPLE_RATE:
 			// 2 byte int - valid range 1-65,535
