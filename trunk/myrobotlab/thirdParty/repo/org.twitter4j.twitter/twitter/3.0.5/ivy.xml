@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0">
+    <info organisation="org.twitter4j.twitter" module="twitter" status="release" revision="3.0.5">
+    </info>
+    <configurations>
+        <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
+    </configurations>
+    <publications>
+        <artifact name="twitter4j-async-3.0.5" type="jar"/>
+        <artifact name="twitter4j-core-3.0.5" type="jar"/>
+        <artifact name="twitter4j-media-support-3.0.5" type="jar"/>
+        <artifact name="twitter4j-stream-3.0.5" type="jar"/>
+    </publications>
+</ivy-module>
