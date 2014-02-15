@@ -103,10 +103,10 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 		menuItem.addActionListener(this);
 		popup.add(menuItem);
 
-		JMenuItem detachMenuItem = new JMenuItem("detach");
-		detachMenuItem.addActionListener(this);
-		detachMenuItem.setIcon(Util.getImageIcon("detach.png"));
-		popup.add(detachMenuItem);
+		JMenuItem undockMenuItem = new JMenuItem("undock");
+		undockMenuItem.addActionListener(this);
+		undockMenuItem.setIcon(Util.getImageIcon("undock.png"));
+		popup.add(undockMenuItem);
 
 		JMenuItem releaseMenuItem = new JMenuItem("release");
 		releaseMenuItem.addActionListener(this);
@@ -200,7 +200,7 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName());
 
-			} else if ("detach".equals(cmd)) {
+			} else if ("undock".equals(cmd)) {
 				undockPanel();
 			} else if ("release".equals(cmd)) {
 				myService.send(Runtime.getInstance().getName(), "releaseService", label);
@@ -224,7 +224,7 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 			if ("info".equals(cmd)) {
 				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName() + "#" + getText());
 
-			} else if ("detach".equals(cmd)) {
+			} else if ("undock".equals(cmd)) {
 				undockPanel();
 			}
 		}

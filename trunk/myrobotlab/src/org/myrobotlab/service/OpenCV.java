@@ -87,6 +87,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import org.myrobotlab.framework.Error;
 @Root
 public class OpenCV extends VideoSource {
 
@@ -608,7 +609,7 @@ public class OpenCV extends VideoSource {
 		return source;
 	}
 
-	public ArrayList<String> test(){
+	public ArrayList<Error> test(){
 		
 		// headless section ???
 		

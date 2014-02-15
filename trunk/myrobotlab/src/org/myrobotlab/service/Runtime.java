@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -44,12 +43,13 @@ import org.myrobotlab.logging.Appender;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.net.CommObjectStreamOverTCP;
 import org.myrobotlab.net.HTTPRequest;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
+
+import org.myrobotlab.framework.Error;
 
 /**
  * 
@@ -2147,7 +2147,7 @@ public class Runtime extends Service {
 		return Boolean.parseBoolean(b);
 	}
 
-	public ArrayList<String> test() {
+	public ArrayList<Error> test() {
 		// TODO - need method to releaseAll - except runtime - test it
 		// create all services
 

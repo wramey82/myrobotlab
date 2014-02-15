@@ -20,7 +20,7 @@ import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.slf4j.Logger;
-
+import org.myrobotlab.framework.Error;
 /**
  * AdaFruit Motor Shield Controller Service
  * 
@@ -215,7 +215,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	}
 	// motor controller api
 	
-	public ArrayList<String> test()
+	public ArrayList<Error> test()
 	{
 
 		setServo(0, SERVOMIN);

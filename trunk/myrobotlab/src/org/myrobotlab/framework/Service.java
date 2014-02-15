@@ -157,11 +157,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return host == null;
 	}
 
-	public ArrayList<String> test() {
+	public ArrayList<Error> test() {
 		return test((Object[]) null);
 	}
 
-	public ArrayList<String> test(Object... data) {
+	public ArrayList<Error> test(Object... data) {
 		return null;
 	}
 
