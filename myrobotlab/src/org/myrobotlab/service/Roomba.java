@@ -40,6 +40,7 @@ import org.myrobotlab.serial.SerialDeviceService;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import org.myrobotlab.framework.Error;
 @Root
 public class Roomba extends Service implements SerialDeviceService {
 
@@ -636,7 +637,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		return roombacomm.bump();
 	}
 
-	public ArrayList<String> test() {
+	public ArrayList<Error> test() {
 		// must pause after every playNote to let to note sound
 		System.out.println("Playing some notes");
 		roombacomm.playNote(72, 10);

@@ -67,7 +67,8 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 	JButton rightHand = new JButton("start right hand");
 	JButton rightArm = new JButton("start right arm");
 	
-	JButton head = new JButton("start head");
+	JButton head = new JButton("start left head");
+	
 	private String defaultLeftPort;
 	private String defaultRightPort;
 
@@ -193,6 +194,10 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 			processAction(leftArm, "left", "arm");
 		} else if  (o == rightArm){
 			processAction(rightArm, "right", "arm");
+		} else if (o == head) {
+			processAction(head, "left", "head");
+		} else {
+			log.error("unkown event");
 		}
 
 	}

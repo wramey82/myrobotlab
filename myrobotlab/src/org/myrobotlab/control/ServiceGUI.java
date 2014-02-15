@@ -29,10 +29,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.GUIService;

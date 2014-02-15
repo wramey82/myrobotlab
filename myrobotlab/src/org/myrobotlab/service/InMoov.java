@@ -395,7 +395,8 @@ public class InMoov extends Service {
 	// ------ composites end -----------
 	// ------ deep gets begin -----------
 	public Tracking getHeadTracking() {
-		if (head == null) {
+		// must have a head before tracking :)
+		if (head == null) { 
 			head = (InMoovHead) createPeer("head");
 		}
 		return head.headTracking;
@@ -520,6 +521,14 @@ public class InMoov extends Service {
 
 	public void setHeadTracking(Tracking headTracking) {
 		this.headTracking = headTracking;
+	}
+	
+	public void startAll(String leftPort, String rightPort){
+		startLeftHand(leftPort);
+		startRightHand(rightPort);
+		startLeftArm(leftPort);
+		startRightArm(rightPort);
+		startHead(leftPort);
 	}
 
 	/* ------------------------- GETTERS SETTERS END ----------------------------- */

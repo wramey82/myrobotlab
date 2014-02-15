@@ -54,7 +54,10 @@ import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.data.Rectangle;
 import org.slf4j.Logger;
 
+import org.myrobotlab.framework.Error;
+
 // TODO - attach() ???  Static name peer key list ???
+
 
 public class Tracking extends Service {
 
@@ -499,7 +502,7 @@ public class Tracking extends Service {
 		opencv.removeFilters();
 	}
 
-	public ArrayList<String> test() {
+	public ArrayList<Error> test() {
 		for (int i = 0; i < 1000; ++i) {
 			// invoke("trackPoint", 0.5, 0.5);
 			// faceDetect();

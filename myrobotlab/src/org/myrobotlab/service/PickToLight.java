@@ -51,6 +51,9 @@ import com.pi4j.io.i2c.I2CFactory;
 // ZOD
 // update uri
 
+// TODO - automated registration
+// Polling / Sensor - important - check sensor state
+
 // - read config in /boot/  - registration url including password - proxy ? 
 
 /**
@@ -197,6 +200,27 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		modules.put(key, box);
 		return true;
 	}
+	
+	public void ledOn(Integer address) {
+		String key = makeKey(address);
+		if (modules.containsKey(key)) {
+			modules.get(key).ledOn();
+		} else {
+			// FIXME - Service Error Cache !!!! - IN GLOBAL getModule !
+			error("ledOn could not find module %d", key);
+		}
+	}
+	
+	public void ledOff(Integer address) {
+		String key = makeKey(address);
+		if (modules.containsKey(key)) {
+			modules.get(key).ledOn();
+		} else {
+			// FIXME - Service Error Cache !!!! - IN GLOBAL getModule !
+			error("ledOn could not find module %d", key);
+		}
+	}
+
 
 	public String display(Integer address, String msg) {
 		String key = makeKey(address);
@@ -209,18 +233,32 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			return err;
 		}
 	}
+	
+	//public final
+	//  IN MEMORY ERROR LIST !!!!!!
+	// getErrors( Error - key - detail - time )
 
-	public ArrayList<String> displayAddresses() {
-		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
-		ArrayList<String> ret = new ArrayList<String>();
-
-		for (Map.Entry<String, Module2> o : sorted.entrySet()) {
-			Module2 mc = o.getValue();
-			ret.add(o.getKey());
-			mc.display(o.getKey());
+	public boolean cycleIPAddress() {
+		Controller2 c = getController();
+		String ip = c.getIpAddress();
+		if (ip == null || ip.length() == 0){
+			error("could not get ip");
+			return false;
 		}
-		return ret;
+		cycleAll(ip);
+		return true;
 	}
+	
+	public String displayAll(String msg) {
+
+		for (Map.Entry<String, Module2> o : modules.entrySet()) {
+			Module2 mc = o.getValue();
+			mc.display(msg);
+		}
+		
+		return msg;
+	}
+
 
 	// FIXME normalize splitting code
 	public String display(String moduleList, String value) {
@@ -459,8 +497,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public void displayI2CAddresses() {
-		TreeMap<String, Module2> sorted = new TreeMap<String, Module2>(modules);
-		for (Map.Entry<String, Module2> o : sorted.entrySet()) {
+		for (Map.Entry<String, Module2> o : modules.entrySet()) {
 			o.getValue().display(o.getKey());
 		}
 	}

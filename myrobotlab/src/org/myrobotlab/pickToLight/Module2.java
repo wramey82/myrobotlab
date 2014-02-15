@@ -167,13 +167,13 @@ public class Module2 {
 			logByteArray("writeDisplay", data);
 
 			// select display
-			device.write((byte) (selector &= ~MASK_DISPLAY));
+			device.write((byte) (selector &= ~MASK_DISPLAY)); // FIXME NOT CORRECT !
 
 			I2CDevice display = i2cbus.getDevice(0x38);
 			display.write(data, 0, data.length);
 
 			// de-select display
-			device.write((byte) (selector |= MASK_DISPLAY));
+			device.write((byte) (selector |= MASK_DISPLAY));// FIXME NOT CORRECT ! for LED
 
 		} catch (Exception e) {
 			Logging.logException(e);

@@ -90,6 +90,7 @@ import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.string.Util;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -136,15 +137,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	/**
 	 * class to save the position and size of undocked panels
-	 * 
 	 */
-	// @ElementMap(entry = "undockedPanels", value = "panel", attribute = true,
-	// inline = true, required = false)
+	@ElementMap(entry = "undockedPanels", value = "panel", attribute = true, inline = true, required = false)
 	transient public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
 
-	/**
-	 * all the panels
-	 */
 	public transient JTabbedPane tabs = new JTabbedPane();
 
 	transient JMenuItem recording = new JMenuItem("start recording");
@@ -239,53 +235,64 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		frame.pack();
 	}
 
-	synchronized public void addTab(String serviceName) {
-		// ================= begin addTab(name) =============================
-		ServiceInterface sw = Runtime.getService(serviceName);
+	/**
+	 * FIXME - normalize addTabPanel or everything else w/o Panel !
+	 */
+	synchronized public void addTab(final String serviceName) {
 
-		if (sw == null) {
-			log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
-			return;
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				ServiceInterface sw = Runtime.getService(serviceName);
 
-		// get service type class name TODO
-		String guiClass = String.format("org.myrobotlab.control.%sGUI", sw.getClass().getSimpleName());
-
-		if (serviceGUIMap.containsKey(sw.getName())) {
-			log.debug(String.format("not creating %1$s gui - it already exists", sw.getName()));
-			return;
-		}
-
-		ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
-		// woot - got index !
-		int index = tabs.indexOfTab(serviceName) - 1;
-
-		if (newGUI != null) {
-			++index;
-		}
-
-		guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
-		if (guiServiceGUI != null) {
-			guiServiceGUI.rebuildGraph();
-		}
-
-		Component c = tabs.getTabComponentAt(index);
-		if (c instanceof TabControl2) {
-			TabControl2 tc = (TabControl2) c;
-			// String serviceName = tc.getText();
-			if (undockedPanels.containsKey(serviceName)) {
-				UndockedPanel up = undockedPanels.get(serviceName);
-				if (!up.isDocked()) {
-					tc.undockPanel();
+				if (sw == null) {
+					log.error(String.format("addTab %1$s can not proceed - %1$s does not exist in registry (yet?)", serviceName));
+					return;
 				}
-			}
-		}
 
-		frame.pack();
+				// get service type class name TODO
+				String guiClass = String.format("org.myrobotlab.control.%sGUI", sw.getClass().getSimpleName());
+
+				if (serviceGUIMap.containsKey(sw.getName())) {
+					log.debug(String.format("not creating %1$s gui - it already exists", sw.getName()));
+					return;
+				}
+
+				ServiceGUI newGUI = createTabbedPanel(serviceName, guiClass, sw);
+				// woot - got index !
+				int index = tabs.indexOfTab(serviceName) - 1;
+
+				if (newGUI != null) {
+					++index;
+				}
+
+				guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
+				if (guiServiceGUI != null) {
+					guiServiceGUI.rebuildGraph();
+				}
+
+				Component c = tabs.getTabComponentAt(index);
+				if (c instanceof TabControl2) {
+					TabControl2 tc = (TabControl2) c;
+					// String serviceName = tc.getText();
+					if (undockedPanels.containsKey(serviceName)) {
+						UndockedPanel up = undockedPanels.get(serviceName);
+						if (!up.isDocked()) {
+							tc.undockPanel();
+						}
+					}
+				}
+
+				frame.pack();
+
+			}
+		});
 	}
 
 	// DEPRECATED - NOT USED !?!?!?!?
-	public void removeTab(String name) {
+	public void removeTab(final String name) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
 		log.info("removeTab");
 
 		// detaching & removing the ServiceGUI
@@ -314,6 +321,8 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			guiServiceGUI.rebuildGraph();
 		}
 		frame.pack();
+			}
+		});
 	}
 
 	/*
@@ -336,7 +345,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	}
 
-	public synchronized void removeAllTabPanels() {
+	public synchronized void removeAllTabPanels() { //add swing
 		log.info("tab count" + tabs.getTabCount());
 		while (tabs.getTabCount() > 0) {
 			tabs.remove(0);
@@ -1096,16 +1105,15 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		 * log.info(d); log.info(String.format("0.%d",Math.abs(d.hashCode())));
 		 */
 		// Runtime.createAndStart("clock", "Clock");
-		
+
 		Runtime.createAndStart("i01", "InMoov");
-		
+
 		GUIService gui2 = (GUIService) Runtime.createAndStart("gui1", "GUIService");
 		gui2.startService();
 
 		/*
-		Clock clock = new Clock("clock");
-		clock.startService();
-		*/
+		 * Clock clock = new Clock("clock"); clock.startService();
+		 */
 
 		// Runtime.createAndStart("opencv", "OpenCV");
 		// gui2.display();

@@ -39,11 +39,9 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
 import static com.googlecode.javacv.cpp.opencv_core.cvPutText;
-import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.nio.ByteBuffer;
 
@@ -65,6 +63,14 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	IplImage value = null;
 	IplImage saturation = null;
 	IplImage mask = null;
+
+	int x = 0;
+	int y = 0;
+	int clickCounter = 0;
+	int frameCounter = 0;
+	Graphics g = null;
+	String lastHexValueOfPoint = "";
+
 	
 	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 		
@@ -75,13 +81,6 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 	public OpenCVFilterHSV(String name)  {
 		super(name);
 	}
-
-	int x = 0;
-	int y = 0;
-	int clickCounter = 0;
-	int frameCounter = 0;
-	Graphics g = null;
-	String lastHexValueOfPoint = "";
 
 	public void samplePoint(Integer inX, Integer inY) {
 		++clickCounter;
@@ -112,35 +111,8 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		return image;
 	}
 
-
-	/*
-	 * public void samplePoint(MouseEvent event) {
-	 * 
-	 * frameBuffer = hsv.getBufferedImage(); int rgb =
-	 * frameBuffer.getRGB(event.getX(), event.getY()); Color c = new Color(rgb);
-	 * // because of the BGR2HSV copy - it is now VSH log.error(event.getX() +
-	 * "," + event.getY() + " h " + c.getBlue() + " s " + c.getGreen() + " v " +
-	 * c.getRed()); }
-	 */
-	CvScalar hueMax = cvScalar(255.0, 0.0, 0.0, 0.0);
-	CvScalar hueMin = cvScalar(255.0, 0.0, 0.0, 0.0);
-
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
-
-		// what can you expect? nothing? - if data != null then error?
-
-		if (hsv == null) {
-			hsv = cvCreateImage(cvGetSize(image), 8, 3);
-			hue = cvCreateImage(cvGetSize(image), 8, 1);
-			value = cvCreateImage(cvGetSize(image), 8, 1);
-			saturation = cvCreateImage(cvGetSize(image), 8, 1);
-			mask = cvCreateImage(cvGetSize(image), IPL_DEPTH_8U, 1);
-		}
-
-		if (image == null) {
-			log.error("image is null");
-		}
 
 		// CV_BGR2HSV_FULL - uses full 0-255 vs 0-180
 		// CV_HSV2BGR_FULL
@@ -155,34 +127,12 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 		 * hue cxcore.cvSplit(hsv, hue, null, null, null);
 		 */
 
-		/*
-		 * // good with value - cvSetImageCOI( hsv, 3); hueMin = cvScalar(254.0,
-		 * 0.0, 0.0, 0.0); hueMax = cvScalar(255.0, 0.0, 0.0, 0.0);
-		 */
-		// hueMin = cvScalar(240.0, 240.0, 240.0, 0.0);
-		// hueMax = cvScalar(255.0, 250.0, 250.0, 0.0);
-
-		// saturation is a "wash" although it might be helpful in floor finder
-		// for merging shadows back in
-
-		// hueMin = cvScalar(175.0, 0.0, 0.0, 0.0);
-		// hueMax = cvScalar(185.0, 0.0, 0.0, 0.0);
-
-		// hueMin = cvScalar(0.0, 0.0, 0.0, 0.0);
-		// hueMax = cvScalar(5.0, 0.0, 0.0, 0.0);
-
-		// cvInRangeS(hue, hueMin, hueMax, mask);
-
-		// return mask;
-
 		return hsv;
 
 	}
 
-	@Override
-	public void imageChanged(IplImage image) {
-		// TODO Auto-generated method stub
-		
-	}
+		@Override
+		public void imageChanged(IplImage image) {
+		}
 
 }

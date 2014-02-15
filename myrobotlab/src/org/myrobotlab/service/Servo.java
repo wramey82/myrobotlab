@@ -28,7 +28,7 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Error;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -401,7 +401,7 @@ public class Servo extends Service implements ServoControl {
 	}
 	
 	
-	public ArrayList<String> test() {
+	public ArrayList<Error> test() {
 		
 		ArrayList<String> errors = new ArrayList<String>();
 		
