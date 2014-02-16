@@ -3,4 +3,4 @@ twitter = Runtime.createAndStart("twitter","Twitter")
 #register your application at https://dev.twitter.com/ and obtain your own keys
 twitter.setSecurity("yourConsumerKey","yourConsumerSecret", "yourAccessToken", "yourAccessTokenSecret")
 twitter.configure()
-twitter.uploadPic("C:/yourfilepath/filename.jpg" , "text to upload");
+twitter.uploadImageFile("C:/yourfilepath/filename.jpg" , "text to upload");
