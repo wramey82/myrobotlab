@@ -47,10 +47,9 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.control.widget.Style;
-import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.w3c.dom.Document;
 
@@ -369,22 +368,6 @@ public class GUIServiceGUI extends ServiceGUI {
 		};
 
 		return g;
-	}
-
-	// FIXME - no longer needed (remove)
-	public JButton getRefreshServicesButton() {
-		JButton button = new JButton("refresh services");
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// myService.loadTabPanels(); FIXME - no longer needed ???
-			}
-
-		});
-
-		return button;
-
 	}
 
 	public JButton getSaveButton() {

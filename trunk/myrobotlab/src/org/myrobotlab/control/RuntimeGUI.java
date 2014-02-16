@@ -72,7 +72,6 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
@@ -89,15 +88,15 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 	JMenuItem startMenuItem = null;
 	JMenuItem upgradeMenuItem = null;
 	JMenuItem releaseMenuItem = null;
-	
+
 	String possibleServiceFilter = null;
-	
+
 	// FIXME - don't assume local runtime
-	//ServiceInfo serviceInfo = null;//Runtime.getInstance().getServiceInfo();
-	
+	// ServiceInfo serviceInfo = null;//Runtime.getInstance().getServiceInfo();
+
 	Runtime myRuntime = null;
 
-	DefaultListModel currentServicesModel = new DefaultListModel();
+	DefaultListModel<ServiceEntry> currentServicesModel = new DefaultListModel<ServiceEntry>();
 	DefaultTableModel possibleServicesModel = new DefaultTableModel() {
 		private static final long serialVersionUID = 1L;
 
@@ -130,7 +129,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 
 	public RuntimeGUI(final String boundServiceName, final GUIService myService) {
 		super(boundServiceName, myService);
-		
+
 		myRuntime = (Runtime) Runtime.getService(boundServiceName);
 	}
 
@@ -170,7 +169,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 				}
 			}
 
-			
 			public void popUpTrigger(MouseEvent e) {
 				log.info("******************popUpTrigger*********************");
 				JTable source = (JTable) e.getSource();
@@ -264,7 +262,7 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		releaseMenuItem.setIcon(Util.getScaledIcon(Util.getImage("release.png"), 0.50));
 		popup.add(releaseMenuItem);
 
-		//getPossibleServices("all");
+		// getPossibleServices("all");
 
 		GridBagConstraints inputgc = new GridBagConstraints();
 
@@ -341,9 +339,6 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
 			} else {
-				// namesAndClasses[i] = serviceName + " - " + shortClassName;
-				// namesAndClasses[i] = new ServiceEntry(serviceName,
-				// shortClassName);
 				ServiceEntry se = new ServiceEntry(serviceName, shortClassName, false);
 				currentServicesModel.addElement(se);
 				nameToServiceEntry.put(serviceName, se);
@@ -351,30 +346,27 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		}
 	}
 
+	// Called from GUIService - after making msg route from Runtime.registered
 	public ServiceInterface registered(Service sw) {
-		String typeName;
-		if (sw == null) {
-			typeName = "unknown";
-		} else {
-			typeName = sw.getSimpleName();
+		if (!nameToServiceEntry.containsKey(sw.getName())) {
+			String typeName = (sw == null) ? "unknown" : sw.getSimpleName();
+			ServiceEntry newServiceEntry = new ServiceEntry(sw.getName(), typeName, (sw.getHost() != null));
+			currentServicesModel.addElement(newServiceEntry);
+			nameToServiceEntry.put(sw.getName(), newServiceEntry);
 		}
-		ServiceEntry newServiceEntry = new ServiceEntry(sw.getName(), typeName, (sw.getHost() != null));
-		currentServicesModel.addElement(newServiceEntry);
-		nameToServiceEntry.put(sw.getName(), newServiceEntry);
-		myService.addTab(sw.getName());
 		return sw;
 	}
 
-	public ServiceInterface released(ServiceInterface sw) {
+	public ServiceInterface released(Service sw) {
 		// FIXME - bug if index is moved before call back is processed
 
-		myService.removeTab(sw.getName());// FIXME will bust when service == null
+		// myService.removeTab(sw.getName());// FIXME will bust when service ==
+		// null
 		if (nameToServiceEntry.containsKey(sw.getName())) {
 			currentServicesModel.removeElement(nameToServiceEntry.get(sw.getName()));
 		} else {
 			log.error(sw.getName() + " released event - but could not find in currentServiceModel");
 		}
-		// myService.loadTabPanels();
 		return sw;
 	}
 
@@ -385,18 +377,16 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		subscribe("resolveBegin", "resolveBegin", String.class);
 		subscribe("resolveEnd", "resolveEnd");
 		subscribe("newArtifactsDownloaded", "newArtifactsDownloaded", String.class);
-
-		subscribe("registered", "registered", ServiceInterface.class);
-		subscribe("released", "released", ServiceInterface.class);
 		subscribe("failedDependency", "failedDependency", String.class);
 		subscribe("proposedUpdates", "proposedUpdates", ServiceInfo.class);
 
 		// get the service info for the bound runtime (not necessarily local)
 		subscribe("getServiceSimpleNames", "onPossibleServicesRefresh", String[].class);
-		
-		//myService.send(boundServiceName, "broadcastState");
-		
-		// FIXME !!! - flakey - do to subscribe not processing before this meathod? Dunno???
+
+		// myService.send(boundServiceName, "broadcastState");
+
+		// FIXME !!! - flakey - do to subscribe not processing before this
+		// meathod? Dunno???
 		getPossibleServices("all");
 	}
 
@@ -470,18 +460,17 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 		}
 	}
 
-	
 	/**
 	 * this is a request to the Runtime's ivy xml service data.
+	 * 
 	 * @param filter
 	 */
 	public void getPossibleServices(final String filter) {
 		possibleServiceFilter = filter;
 		myService.send(boundServiceName, "getServiceSimpleNames", filter);
 	}
-	
-	public void onPossibleServicesRefresh(final String[] sscn)
-	{
+
+	public void onPossibleServicesRefresh(final String[] sscn) {
 		log.info("here");
 		// FIXED - a new AWT Thread is spawned off to do the rendering
 		SwingUtilities.invokeLater(new Runnable() {
@@ -493,12 +482,12 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 				possibleServicesModel.getRowCount();
 
 				// FIXME
-				//String[] sscn = Runtime.getServiceSimpleNames(filter);
+				// String[] sscn = Runtime.getServiceSimpleNames(filter);
 				ServiceEntry[] ses = new ServiceEntry[sscn.length];
 				ServiceEntry se = null;
 
 				for (int i = 0; i < ses.length; ++i) {
-					//log.info("possible service {}", i);
+					// log.info("possible service {}", i);
 					se = new ServiceEntry(null, sscn[i], false);
 
 					possibleServicesModel.addRow(new Object[] { se, "" });
@@ -507,10 +496,9 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 				possibleServicesModel.fireTableDataChanged();
 				possibleServices.invalidate();
 			}
-			});
+		});
 	}
 
-	
 	class CellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
 
@@ -735,14 +723,15 @@ public class RuntimeGUI extends ServiceGUI implements ActionListener {
 			}
 		}
 	}
-	
+
 	public void getState(final Runtime runtime) {
 		myRuntime = runtime;
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				// FIXME - change to "all" or "" - null is sloppy - system has to upcast
-				
+				// FIXME - change to "all" or "" - null is sloppy - system has
+				// to upcast
+
 			}
 		});
 	}

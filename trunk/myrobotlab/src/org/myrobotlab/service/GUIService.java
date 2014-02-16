@@ -71,6 +71,7 @@ import org.apache.log4j.FileAppender;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.net.SocketAppender;
 import org.myrobotlab.control.GUIServiceGUI;
+import org.myrobotlab.control.RuntimeGUI;
 import org.myrobotlab.control.ServiceGUI;
 import org.myrobotlab.control.TabControl2;
 import org.myrobotlab.control.Welcome;
@@ -146,7 +147,8 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	transient JMenuItem recording = new JMenuItem("start recording");
 	transient JMenuItem loadRecording = new JMenuItem("load recording");
 
-	boolean test = true;
+	final public String welcomeTabText = "Welcome";
+	// TODO - make MTOD !! from internet
 
 	/**
 	 * the GUIService's gui
@@ -174,8 +176,39 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	public GUIService(String n) {
 		super(n);
+		Runtime.getInstance().addListener("registered", n, "registered");
+		Runtime.getInstance().addListener("released", n, "released");
+		// TODO - add the release route too
 		load();// <-- HA was looking all over for it
 		myself = this;
+	}
+
+	public Service registered(final Service s) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				addTab(s.getName());
+				// kind of kludgy but got to keep them in sync
+				RuntimeGUI rg = (RuntimeGUI) serviceGUIMap.get(Runtime.getInstance().getName());
+				if (rg != null){
+					rg.registered(s);
+				}
+			}
+		});
+		return s;
+	}
+
+	public Service released(final Service s) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				removeTab(s.getName());
+				// kind of kludgy but got to keep them in sync
+				RuntimeGUI rg = (RuntimeGUI) serviceGUIMap.get(Runtime.getInstance().getName());
+				if (rg != null){
+					rg.released(s);
+				}
+			}
+		});
+		return s;
 	}
 
 	public boolean hasDisplay() {
@@ -210,14 +243,14 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		return false;
 	}
 
-	public void buildTabPanels() {
+	synchronized public JTabbedPane buildTabPanels() {
 		// add the welcome screen
-		if (!serviceGUIMap.containsKey("welcome")) {
+		if (!serviceGUIMap.containsKey(welcomeTabText)) {
 			welcome = new Welcome("", this);
 			welcome.init();
-			tabs.addTab("Welcome", welcome.display);
-			tabs.setTabComponentAt(0, new JLabel("Welcome"));
-			serviceGUIMap.put("Welcome", welcome);
+			tabs.addTab(welcomeTabText, welcome.display);
+			tabs.setTabComponentAt(0, new JLabel(welcomeTabText));
+			serviceGUIMap.put(welcomeTabText, welcome);
 		}
 
 		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
@@ -233,6 +266,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		}
 
 		frame.pack();
+		return tabs;
 	}
 
 	/**
@@ -273,6 +307,12 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				Component c = tabs.getTabComponentAt(index);
 				if (c instanceof TabControl2) {
 					TabControl2 tc = (TabControl2) c;
+					
+					if (!sw.isLocal()){
+						Color hsv = GUIService.getColorFromURI(sw.getHost());
+						tabs.setBackgroundAt(index, hsv);			
+					}
+					
 					// String serviceName = tc.getText();
 					if (undockedPanels.containsKey(serviceName)) {
 						UndockedPanel up = undockedPanels.get(serviceName);
@@ -293,59 +333,40 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 
-		log.info("removeTab");
+				log.info("removeTab");
 
-		// detaching & removing the ServiceGUI
-		ServiceGUI sg = serviceGUIMap.get(name);
-		if (sg != null) {
-			sg.detachGUI();
-		} else {
-			// warn not error - because service may have been removed recently
-			log.warn(String.format("%1$s was not in the serviceGUIMap - unable to preform detach", name));
-		}
+				// detaching & removing the ServiceGUI
+				ServiceGUI sg = serviceGUIMap.get(name);
+				if (sg != null) {
+					sg.detachGUI();
+				} else {
+					// warn not error - because service may have been removed
+					// recently
+					log.warn(String.format("%1$s was not in the serviceGUIMap - unable to preform detach", name));
+				}
 
-		// removing the tab
-		JPanel tab = tabPanelMap.get(name);
-		if (tab != null) {
-			tabs.remove(tab);
-			serviceGUIMap.remove(name);
-			tabPanelMap.remove(name);
+				// removing the tab
+				JPanel tab = tabPanelMap.get(name);
+				if (tab != null) {
+					tabs.remove(tab);
+					serviceGUIMap.remove(name);
+					tabPanelMap.remove(name);
 
-			log.info(String.format("removeTab new size %1$d", serviceGUIMap.size()));
-		} else {
-			log.error(String.format("can not removeTab ", name));
-		}
+					log.info(String.format("removeTab new size %1$d", serviceGUIMap.size()));
+				} else {
+					log.error(String.format("can not removeTab ", name));
+				}
 
-		guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
-		if (guiServiceGUI != null) {
-			guiServiceGUI.rebuildGraph();
-		}
-		frame.pack();
+				guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
+				if (guiServiceGUI != null) {
+					guiServiceGUI.rebuildGraph();
+				}
+				frame.pack();
 			}
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.myrobotlab.service.interfaces.GUIService#loadTabPanels() This is
-	 * a bit "big hammer" in that it destroys all panels and rebuilds the
-	 * GUIService don't use except to initially build
-	 * 
-	 * FIXME - remove - residual kruft
-	 */
-
-	public JTabbedPane loadTabPanels() {
-		if (test) {
-			buildTabPanels();
-			return null;
-		}
-
-		return tabs;
-
-	}
-
-	public synchronized void removeAllTabPanels() { //add swing
+	public synchronized void removeAllTabPanels() { // add swing
 		log.info("tab count" + tabs.getTabCount());
 		while (tabs.getTabCount() > 0) {
 			tabs.remove(0);
@@ -463,15 +484,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		} else {
 			// TODO: error handling
 		}
-	}
-
-	public void registerServicesNotify() {
-		loadTabPanels();
-		invoke("guiUpdated");
-	}
-
-	public void guiUpdated() {
-		log.info("guiUpdated");
 	}
 
 	public String setRemoteConnectionStatus(String state) {
@@ -635,12 +647,14 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		graphXML = xml;
 	}
 
+	// FIXME - now I think its only "register" - Deprecate if possible
 	public void registerServicesEvent(String host, int port, Message msg) {
-		loadTabPanels();
+		buildTabPanels();
 	}
 
+	// FIXME - now I think its only "register" - Deprecate if possible
 	public void registerServicesEvent() {
-		loadTabPanels();
+		buildTabPanels();
 	}
 
 	static public void console() {

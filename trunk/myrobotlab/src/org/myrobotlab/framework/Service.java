@@ -813,7 +813,9 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// note - if stopService is overwritten with extra
 		// threads - releaseService will need to be overwritten too
 		stopService();
-		Runtime.unregister(null, name);
+		//Runtime.unregister(null, name);
+		// recently changed
+		Runtime.release(getName());
 	}
 
 	public void startService() {

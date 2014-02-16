@@ -96,6 +96,7 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 		this.myPanel = myPanel;
 		this.myService = gui;
 
+		Container c = getParent();
 		// build menu
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
@@ -129,13 +130,6 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 		addMouseMotionListener(this);
 		
 		//this(gui, parent, myPanel, boundServiceName, txt);
-		ServiceInterface si = Runtime.getService(label);
-		
-		if (si != null && !si.isLocal()){
-			Color hsv = GUIService.getColorFromURI(si.getHost());
-			int index = tabs.indexOfTab(label);
-			tabs.setBackgroundAt(index, hsv);			
-		}
 	}
 
 	private void dispatchMouseEvent(MouseEvent e) {

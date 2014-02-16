@@ -77,9 +77,6 @@ public class Runtime extends Service {
 
 	static private boolean needsRestart = false;
 
-	/**
-	 * the name of the local runtime
-	 */
 	static private String runtimeName;
 
 	static private Date startDate = new Date();
@@ -666,62 +663,6 @@ public class Runtime extends Service {
 		return true;
 	}
 
-	/*
-	 * FIXME - possibly needed when the intent is to remove the registration of
-	 * a foreign Service
-	 */
-	public static void unregister(URI url, String name) {
-		if (!registry.containsKey(name)) {
-			log.error(String.format("unregister %1$s does not exist in registry", name));
-		} else {
-			registry.remove(name);
-		}
-
-		if (!hosts.containsKey(url)) {
-			log.error(String.format("unregister environment does note exist for %1$s.%2$s", url, name));
-			return;
-		}
-
-		ServiceEnvironment se = hosts.get(url);
-
-		if (!se.serviceDirectory.containsKey(name)) {
-			log.error(String.format("unregister %2$s does note exist for %1$s.%2$s", url, name));
-			return;
-		}
-		localInstance.invoke("released", se.serviceDirectory.get(name));
-		se.serviceDirectory.remove(name);
-	}
-
-	/**
-	 * unregister a service environment
-	 * 
-	 * @param url
-	 */
-	public static void unregisterAll(URI url) {
-		if (!hosts.containsKey(url)) {
-			log.error(String.format("unregisterAll %1$s does not exist", url));
-			return;
-		}
-
-		ServiceEnvironment se = hosts.get(url);
-
-		Iterator<String> it = se.serviceDirectory.keySet().iterator();
-		String serviceName;
-		while (it.hasNext()) {
-			serviceName = it.next();
-			unregister(url, serviceName);
-		}
-	}
-
-	/**
-	 * unregister everything
-	 */
-	public static void unregisterAll() {
-		Iterator<URI> it = hosts.keySet().iterator();
-		while (it.hasNext()) {
-			unregisterAll(it.next());
-		}
-	}
 
 	/**
 	 * Gets the current total number of services registered services. This is
@@ -829,14 +770,19 @@ public class Runtime extends Service {
 	 *            of the service to be released
 	 * @return whether or not it successfully released the service
 	 */
-	public static boolean release(String name) /* release local Service */
+	public synchronized static boolean release(String name) /* release local Service */
 	{
 		log.warn("releasing service {}", name);
-		ServiceInterface sw = getService(name);
+		Runtime rt = getInstance();
+		if (!registry.containsKey(name)){
+			rt.error("release could not find %s", name);
+			return false;
+		}
+		ServiceInterface sw = registry.remove(name);
 		sw.stopService();
-		registry.remove(name);
 		ServiceEnvironment se = hosts.get(sw.getHost());
 		se.serviceDirectory.remove(name);
+		rt.invoke("released", sw);
 		log.warn("released{}", name);
 		return true;
 	}
@@ -876,6 +822,8 @@ public class Runtime extends Service {
 	}
 
 	/**
+	 * FIXME FIXME FIXME - just call release on each - possibly saving runtime for last ..
+	 * send prepareForRelease before releasing
 	 * 
 	 * release all local services
 	 * 
@@ -1030,30 +978,6 @@ public class Runtime extends Service {
 		}
 
 		return true;
-	}
-
-	/**
-	 * 
-	 */
-	public static void startLocalServices() {
-		// boolean hasGUI = false;
-		// GUIService gui = null;
-		ServiceEnvironment se = getLocalServices();
-		Iterator<String> it = se.serviceDirectory.keySet().iterator();
-		String serviceName;
-		ServiceInterface sw;
-		while (it.hasNext()) {
-			serviceName = it.next();
-			sw = se.serviceDirectory.get(serviceName);
-			sw.startService();
-			/*
-			 * if (sw.service.getClass().getSuperclass().equals(GUIService.class)) {
-			 * gui = (GUIService)sw.service; hasGUI = true; }
-			 */
-		}
-		/*
-		 * if (hasGUI) { }
-		 */
 	}
 
 	public static void dumpToFile() {
