@@ -35,6 +35,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -79,6 +80,7 @@ public class OpenCVFilterCopy extends OpenCVFilter {
 	@Override
 	public IplImage process(IplImage img, OpenCVData data) {
 
+		try {
 		//CvRect roiRect = new CvRect(0, 0, 30, 120);
 		//cvSetImageROI(img, roiRect);
 		IplImage copy = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
@@ -87,6 +89,9 @@ public class OpenCVFilterCopy extends OpenCVFilter {
 		vp.sources.put(vp.boundServiceName, String.format("%.copy", name), img);
 		//cvResetImageROI(img);
 
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 		return img;
 	}
 

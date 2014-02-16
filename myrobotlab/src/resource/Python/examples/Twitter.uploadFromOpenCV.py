@@ -11,9 +11,4 @@ opencv.capture()
 # register your application at https://dev.twitter.com/apps/new and obtain your own keys
 twitter.setSecurity("yourConsumerKey","yourConsumerSecret", "yourAccessToken", "yourAccessTokenSecret")
 twitter.configure()
-
-# sleep - let camera initialize and
-# video processor threads start etc... say CHEESE !
-sleep(5)
-
-twitter.uploadImage(opencv.getDisplay() , "text to upload");
+twitter.uploadImageFile(opencv.recordSingleFrame() , "text to upload");

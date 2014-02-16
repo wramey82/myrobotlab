@@ -63,7 +63,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterFindContours.class.getCanonicalName());
-	
+
 	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
 	// FIXME - ok - use awt - use mrl pojo's if expected to serialize to Android
@@ -71,7 +71,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	// Object map for data publishing
 	// Stabalize with attributes of Object Map defined in OpenCV
 
-	// 
+	//
 
 	boolean useMinArea = true;
 
@@ -95,67 +95,57 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 	transient CvPoint drawPoint0 = new CvPoint(0, 0);
 	transient CvPoint drawPoint1 = new CvPoint(0, 0);
 	transient CvMemStorage cvStorage = null;
-	
-	public OpenCVFilterFindContours()  {
+
+	public OpenCVFilterFindContours() {
 		super();
 	}
-	
-	public OpenCVFilterFindContours(String name)  {
+
+	public OpenCVFilterFindContours(String name) {
 		super(name);
 	}
-	
-/*
-	@Override
-	public BufferedImage display(IplImage image, OpenCVData data) {
 
-		BufferedImage frameBuffer = image.getBufferedImage();
-		Graphics2D g = frameBuffer.createGraphics();
-		g.setColor(Color.green);
-		if (data != null) {
-			ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
-			if (boxes != null) {
-				for (Rectangle box : boxes) {
-					if (useFloatValues){
-						g.drawRect((int)(box.x*width), (int)(box.y*height), (int)(box.width*width), (int)(box.height*height));
-					} else {
-						g.drawRect((int)box.x, (int)box.y, (int)box.width, (int)box.height);
-					}
-				}
-				g.drawString(String.format("cnt %d", boxes.size()), 10, 10);
-			} else {
-				g.drawString("null", 10, 10);
-			}
-		}
-		return frameBuffer;
-	}
-	*/
-	
+	/*
+	 * @Override public BufferedImage display(IplImage image, OpenCVData data) {
+	 * 
+	 * BufferedImage frameBuffer = image.getBufferedImage(); Graphics2D g =
+	 * frameBuffer.createGraphics(); g.setColor(Color.green); if (data != null)
+	 * { ArrayList<Rectangle> boxes = data.getBoundingBoxArray(); if (boxes !=
+	 * null) { for (Rectangle box : boxes) { if (useFloatValues){
+	 * g.drawRect((int)(box.x*width), (int)(box.y*height),
+	 * (int)(box.width*width), (int)(box.height*height)); } else {
+	 * g.drawRect((int)box.x, (int)box.y, (int)box.width, (int)box.height); } }
+	 * g.drawString(String.format("cnt %d", boxes.size()), 10, 10); } else {
+	 * g.drawString("null", 10, 10); } } return frameBuffer; }
+	 */
+
 	public IplImage display(IplImage image, OpenCVData data) {
 		ArrayList<Rectangle> boxes = data.getBoundingBoxArray();
 		if (boxes != null) {
 			for (Rectangle box : boxes) {
-				// cvDrawRect(image, cvPoint(x0, y0), cvPoint(x1, y1), CvScalar.RED, 1, 1, 0);
-				if (useFloatValues){
-					int x = (int)(box.x*width);
-					int y = (int)(box.y*height);
-					int w = x + (int)(box.width*width);
-					int h = y + (int)(box.height*height);
+				// cvDrawRect(image, cvPoint(x0, y0), cvPoint(x1, y1),
+				// CvScalar.RED, 1, 1, 0);
+				if (useFloatValues) {
+					int x = (int) (box.x * width);
+					int y = (int) (box.y * height);
+					int w = x + (int) (box.width * width);
+					int h = y + (int) (box.height * height);
 					cvDrawRect(image, cvPoint(x, y), cvPoint(w, h), CvScalar.WHITE, 1, 1, 0);
 				} else {
-					int x = (int)box.x;
-					int y = (int)box.y;
-					int w = x+(int)box.width;
-					int h = y+(int)box.height;
-					cvDrawRect(image, cvPoint(x,y), cvPoint(w,h), CvScalar.WHITE, 1, 1, 0);
+					int x = (int) box.x;
+					int y = (int) box.y;
+					int w = x + (int) box.width;
+					int h = y + (int) box.height;
+					cvDrawRect(image, cvPoint(x, y), cvPoint(w, h), CvScalar.WHITE, 1, 1, 0);
 				}
 			}
-			cvPutText(image, String.format("cnt %d", boxes.size()), cvPoint(10,10), font, CvScalar.WHITE);
+			cvPutText(image, String.format("cnt %d", boxes.size()), cvPoint(10, 10), font, CvScalar.WHITE);
 		} else {
-			cvPutText(image, "null", cvPoint(10,10), font, CvScalar.WHITE);
+			cvPutText(image, "null", cvPoint(10, 10), font, CvScalar.WHITE);
 		}
-		
-		//cvPutText(image, "killroy was here", cvPoint(10,10), font, CvScalar.WHITE);
-		
+
+		// cvPutText(image, "killroy was here", cvPoint(10,10), font,
+		// CvScalar.WHITE);
+
 		return image;
 	}
 
@@ -176,7 +166,6 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			if (contour.elem_size() > 0) { // TODO - limit here for
 											// "TOOOO MANY !!!!"
 
-				// FIXME - mark centeroid
 				CvRect rect = cvBoundingRect(contour, 0);
 
 				minArea = 600;
@@ -208,25 +197,19 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 				if (isMinArea && isMaxArea) {
 
-					// data = new OpenCVData();
-
-					if (publishBoundingBox) {
-
-						// FIXME !!! stoopid data conversion - just use the OpenCV rect !!!
-						Rectangle box = new Rectangle();
-						if (useFloatValues) {
-							box.x = (float)rect.x()/width;
-							box.y = (float)rect.y()/height;
-							box.width = (float)rect.width()/width;
-							box.height = (float)rect.height()/height;
-						} else {
-							box.x = rect.x();
-							box.y = rect.y();
-							box.width = rect.width();
-							box.height = rect.height();
-						}
-						data.add(box);
+					Rectangle box = new Rectangle();
+					if (useFloatValues) {
+						box.x = (float) rect.x() / width;
+						box.y = (float) rect.y() / height;
+						box.width = (float) rect.width() / width;
+						box.height = (float) rect.height() / height;
+					} else {
+						box.x = rect.x();
+						box.y = rect.y();
+						box.width = rect.width();
+						box.height = rect.height();
 					}
+					data.add(box);
 
 					if (publishPolygon) {
 						CvSeq points = cvApproxPoly(contour, Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contour) * 0.02, 1);
@@ -274,8 +257,6 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 				 * 8, 0);
 				 */
 
-				// invoke("publish", (Object)rectangle);
-
 			}
 			contour = contour.h_next();
 		}
@@ -285,9 +266,9 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 		// cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);
 		// log.error("x");
 		cvClearMemStorage(cvStorage);
-		
-		//display(image, data);
-		
+
+		// display(image, data);
+
 		return image;
 	}
 

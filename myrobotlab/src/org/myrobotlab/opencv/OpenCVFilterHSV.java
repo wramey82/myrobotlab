@@ -133,6 +133,7 @@ public class OpenCVFilterHSV extends OpenCVFilter {
 
 		@Override
 		public void imageChanged(IplImage image) {
+			hsv = IplImage.createCompatible(image);
 		}
 
 }

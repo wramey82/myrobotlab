@@ -101,12 +101,12 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 	// only valid for a "fixed" camera - need a new index to support camera
 	// movement
 	HashMap<String, Float> values = new HashMap<String, Float>();
-	
-	public OpenCVFilterGoodFeaturesToTrack()  {
+
+	public OpenCVFilterGoodFeaturesToTrack() {
 		super();
 	}
-	
-	public OpenCVFilterGoodFeaturesToTrack(String name)  {
+
+	public OpenCVFilterGoodFeaturesToTrack(String name) {
 		super(name);
 	}
 
@@ -130,7 +130,6 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 			grey = image;
 		}
 
-		
 		if (lastMaxPointCount != maxPointCount) {
 			cornerCount.setValue(maxPointCount);
 			count = new int[] { maxPointCount };
@@ -144,115 +143,89 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 
 		cvGoodFeaturesToTrack(grey, eig, temp, corners, count, qualityLevel, minDistance, mask, blockSize, useHarris, k);
 
-		// if (corner_count > 0) {
-		if (publishOpenCVObjects) {
-			invoke("publish", (Object) corners);
-		} else {
+		// FIXME - another sad data conversion :(
+		ArrayList<Point2Df> points = new ArrayList<Point2Df>();
+		Float value = null;
+		int x, y;
+		for (int i = 0; i < count[0]; ++i) {
+			corners.position(i);
+			x = (int) corners.x();
+			y = (int) corners.y();
+			// da[i] = da[i] / frame.width();
+			// da[i + 1] = da[i + 1] / frame.height();
+			// x = Math.round(a)
+			String key = String.format("%d.%d", x, y);
+			if (values.containsKey(key)) {
+				value = values.get(key);
+				++value;
+				values.put(key, value);
+				// log.warn(value);
+				// log.warn(values.get(key));
+			} else {
+				value = new Float(1f);
+				values.put(key, value);
+			}
 
-			//double[] da = corners.get();
-			
-				ArrayList<Point2Df> points = new ArrayList<Point2Df>();
-				Float value = null;
-				int x,y;
-				for (int i = 0; i < count[0]; ++i) {
-					corners.position(i);
-					x = (int) corners.x();
-					y = (int) corners.y();
-					// da[i] = da[i] / frame.width();
-					// da[i + 1] = da[i + 1] / frame.height();
-					// x = Math.round(a)
-					String key = String.format("%d.%d", x, y);
-					if (values.containsKey(key)) {
-						value = values.get(key);
-						++value;
-						values.put(key, value);
-						// log.warn(value);
-						// log.warn(values.get(key));
-					} else {
-						value = new Float(1f);
-						values.put(key, value);
-					}
+			Point2Df np = null;
 
-					Point2Df np = null;
-					
-					if (useFloatValues)
-					{
-						np = new Point2Df((float) x/width, (float) y/height, value);
-					} else {
-						np = new Point2Df((float) x, (float) y, value);
-					}
+			if (useFloatValues) {
+				np = new Point2Df((float) x / width, (float) y / height, value);
+			} else {
+				np = new Point2Df((float) x, (float) y, value);
+			}
 
-					if (np.value > oldest.value) {
-						oldest = np;
-					}
+			if (np.value > oldest.value) {
+				oldest = np;
+			}
 
-					points.add(np);
+			points.add(np);
 
-				}
-				invoke("publish", points);
-			
 		}
+
+		data.set(points);
 
 		return image;
 	}
 
 	DecimalFormat df = new DecimalFormat("0.###");
-	
+
 	/*
-	@Override
-	public BufferedImage display(IplImage frame, OpenCVData data) {
+	 * @Override public BufferedImage display(IplImage frame, OpenCVData data) {
+	 * 
+	 * BufferedImage frameBuffer = frame.getBufferedImage(); Graphics2D graphics
+	 * = frameBuffer.createGraphics(); float gradient = 1 / oldest.value; int x,
+	 * y; graphics.setColor(Color.green);
+	 * 
+	 * for (int i = 0; i < count[0]; ++i) {
+	 * 
+	 * corners.position(i); x = (int) corners.x(); y = (int) corners.y();
+	 * 
+	 * if (colorAgeOfPoint) { String key = String.format("%d.%d", x, y); if
+	 * (values.containsKey(key)) { float scale =
+	 * (values.get(String.format("%d.%d", x, y)) * (gradient)); if (scale ==
+	 * 1.0f) // grey { graphics.setColor(Color.white); } else {
+	 * graphics.setColor(new Color(Color.HSBtoRGB(scale, 0.8f, 0.7f))); }
+	 * graphics.drawOval(x, y, 3, 1); //graphics.drawString(String.format("%f",
+	 * scale), x, y); graphics.drawString(String.format("%s", df.format(scale)),
+	 * x, y);
+	 * 
+	 * } else { log.error(key); // FIXME FIXME FIXME ---- WHY THIS SHOULDN"T
+	 * HAPPEN BUT IT HAPPENS ALL THE TIME } } corners.position(i); //
+	 * graphics.drawOval(x, y, 3, 1); }
+	 * 
+	 * // FIXME - ! which is faster OpenCV or awt - it has to go to awt anyway
+	 * // at some point // if its running with guiservice
+	 * 
+	 * return frameBuffer; // TODO - ran out of memory here
+	 * 
+	 * }
+	 */
 
-		BufferedImage frameBuffer = frame.getBufferedImage();
-		Graphics2D graphics = frameBuffer.createGraphics();
-		float gradient = 1 / oldest.value;
-		int x, y;
-		graphics.setColor(Color.green);
-
-		for (int i = 0; i < count[0]; ++i) {
-			
-			corners.position(i);
-			x = (int) corners.x();
-			y = (int) corners.y();
-
-			if (colorAgeOfPoint) {
-				String key = String.format("%d.%d", x, y);
-				if (values.containsKey(key)) {
-					float scale = (values.get(String.format("%d.%d", x, y)) * (gradient));
-					if (scale == 1.0f) // grey
-					{
-						graphics.setColor(Color.white);
-					} else {
-						graphics.setColor(new Color(Color.HSBtoRGB(scale, 0.8f, 0.7f)));
-					}
-					graphics.drawOval(x, y, 3, 1);
-					//graphics.drawString(String.format("%f", scale), x, y);
-					graphics.drawString(String.format("%s", df.format(scale)), x, y);
-
-				} else {
-					log.error(key); // FIXME FIXME FIXME ----  WHY THIS SHOULDN"T HAPPEN BUT IT HAPPENS ALL THE TIME
-				}
-			}
-			corners.position(i);
-			// graphics.drawOval(x, y, 3, 1);
-		}
-
-		// FIXME - ! which is faster OpenCV or awt - it has to go to awt anyway
-		// at some point
-		// if its running with guiservice
-	
-		return frameBuffer; // TODO - ran out of memory here
-
-	}
-	
-*/
-	
 	transient CvScalar color = new CvScalar();
 	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
 
-	
 	@Override
 	public IplImage display(IplImage frame, OpenCVData data) {
-
 
 		float gradient = 1 / oldest.value;
 		int x, y;
@@ -275,23 +248,25 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 					{
 						color = CvScalar.WHITE;
 						// TODO - find what this is color
-						
+
 					} else {
 						// WTF - I WANT AN HSV REPRESENTATION
-						//color.setVal(3, scale*10);
+						// color.setVal(3, scale*10);
 						Color c = Color.getHSBColor(scale, 1.0f, 0.8f);
-						
+
 						color.red(c.getRed());
 						color.blue(c.getBlue());
 						color.green(c.getGreen());
-						//graphics.setColor(new Color(Color.HSBtoRGB(scale, 0.8f, 0.7f)));
-						//CV_HSV2RGB(scale);
+						// graphics.setColor(new Color(Color.HSBtoRGB(scale,
+						// 0.8f, 0.7f)));
+						// CV_HSV2RGB(scale);
 					}
 					cvCircle(frame, cvPoint(x, y), 1, color, -1, 8, 0);
-					cvPutText(frame, String.format("%s", df.format(scale)), cvPoint(x,y), font, color);
+					cvPutText(frame, String.format("%s", df.format(scale)), cvPoint(x, y), font, color);
 
 				} else {
-					log.error(key); // FIXME FIXME FIXME ----  WHY THIS SHOULDN"T HAPPEN BUT IT HAPPENS ALL THE TIME
+					log.error(key); // FIXME FIXME FIXME ---- WHY THIS SHOULDN"T
+									// HAPPEN BUT IT HAPPENS ALL THE TIME
 				}
 			}
 			corners.position(i);
@@ -301,7 +276,5 @@ public class OpenCVFilterGoodFeaturesToTrack extends OpenCVFilter {
 		return frame; // TODO - ran out of memory here
 
 	}
-	
-
 
 }

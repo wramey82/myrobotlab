@@ -27,7 +27,6 @@ package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 
-import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -38,7 +37,6 @@ import org.slf4j.Logger;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-
 public abstract class OpenCVFilter implements Serializable {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilter.class.toString());
@@ -46,8 +44,6 @@ public abstract class OpenCVFilter implements Serializable {
 	private static final long serialVersionUID = 1L;
 	final public String name;
 
-	public boolean publish = false;
-	public boolean publishOpenCVObjects = false;
 	public boolean useFloatValues = true;
 	
 	public boolean publishDisplay = false;

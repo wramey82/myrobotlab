@@ -360,7 +360,7 @@ public class Tracking extends Service {
 				if (numberOfNewObjects == 0) {
 					// process background
 					// data.putAttribute(BACKGROUND);
-					data.putAttribute(PART, BACKGROUND);
+					data.setAttribute(PART, BACKGROUND);
 					invoke("toProcess", data);
 					// ready to search foreground
 					searchForeground();
@@ -373,7 +373,7 @@ public class Tracking extends Service {
 				// TODO - SHOULD NOT PUT IN MEMORY -
 				// LET OTHER THREAD DO IT
 				if (numberOfNewObjects > 0) {
-					data.putAttribute(PART, FOREGROUND);
+					data.setAttribute(PART, FOREGROUND);
 					invoke("toProcess", data);
 				}// else TODO - processBackground(data) <- on a regular interval
 					// (addToSet) !!!!!!
@@ -727,8 +727,8 @@ public class Tracking extends Service {
 
 			Tracking tracker = new Tracking("tracker");
 			tracker.getY().setMinMax(79, 127);
-			tracker.getX().setPin(13);
-			tracker.getY().setPin(12);
+			tracker.getX().setPin(5);
+			tracker.getY().setPin(6);
 			tracker.getOpenCV().setCameraIndex(1);
 			tracker.connect("COM12");
 			// tracker.connect("COM4");
