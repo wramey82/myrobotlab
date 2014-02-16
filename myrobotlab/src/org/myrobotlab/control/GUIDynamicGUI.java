@@ -287,17 +287,6 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 
 			graphComponent.getGraphControl().addMouseListener(new MouseAdapter() {
 
-				/*
-				 * protected void mouseLocationChanged(MouseEvent e) {
-				 * log.info(e.getX() + ", " + e.getY()); }
-				 * 
-				 * public void mouseDragged(MouseEvent e) { //
-				 * http://forum.jgraph
-				 * .com/questions/1343/mouse-coordinates-at-drop-event Object
-				 * cell = graphComponent.getCellAt(e.getX(), e.getY());
-				 * log.info(e.getX() + "," + e.getY()); }
-				 */
-
 				public void mouseReleased(MouseEvent e) {
 					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
 					// too chatty log.info("cell " + e.getX() + "," + e.getY());
@@ -318,7 +307,7 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 								new GUIServiceInMethodDialog(myService, "in method", v);
 							}
 						} else if (m.isEdge()) {
-							log.error("isEdge");
+							log.info("isEdge");
 						}
 
 					}
@@ -379,7 +368,6 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// myService.loadTabPanels(); FIXME - no longer needed ???
 			}
 
 		});
@@ -388,6 +376,7 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 
 	}
 
+	// DEPRECATE - binary save not supported
 	public JButton getSaveButton() {
 		JButton button = new JButton("save");
 		button.setEnabled(true);
