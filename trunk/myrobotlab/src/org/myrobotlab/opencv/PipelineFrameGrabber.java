@@ -4,7 +4,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
@@ -18,7 +17,7 @@ public class PipelineFrameGrabber extends FrameGrabber {
 
 	BlockingQueue<IplImage> blockingData;
 	
-	VideoSources vs = new VideoSources();
+	VideoSources2 vs = new VideoSources2();
 	String sourceKey = "";
 
 	public PipelineFrameGrabber(String sourceKey) {

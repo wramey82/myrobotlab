@@ -37,9 +37,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipException;
 
 import org.myrobotlab.logging.Level;
@@ -81,6 +95,8 @@ public class FileIO {
 
 	// --- byte[] interface begin ------------------
 	// rename getBytes getResourceBytes / String File InputStream
+	
+	
 
 	static public boolean byteArrayToFile(String filename, byte[] data) {
 		try {
@@ -215,6 +231,10 @@ public class FileIO {
 		String jarPath = full.substring(full.indexOf("jar:file:/") + 10, full.lastIndexOf("!"));
 		return jarPath;
 	}
+	
+	static public String getBinaryPath(){
+		return ClassLoader.getSystemClassLoader().getResource(".").getPath();
+	}
 
 	static public ArrayList<String> listInternalContents(String path) {
 		if (!inJar()) {
@@ -261,13 +281,71 @@ public class FileIO {
 		return list.toArray(new File[] {});
 	}
 
+	private static FileSystem createZipFileSystem(String zipFilename, boolean create) throws IOException {
+		// convert the filename to a URI
+		final Path path = Paths.get(zipFilename);
+		final URI uri = URI.create("jar:file:" + path.toUri().getPath());
+
+		final Map<String, String> env = new HashMap<>();
+		if (create) {
+			env.put("create", "true");
+		}
+		return FileSystems.newFileSystem(uri, env);
+	}
+
+	public static void list(String zipFilename) throws IOException {
+
+		System.out.printf("Listing Archive:  %s\n", zipFilename);
+
+		// create the file system
+		try (FileSystem zipFileSystem = createZipFileSystem(zipFilename, false)) {
+
+			final Path root = zipFileSystem.getPath("/");
+
+			// walk the file tree and print out the directory and filenames
+			Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					print(file);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					print(dir);
+					return FileVisitResult.CONTINUE;
+				}
+
+				/**
+				 * prints out details about the specified path such as size and
+				 * modification time
+				 * 
+				 * @param file
+				 * @throws IOException
+				 */
+				private void print(Path file) throws IOException {
+					final DateFormat df = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
+					final String modTime = df.format(new Date(Files.getLastModifiedTime(file).toMillis()));
+					System.out.printf("%d  %s  %s\n", Files.size(file), modTime, file);
+				}
+			});
+		}
+	}
+
 	// jar pathing end ---------------
 	// -- os primitives begin -------
 
-	static public boolean copyResource(String from, String to) {
+	static public boolean copyResource(String fromFilename, String toFilename) {
 		try {
-			byte[] b = resourceToByteArray(from);
-			byteArrayToFile(to, b);
+			byte[] b = resourceToByteArray(fromFilename);
+			File f = new File(toFilename);
+			String path = f.getParent();
+			File dir = new File(path);
+			if (!dir.exists()){
+				dir.mkdirs();
+			}
+			
+			byteArrayToFile(toFilename, b);
 			return true;
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -289,7 +367,6 @@ public class FileIO {
 	public static void main(String[] args) throws ZipException, IOException {
 
 		LoggingFactory.getInstance().configure();
-		// LoggingFactory.getInstance().setLevel(Level.INFO);
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
 		String hello = resourceToString("blah.txt");
@@ -297,18 +374,12 @@ public class FileIO {
 		copyResource("mrl_logo.jpg", "mrl_logo.jpg");
 
 		byte[] b = resourceToByteArray("mrl_logo.jpg");
-
+		
+		File[] files = getPackageContent("");
+		
+		log.info(getBinaryPath());
+		
 		log.info("{}", b);
-
-		ArrayList<String> files = listInternalContents("resource/images");
-		for (int i = 0; i < files.size(); ++i) {
-			log.info(files.get(i));
-		}
-
-		files = Zip.listDirectoryContents("myrobotlab.jar", "resource/images");
-		for (int i = 0; i < files.size(); ++i) {
-			log.info(files.get(i));
-		}
 
 		log.info("done");
 

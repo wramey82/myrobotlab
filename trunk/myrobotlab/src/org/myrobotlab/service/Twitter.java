@@ -91,7 +91,7 @@ public class Twitter extends Service {
 		}).start();
 	}
 
-	public void uploadPic(final String filePath, final String message) {
+	public void uploadImageFile(final String filePath, final String message) {
 		new Thread(new Runnable() {
 			public void run() {
 				try {

@@ -59,6 +59,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Error;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
@@ -70,9 +72,6 @@ import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
-import org.myrobotlab.opencv.OpenCVFilterGoodFeaturesToTrack;
-import org.myrobotlab.opencv.OpenCVFilterGray;
-import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;
@@ -87,7 +86,6 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-import org.myrobotlab.framework.Error;
 @Root
 public class OpenCV extends VideoSource {
 
@@ -126,7 +124,7 @@ public class OpenCV extends VideoSource {
 
 	transient public final static String SOURCE_KINECT_DEPTH = "SOURCE_KINECT_DEPTH";
 
-	public static String VALID_FILTERS[] = { "AddMask", "And", "AverageColor", "Canny", "CreateHistogram", "ColorTrack", "Detector", "Dilate", "Erode", "FGBG", "FaceDetect",
+	public static String VALID_FILTERS[] = { "And", "AverageColor", "Canny", "CreateHistogram", "ColorTrack", "Detector", "Dilate", "Erode", "FGBG", "FaceDetect",
 			"Fauvist", "FindContours", "Flip", "FloodFill", "FloorFinder", "GoodFeaturesToTrack", "Gray", "HoughLines2", "HSV", "InRange", "KinectDepth", "KinectDepthMask",
 			"KinectInterleave", "LKOpticalTrack", "Mask", "MatchTemplate", "MotionTemplate", "Mouse", "Not", "PyramidDown", "PyramidUp", "RepetitiveAnd", "RepetitiveOr",
 			"ResetImageROI", "SampleArray", "SampleImage", "SetImageROI", "Smooth", "Split", "Threshold" };
@@ -140,7 +138,8 @@ public class OpenCV extends VideoSource {
 	// mask for each named filter
 	transient public HashMap<String, IplImage> masks = new HashMap<String, IplImage>();
 
-	public SerializableImage lastDisplay;
+	// DEPRECATED - use getOpenCVData() instead of lastDisplay
+	// public OpenCVData lastDisplay;
 
 	// P - N Learning TODO - remove - implement on "images"
 	public ArrayList<SerializableImage> positive = new ArrayList<SerializableImage>();
@@ -167,7 +166,8 @@ public class OpenCV extends VideoSource {
 	}
 
 	/**
-	 * FIXME - input needs to be OpenCVData
+	 * FIXME - input needs to be OpenCVData THIS IS NOT USED ! VideoProcessor
+	 * NOW DOES OpenCVData - this will return NULL REMOVE !!
 	 */
 	public final SerializableImage publishDisplay(SerializableImage img) {
 		// lastDisplay = new SerializableImage(img, source);
@@ -274,9 +274,7 @@ public class OpenCV extends VideoSource {
 		return point;
 	}
 
-	public Rectangle publish(Rectangle rectangle) // TODO - going bothways here
-													// - cv & awt
-	{
+	public Rectangle publish(Rectangle rectangle) {
 		return rectangle;
 	}
 
@@ -403,7 +401,8 @@ public class OpenCV extends VideoSource {
 	}
 
 	/**
-	 * Callback from the GUIService to the appropriate filter funnel through here
+	 * Callback from the GUIService to the appropriate filter funnel through
+	 * here
 	 */
 	public void invokeFilterMethod(String filterName, String method, Object... params) {
 		OpenCVFilter filter = getFilter(filterName);
@@ -448,14 +447,17 @@ public class OpenCV extends VideoSource {
 
 	public String recordSingleFrame() {
 		// WOOHOO Changed threads & thread safe !
-		OpenCVData d = videoProcessor.getLastData();
-
+		// OpenCVData d = videoProcessor.getLastData();
+		OpenCVData d = getOpenCVData();
+		/*
 		if (d == null) {
 			log.error("could not record frame last OpenCVData is null");
 			return null;
 		}
 
-		return d.writeInput();
+		*/
+		return d.writeDisplay();
+		//return d.writeInput();
 	}
 
 	// filter dynamic data exchange end ------------------
@@ -475,15 +477,15 @@ public class OpenCV extends VideoSource {
 		try {
 			videoProcessor.blockingData.clear();
 
+			// DEPRECATE always "publish"
 			boolean oldPublishOpenCVData = videoProcessor.publishOpenCVData;
 			videoProcessor.publishOpenCVData = true;
-			videoProcessor.useBlockingData = true;
-			data = (OpenCVData) videoProcessor.blockingData.take(); // TODO -
-																	// poll or
-																	// timeout
+			//videoProcessor.useBlockingData = true;
+			// timeout ?
+			data = (OpenCVData) videoProcessor.blockingData.take();
 			// value parameter
 			videoProcessor.publishOpenCVData = oldPublishOpenCVData;
-			videoProcessor.useBlockingData = false;
+			//videoProcessor.useBlockingData = false;
 			return data;
 
 		} catch (InterruptedException e) {
@@ -578,12 +580,16 @@ public class OpenCV extends VideoSource {
 	}
 
 	public SerializableImage getDisplay() {
-		return lastDisplay;
+		OpenCVData d = getOpenCVData();
+		SerializableImage ret = new SerializableImage(d.getBufferedImage(), d.getDisplayName());
+		return ret;
 	}
 
+	/*
 	public void useBlockingData(Boolean b) {
 		videoProcessor.useBlockingData = true;
 	}
+	*/
 
 	public int getCameraIndex() {
 		return videoProcessor.cameraIndex;
@@ -596,8 +602,8 @@ public class OpenCV extends VideoSource {
 	}
 
 	/**
-	 * minimum time between processing frames - time unit is in
-	 * milliseconds 
+	 * minimum time between processing frames - time unit is in milliseconds
+	 * 
 	 * @param time
 	 */
 	public void setMinDelay(int time) {
@@ -609,41 +615,96 @@ public class OpenCV extends VideoSource {
 		return source;
 	}
 
-	public ArrayList<Error> test(){
+	public ArrayList<Error> test() {
 		
-		// headless section ???
+		// smart testing - determine what environment has
+		// do i have a camera ?
+		// do i have multiple cameras
 		
-		ArrayList<String> errors = new ArrayList<String>();
+		String filename = "shapes.png";
+		String testFilename = String.format("OpenCV/testData/%s",filename);
 		
-		int videoCameraIndex = 0;
+		captureFromResourceFile(testFilename);
+		SerializableImage img = getDisplay();
+
+		String output = recordSingleFrame();
+		log.info(String.format("record single frame - %s", output));
+		
+		log.info("here");
+		
 		/*
-		if (data.length > 0){
-			if (data[0] instanceof Integer){
-				videoCameraIndex = (Integer)data[0];
-			}
-		}
-		*/
+		// base set would be file
+		FileIO.copyResource(String.format("OpenCV/testData/%s",filename), filename);
+
+		// headless section ???
+		setFrameGrabberType("ImageFileFrameGrabber");
+		setInputSource(INPUT_SOURCE_IMAGE_FILE);
+		setInputFileName(filename);
 		
 		capture();
+		captureFromImageFile("shapes.png");
+		captureFromResourceFile("");
+		*/
 		
+
+		//int videoCameraIndex = 0;
+		/*
+		 * if (data.length > 0){ if (data[0] instanceof Integer){
+		 * videoCameraIndex = (Integer)data[0]; } }
+		 */
+
+		//capture();
+		
+
 		// should probably use xml file
 		// but currently
 		
-		for (int i = 0; i < VALID_FILTERS.length; ++i){
-			String filter = VALID_FILTERS[i];
+		// set frame grabber
 		
+		// extract test data
+		//FileIO.getPackageContent(packageName)
+
+		// add cumulatively
+		
+		// type of test - test which saves result of web page
+		
+		for (int i = 0; i < VALID_FILTERS.length; ++i) {
+			String filter = VALID_FILTERS[i];
+
 			try {
-			
-			addFilter(filter);
-			setDisplayFilter(filter);
-			sleep(300);
-			} catch(Exception e) {
-				errors.add(String.format("%s threw", filter));
+
+				addFilter(filter);
+				setDisplayFilter(filter);
+				sleep(300);
+				
+				recordSingleFrame();
+				 
+				// check OpenCV DATA !!!! - get points bars lines - bounding Boxes
+				
+				removeFilter(filter);
+				
+				
+			} catch (Exception e) {
+				//errors.add(String.format("%s threw", filter));
 			}
 		}
 
+
 		return null;
-		
+
+	}
+
+	public void captureFromResourceFile(String filename) {
+		FileIO.copyResource(filename, filename);
+		captureFromImageFile(filename);
+	}
+
+	public void captureFromImageFile(String filename) {
+		stopCapture();
+		setFrameGrabberType("org.myrobotlab.opencv.ImageFileFrameGrabber");
+		setInputSource(INPUT_SOURCE_IMAGE_FILE);
+		setInputFileName(filename);
+		capture();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -658,11 +719,12 @@ public class OpenCV extends VideoSource {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
-		opencv.setInputSource(INPUT_SOURCE_IMAGE_FILE);
 		
-		opencv.capture();
-		//opencv.addFilter(new OpenCVFilterPyramidDown());
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		Runtime.createAndStart("gui", "GUIService");
+		//opencv.test();
+		
+		// opencv.addFilter(new OpenCVFilterPyramidDown());
 
 		/*
 		 * opencv.capture();
@@ -681,9 +743,6 @@ public class OpenCV extends VideoSource {
 		 * 
 		 * vs.attach(opencv);
 		 */
-		GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
-		
-		opencv.test();
 		
 
 		// gf.qualityLevel = 0.0004;

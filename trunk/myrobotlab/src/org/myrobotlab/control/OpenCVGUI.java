@@ -74,14 +74,13 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.VideoProcessor;
-import org.myrobotlab.opencv.VideoSources;
+import org.myrobotlab.opencv.VideoSources2;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
 import org.slf4j.Logger;
 
-import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber;
 
 public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource, ActionListener {
@@ -95,8 +94,8 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 	OpenCVListAdapter popup = new OpenCVListAdapter(this);
 
-	JList possibleFilters;
-	JList currentFilters;
+	JList<String> possibleFilters;
+	JList<String> currentFilters;
 
 	VideoWidget video0 = null;
 
@@ -112,17 +111,17 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	JLabel modeLabel = new JLabel("mode");
 	JButton inputFileButton = new JButton("open file");
 
-	JComboBox IPCameraType = new JComboBox(new String[] { "foscam FI8918W" });
-	DefaultComboBoxModel pipelineHookModel = new DefaultComboBoxModel();
-	JComboBox pipelineHook = new JComboBox(pipelineHookModel);
+	JComboBox<String> IPCameraType = new JComboBox<String>(new String[] { "foscam FI8918W" });
+	DefaultComboBoxModel<String> pipelineHookModel = new DefaultComboBoxModel<String>();
+	JComboBox<String> pipelineHook = new JComboBox<String>(pipelineHookModel);
 
 	ButtonGroup groupRadio = new ButtonGroup();
-	DefaultListModel currentFilterListModel = new DefaultListModel();
+	DefaultListModel<String> currentFilterListModel = new DefaultListModel<String>();
 
-	JComboBox kinectImageOrDepth = new JComboBox(new String[] { "image", "depth", "interleave" });
-	JComboBox grabberTypeSelect = null;
+	JComboBox<String> kinectImageOrDepth = new JComboBox<String>(new String[] { "image", "depth", "interleave" });
+	JComboBox<String> grabberTypeSelect = null;
 
-	JComboBox cameraIndex = new JComboBox(new Integer[] { 0, 1, 2, 3, 4, 5 });
+	JComboBox<Integer> cameraIndex = new JComboBox<Integer>(new Integer[] { 0, 1, 2, 3, 4, 5 });
 
 	JPanel filterParameters = new JPanel(new BorderLayout());
 
@@ -164,13 +163,13 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 		kinectImageOrDepth.addActionListener(this);
 
-		possibleFilters = new JList(OpenCV.VALID_FILTERS);
+		possibleFilters = new JList<String>(OpenCV.VALID_FILTERS);
 		possibleFilters.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		possibleFilters.setSelectedIndex(0);
 		possibleFilters.setVisibleRowCount(10);
 		possibleFilters.addMouseListener(popup);
 
-		currentFilters = new JList(currentFilterListModel);
+		currentFilters = new JList<String>(currentFilterListModel);
 		currentFilters.setFixedCellWidth(100);
 		currentFilters.addListSelectionListener(this);
 		currentFilters.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -512,7 +511,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 				IPCameraType.setVisible(false);
 				// this has static / global internals
-				VideoSources vs = new VideoSources();
+				VideoSources2 vs = new VideoSources2();
 				Set<String> p = vs.getKeySet();
 				pipelineHookModel.removeAllElements();
 				for (String i : p) {

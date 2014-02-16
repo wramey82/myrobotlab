@@ -200,11 +200,6 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 						avg = cvAvg(image, null);
 						cvResetImageROI(image);
 						colorGrid[x][y] = avg;
-						/*
-						 * if (publishColorName &&
-						 * colorName.compareTo(lastColorName) != 0) {
-						 * invoke("publish", colorName); }
-						 */
 						lastColorName = colorName;
 
 					}
@@ -218,7 +213,7 @@ public class OpenCVFilterAverageColor extends OpenCVFilter {
 			cvResetImageROI(image);
 			colorName = getColorName(avg);
 			if (publishColorName && colorName.compareTo(lastColorName) != 0) {
-				invoke("publish", colorName);
+				data.setAttribute("colorName", colorName);
 			}
 			lastColorName = colorName;
 		}

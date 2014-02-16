@@ -17,8 +17,13 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
+import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.service.OpenCV;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.data.Rectangle;
 import org.simpleframework.xml.Element;
@@ -29,15 +34,6 @@ import org.slf4j.Logger;
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_objdetect.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_legacy.*;
-import static com.googlecode.javacv.cpp.opencv_video.*;
-import static com.googlecode.javacv.cpp.opencv_calib3d.*;
-
 
 /**
  * This is the data returned from a single pass of an OpenCV pipeline of
@@ -46,18 +42,20 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
  * copy of the image and add other data structures such as arrays of point,
  * bounding boxes, masks and other information.
  * 
- * The default behavior is to return the INPUT image from the start of the
- * pipeline, all non-image data - bounding boxes, points etc and a refrence to
- * the last image coming from the pipeline
+ * The default behavior is to return the data from the LAST FILTER ON
+ * THE PIPELINE
  * 
- * Do to thread restrictions and serializable capabilities only NON-JAVCV
- * objects will be used !!! Preferably, no Swing either as not all JVMs support
- * swing (Android, etc)
+ * Some optimizations are done by saving the results of type conversions.  For
+ * example if a JPG is asked for it is saved back into the data map, so that if
+ * its asked again, the cached copy will be returned
+ * 
+ * All data is put in with keys with the following format
+ * 		[ServiceName].[FilterName].[Format].[Data Type]  - e.g. opencv.PyramidDown.jpg.Bytes -- lame re-work ByteArray
  * 
  * choices of images are "by filter name", the "input", the display, and the "last filter" == "output"
- * choices of return types are IplImage, CVMat, BufferedImage, ByteBuffer, ByteArrayOutputStream, byte[
+ * choices of return types are IplImage, CVMat, BufferedImage, ByteBuffer, ByteArrayOutputStream, byte[]
  * 
- * method naming conventions (get|set) (display | input | filter) (format - IplImage=image CVMat | BufferedImage | ByteBuffer | Bytes
+ * method naming conventions (get|set) (display | input | filtername) (format - IplImage=image CVMat | BufferedImage | ByteBuffer | Bytes
  * 
  * @author GroG
  * 
@@ -75,37 +73,39 @@ public class OpenCVData implements Serializable {
 	 * name of the service which produced this data
 	 */
 	@Element
-	public final String service;
+	public final String serviceName;
+	
 	/**
 	 * the filter's name - used as a key to get or put data associated with a
 	 * specific filter
 	 */
 	@Element
-	private String filter;
+	private String filterName;
 	
 	/**
 	 * display filter name
 	 */
-	private String display;
+	private String displayName;
 	@Element
 	private long timestamp;
 	
-	public int frameIndex;
+	@Element
+	private int frameIndex;
 
 	/**
 	 * constructed by the 'name'd service
 	 * 
-	 * @param service
+	 * @param serviceName
 	 */
-	public OpenCVData(String service) {
-		this(service, 0, null);
+	public OpenCVData(String serviceName) {
+		this(serviceName, 0, null);
 	}
 
-	public OpenCVData(String service, int frameIndex, String display) {
+	public OpenCVData(String serviceName, int frameIndex, String displayName) {
 		this.timestamp = System.currentTimeMillis();
 		this.frameIndex = frameIndex;
-		this.service = service;
-		this.display = display;
+		this.serviceName = serviceName;
+		this.displayName = displayName;
 	}
 
 	/**
@@ -115,32 +115,31 @@ public class OpenCVData implements Serializable {
 	 * @param name
 	 */
 	public void setFilterName(String name) {
-		this.filter = name;
+		this.filterName = name;
 	}
 	
 	public void setFilter(OpenCVFilter inFilter) {
-		this.filter = inFilter.name;
-		data.put(String.format("%s.class", filter), inFilter.getClass().getCanonicalName());
+		this.filterName = inFilter.name;
 	}
 	
 	public String getFilterName(){
-		return filter;
+		return filterName;
 	}
 
 	public void setWidth(Integer width) {
-		data.put(String.format("%s.width", filter), width);
+		setAttribute("width", width);
 	}
 
 	public Integer getWidth() {
-		return (Integer) data.get(String.format("%s.width", filter));
+		return (Integer) data.get(String.format("%s.width", filterName));
 	}
 
 	public void setHeight(Integer height) {
-		data.put(String.format("%s.height", filter), height);
+		setAttribute("height", height);
 	}
 
 	public Integer getHeight() {
-		return (Integer) data.get(String.format("%s.height", filter));
+		return (Integer) data.get(String.format("%s.height", filterName));
 	}
 
 	// -------- IplImage begin ----------------
@@ -157,12 +156,12 @@ public class OpenCVData implements Serializable {
 	}
 
 	/**
-	 * paramaterless tries to retrieve image based on current filtername
+	 * parameterless tries to retrieve image based on current filtername
 	 * 
 	 * @return
 	 */
 	public IplImage getImage() {
-		return getImage(filter);
+		return getImage(filterName);
 	}
 
 	/**
@@ -182,12 +181,12 @@ public class OpenCVData implements Serializable {
 	// -------- BufferedImage begin ----------------
 	public BufferedImage getBufferedImageDisplay()
 	{
-		return getBufferedImage(display);
+		return getBufferedImage(displayName);
 	}
 	
 	public BufferedImage getBufferedImage()
 	{
-		return getBufferedImage(filter);
+		return getBufferedImage(filterName);
 	}
 	
 	public BufferedImage getBufferedImage(String filterName){
@@ -214,12 +213,12 @@ public class OpenCVData implements Serializable {
 	// -------- JPG to file begin ----------------
 	public String writeImage()
 	{
-		return writeImage(filter);
+		return writeImage(filterName);
 	}
 	
 	public String writeDisplay()
 	{
-		return writeImage(display);
+		return writeImage(displayName);
 	}
 
 	public String writeInput()
@@ -235,7 +234,7 @@ public class OpenCVData implements Serializable {
 			if (bi == null) return null;
 			// FIXME OPTIMIZE - USE CONVERT & OPENCV !!!
 			ImageIO.write(bi , "jpg", baos);
-			filename = String.format("%s.%s.%d.jpg", service, filter, frameIndex );
+			filename = String.format("%s.%s.%d.jpg", serviceName, filter, frameIndex );
 			FileOutputStream fos = new FileOutputStream(filename);
 			fos.write(baos.toByteArray());
 			fos.close();
@@ -272,6 +271,7 @@ public class OpenCVData implements Serializable {
 		return byteBuffer;
 	}
 	
+	// WTF ??
 	public CvMat getJPG(String filterName)
 	{
 		// FIXME FIXME FIXME - before doing ANY CONVERSION EVER - ALWAYS CHECK CACHE !!
@@ -351,74 +351,62 @@ public class OpenCVData implements Serializable {
 		// String key = String.format("%s.%s", filterName,
 		// KEY_BOUNDING_BOX_ARRAY);
 		ArrayList<Rectangle> list;
-		if (!data.containsKey(String.format("%s.boundingboxes", filter))) {
+		if (!data.containsKey(String.format("%s.boundingboxes", filterName))) {
 			list = new ArrayList<Rectangle>();
-			data.put(String.format("%s.boundingboxes", filter), list);
+			data.put(String.format("%s.boundingboxes", filterName), list);
 		} else {
-			list = (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filter));
+			list = (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filterName));
 		}
 
 		list.add(boundingBox);
 	}
 
 	public ArrayList<Rectangle> getBoundingBoxArray() {
-		String key = String.format("%s.boundingboxes", filter);
+		String key = String.format("%s.boundingboxes", filterName);
 		if (data.containsKey(key)) {
-			return (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filter));
+			return (ArrayList<Rectangle>) data.get(String.format("%s.boundingboxes", filterName));
 		} else {
 			return null;
 		}
 	}
 	
 	public void set(ArrayList<Point2Df> pointsToPublish) {
-		data.put(String.format("%s.points", filter), pointsToPublish);
+		data.put(String.format("%s.points", filterName), pointsToPublish);
 	}
 
 	public ArrayList<Point2Df> getPoints() {
-		return (ArrayList<Point2Df>) data.get(String.format("%s.points", filter));
+		return (ArrayList<Point2Df>) data.get(String.format("%s.points", filterName));
 	}
 	
 	public Point2Df getFirstPoint() {
-		ArrayList<Point2Df> points = (ArrayList<Point2Df>) data.get(String.format("%s.points", filter));
+		ArrayList<Point2Df> points = (ArrayList<Point2Df>) data.get(String.format("%s.points", filterName));
 		if (points != null && points.size() > 0)
 			return points.get(0);
 		return null;
 	}
 
 	public boolean containsAttribute(String name) {
-		return data.containsKey(String.format("%s.attribute.%s", filter, name));
-	}
-
-	public String getAttribute(String name) {
-		return (String) data.get(String.format("%s.attribute.%s", filter, name));
-	}
-
-	public String putAttribute(String name) {
-		return (String) data.put(String.format("%s.attribute.%s", filter, name), (Object) null);
-	}
-
-	public String putAttribute(String name, String value) {
-		return (String) data.put(String.format("%s.attribute.%s", filter, name), value);
+		return data.containsKey(String.format("%s.attribute.%s", filterName, name));
 	}
 
 	public void put(ArrayList<Rectangle> bb) {
-		data.put(String.format("%s.boundingboxes", filter), bb);
+		data.put(String.format("%s.boundingboxes", filterName), bb);
 	}
 
 	public Integer getX() {
-		return (Integer) data.get(String.format("%s.x", filter));
+		return (Integer) data.get(String.format("%s.x", filterName));
 	}
 
 	public void setX(int x) {
-		data.put(String.format("%s.x", filter), x);
+		data.put(String.format("%s.x", filterName), x);
 	}
 
 	public Integer getY() {
-		return (Integer) data.get(String.format("%s.y", filter));
+		return (Integer) data.get(String.format("%s.y", filterName));
 	}
 
 	public void setY(int y) {
-		data.put(String.format("%s.y", filter), y);
+		data.put(String.format("%s.y", filterName), y);
 	}
 
 	public long getTimestamp() {
@@ -531,11 +519,48 @@ public class OpenCVData implements Serializable {
 */
 	
 	public String getDisplayName() {
-		return display;
+		return displayName;
 	}
 
 	public void setDisplayName(String displayname) {
-		this.display = displayname;
+		this.displayName = displayname;
+	}
+	
+	
+	// TODO - to be incorporated into OpenCV.test()
+	public static void main(String[] args) throws Exception {
+
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel(Level.INFO);
+
+		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
+		opencv.addFilter(new OpenCVFilterPyramidDown());
+		SerializableImage img = opencv.getDisplay();
+		opencv.capture();
+		img = opencv.getDisplay();
+
+		log.info("img " + img.toString());
+		
+		//GUIService gui = (GUIService) Runtime.createAndStart("gui", "GUIService");
+		//opencv.test();
+		// gf.qualityLevel = 0.0004;
+
+	}
+
+	public String makeKey(String attributeName){
+		return String.format("%s.%s.%s", serviceName, filterName, attributeName);
+	}
+	
+	public void setAttribute(String key, Object value) {
+		data.put(makeKey(key), value);
+	}
+	
+	public Object getAttribute(String name){
+		String key = makeKey(name);
+		if (data.containsKey(key)){
+			return data.get(key);
+		}
+		return null;
 	}
 
 

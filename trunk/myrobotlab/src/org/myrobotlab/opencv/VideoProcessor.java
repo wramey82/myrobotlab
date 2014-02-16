@@ -33,6 +33,7 @@ import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.ziclix.python.sql.handler.MySQLDataHandler;
 
 @Root
 public class VideoProcessor implements Runnable, Serializable {
@@ -64,10 +65,13 @@ public class VideoProcessor implements Runnable, Serializable {
 	@Element
 	public boolean publishOpenCVData = true;
 	// GRABBER END --------------------------
-	@Element
-	public boolean useBlockingData = false;
+	// DEPRECATED - always use blocking queue
+	// public boolean useBlockingData = false;
 	transient CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
-	OpenCVData lastData = null;
+	
+	// DEPRECATED deemed a bad idea - non blocking
+	// use getOpenCVData
+	// OpenCVData lastData = null;
 
 	OpenCVData data = null;
 
@@ -80,7 +84,7 @@ public class VideoProcessor implements Runnable, Serializable {
 	 * map of video sources - allows filters
 	 * to process any named source
 	 */
-	transient VideoSources sources = new VideoSources();
+	transient VideoSources2 sources = new VideoSources2();
 
 	private transient OpenCV opencv;
 	private transient FrameGrabber grabber = null;
@@ -132,10 +136,12 @@ public class VideoProcessor implements Runnable, Serializable {
 		return opencv;
 	}
 	
+	/* DEPRECATED - use getOpenCVData()
 	public OpenCVData getLastData()
 	{
 		return lastData;
 	}
+	*/
 
 	// FIXME - cheesy initialization - put it all in the constructor or before
 	// I assume this was done because the load() is difficult to manage !!
@@ -221,6 +227,9 @@ public class VideoProcessor implements Runnable, Serializable {
 			if (grabber != null) {
 				grabber.start();
 			}
+			
+			log.info("wating 300 ms for camera to warm up");
+			Service.sleep(300);
 
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -323,13 +332,22 @@ public class VideoProcessor implements Runnable, Serializable {
 					Logging.logTime("filters done");
 				} // synchronized (filters)
 				Logging.logTime("sync done");
-				
-				lastData = data;
-				
+							
 				// publish accumulated data
 				if (publishOpenCVData) {
 					opencv.invoke("publishOpenCVData", data);
 				}
+				
+				
+				// this has to be before record as
+				// record uses the queue
+				if (blockingData.size() == 0) {
+					blockingData.add(data);
+				}
+				
+				
+				//blockingData.clear();
+				//blockingData.add(data);
 				
 				// TODO various OpenCVData methods exposed from the OpenCV service by setting 
 				// lastOpenCVData to the latest reference and returning the data from that reference
@@ -359,10 +377,6 @@ public class VideoProcessor implements Runnable, Serializable {
 						// TODO - add input, filter, & display
 						record(data);
 					}
-				}
-
-				if (useBlockingData) {
-					blockingData.add(data);
 				}
 
 			} catch (Exception e) {

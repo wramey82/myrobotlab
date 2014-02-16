@@ -1,5 +1,7 @@
 package org.myrobotlab.service;
 
+import java.util.HashMap;
+
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -40,6 +42,9 @@ public class InMoov extends Service {
 	transient public InMoovHand leftHand;
 	transient public InMoovArm rightArm;
 	transient public InMoovArm leftArm;
+	
+	transient private HashMap<String, InMoovArm> arms = new HashMap<String, InMoovArm>();
+	transient private HashMap<String, InMoovHand> hands = new HashMap<String, InMoovHand>();
 
 	// easy global references ???
 	transient public Tracking eyesTracking;
@@ -205,6 +210,8 @@ public class InMoov extends Service {
 	public InMoovHand startHand(String side, String port, String type) {
 		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
 		
+		hands.put(side, hand);
+		
 		if (type == null && right.equals(side)){
 			type = Arduino.BOARD_TYPE_UNO;
 		} else if (type == null) {
@@ -241,6 +248,7 @@ public class InMoov extends Service {
 
 	public InMoovArm startArm(String side, String port, String type) {
 		InMoovArm Arm = (InMoovArm) createPeer(String.format("%sArm", side));
+		arms.put(side, Arm);
 		// connect will start if not already started
 		
 		if (type == null && right.equals(side)){
@@ -530,7 +538,79 @@ public class InMoov extends Service {
 		startRightArm(rightPort);
 		startHead(leftPort);
 	}
+	
+	public void stopTracking(){
+		Tracking eyes = getEyesTracking();
+		if (eyes != null){
+			eyes.stopTracking();
+		}
+		Tracking head = getHeadTracking();
+		if (head != null){
+			head.stopTracking();
+		}
+	}
+	
+	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky){
+		setHandSpeed(which, thumb, index, majeure, ringFinger, pinky, null);
+	}
+	
+	public void setHandSpeed(String which, Float thumb, Float index, Float majeure, Float ringFinger, Float pinky, Float wrist) {
+		if (!hands.containsKey(which)){
+			error("setHandSpeed %s does not exist", which);
+		} else {
+			hands.get(which).setSpeed(thumb, index, majeure, ringFinger, pinky, wrist);
+		}
+	}
+	
+	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky) {
+		moveHand(which, thumb, index, majeure, ringFinger, pinky, null);
+	}
 
+	public void moveHand(String which, Integer thumb, Integer index, Integer majeure, Integer ringFinger, Integer pinky, Integer wrist) {
+		if (!hands.containsKey(which)){
+			error("moveHand %s does not exist", which);
+		} else {
+			hands.get(which).moveTo(thumb, index, majeure, ringFinger, pinky, wrist);
+		}
+	}
+	
+	public void setArmSpeed(String which, Float bicep, Float rotate, Float shoulder, Float omoplate) {
+		if (!arms.containsKey(which)){
+			error("setArmSpeed %s does not exist", which);
+		} else {
+			arms.get(which).setSpeed(bicep, rotate, shoulder, omoplate);
+		}
+	}
+
+	public void moveArm(String which, Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
+		if (!arms.containsKey(which)){
+			error("setArmSpeed %s does not exist", which);
+		} else {
+			arms.get(which).moveTo(bicep, rotate, shoulder, omoplate);
+		}
+	}
+
+	public void moveHead(Integer neck, Integer rothead) {
+		if (head != null) {
+			head.moveTo(neck, rothead);
+		} else {
+			log.error("I have a null head");
+		}
+	}
+
+	public void setHeadSpeed(Float rothead, Float neck) {
+		head.setSpeed(rothead, neck, null, null, null);
+	}
+	
+	public void moveEyes(Integer eyeX, Integer eyeY) {
+		if (head != null) {
+			head.moveTo(null, null, eyeX, eyeY, null);
+		} else {
+			log.error("I have a null head");
+		}
+	}
+
+	
 	/* ------------------------- GETTERS SETTERS END ----------------------------- */
 	
 	public static void main(String[] args) {
