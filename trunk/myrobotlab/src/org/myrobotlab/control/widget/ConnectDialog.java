@@ -14,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.service.GUIService;
 
 public class ConnectDialog extends JDialog implements ActionListener {
@@ -25,6 +24,10 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	JButton connect = new JButton("connect");
 	JButton cancel = new JButton("cancel");
 	GUIService myService;
+	
+	public final String CANCELED = "canceled";
+	
+	public String state;
 
 	public ConnectDialog(JFrame parent, String title, String message, GUIService myService, String defaultIP, String defaultPort) {
 		super(parent, title, true);
@@ -42,6 +45,8 @@ public class ConnectDialog extends JDialog implements ActionListener {
 			port = new JTextField(defaultPort, 10);
 		}
 
+		// TODO - refactor - i hate grid bag
+		
 		GridBagConstraints gc = new GridBagConstraints();
 		JPanel connectInfo = new JPanel();
 		connectInfo.setLayout(new GridBagLayout());
@@ -82,9 +87,6 @@ public class ConnectDialog extends JDialog implements ActionListener {
 			// FIXME - refactor name
 			myService.connect(null, null, host.getText(), Integer.parseInt(port.getText()));
 		}
-
-		myService.lastHost = host.getText();
-		myService.lastPort = port.getText();
 		setVisible(false);
 		dispose();
 	}

@@ -54,6 +54,7 @@ import org.myrobotlab.net.TCPThread2;
 import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.interfaces.Communicator;
 import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 /***
@@ -69,6 +70,12 @@ public class RemoteAdapter extends Service implements Communicator {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(RemoteAdapter.class);
 
+	@Element
+	public String lastHost = "127.0.0.1";
+	@Element
+	public String lastPort = "6767";
+
+	
 	// types of listening threads - multiple could be managed
 	// when correct interfaces and base classes are done
 	transient TCPListener tcpListener = null;
@@ -375,7 +382,7 @@ public class RemoteAdapter extends Service implements Communicator {
 		String scheme = uri.getScheme();
 		if ("tcp".equals(scheme)) {
 			sendRemoteTCP(uri, msg);
-		} else if ("tcp".equals(scheme)) {
+		} else if ("udp".equals(scheme)) {
 			sendRemoteUDP(uri, msg);
 		} else {
 			error(String.format("%s not supported", uri.toString()));
@@ -446,7 +453,7 @@ public class RemoteAdapter extends Service implements Communicator {
 	public void setTCPPort(Integer tcpPort) {
 		this.tcpPort = tcpPort;
 	}
-
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.ERROR);

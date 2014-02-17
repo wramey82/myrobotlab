@@ -131,10 +131,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	@Element(required = false)
 	public String lastTabVisited;
-	@Element
-	public String lastHost = "127.0.0.1";
-	@Element
-	public String lastPort = "6767";
 
 	/**
 	 * class to save the position and size of undocked panels
@@ -680,11 +676,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 		// --- system ----
 		JMenu systemMenu = new JMenu("system");
-		JMenuItem mi;
-
-		mi = new JMenuItem("connect");
-		mi.addActionListener(this);
-		systemMenu.add(mi);
 
 		JMenuItem save = new JMenuItem("save");
 		save.setActionCommand("save");
@@ -766,19 +757,17 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			// TODO this needs to be changed into something like tryValueOf(cmd)
 			Logging logging = LoggingFactory.getInstance();
 			logging.setLevel(cmd);
-		} else if ("connect".equals(cmd)) {
+		} else /* if ("connect".equals(cmd)) {
 			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
 			lastHost = dlg.host.getText();
 			lastPort = dlg.port.getText();
-		} else if (cmd.equals(Appender.NONE)) {
+		} else */ if (cmd.equals(Appender.NONE)) {
 			Logging logging = LoggingFactory.getInstance();
 			logging.removeAllAppenders();
 		} else if (cmd.equals(Appender.REMOTE)) {
 			JCheckBoxMenuItem m = (JCheckBoxMenuItem) ae.getSource();
 			if (m.isSelected()) {
-				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, lastHost, lastPort);
-				lastHost = dlg.host.getText();
-				lastPort = dlg.port.getText();
+				ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect to remote logging", "message", this, "127.0.0.1", "6767");
 				Logging logging = LoggingFactory.getInstance();
 				logging.addAppender(Appender.REMOTE, dlg.host.getText(), dlg.port.getText());
 			} else {
