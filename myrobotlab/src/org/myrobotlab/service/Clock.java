@@ -163,11 +163,11 @@ public class Clock extends Service {
 				// cuz you have not started it yet
 				Clock clock = (Clock) Runtime.createAndStart(String.format("clock%d", i), "Clock");
 				Runtime.createAndStart(String.format("gui%d", i), "GUIService");
-
+/*
 				Message msg = remote.createMessage("", "register", clock);
 				URI uri = new URI("tcp://127.0.0.1:6767");
 				remote.sendRemote(uri, msg);
-
+*/
 				// FIXME - sholdn't this be sendRemote ??? or at least
 				// in an interface
 				// remote.sendRemote(uri, msg);
