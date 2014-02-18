@@ -614,6 +614,14 @@ public class OpenCV extends VideoSource {
 		videoProcessor.recordingSource = source;
 		return source;
 	}
+	
+	public void showFrameNumbers(boolean b){
+		videoProcessor.showFrameNumbers(b);
+	}
+	
+	public void showTimestamp(boolean b){
+		videoProcessor.showTimestamp(b);
+	}
 
 	public ArrayList<Error> test() {
 		

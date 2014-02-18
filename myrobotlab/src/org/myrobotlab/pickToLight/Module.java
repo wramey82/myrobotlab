@@ -21,16 +21,16 @@ import com.pi4j.io.i2c.I2CFactory;
  ALL writes to the I/O expander write that bit high.  
  As a result, there are only four possible values that should be written:
 
- 0x80 = LED ON and display selected 
- 0x81 = LED ON and display de-selected 
- 0x82 = LED OFF and display selected 
- 0x83 = LED OFF and display de-selected
+0x80 - 128 = LED ON and display selected 
+0x81 - 129 = LED ON and display de-selected 
+0x82 - 130 = LED OFF and display selected 
+0x83 - 131 = LED OFF and display de-selected
 
  */
 
-public class Module2 {
+public class Module {
 
-	public final static Logger log = LoggerFactory.getLogger(Module2.class);
+	public final static Logger log = LoggerFactory.getLogger(Module.class);
 
 	transient private com.pi4j.io.i2c.I2CBus i2cbus;
 	transient private com.pi4j.io.i2c.I2CDevice device;
@@ -41,16 +41,16 @@ public class Module2 {
 	String state;
 	int selector = 0x83; // IR selected - LED OFF
 
-	static final int MASK_DISPLAY = 0x01;
-	static final int MASK_LED = 0x02;
-	static final int MASK_SENSOR = 0x80;
+	static public final int MASK_DISPLAY = 0x01;
+	static public final int MASK_LED = 0x02;
+	static public final int MASK_SENSOR = 0x80;
 
 	private String lastValue = "";
 
 	static private boolean translationInitialized = false;
-	static HashMap<String, Byte> translation = new HashMap<String, Byte>();
+	transient static HashMap<String, Byte> translation = new HashMap<String, Byte>();
 
-	CycleThread ct = null;
+	transient CycleThread ct = null;
 
 	public class BlinkThread extends Thread {
 		public int blinkNumber = 5;
@@ -61,18 +61,21 @@ public class Module2 {
 		public void run() {
 			int count = 0;
 			while (count < 5) {
-				selector &= ~MASK_LED;
+				// selector &= ~MASK_DISPLAY; WRONG !
 				display(value);
+				ledOn();
 				Service.sleep(blinkDelay);
 				display("");
-				selector |= MASK_LED;
+				ledOff();
+				// selector |= MASK_LED; WRONG !!
 				Service.sleep(blinkDelay);
 				++count;
 			}
 
 			if (leaveOn) {
-				selector &= ~MASK_LED;
+				// selector &= ~MASK_DISPLAY; WONG
 				display(value);
+				ledOn();
 			}
 		}
 	}
@@ -290,22 +293,27 @@ public class Module2 {
 	// TODO - should only have to wrap the highest level transaction (WebGUI
 	// Thread) -
 	// such that smaller transaction handling is not necessary
-	public void ledOn() {
+	public int ledOn() {
 		try {
 			selector &= ~MASK_LED;
+			log.info("ledOn {}",Integer.toHexString(selector));
 			device.write((byte) selector);
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
+		return selector;
 	}
 
-	public void ledOff() {
+	public int ledOff() {
 		try {
 			selector |= MASK_LED;
+			log.info("ledOff {}",Integer.toHexString(selector));
 			device.write((byte) selector);
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
+		
+		return selector;
 	}
 
 	public int readSensor() {
@@ -335,7 +343,7 @@ public class Module2 {
 		// stop polling
 	}
 
-	public Module2(int bus, int i2cAddress) {
+	public Module(int bus, int i2cAddress) {
 		try {
 
 			address.setI2CBus(bus);

@@ -379,23 +379,28 @@ public class WSServer extends WebSocketServer {
 				r = processor.serve(uri, method, headers, parms, postBody);
 
 			} else {
+				log.info("pre -defaultProcessor");
 				r = defaultProcessor.serve(uri, method, headers, parms, postBody);
+				log.info("post -defaultProcessor");
 			}
 			
 			if (r == null)
 			{
+				log.info("---------------CLOSE-------------------------");
 				conn.close();
 				return;
 			}
 
+			// serializing r
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			r.send(out);
 			out.flush();
-			
+
 			byte[] ba = out.toByteArray();
 			log.info(String.format("sending %d bytes", ba.length));
 			conn.send(ba);
 			conn.close();
+			
 		} catch (Exception e) {
 			// attempt a 500
 			Logging.logException(e);

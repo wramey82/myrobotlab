@@ -15,10 +15,8 @@ import java.util.Set;
 import javax.xml.soap.SOAPBodyElement;
 
 import org.apache.commons.codec.binary.Base64;
-import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -43,7 +41,7 @@ public class Encoder {
 	public final static String SCHEME_BASE64 = "base64";
 
 	// disableHtmlEscaping to prevent encoding or "=" -
-	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").disableHtmlEscaping().create();
+	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().disableHtmlEscaping().create();
 	public final static String API_REST_PREFIX = "/api";
 
 	public static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class,

@@ -23,7 +23,6 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.pickToLight.KitRequest;
 import org.myrobotlab.service.Clock;
 import org.myrobotlab.service.PickToLight;
 import org.slf4j.Logger;
@@ -360,7 +359,7 @@ public class SOAP {
 			//SOAPBody body = msg.getSOAPBody();
 			
 			
-			JAXBContext context = JAXBContext.newInstance(KitRequest.class); 
+			JAXBContext context = JAXBContext.newInstance(Clock.class); 
 			
 			//pojoToXSD(context, pojo, out)
 			

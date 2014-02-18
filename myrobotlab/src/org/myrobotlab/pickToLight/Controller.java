@@ -1,18 +1,18 @@
 package org.myrobotlab.pickToLight;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class Controller2 {
+public class Controller {
 
 	private String name;
 	private String version;
 	private String ipAddress;
 	private String macAddress;
 	
-	private HashMap <String, Module2> modules = new HashMap <String, Module2>();
+	private ConcurrentHashMap <String, Module> modules = new ConcurrentHashMap <String, Module>();
 	
-	public Controller2(){
+	public Controller(){
 	}
 
 	public String getMacAddress() {
@@ -47,11 +47,11 @@ public class Controller2 {
 		this.ipAddress = ipAddress;
 	}
 
-	public HashMap<String, Module2> getModules() {
+	public ConcurrentHashMap<String, Module> getModules() {
 		return modules;
 	}
 
-	public void setModules(HashMap<String, Module2> modules) {
+	public void setModules(ConcurrentHashMap<String, Module> modules) {
 		this.modules = modules;
 	}
 

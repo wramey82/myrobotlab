@@ -33,7 +33,6 @@ import com.googlecode.javacv.OpenKinectFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.CvFont;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.ziclix.python.sql.handler.MySQLDataHandler;
 
 @Root
 public class VideoProcessor implements Runnable, Serializable {
@@ -73,6 +72,8 @@ public class VideoProcessor implements Runnable, Serializable {
 	// use getOpenCVData
 	// OpenCVData lastData = null;
 
+	StringBuffer frameTitle = new StringBuffer();
+	
 	OpenCVData data = null;
 
 	// FIXME - more than 1 type is being used on this in more than one context
@@ -125,7 +126,9 @@ public class VideoProcessor implements Runnable, Serializable {
 	private boolean closeOutputs = false;
 	public String recordingSource = INPUT_KEY;
 
-	private boolean showFrames = true;
+	private boolean showFrameNumbers = true;
+
+	private boolean showTimestamp = true;
 
 
 	public VideoProcessor() {
@@ -359,10 +362,20 @@ public class VideoProcessor implements Runnable, Serializable {
 				if (publishDisplay){
 					// FIXME JUST SO YOU KNOW IT IMAGE IS SEPERATED FROM DISPLAY AT THIS POINT WITHOUT FORKING !!!! I CAN PROVE IT !!!S
 					// STILL DOING COPIES !!!! 
+					
 					// if display frame
-					if (showFrames ){
-						//cvPutText(data.getImage(displayFilter), String.format("frame %d %d", frameIndex, System.currentTimeMillis()), cvPoint(10,20), font, CvScalar.BLACK);
-						cvPutText(data.getImage(displayFilter), String.format("frame %d %d", frameIndex, System.currentTimeMillis()), cvPoint(10,20), font, CvScalar.BLACK);
+					if (showFrameNumbers || showTimestamp){
+						
+						if (showFrameNumbers){
+							frameTitle.append("frame ");
+							frameTitle.append(frameIndex);
+						}
+						
+						if (showTimestamp){
+							frameTitle.append(System.currentTimeMillis());
+						}
+						
+						cvPutText(data.getImage(displayFilter), frameTitle.toString(), cvPoint(10,20), font, CvScalar.BLACK);
 					}
 					
 					SerializableImage display = new SerializableImage(data.getJPGBytes(displayFilter), data.getDisplayName(), frameIndex);
@@ -548,8 +561,11 @@ public class VideoProcessor implements Runnable, Serializable {
 		this.minDelay = minDelay;
 	}
 	
-	public boolean showFrames(boolean b){
-		showFrames = b;
-		return b;
+	public void showFrameNumbers(boolean b){
+		showFrameNumbers = b;
+	}
+
+	public void showTimestamp(boolean b) {
+		showTimestamp  = b;
 	}
 }
