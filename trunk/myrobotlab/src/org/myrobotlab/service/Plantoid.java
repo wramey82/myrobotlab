@@ -33,6 +33,10 @@ public class Plantoid extends Service {
 	transient private WebGUI webgui;
 	transient private XMPP xmpp;
 	
+	// FIXME make part of ServoControl
+	
+	public Scanner scanner = null;
+	
 	int everyNHours = 8;
 	
 	HashMap<String, Object> p = new HashMap<String, Object>();
@@ -101,10 +105,6 @@ public class Plantoid extends Service {
 		}
 		
 	}
-	
-	// FIXME make part of ServoControl
-	
-	public Scanner scanner = null;
 	
 	public void startScanning() {
 		startScanning(pan);
@@ -194,8 +194,8 @@ public class Plantoid extends Service {
 		leg4 = (Servo) createPeer("leg4");
 		pan = (Servo) createPeer("pan");
 		tilt = (Servo) createPeer("tilt");
-		//camera = (OpenCV)createPeer("camera");
-		//tracking = (Tracking) createPeer("tracking");
+		opencv = (OpenCV)createPeer("opencv");
+		tracking = (Tracking) createPeer("tracking");
 		
 		leg1.setPin(2);
 		leg2.setPin(3);
@@ -275,8 +275,11 @@ public class Plantoid extends Service {
 //			startPolling();
 			attachPanTilt();
 			
+			tracking.startService();
+			opencv.startService();
+			
 //			attachServos();
-//			detachLegs(); // at the moment detach legs
+			detachLegs(); // at the moment detach legs
 //			stop();
 			streamer.attach(opencv);
 			

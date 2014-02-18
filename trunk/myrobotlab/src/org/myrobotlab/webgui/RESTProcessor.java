@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.net.http.Response;
@@ -50,7 +51,7 @@ public class RESTProcessor implements HTTPProcessor {
 		// TODO - structured rest fault responses
 
 		String[] keys = uri.split("/");
-
+		
 		// decode everything
 		for (int i = 0; i < keys.length; ++i) {
 			keys[i] = decodePercent(keys[i], true);
@@ -141,7 +142,6 @@ public class RESTProcessor implements HTTPProcessor {
 
 			} else if ("gson".equals(returnFormat)) {
 				ByteArrayOutputStream out = null;
-
 				// FIXME - a "response" of some sort is important - even if the
 				// returned object is null
 				// the signal which you get from a event can be significant -
@@ -154,14 +154,17 @@ public class RESTProcessor implements HTTPProcessor {
 													// appropriate?
 
 				try {
-
 					if (returnObject != null) {
+						
+						/*------------- hacked out
 						Gson gson = new Gson(); // FIXME - threadsafe? singeton?
 						out = new ByteArrayOutputStream();
 						JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 						writer.setIndent("  ");
 
+						log.info("gson - 3");
 						writer.beginArray();
+						log.info("gson - 4");
 						gson.toJson(returnObject, returnObject.getClass(), writer);
 						// for (Message message : messages) {
 						// gson.toJson(message, Message.class, writer);
@@ -169,16 +172,19 @@ public class RESTProcessor implements HTTPProcessor {
 						writer.endArray();
 						writer.close();
 
+						log.info("gson - 4");
 						encodedResponse = new String(out.toByteArray());
+						---------------hacked out ---- */
+						log.info(String.format("gson encoding [%s]", returnObject.getClass().getSimpleName()));
+						encodedResponse = Encoder.gson.toJson(returnObject);
+						log.info("done");
 
 					}
 				} catch (Exception e) {
 					Logging.logException(e);
 				}
 
-				//Response response = new Response(Status.OK, "text/text", encodedResponse);
 				Response response = new Response(Status.OK, "application/json", encodedResponse);
-
 				return response;
 			}
 

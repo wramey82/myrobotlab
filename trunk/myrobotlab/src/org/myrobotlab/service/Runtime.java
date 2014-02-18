@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -32,6 +33,7 @@ import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
+import org.myrobotlab.framework.Error;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
@@ -49,7 +51,7 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
-import org.myrobotlab.framework.Error;
+import com.pi4j.util.StringUtil;
 
 /**
  * 
@@ -69,7 +71,7 @@ public class Runtime extends Service {
 	// ---- rte members begin ----------------------------
 	static private final HashMap<URI, ServiceEnvironment> hosts = new HashMap<URI, ServiceEnvironment>();
 	static private final HashMap<String, ServiceInterface> registry = new HashMap<String, ServiceInterface>();
-	
+
 	/**
 	 * map to hide methods we are not interested in
 	 */
@@ -326,6 +328,20 @@ public class Runtime extends Service {
 	public static boolean isRuntime(Service newService) {
 		return newService.getClass().equals(Runtime.class);
 	}
+	
+	// FIXME - should probably be in a StringUtil 
+	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	public static String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
 
 	/**
 	 * Get a handle to the Runtime singleton.
@@ -663,7 +679,6 @@ public class Runtime extends Service {
 		return true;
 	}
 
-
 	/**
 	 * Gets the current total number of services registered services. This is
 	 * the number of services in all Service Environments
@@ -770,11 +785,14 @@ public class Runtime extends Service {
 	 *            of the service to be released
 	 * @return whether or not it successfully released the service
 	 */
-	public synchronized static boolean release(String name) /* release local Service */
+	public synchronized static boolean release(String name) /*
+															 * release local
+															 * Service
+															 */
 	{
 		log.warn("releasing service {}", name);
 		Runtime rt = getInstance();
-		if (!registry.containsKey(name)){
+		if (!registry.containsKey(name)) {
 			rt.error("release could not find %s", name);
 			return false;
 		}
@@ -822,8 +840,8 @@ public class Runtime extends Service {
 	}
 
 	/**
-	 * FIXME FIXME FIXME - just call release on each - possibly saving runtime for last ..
-	 * send prepareForRelease before releasing
+	 * FIXME FIXME FIXME - just call release on each - possibly saving runtime
+	 * for last .. send prepareForRelease before releasing
 	 * 
 	 * release all local services
 	 * 
@@ -1972,90 +1990,78 @@ public class Runtime extends Service {
 	/**
 	 * gets all non-loopback, active, non-virtual ip addresses
 	 * 
-	 * @return list of local IP addresses
+	 * @return list of local ipv4 IP addresses
 	 * @throws SocketException
 	 * @throws UnknownHostException
 	 */
-	static public ArrayList<String> getLocalAddresses() throws SocketException, UnknownHostException {
+	static public ArrayList<String> getLocalAddresses() {
 		log.info("getLocalAddresses");
 		ArrayList<String> ret = new ArrayList<String>();
 
-		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-		while (interfaces.hasMoreElements()) {
-			NetworkInterface current = interfaces.nextElement();
-			System.out.println(current);
-			if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
-				log.info("skipping interface is down, a loopback or virtual");
-				continue;
-			}
-			Enumeration<InetAddress> addresses = current.getInetAddresses();
-			while (addresses.hasMoreElements()) {
-				InetAddress currentAddress = addresses.nextElement();
-				if (currentAddress.isLoopbackAddress()) {
-					log.info("skipping loopback address");
+		try {
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface current = interfaces.nextElement();
+				// log.info(current);
+				if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+					log.info("skipping interface is down, a loopback or virtual");
 					continue;
 				}
-				System.out.println(currentAddress.getHostAddress());
-				ret.add(currentAddress.getHostAddress());
-			}
-		}
+				Enumeration<InetAddress> addresses = current.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					InetAddress currentAddress = addresses.nextElement();
 
+					if (!(currentAddress instanceof Inet4Address)) {
+						log.info("not ipv4 skipping");
+						continue;
+					}
+
+					if (currentAddress.isLoopbackAddress()) {
+						log.info("skipping loopback address");
+						continue;
+					}
+					log.info(currentAddress.getHostAddress());
+					ret.add(currentAddress.getHostAddress());
+				}
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 		return ret;
 	}
 
-	static public String getLocalAddress() {
-		log.info("getLocalMacAddress");
-
+	static public ArrayList<String> getLocalHardwareAddresses() {
+		log.info("getLocalHardwareAddresses");
+		ArrayList<String> ret = new ArrayList<String>();
 		try {
-			InetAddress ip = InetAddress.getLocalHost();
-			log.info("{}", ip);
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces.hasMoreElements()) {
+				NetworkInterface current = interfaces.nextElement();
+				byte[] mac = current.getHardwareAddress();
 
-			byte[] mac = network.getHardwareAddress();
+				if (mac == null || mac.length == 0){
+					continue;
+				}
+				
+				String m = bytesToHex(mac);
+				log.info(String.format("mac address : %s", m));
 
-			System.out.print("Current MAC address : ");
+				/*
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < mac.length; i++) {
+					sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+				}
+				*/
 
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < mac.length; i++) {
-				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+				ret.add(m);
+				log.info("added mac");
 			}
-
-			log.info(sb.toString());
-
-			return ip.getHostAddress();
-
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
-
-		return null;
-	}
-
-	static public String getLocalMacAddress() {
-		log.info("getLocalMacAddress");
-
-		try {
-			InetAddress ip = InetAddress.getLocalHost();
-			log.info("{}", ip);
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-
-			byte[] mac = network.getHardwareAddress();
-
-			System.out.print("Current MAC address : ");
-
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < mac.length; i++) {
-				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-			}
-
-			log.info(sb.toString());
-
-			return sb.toString();
-		} catch (Exception e) {
-			Logging.logException(e);
-		}
-
-		return null;
+		
+		log.info("done");
+		return ret;
 	}
 
 	// -------- network end ------------------------
@@ -2089,6 +2095,7 @@ public class Runtime extends Service {
 		return level;
 	}
 
+	/*
 	public static String getLocalMacAddress2() {
 		try {
 			log.info("getLocalMacAddress2");
@@ -2096,7 +2103,7 @@ public class Runtime extends Service {
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 			while (interfaces.hasMoreElements()) {
 				NetworkInterface current = interfaces.nextElement();
-				System.out.println(current);
+				// log.info(current);
 				if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
 					log.info("skipping interface is down, a loopback or virtual");
 					continue;
@@ -2108,7 +2115,7 @@ public class Runtime extends Service {
 						log.info("skipping loopback address");
 						continue;
 					}
-					System.out.println(currentAddress.getHostAddress());
+					log.info(currentAddress.getHostAddress());
 
 					NetworkInterface network = NetworkInterface.getByInetAddress(currentAddress);
 
@@ -2132,5 +2139,5 @@ public class Runtime extends Service {
 		log.info("not found");
 		return null;
 	}
-
+*/
 }
