@@ -136,6 +136,17 @@
          </list>
       </dependsOn>
    </serviceType>
+     <serviceType string="org.myrobotlab.service.GestureRecognition" workingLevel="3">
+      <dependsOn>
+        <description>Uses OpenNI NITE for tracking gestures
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>org.openni</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.GUIService" workingLevel="5">
       <dependsOn>
       	 <description>a graphical user interface for MyRobotLab
@@ -417,7 +428,19 @@
          </list>
       </dependsOn>
    </serviceType>
-      <serviceType string="org.myrobotlab.service.Plantoid" workingLevel="3">
+   <serviceType string="org.myrobotlab.service.PickToLight" workingLevel="3">
+      <dependsOn>
+        <description>Pick To Light
+        </description>
+         <list>
+			<string>org.apache.log4j</string>
+			<string>org.apache.commons.httpclient</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.pi4j.pi4j</string>         
+        </list>
+      </dependsOn>
+   </serviceType>
+   <serviceType string="org.myrobotlab.service.Plantoid" workingLevel="3">
       <dependsOn>
         <description>Plantoid robotics
         </description>
