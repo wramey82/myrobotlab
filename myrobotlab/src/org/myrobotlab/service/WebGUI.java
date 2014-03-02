@@ -59,7 +59,7 @@ public class WebGUI extends Service {
 	@Element
 	boolean autoStartBrowser = true;
 	@Element
-	boolean useLocalResources = false;
+	boolean useLocalResources = true;
 	@Element
 	public String startURL = "http://127.0.0.1:%d/index.html";
 	@Element

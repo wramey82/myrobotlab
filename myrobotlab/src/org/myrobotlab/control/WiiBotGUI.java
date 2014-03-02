@@ -38,6 +38,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.service.GUIService;
 
@@ -48,8 +50,8 @@ public class WiiBotGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = new Keyboard();
 
-	public WiiBotGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public WiiBotGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

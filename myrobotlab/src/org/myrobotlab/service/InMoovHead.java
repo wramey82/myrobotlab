@@ -1,10 +1,9 @@
 package org.myrobotlab.service;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 public class InMoovHead extends Service {
@@ -13,7 +12,6 @@ public class InMoovHead extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(InMoovHead.class);
 
-	transient public OpenCV opencv;
 	transient public Tracking headTracking;
 	transient public Tracking eyesTracking;
 	transient public MouthControl mouthControl;
@@ -22,107 +20,19 @@ public class InMoovHead extends Service {
 	transient public Servo rothead;
 	transient public Servo neck;
 	transient public Arduino arduino;
-	
-	public OpenCV getOpenCV() {
-		return opencv;
-	}
-
-	public void setOpenCV(OpenCV opencv) {
-		this.opencv = opencv;
-	}
-
-	public Tracking getHeadTracking() {
-		return headTracking;
-	}
-
-	public void setHeadTracking(Tracking headTracking) {
-		this.headTracking = headTracking;
-	}
-
-	public Tracking getEyesTracking() {
-		return eyesTracking;
-	}
-
-	public void setEyesTracking(Tracking eyesTracking) {
-		this.eyesTracking = eyesTracking;
-	}
-
-	public MouthControl getMouthControl() {
-		return mouthControl;
-	}
-
-	public void setMouthControl(MouthControl mouthControl) {
-		this.mouthControl = mouthControl;
-	}
-
-	public Servo getJaw() {
-		return jaw;
-	}
-
-	public void setJaw(Servo jaw) {
-		this.jaw = jaw;
-	}
-
-	public Servo getEyeX() {
-		return eyeX;
-	}
-
-	public void setEyeX(Servo eyeX) {
-		this.eyeX = eyeX;
-	}
-
-	public Servo getEyeY() {
-		return eyeY;
-	}
-
-	public void setEyeY(Servo eyeY) {
-		this.eyeY = eyeY;
-	}
-
-	public Servo getRothead() {
-		return rothead;
-	}
-
-	public void setRothead(Servo rothead) {
-		this.rothead = rothead;
-	}
-
-	public Servo getNeck() {
-		return neck;
-	}
-
-	public void setNeck(Servo neck) {
-		this.neck = neck;
-	}
-
-	public Arduino getArduino() {
-		return arduino;
-	}
-
-	public void setArduino(Arduino arduino) {
-		this.arduino = arduino;
-	}
 
 	// static in Java are not overloaded but overwritten - there is no polymorphism for statics
 	public static Peers getPeers(String name)
 	{
 		Peers peers = new Peers(name);
 		
-		peers.suggestAs("mouthControl.arduino", "headArduino", "Arduino", "shared head Arduino");
 		peers.suggestAs("mouthControl.jaw", "jaw", "Servo", "shared servo");		
-		peers.suggestAs("headTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
-		peers.suggestAs("eyesTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
-		peers.suggestAs("headArduino", "headArduino", "Arduino", "shared head Arduino");
-		peers.suggestAs("headTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");		
-		peers.suggestAs("eyesTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");	
 		peers.suggestAs("headTracking.x", "rothead", "Servo", "shared servo");		
 		peers.suggestAs("headTracking.y", "neck", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.x", "eyeX", "Servo", "shared servo");		
 		peers.suggestAs("eyesTracking.y", "eyeY", "Servo", "shared servo");		
-		peers.suggestAs("opencv", "opencv", "OpenCV", "shared head OpenCV");	
 		
 		peers.put("mouthControl", "MouthControl", "MouthControl");	
-		peers.put("opencv", "OpenCV", "shared OpenCV instance");
 		peers.put("headTracking", "Tracking", "Head tracking system");
 		peers.put("eyesTracking", "Tracking", "Tracking for the eyes");
 		peers.put("jaw", "Servo", "Jaw servo");
@@ -131,20 +41,12 @@ public class InMoovHead extends Service {
 		peers.put("rothead", "Servo", "Head pan servo");
 		peers.put("neck", "Servo", "Head tilt servo");
 		peers.put("headArduino", "Arduino", "Arduino controller for this arm");
-		
-		// TODO better be whole dam tree ! - have to recurse based on Type !!!!
-		/*
-		peers.suggestAs("mouthControl.arduino", "headArduino", "Arduino", "shared head Arduino");
-		peers.suggestAs("headTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
-		peers.suggestAs("eyesTracking.arduino", "headArduino", "Arduino", "shared head Arduino");
-		*/
 				
 		return peers;
 	}
 	
 	public InMoovHead(String n) {
 		super(n);
-		opencv = (OpenCV)createPeer("opencv");
 		headTracking = (Tracking)createPeer("headTracking");
 		eyesTracking = (Tracking)createPeer("eyesTracking");
 		jaw = (Servo) createPeer("jaw");
@@ -179,15 +81,12 @@ public class InMoovHead extends Service {
 		jaw.setRest(10);
 		eyeX.setRest(80);
 		eyeY.setRest(90);
-		
-		//mouthControl.set
-		
+
 	}
 
 	@Override
 	public void startService() {
 		super.startService();
-		opencv.startService();
 		headTracking.startService();
 		eyesTracking.startService();
 		mouthControl.startService();
@@ -289,6 +188,12 @@ public class InMoovHead extends Service {
 		eyeX.broadcastState();
 		eyeY.broadcastState();
 		jaw.broadcastState();
+
+		headTracking.getXPID().broadcastState();
+		headTracking.getYPID().broadcastState();
+		eyesTracking.getXPID().broadcastState();
+		eyesTracking.getYPID().broadcastState();
+		
 	}
 
 	public void detach() {	
@@ -348,6 +253,30 @@ public class InMoovHead extends Service {
 		jaw.moveTo(jaw.getRest() + 2);
 		return true;
 	}
+	
+	public Errors test() {
+		Errors errors = new Errors();
+		try {
+			if (arduino == null) {
+				errors.add("arduino is null");
+			}
+			
+			if (!arduino.isConnected()){
+				errors.add("arduino not connected");
+			}
+
+			rothead.moveTo(rothead.getPosition() + 2);
+			neck.moveTo(neck.getPosition() + 2);
+			eyeX.moveTo(eyeX.getPosition() + 2);
+			eyeY.moveTo(eyeY.getPosition() + 2);
+			jaw.moveTo(jaw.getPosition() + 2);
+			
+		} catch (Exception e) {
+			errors.add(e);
+		}
+
+		return errors;
+	}
 
 	public void setLimits(int headXMin, int headXMax, int headYMin, int headYMax, int eyeXMin, int eyeXMax, int eyeYMin, int eyeYMax, int jawMin, int jawMax) {
 		rothead.setMinMax(headXMin, headXMax);
@@ -365,54 +294,5 @@ public class InMoovHead extends Service {
 		return "InMoov Head Service";
 	}
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.WARN);
-
-		// use case - before merge
-		Service.reserveRootAs("head01.mouthControl.arduino", "dorkbutt");
-		log.warn("{}", Runtime.buildDNA("head01", "InMoovHead"));
-
-		InMoovHead head = (InMoovHead)Runtime.createAndStart("head01", "InMoovHead");
-		
-		head.connect("COM12");
-		
-		head.moveTo(40, 60);
-		head.moveTo(90, 90);
-		head.moveTo(110, 130);
-		/*
-		
-		log.warn("actual dna \n" + Service.getDNA());
-		
-		log.warn("-----------------------------------------------------");
-		Index<ServiceReservation> dna = Runtime.buildDNA("head01", "InMoovHead");
-		log.warn("-----------------------------------------------------");
-		log.warn("\n" + dna);
-		
-		Service.mergePeerDNA("head01", "InMoovHead");
-		// use case - after merge
-		Service.reserveRootAs("head01.mouthControl.arduino", "dorkbutt");
-		log.warn("actual dna \n{}", Service.getDNA());
-
-		//log.warn("\n" + Service.getAllPeers("head01","InMoovHead").show());
-		
-		//Service.mergePeerDNA("head01", "InMoovHead"); // TODO getPeers getAllPeers mergeAllPeersReservations
-		//log.warn(Service.getDNA());
-		InMoovHead head = new InMoovHead("head01");
-		log.warn(Service.getDNA().getRootNode().toString());
-		*/
-		
-		Runtime.createAndStart("gui", "GUIService");
-	
-		//head.createReserved("HeadTracking");
-		//head.startReserved("HeadTracking");
-
-		// head.startService();
-		
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * 
-		 */
-	}
 
 }

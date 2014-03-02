@@ -37,11 +37,12 @@ public class Encoder {
 
 	public final static Logger log = LoggerFactory.getLogger(Encoder.class);
 
+	// uri schemes
 	public final static String SCHEME_MRL = "mrl";
 	public final static String SCHEME_BASE64 = "base64";
 
 	// disableHtmlEscaping to prevent encoding or "=" -
-	public final transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().disableHtmlEscaping().create();
+	public transient static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().disableHtmlEscaping().create();
 	public final static String API_REST_PREFIX = "/api";
 
 	public static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class,
@@ -70,6 +71,15 @@ public class Encoder {
 
 	public static boolean isWrapper(String className) {
 		return WRAPPER_TYPES_CANONICAL.contains(className);
+	}
+	
+	public static boolean setJSONPrettyPrinting(boolean b){
+		if (b){
+			gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").setPrettyPrinting().disableHtmlEscaping().create();
+		} else {
+			gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").disableHtmlEscaping().create();
+		}
+		return b;
 	}
 
 	/**

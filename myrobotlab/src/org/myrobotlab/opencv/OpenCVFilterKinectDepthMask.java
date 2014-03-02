@@ -134,7 +134,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage image, OpenCVData data) {
+	public IplImage process(IplImage image, OpenCVData data) throws InterruptedException {
 
 		/*
 		 * 
@@ -150,7 +150,7 @@ public class OpenCVFilterKinectDepthMask extends OpenCVFilter {
 
 		// TODO - clean up - remove input parameters? only use storage?
 		if (imageKey != null) {
-			IplImage kinectDepth = vp.sources.get(vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH);
+			IplImage kinectDepth = vp.sources.get(String.format("%s.%s", vp.boundServiceName, OpenCV.SOURCE_KINECT_DEPTH));
 		} else {
 			kinectDepth = image;
 		}

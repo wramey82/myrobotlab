@@ -1,5 +1,6 @@
 package org.myrobotlab.service;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -256,27 +257,27 @@ public class InMoovArm extends Service {
 		this.omoplate.moveTo(omoplate);
 	}
 
-	public boolean isValid() {
-		bicep.moveTo(bicep.getRest() + 2);
-		rotate.moveTo(rotate.getRest() + 2);
-		shoulder.moveTo(shoulder.getRest() + 2);
-		omoplate.moveTo(omoplate.getRest() + 2);
-		return true;
-	}
+	public Errors test() {
+		Errors errors = new Errors();
+		try {
+			if (arduino == null) {
+				errors.add("arduino is null");
+			}
+			
+			if (!arduino.isConnected()){
+				errors.add("arduino not connected");
+			}
 
-	public static void main(String[] args) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
-		InMoovArm arm = (InMoovArm)Runtime.create("arm","InMoovArm");
-		arm.connect("COM9");
-		arm.startService();
+			bicep.moveTo(bicep.getPosition() + 2);
+			rotate.moveTo(rotate.getPosition() + 2);
+			shoulder.moveTo(shoulder.getPosition() + 2);
+			omoplate.moveTo(omoplate.getPosition() + 2);
+			
+		} catch (Exception e) {
+			errors.add(e);
+		}
 
-		Runtime.createAndStart("gui", "GUIService");
-		/*
-		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * 
-		 */
+		return errors;
 	}
 
 }

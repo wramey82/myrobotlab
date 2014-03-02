@@ -34,6 +34,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.control.ServiceGUI;
@@ -59,8 +60,8 @@ public class PhotoReelWidget extends ServiceGUI {
 
 	public int lastImageWidth = 0;
 
-	public PhotoReelWidget(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public PhotoReelWidget(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public class VideoMouseListener implements MouseListener {

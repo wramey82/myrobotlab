@@ -1,6 +1,5 @@
 package org.myrobotlab.control;
 
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -17,10 +15,6 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.net.BareBonesBrowserLaunch;
-import org.myrobotlab.service.GUIService;
-import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
 /**
@@ -33,70 +27,41 @@ import org.slf4j.Logger;
  *         -To-The-Tabs-On-JTabbedPaneI-Now-A-breeze
  *         http://stackoverflow.com/questions/8080438/mouseevent-of-jtabbedpane
  *         http://www.jyloo.com/news/?pubId=1315817317000
+ * 
+ *         name of the tab is expected to be normalized in getText()
  */
 public class TabControl2 extends JLabel implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(TabControl2.class);
 
 	JPopupMenu popup = new JPopupMenu(); // owns it
-	JTabbedPane tabs;  // the tabbed pane this tab control belongs to
-	Container myPanel; // service gui panel
-	JFrame undocked;  // the undocked frame when panel is undocked - when docked this is null
-	GUIService myService;
+	JTabbedPane tabs; // the tabbed pane this tab control belongs to
+
+	/**
+	 * handles callback of the TabControl can be a ServiceGUI (ArduinoGUI), or a
+	 * routed ServiceGUI (oscope)
+	 */
+	TabControlEventHandler handler;
+
+	String boundServiceName;
 
 	JMenuItem allowExportMenuItem;
 
 	JMenuItem hide;
 
-	/**
-	 * closes window and puts the panel back into the tabbed pane
-	 */
 	public void dockPanel() {
-		String label = getText();
-		// docking panel will move the data of the frame to serializable
-		// position
-		// FIXME - very hacked
-		myService.undockedPanels.get(label).savePosition();
-
-		tabs.add(myPanel);
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, this);
-		
-		log.info("{}",tabs.indexOfTab(label));
-		
-		if (undocked != null) {
-			undocked.dispose();
-			undocked = null;
-		}
-
-		// frame.pack(); - call pack
-		myService.getFrame().pack();
-		myService.save();
+		handler.dockPanel();
 	}
 
-	/**
-	 * undocks a tabbed panel into a JFrame FIXME - NORMALIZE - there are
-	 * similar methods in GUIService FIXME - there needs to be clear pattern
-	 * replacement - this is a decorator - I think... (also it will always be
-	 * Swing)
-	 * 
-	 */
 	public void undockPanel() {
-		
-		//myService.undockPanel(boundServiceName);
-		//return;
-		myService.undockPanel(getText());
-
+		handler.undockPanel();
 	}
 
-
-
-	public TabControl2(GUIService gui, JTabbedPane tabs, Container myPanel, String label) {
+	public TabControl2(TabControlEventHandler handler, JTabbedPane tabs, Container myPanel, String label) {
 		super(label);
 		this.tabs = tabs;
-		this.myPanel = myPanel;
-		this.myService = gui;
+		this.handler = handler;
 
-		Container c = getParent();
 		// build menu
 		JMenuItem menuItem = new JMenuItem("<html><style type=\"text/css\">a { color: #000000;text-decoration: none}</style><a href=\"http://myrobotlab.org/\">info</a></html>");
 		menuItem.setActionCommand("info");
@@ -125,13 +90,18 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 		hide.addActionListener(this);
 		hide.setIcon(Util.getImageIcon("hide.png"));
 		popup.add(hide);
-		
+
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		
-		//this(gui, parent, myPanel, boundServiceName, txt);
+
+		// this(gui, parent, myPanel, boundServiceName, txt);
 	}
 
+	/**
+	 * important relay to keep JTabbedPane & TabControl working together
+	 * 
+	 * @param e
+	 */
 	private void dispatchMouseEvent(MouseEvent e) {
 		tabs.dispatchEvent(SwingUtilities.convertMouseEvent(e.getComponent(), e, tabs));
 	}
@@ -154,9 +124,7 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (myService != null) {
-			myService.lastTabVisited = this.getText();
-		}
+		handler.mouseClicked(e, getText());
 		dispatchMouseEvent(e);
 	}
 
@@ -186,42 +154,17 @@ public class TabControl2 extends JLabel implements ActionListener, MouseListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		// parent.getSelectedComponent()
-		String label = getText();
-		if (label.equals(getText())) {
-			// Service Frame
-			ServiceInterface sw = Runtime.getService(getText());
-			if ("info".equals(cmd)) {
-				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName());
-
-			} else if ("undock".equals(cmd)) {
-				undockPanel();
-			} else if ("release".equals(cmd)) {
-				myService.send(Runtime.getInstance().getName(), "releaseService", label);
-			} else if ("prevent export".equals(cmd)) {
-				myService.send(label, "allowExport", false);
-				allowExportMenuItem.setIcon(Util.getImageIcon("allowExport.png"));
-				allowExportMenuItem.setActionCommand("allow export");
-				allowExportMenuItem.setText("allow export");
-			} else if ("allow export".equals(cmd)) {
-				myService.send(label, "allowExport", true);
-				allowExportMenuItem.setIcon(Util.getImageIcon("preventExport.png"));
-				allowExportMenuItem.setActionCommand("prevent export");
-				allowExportMenuItem.setText("prevent export");
-			} else if ("hide".equals(cmd)) {
-				//myService.send(label, "hide", true);
-				myService.hidePanel(label);
-			}
-		} else {
-			// Sub Tabbed sub pane
-			ServiceInterface sw = Runtime.getService(label);
-			if ("info".equals(cmd)) {
-				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName() + "#" + getText());
-
-			} else if ("undock".equals(cmd)) {
-				undockPanel();
-			}
+		if ("prevent export".equals(cmd)) {
+			allowExportMenuItem.setIcon(Util.getImageIcon("allowExport.png"));
+			allowExportMenuItem.setActionCommand("allow export");
+			allowExportMenuItem.setText("allow export");
+		} else if ("allow export".equals(cmd)) {
+			allowExportMenuItem.setIcon(Util.getImageIcon("preventExport.png"));
+			allowExportMenuItem.setActionCommand("prevent export");
+			allowExportMenuItem.setText("prevent export");
 		}
+		// routing swing events back down
+		handler.actionPerformed(e, getText());
 	}
 
 }

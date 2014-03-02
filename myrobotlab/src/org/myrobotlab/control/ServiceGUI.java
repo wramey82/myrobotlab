@@ -1,6 +1,6 @@
 /**
  *                    
- * @author greg (at) myrobotlab.org
+ * @author GroG (at) myrobotlab.org
  *  
  * This file is part of MyRobotLab (http://myrobotlab.org).
  *
@@ -28,15 +28,38 @@ package org.myrobotlab.control;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.net.URL;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.net.BareBonesBrowserLaunch;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Runtime;
+import org.myrobotlab.service.interfaces.ServiceInterface;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
-public abstract class ServiceGUI {
+/**
+ * @author GroG ServiceGUI - is owned immediately or through a routing map to
+ *         ultimately a Service it has the capability of undocking and docking
+ *         itself
+ * 
+ */
+
+// if need an interface make TabAdapter extend WindowAdapter and contain it
+public abstract class ServiceGUI extends WindowAdapter implements TabControlEventHandler {
 
 	public final static Logger log = LoggerFactory.getLogger(ServiceGUI.class);
 	public final String boundServiceName;
@@ -44,15 +67,43 @@ public abstract class ServiceGUI {
 
 	public GridBagConstraints gc = new GridBagConstraints();
 	public JPanel display = new JPanel();
-	
-	public TabControl2 tabControl;
+
+	// undocked information -- begin --
+
+	@Element
+	public int x;
+	@Element
+	public int y;
+	@Element
+	public int width;
+	@Element
+	public int height;
+
+	transient private JFrame undocked;
+
+	// undocked information -- end --
+
+	// tab -- begin --
+	TabControl2 tabControl;
+
+	JTabbedPane tabs; // the tabbed pane this tab control belongs to
+
+	// tab -- end --
+
+	protected ServiceGUI self;
+	boolean isHidden = false; // flipping visible on and off will ruin tab panels i think
 
 	public abstract void init();
 
-	public ServiceGUI(final String boundServiceName, final GUIService myService) {
+	public ServiceGUI(final String boundServiceName, final GUIService myService, JTabbedPane tabs) {
+		self = this;
 		this.boundServiceName = boundServiceName;
 		this.myService = myService;
-		this.tabControl = new TabControl2(myService, myService.tabs, display, boundServiceName);
+		this.tabs = tabs;
+		this.tabControl = new TabControl2(this, myService.tabs, display, boundServiceName);
+
+		tabs.addTab(boundServiceName, display);
+		tabs.setTabComponentAt(tabs.getTabCount() - 1, tabControl);
 		
 		gc.anchor = GridBagConstraints.FIRST_LINE_END;
 
@@ -66,8 +117,8 @@ public abstract class ServiceGUI {
 	}
 
 	/**
-	 * hook for GUIService framework to query each panel before release checking if any
-	 * panel needs user input before shutdown
+	 * hook for GUIService framework to query each panel before release checking
+	 * if any panel needs user input before shutdown
 	 * 
 	 * @return
 	 */
@@ -75,7 +126,6 @@ public abstract class ServiceGUI {
 		return true;
 	}
 
-	
 	public JPanel getDisplay() {
 		return display;
 	}
@@ -88,7 +138,7 @@ public abstract class ServiceGUI {
 	}
 
 	public void subscribe(String inMethod, String outMethod) {
-		subscribe(inMethod, outMethod,  (Class<?>[]) null);
+		subscribe(inMethod, outMethod, (Class<?>[]) null);
 	}
 
 	public void subscribe(String outMethod, String inMethod, Class<?>... parameterType) {
@@ -102,12 +152,12 @@ public abstract class ServiceGUI {
 		myService.send(boundServiceName, "addListener", listener);
 
 	}
-	
-	public void send(String method){
-		send(method, (Object[])null);
+
+	public void send(String method) {
+		send(method, (Object[]) null);
 	}
-	
-	public void send(String method, Object...params){
+
+	public void send(String method, Object... params) {
 		myService.send(boundServiceName, method, params);
 	}
 
@@ -143,11 +193,232 @@ public abstract class ServiceGUI {
 	}
 
 	public void makeReadyForRelease() {
-	
+
 	}
 
 	public Component getTabControl() {
 		return tabControl;
+	}
+
+	// -- TabControlEventHandler -- begin
+	@Override
+	/**
+	 * closes window and puts the panel back into the tabbed pane
+	 */
+	synchronized public void dockPanel() {
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+
+				// setting tabcontrol
+				String label = tabControl.getText();
+				display.setVisible(true);
+				tabs.add(display);
+				log.info("here tabs count {}", tabs.getTabCount());
+				tabs.setTabComponentAt(tabs.getTabCount() - 1, tabControl);
+
+				savePosition();
+
+				log.info("{}", tabs.indexOfTab(label));
+
+				if (undocked != null) {
+					undocked.dispose();
+					undocked = null;
+				}
+
+				// FIXME - necessary ? or just this panel invalidate?
+				myService.getFrame().pack();
+				myService.save();
+
+				tabs.setSelectedComponent(display);
+			}
+		});
+	}
+
+	public boolean isDocked() {
+		return undocked == null;
+	}
+
+	@Override
+	/**
+	 * undocks a tabbed panel into a JFrame FIXME - NORMALIZE - there are
+	 * similar methods in GUIService FIXME - there needs to be clear pattern
+	 * replacement - this is a decorator - I think... (also it will always be
+	 * Swing)
+	 * 
+	 */
+	// can't return JFrame referrence since its in a invokeLater..
+	public void undockPanel() {
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+				tabs.remove(display);
+
+				String label = tabControl.getText();
+
+				if (undocked != null) {
+					log.warn("{} undocked already created", label);
+				}
+
+				undocked = new JFrame(label);
+
+				undocked.getContentPane().add(display);
+
+				// icon
+				URL url = getClass().getResource("/resource/mrl_logo_36_36.png");
+				Toolkit kit = Toolkit.getDefaultToolkit();
+				Image img = kit.createImage(url);
+				undocked.setIconImage(img);
+
+				if (x != 0 || y != 0) {
+					undocked.setLocation(x, y);
+				}
+
+				if (width != 0 || height != 0) {
+					undocked.setSize(width, height);
+				}
+
+				undocked.addWindowListener(self);
+
+				undocked.setVisible(true);
+				undocked.pack();
+			}
+		});
+
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent event, String tabName) {
+		if (myService != null) {
+			myService.lastTabVisited = tabName;
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e, String tabName) {
+		String cmd = e.getActionCommand();
+		// parent.getSelectedComponent()
+		String label = tabName;
+		if (label.equals(tabName)) {
+			// Service Frame
+			ServiceInterface sw = Runtime.getService(tabName);
+			if ("info".equals(cmd)) {
+				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName());
+
+			} else if ("undock".equals(cmd)) {
+				undockPanel();
+			} else if ("release".equals(cmd)) {
+				myService.send(Runtime.getInstance().getName(), "releaseService", label);
+			} else if ("prevent export".equals(cmd)) {
+				myService.send(label, "allowExport", false);
+			} else if ("allow export".equals(cmd)) {	
+				myService.send(label, "allowExport", true);
+			} else if ("hide".equals(cmd)) {
+				// myService.send(label, "hide", true);
+				//myService.hidePanel(label);
+				hidePanel();
+			}
+		} else {
+			// Sub Tabbed sub pane
+			ServiceInterface sw = Runtime.getService(label);
+			if ("info".equals(cmd)) {
+				BareBonesBrowserLaunch.openURL("http://myrobotlab.org/service/" + sw.getSimpleName() + "#" + tabName);
+
+			} else if ("undock".equals(cmd)) {
+				undockPanel();
+			}
+		}
+
+	}
+
+	public void hidePanel() {
+		if (isHidden){
+			log.info("{} panel is already hidden", tabControl.getText());
+			return;
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				log.info("hidePanel");
+				if (undocked != null) {
+					undocked.setVisible(false);
+				} else {
+					// YAY! - the way to do it !
+					int index = tabs.indexOfComponent(display);
+					//int index = tabs.indexOfTab(tabControl.getText());
+					if (index != -1) {
+						tabs.remove(index);
+					} else {
+						log.error("{} - has -1 index", tabControl.getText());
+					}
+				}
+				
+				isHidden = true;
+
+			}
+		});
+	}
+
+	public void unhidePanel() {
+		if (!isHidden){
+			log.info("{} panel is already un-hidden", tabControl.getText());
+			return;
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				log.info("unhidePanel {}", tabControl.getText());
+
+				if (undocked != null) {
+					undocked.setVisible(true);
+				} else {
+					display.setVisible(true);
+					//tabs.addTab(tabControl.getText(), tabControl);
+					
+					tabs.add(tabControl.getText(), display);
+					tabs.setTabComponentAt(tabs.getTabCount() - 1, tabControl);
+					
+				}
+
+				// FIXME don't know what i'm doing...
+				display.revalidate();
+				// getFrame().revalidate();
+				// getFrame().pack();
+				
+				isHidden = false;
+			}
+			
+			
+		});
+
+	}
+	
+	public void remove(){
+		detachGUI();
+		hidePanel();
+		if (undocked != null){
+			undocked.dispose();
+		}
+	}
+	
+	public void windowClosing(WindowEvent winEvt) {
+		dockPanel();
+	}
+	
+	public boolean isHidden(){
+		return isHidden;
+	}
+
+	// -- TabControlEventHandler -- end
+
+	public void savePosition() {
+		if (undocked != null) {
+			Point point = undocked.getLocation();
+			x = point.x;
+			y = point.y;
+			width = undocked.getWidth();
+			height = undocked.getHeight();
+		}
 	}
 
 }

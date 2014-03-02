@@ -33,7 +33,8 @@ import java.util.Vector;
 
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
-import org.myrobotlab.framework.Error;
+import org.myrobotlab.framework.Encoder;
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
@@ -51,8 +52,6 @@ import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
-import com.pi4j.util.StringUtil;
-
 /**
  * 
  * Runtime is responsible for the creation and removal of all Services and the
@@ -60,7 +59,7 @@ import com.pi4j.util.StringUtil;
  * possible & running local Services It maintains state information regarding
  * foreign Runtimes It is a singleton and should be the only service of Runtime
  * running in a process The host and registry maps are used in routing
- * communication to the asppropriate service (be it local or remote) It will be
+ * communication to the appropriate service (be it local or remote) It will be
  * the first Service created It also wraps the real JVM Runtime object
  * 
  */
@@ -2077,7 +2076,7 @@ public class Runtime extends Service {
 		return Boolean.parseBoolean(b);
 	}
 
-	public ArrayList<Error> test() {
+	public Errors test() {
 		// TODO - need method to releaseAll - except runtime - test it
 		// create all services
 
@@ -2093,6 +2092,10 @@ public class Runtime extends Service {
 		Logging logging = LoggingFactory.getInstance();
 		logging.setLevel(level);
 		return level;
+	}
+	
+	public static boolean setJSONPrettyPrinting(boolean b) {
+		return Encoder.setJSONPrettyPrinting(b);
 	}
 
 	/*

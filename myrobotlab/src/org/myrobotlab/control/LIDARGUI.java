@@ -42,6 +42,8 @@ import static org.myrobotlab.control.LIDARGUI.log;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.GUIService;
@@ -66,13 +68,13 @@ public class LIDARGUI extends ServiceGUI implements ListSelectionListener, Video
     ArrayList<Integer> hist = new ArrayList<>();
     boolean staticInfo = false;
 
-    public LIDARGUI(final String boundServiceName, final GUIService myService) {
-        super(boundServiceName, myService);
+    public LIDARGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+        super(boundServiceName, myService, tabs);
     }
 
     @Override
     public void init() {
-        screen = new VideoWidget(boundServiceName, myService);
+        screen = new VideoWidget(boundServiceName, myService, tabs);
         screen.init();
 
         camImage = new BufferedImage(width / xyScale, height / xyScale, BufferedImage.TYPE_INT_RGB);

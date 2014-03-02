@@ -25,61 +25,58 @@
 
 package org.myrobotlab.control;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-import org.myrobotlab.control.widget.RadarWidget;
+import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Oscope;
+import org.slf4j.Logger;
 
-public class SensorDisplayGUI extends ServiceGUI {
+public class OscopeGUI extends ServiceGUI implements ActionListener {
 
 	static final long serialVersionUID = 1L;
-
-	public SensorDisplayGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public final static Logger log = LoggerFactory.getLogger(OscopeGUI.class.getCanonicalName());
+	
+	VideoWidget oscope = null;
+	JPanel oscopePanel = null;
+	
+	public OscopeGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
-
-		RadarWidget radar = new RadarWidget();
-		// radar.show();
-		new Thread(radar).start();
-		JLabel screen = new JLabel();
-		screen.setSize(320, 240);
-
-		display.setLayout(new GridBagLayout());
-		GridBagConstraints gc = new GridBagConstraints();
-		gc.ipady = 160;
-		gc.ipadx = 160;
-
-		display.add(radar, gc);
-
 	}
 
-	// TODO - normalize - this fn is copy pasted
-	protected ImageIcon createImageIcon(String path, String description) {
-		java.net.URL imgURL = getClass().getResource(path);
-		if (imgURL != null) {
-			return new ImageIcon(imgURL, description);
-		} else {
-			System.err.println("Couldn't find file: " + path);
-			return null;
-		}
+	public void getState(Oscope oscope) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+			}
+		});
 	}
 
 	@Override
 	public void attachGUI() {
-		// TODO Auto-generated method stub
-
+		subscribe("publishState", "getState", Oscope.class);
+		send("publishState");
 	}
 
 	@Override
 	public void detachGUI() {
+		unsubscribe("publishState", "getState", Oscope.class);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
+	
 
 }

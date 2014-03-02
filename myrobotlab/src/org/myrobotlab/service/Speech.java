@@ -250,8 +250,14 @@ public class Speech extends Service {
 	}
 
 	public boolean speakBlocking(String toSpeak) {
-		if (toSpeak == null)
+		return speakBlocking(toSpeak, (Object[])null);
+	}
+	public boolean speakBlocking(String speak, Object... fdata) {
+		if (speak == null)
 			return false;
+		
+		String toSpeak = String.format(speak, fdata);
+		
 		if (backendType == BackendType.FREETTS) { // festival tts
 			speakFreeTTS(toSpeak);
 		} else if (backendType == BackendType.GOOGLE) { // festival tts

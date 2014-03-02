@@ -43,6 +43,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.chess.Board;
 import org.myrobotlab.chess.Constants;
@@ -56,8 +57,8 @@ public class ChessGameGUI extends ServiceGUI implements Constants, VetoableChang
 
 	static final long serialVersionUID = 1L;
 
-	public ChessGameGUI(String name, GUIService myService) {
-		super(name, myService);
+	public ChessGameGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	private Board board = new Board();

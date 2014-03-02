@@ -33,6 +33,7 @@ import java.net.URI;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.control.widget.CommunicationNodeList;
@@ -54,8 +55,8 @@ public class RemoteAdapterGUI extends ServiceGUI implements ActionListener {
 	
 	CommunicationNodeList list = new CommunicationNodeList();
 
-	public RemoteAdapterGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public RemoteAdapterGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

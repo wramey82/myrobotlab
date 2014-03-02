@@ -42,15 +42,16 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import org.myrobotlab.control.widget.JoystickButtonsPanel;
 import org.myrobotlab.control.widget.JoystickCompassPanel;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Joystick;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.GUIService;
 
 public class JoystickGUI extends ServiceGUI implements ActionListener {
 
@@ -67,8 +68,8 @@ public class JoystickGUI extends ServiceGUI implements ActionListener {
 
 	private JoystickCompassPanel xyPanel, zrzPanel, hatPanel;
 
-	public JoystickGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public JoystickGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	// ////// transforms begin ///////////////////

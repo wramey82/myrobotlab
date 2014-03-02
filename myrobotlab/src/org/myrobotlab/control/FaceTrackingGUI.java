@@ -35,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -57,8 +58,8 @@ public class FaceTrackingGUI extends ServiceGUI implements ActionListener {
 	JTextField pulseDataString = new JTextField(10);
 	JIntegerField pulseDataInteger = new JIntegerField(10);
 
-	public FaceTrackingGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public FaceTrackingGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	ActionListener setType = new ActionListener() {

@@ -184,8 +184,8 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	 * @param boundServiceName
 	 * @param myService
 	 */
-	public PythonGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public PythonGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 
 		javaConsole = new Console();
 		pythonConsole = new JTextArea();
@@ -258,9 +258,15 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		editorTabs.addTab(panel.getDisplayName(), panel.panel);
 		log.info(panel.getEditor().getFileFullPath());
 		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-		TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
+		
+		// -------- here ----------------
+		
+		//TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
+		TabControl2 tc = new TabControl2(self, editorTabs, panel.panel, panel.getFilename());
 		tc.addMouseListener(this);
 		editorTabs.setTabComponentAt(editorTabs.getTabCount() - 1, tc);
+		
+		
 		currentScriptName = script.getName();
 		scripts.put(script.getName(), panel);
 		return panel;
@@ -518,12 +524,13 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	private JTabbedPane createTabsPane() {
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("java", javaConsole.getScrollPane());
-		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+		
+		//pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(myService, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl2(self, pane, javaConsole.getScrollPane(),"java"));
 
 		pane.addTab("python", pythonScrollPane);
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, pythonScrollPane, boundServiceName, "python"));
+		//pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(myService, pane, pythonScrollPane, boundServiceName, "python"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl2(self, pane, pythonScrollPane,  "python"));
 
 		return pane;
 	}
@@ -537,9 +544,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		executeButton = new ImageButton("Python", "execute", this);
 		stopButton = new ImageButton("Python", "stop", this);
 		openFileButton = new ImageButton("Python", "open", this);
-		;
 		saveFileButton = new ImageButton("Python", "save", this);
-		;
 
 		JPanel buttonBar = new JPanel();
 		buttonBar.add(openFileButton);
@@ -632,19 +637,12 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 		}
 	}
 
-	/**
-	 * 
-	 */
+	
 	public void saveAsFile() {
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
-			if (FileUtil.saveAs(top, p.editor.getText(), currentScriptName)) // FIXME
-																				// -
-																				// don't
-																				// create
-																				// new
-																				// if
-																				// unnecessary
+			// FIXME - don't create if not necessary
+			if (FileUtil.saveAs(top, p.editor.getText(), currentScriptName)) 
 			{
 				currentScriptName = FileUtil.getLastFileSaved();
 				scripts.remove(p);
@@ -664,13 +662,7 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void saveFile() {
 		if (scripts.containsKey(currentScriptName)) {
 			EditorPanel p = scripts.get(currentScriptName);
-			if (FileUtil.save(top, p.editor.getText(), currentScriptName)) // FIXME
-																			// -
-																			// don't
-																			// create
-																			// new
-																			// if
-																			// unnecessary
+			if (FileUtil.save(top, p.editor.getText(), currentScriptName)) 
 			{
 				currentScriptName = FileUtil.getLastFileSaved();
 				scripts.remove(p);
@@ -749,9 +741,9 @@ public class PythonGUI extends ServiceGUI implements ActionListener, MouseListen
 	public void mousePressed(MouseEvent me) {
 		// TODO Auto-generated method stub
 		Object o = me.getSource();
-		if (o instanceof TabControl) {
-			TabControl tc = (TabControl) o;
-			currentScriptName = tc.getFilename();
+		if (o instanceof TabControl2) {
+			TabControl2 tc = (TabControl2) o;
+			currentScriptName = tc.getText();
 		}
 		// log.info(me);
 	}

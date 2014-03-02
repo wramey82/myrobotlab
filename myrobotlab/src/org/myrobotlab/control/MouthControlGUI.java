@@ -36,6 +36,8 @@ import org.myrobotlab.control.widget.MemoryWidget;
 import org.myrobotlab.control.widget.NodeGUI;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.MouthControl;
@@ -48,8 +50,8 @@ public class MouthControlGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(MouthControlGUI.class.getCanonicalName());
 
-	public MouthControlGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public MouthControlGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

@@ -1,9 +1,14 @@
 package org.myrobotlab.service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -16,6 +21,7 @@ import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -28,15 +34,14 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.pickToLight.Controller;
+import org.myrobotlab.pickToLight.KitRequest;
 import org.myrobotlab.pickToLight.Module;
+import org.myrobotlab.pickToLight.ModuleList;
+import org.myrobotlab.pickToLight.ModuleRequest;
+import org.myrobotlab.pickToLight.SOAPResponse;
 import org.slf4j.Logger;
 
-import com.pi4j.gpio.extension.pcf.PCF8574GpioProvider;
-import com.pi4j.gpio.extension.pcf.PCF8574Pin;
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPin;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.io.i2c.I2CBus;
@@ -55,18 +60,9 @@ import com.pi4j.io.i2c.I2CFactory;
 // blinkOff
 
 /*
- * 108154 [WebSocketWorker-14] INFO  class org.myrobotlab.service.Runtime  - getLocalMacAddress
-108158 [WebSocketWorker-14] INFO  class org.myrobotlab.service.Runtime  - mac address :
-134108 [WebsocketSelector15] ERROR class org.myrobotlab.logging.Logging  - ------
-java.lang.NullPointerException
-        at org.java_websocket.WebSocketImpl.eot(WebSocketImpl.java:553)
-        at org.java_websocket.SocketChannelIOHelper.read(SocketChannelIOHelper.java:18)
-        at org.java_websocket.server.WebSocketServer.run(WebSocketServer.java:330)
-        at java.lang.Thread.run(Thread.java:724)
-
-WIll KILL WEBSERVER  !!!!
+ * 
+ * DEPRECATE Worker .. maybe
  */
-
 
 // TODO - automated registration
 // Polling / Sensor - important - check sensor state
@@ -89,28 +85,31 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	transient public WebGUI webgui;
 	transient public Worker worker;
 
-	//static HashMap<String, Module> modules = new HashMap<String, Module>();
+	// static HashMap<String, Module> modules = new HashMap<String, Module>();
 	ConcurrentHashMap<String, Module> modules = new ConcurrentHashMap<String, Module>();
-	transient HashMap<String, Worker> workers = new HashMap<String, Worker>();
-	
+	// transient HashMap<String, Worker> workers = new HashMap<String,
+	// Worker>();
+
 	public final static String MODE_KITTING = "kitting";
 	public final static String MODE_LEARNING = "learning";
 	public final static String MODE_INSTALLING = "installing";
 	public final static String MODE_STARTING = "starting";
 
-	private String mode = "kitting";
-
+	String mode = "kitting";
 	String messageGoodPick = "GOOD";
 
-	// FIXME - you will need to decouple initialization until after raspibus is
-	// set
 	private int rasPiBus = 1;
 	// FIXME - who will update me ?
 	private String updateURL;
 	private int blinkNumber = 5;
 	private int blinkDelay = 300;
-	
+
 	transient Timer timer;
+
+	KitRequest lastKitRequest = null;
+	Date lastKitRequestDate;
+	int kitRequestCount;
+	Properties properties = new Properties();
 
 	public static Peers getPeers(String name) {
 		Peers peers = new Peers(name);
@@ -118,32 +117,33 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		peers.put("webgui", "WebGUI", "web server interface");
 		return peers;
 	}
-	
+
+	// FIXME push Task add/remove/repeat into Service
 	class Task extends TimerTask {
-		
+
 		Message msg;
 		int interval = 0;
-		
-		public Task(Task s){
+
+		public Task(Task s) {
 			this.msg = s.msg;
 			this.interval = s.interval;
 		}
-		
-		public Task(int interval, String name, String method){
-			this(interval, name, method, (Object[])null);
+
+		public Task(int interval, String name, String method) {
+			this(interval, name, method, (Object[]) null);
 		}
-		
-		public Task(int interval, String name, String method, Object...data){
+
+		public Task(int interval, String name, String method, Object... data) {
 			this.msg = createMessage(name, method, data);
 			this.interval = interval;
 		}
 
 		@Override
 		public void run() {
-			
+
 			getInbox().add(msg);
-			
-			if (interval > 0){
+
+			if (interval > 0) {
 				Task t = new Task(this);
 				// clear history list - becomes "new" message
 				t.msg.historyList.clear();
@@ -161,36 +161,63 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 		public boolean isWorking = false;
 
-		public static final String TASK = "TASK";
+		String task;
+		Object[] data;
 
-		public HashMap<String, Object> data = new HashMap<String, Object>();
-
-		public Worker(String task) {
+		public Worker(String task, Object... data) {
 			super(task);
-			data.put(TASK, task);
+			this.task = task;
+			this.data = data;
 		}
 
 		public void run() {
 			try {
 
-				if (!data.containsKey(TASK)) {
-					log.error("task is required");
-					return;
-				}
-				String task = (String) data.get(TASK);
 				isWorking = true;
-
 				while (isWorking) {
 
 					switch (task) {
 
+					case "pollAll":
+						for (Map.Entry<String, Module> o : modules.entrySet()) {
+							Module m = o.getValue();
+							// if display
+							// read pause
+							// sleep(30);
+							m.display(Integer.toHexString(m.readSensor()));
+						}
+
+						// poll pause
+						sleep(300);
+						break;
+
+					case "pollSet":
+						log.info("Worker - pollSet");
+						ArrayList<Module> list = ((ModuleList) data[0]).list;
+						
+						Iterator<Module> iter = list.iterator();
+						while (iter.hasNext()) {
+							Module m = iter.next();
+							log.info("sensor {} value {} ", m.getI2CAddress(), m.readSensor());
+							if (m.readSensor() == 1){ // FIXME !!!! BITMASK READ !!! (m.readSensor() == 3
+								blinkOff(m.getI2CAddress());
+								iter.remove();
+							}
+						}
+
+						// poll pause
+						sleep(300);
+						break;
+
 					case "cycleAll":
 
-						TreeMap<String, Module> sorted = new TreeMap<String, Module>(modules);
-						for (Map.Entry<String, Module> o : sorted.entrySet()) {
-							o.getValue().cycle((String) data.get("msg"));
-						}
-						isWorking = false;
+						// TreeMap<String, Module> sorted = new TreeMap<String,
+						// Module>(modules);
+						/*
+						 * for (Map.Entry<String, Module> o :
+						 * modules.entrySet()) { o.getValue().cycle((String)
+						 * data.get("msg")); } isWorking = false;
+						 */
 						break;
 
 					default:
@@ -199,6 +226,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					}
 
 				}
+				log.info("leaving Worker");
 			} catch (Exception e) {
 				isWorking = false;
 			}
@@ -211,6 +239,34 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		webgui.autoStartBrowser(false);
 		webgui.useLocalResources(true);
 		raspi = (RasPi) createPeer("raspi");
+		loadProperties();
+	}
+
+	public Properties loadProperties() {
+		InputStream input = null;
+
+		try {
+
+			log.info("loading default properties");
+			properties.load(PickToLight.class.getResourceAsStream("/resource/PickToLight/pickToLight.properties"));
+
+			log.info("loading mes properties");
+			input = new FileInputStream("/boot/pickToLight.properties");
+			properties.load(input);
+
+		} catch (Exception ex) {
+			Logging.logException(ex);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					// dont' care
+				}
+			}
+		}
+
+		return properties;
 	}
 
 	public String getVersion() {
@@ -222,17 +278,13 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		return "Pick to light system";
 	}
 
-	public boolean kitToLight(String xmlKit) {
-		return true;
-	}
-
 	public void createModules() {
 
 		Integer[] devices = scanI2CDevices();
 
 		// rather heavy handed no?
 		modules.clear();
-		
+
 		log.info(String.format("found %d devices", devices.length));
 
 		for (int i = 0; i < devices.length; ++i) {
@@ -245,13 +297,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			 */
 
 			createModule(rasPiBus, deviceAddress);
-
 		}
-
-		// FIXME - kludge gor proto-type hardware
-		/*
-		 * if (Platform.isArm()) { createPCF8574(rasPiBus, 0x27); }
-		 */
 	}
 
 	public boolean createModule(int bus, int address) {
@@ -398,40 +444,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		// if (pin.getName().equals(anObject))
 	}
 
-	public PCF8574GpioProvider createPCF8574(Integer bus, Integer address) {
-		try {
-
-			// System.out.println("<--Pi4J--> PCF8574 GPIO Example ... started.");
-
-			log.info(String.format("PCF8574 - begin - bus %d address %d", bus, address));
-
-			// create gpio controller
-			GpioController gpio = GpioFactory.getInstance();
-
-			// create custom MCP23017 GPIO provider
-			// PCF8574GpioProvider gpioProvider = new
-			// PCF8574GpioProvider(I2CBus.BUS_1,
-			// PCF8574GpioProvider.PCF8574A_0x3F);
-			PCF8574GpioProvider gpioProvider = new PCF8574GpioProvider(bus, address);
-
-			// provision gpio input pins from MCP23017
-			GpioPinDigitalInput myInputs[] = { gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_00), gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_01),
-					gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_02), gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_03),
-					gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_04), gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_05),
-					gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_06), gpio.provisionDigitalInputPin(gpioProvider, PCF8574Pin.GPIO_07) };
-
-			// create and register gpio pin listener
-			log.info(String.format("PCF8574 - end - bus %d address %d", bus, address));
-
-			return gpioProvider;
-
-		} catch (Exception e) {
-			Logging.logException(e);
-		}
-
-		return null;
-	}
-
 	public Integer[] scanI2CDevices() {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 
@@ -451,42 +463,112 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	public void startService() {
 		super.startService();
+
 		raspi.startService();
 		webgui.startService();
 		createModules();
+		
+		systemCheck();
+
+		// TODO - SystemCheck - cycle ip, cycle mac, all leds, all displays 8888
+		// - display all sensor states S1 S2 S3 S4
+		// TODO - blinkAllOn(Msg)
+		/*
+		 * String result = register(); cycleAll(result);
+		 */
+
+		//
+		// blinkAllOn("S001");
+		// sleep(5000);
+		// autoRegister(10);
+		// register();
+	}
+
+	public void systemCheck() {
+		// TODO put into state mode - system check
+		// check current mode see if its possible
+
+		blinkAllOn("test");
+		Controller c = getController();
+		sleep(3000);
+
+		// ip address
+		displayAll("ip  ");
+		sleep(1000);
+		cycleAll(c.getIpAddress());
+		sleep(5000);
+		cycleAllStop();
+
+		// mac address
+		displayAll("mac ");
+		sleep(1000);
+		cycleAll(c.getMacAddress());
+		sleep(5000);
+		cycleAllStop();
+
+		// i2c
+		displayAll("i2c ");
+		sleep(1000);
+		displayAll(String.format("%d", modules.size()));
+		sleep(3000);
+		displayI2CAddresses();
+		sleep(4000);
+
+		// conn address
+		displayAll("conn");
+		sleep(1000);
+		SOAPResponse sr = register();
+		if (sr.isError()) {
+			blinkAllOn(sr.getError());
+		} else {
+			displayAll("good");
+		}
+
+		sleep(5000);
+
+		displayAll("done");
+
+		sleep(5000);
+		clearAll();
 	}
 
 	public Controller getController() {
 
 		try {
+
+			// WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+			// register calls getController at regular interval
+			// so modules are re-recated at that interval
+			// createModules();
+
 			Controller controller = new Controller();
 
 			controller.setVersion(Runtime.getVersion());
 			controller.setName(getName());
-			
+
 			String ip = "";
 			String mac = "";
 
 			ArrayList<String> addresses = Runtime.getLocalAddresses();
 			if (addresses.size() != 1) {
 				log.error(String.format("incorrect number of ip addresses %d", addresses.size()));
-			} 
-			
-			if (!addresses.isEmpty()){
+			}
+
+			if (!addresses.isEmpty()) {
 				ip = addresses.get(0);
 			}
 
 			ArrayList<String> macs = Runtime.getLocalHardwareAddresses();
 			if (macs.size() != 1) {
 				log.error(String.format("incorrect number of mac addresses %d", addresses.size()));
-			} 
-			if (!macs.isEmpty()){
+			}
+			if (!macs.isEmpty()) {
 				mac = macs.get(0);
 			}
-			
+
 			controller.setIpAddress(ip);
 			controller.setMacAddress(mac);
-			
+
 			controller.setModules(modules);
 
 			return controller;
@@ -559,8 +641,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public void clearAll() {
-		TreeMap<String, Module> sorted = new TreeMap<String, Module>(modules);
-		for (Map.Entry<String, Module> o : sorted.entrySet()) {
+		for (Map.Entry<String, Module> o : modules.entrySet()) {
 			o.getValue().clear();
 		}
 	}
@@ -568,6 +649,12 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public void displayI2CAddresses() {
 		for (Map.Entry<String, Module> o : modules.entrySet()) {
 			o.getValue().display(o.getKey());
+		}
+	}
+
+	public void blinkAllOn(String msg) {
+		for (Map.Entry<String, Module> o : modules.entrySet()) {
+			blinkOn(o.getValue().getI2CAddress(), msg);
 		}
 	}
 
@@ -579,6 +666,10 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		getModule(address).blinkOn(msg, blinkNumber, blinkDelay);
 	}
 	
+	public void blinkOff(Integer address){
+		blinkOff(address, null);
+	}
+
 	public void blinkOff(Integer address, String msg) {
 		blinkOff(address, msg, blinkNumber, blinkDelay);
 	}
@@ -587,34 +678,27 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		getModule(address).blinkOff(msg, blinkNumber, blinkDelay);
 	}
 
+	/*
+	 * public void startWorker(String key) { stopWorker(key); }
+	 * 
+	 * public void stopWorker(String key) { if (workers.containsKey("cycleAll"))
+	 * { if (worker != null) { worker.isWorking = false; worker.interrupt();
+	 * worker = null; } } }
+	 */
 
-	public void startWorker(String key) {
-		if (workers.containsKey("cycleAll")) {
-			if (worker != null) {
-				worker.isWorking = false;
-				worker.interrupt();
-				worker = null;
-			}
-		}
+	public void autoRefreshI2CDisplay(int seconds) {
+		addLocalTask(seconds * 1000, "refreshI2CDisplay");
 	}
 
-	public void stopWorker(String key) {
-		if (workers.containsKey("cycleAll")) {
-			if (worker != null) {
-				worker.isWorking = false;
-				worker.interrupt();
-				worker = null;
-			}
-		}
+	public void autoRegister(int seconds) {
+		addLocalTask(seconds * 1000, "register");
 	}
-	
-	public void autoRefreshI2CDisplay()
-	{
-		addLocalTask(1*1000, "refreshI2CDisplay");
+
+	public void autoCheckForUpdates(int seconds) {
+		addLocalTask(seconds * 1000, "checkForUpdates");
 	}
-	
-	public void refreshI2CDisplay()
-	{
+
+	public void refreshI2CDisplay() {
 		createModules();
 		displayI2CAddresses();
 	}
@@ -622,8 +706,65 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	// ---- cycling message on individual module end ----
 
 	// need a complex type
-	public String kitToLight(ArrayList<String> kit) {
-		return "";
+	public KitRequest kitToLight(KitRequest kit) {
+		log.info("KitRequest");
+		clearAll();
+		if (kit == null) {
+			error("kitToLight - kit is null");
+			return null;
+		}
+
+		lastKitRequest = kit;
+		lastKitRequestDate = new Date();
+		++kitRequestCount;
+
+		info("kitToLight vin %s kit %s", kit.vin, kit.kitId);
+
+		if (kit.list == null) {
+			error("kit list is null");
+		}
+
+		log.info("found {} ModuleRequests", kit.list.length);
+
+		ModuleList pollingList = new ModuleList();
+		for (int i = 0; i < kit.list.length; ++i) {
+			ModuleRequest mr = kit.list[i];
+			String key = makeKey(mr.i2c);
+			if (modules.containsKey(key)) {
+				Module m = modules.get(key);
+
+				m.display(mr.quantity);
+				m.ledOn();
+				
+				pollingList.list.add(m);
+
+			} else {
+				error("could not find i2c address %d for vin %s kitId %s", mr.i2c, kit.vin, kit.kitId);
+			}
+		}
+		
+		pollSet(pollingList);
+
+		return kit;
+	}
+
+	public KitRequest createKitRequest() {
+		KitRequest kit = new KitRequest();
+		kit.vin = "8374756";
+		kit.kitId = "324";
+
+		kit.list = new ModuleRequest[modules.size()];
+		int i = 0;
+		for (Map.Entry<String, Module> o : modules.entrySet()) {
+
+			ModuleRequest mr = new ModuleRequest();
+			mr.i2c = o.getValue().getI2CAddress();
+			mr.quantity = "" + (int) ((Math.random() * 5) + 1);
+
+			kit.list[i] = mr;
+			++i;
+		}
+		return kit;
 	}
 
 	public void writeToDisplay(int address, byte b0, byte b1, byte b2, byte b3) {
@@ -648,77 +789,136 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public void setMode(String mode) {
+		if (MODE_LEARNING.equalsIgnoreCase(mode)) {
+			ledsAllOn();
+			displayI2CAddresses();
+		}
 		this.mode = mode;
 	}
 
-	final public static String soapTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
+	final public static String soapRegisterTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
+	final public static String soapEventTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:PickToLightEvent><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:EventType>%s</tem:EventType><tem:Data>%s</tem:Data></tem:PickToLightEvent></soapenv:Body></soapenv:Envelope>";
 
-	public String register() {
+	public final static String ERROR_CONNECTION_REFUSED = "E001";
+	public final static String ERROR_CONNECTION_RESET = "E002";
+	public final static String ERROR_NO_RESPONSE = "E003";
+
+	public SOAPResponse register() {
+		Controller controller = getController();
+		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress());
+		String soapResponse = sendSoap("http://tempuri.org/SoapService/RegisterController", body);
+
+		SOAPResponse ret = new SOAPResponse();
+
+		if (soapResponse == null || soapResponse.length() == 0) {
+			ret.setError(ERROR_NO_RESPONSE);
+		} else if (soapResponse.contains("reset")) {
+			ret.setError(ERROR_CONNECTION_RESET);
+		} else if (soapResponse.contains("refused")) {
+			ret.setError(ERROR_CONNECTION_RESET);
+		}
+
+		log.info(soapResponse);
+
+		return ret;
+	}
+
+	public String sendEvent(String eventType, Object data) {
+		Controller controller = getController();
+		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress());
+		return sendSoap("http://tempuri.org/SoapService/PickToLightEvent", body);
+	}
+
+	public String sendSoap(String soapAction, String soapEnv) {
+		String mesEndpoint = properties.getProperty("mes.endpoint");
+		String mesUser = properties.getProperty("mes.user");
+		String mesDomain = properties.getProperty("mes.domain");
+		String mesPassword = properties.getProperty("mes.password");
+
+		String ret = "";
+
 		try {
 			DefaultHttpClient httpclient = new DefaultHttpClient();
 			List<String> authpref = new ArrayList<String>();
 			authpref.add(AuthPolicy.NTLM);
 			httpclient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, authpref);
-			NTCredentials creds = new NTCredentials("MESSystem", "D@1ml3r2011", "", "Freightliner");
+			NTCredentials creds = new NTCredentials(mesUser, mesPassword, "", mesDomain);
 			httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
 
-			// HttpHost target = new HttpHost("localhost", 80, "http");
-
-			// Make sure the same context is used to execute logically related
-			// requests
 			HttpContext localContext = new BasicHttpContext();
-
-			// Execute a cheap method first. This will trigger NTLM
-			// authentication
-			// WORKS !! HttpGet httpget = new
-			// HttpGet("http://ttnacvdd018a:9501/MES/Materials/SoapService.svc");
-
-			// HttpPost post = new
-			// HttpPost("http://ttnacvdd018a:9501/MES/Materials/SoapService.svc");
-
-			HttpPost post = new HttpPost("http://ttnacvdd018a:9501/MES/Materials/SoapService.svc");
-
-			// Runtime.getLocalAddress();
-
-			//String body = String.format(soapTemplate, "name", Runtime.getLocalMacAddress2(), "52.7.77.77");
+			HttpPost post = new HttpPost(mesEndpoint);
 
 			// ,"utf-8"
-			/*
-			 * <tem:I2CAddresses> <!--Zero or more repetitions:-->
-			 * <arr:string>?</arr:string> </tem:I2CAddresses>
-			 */
+			StringEntity stringentity = new StringEntity(soapEnv);
+			stringentity.setChunked(true);
+			post.setEntity(stringentity);
+			post.addHeader("Accept", "text/xml");
+			post.addHeader("SOAPAction", soapAction);
+			post.addHeader("Content-Type", "text/xml; charset=utf-8");
 
-			// HttpResponse response = httpclient.execute(target, httpget,
-			// localContext);
 			HttpResponse response = httpclient.execute(post, localContext);
 			HttpEntity entity = response.getEntity();
-			String ret = EntityUtils.toString(entity);
-			log.info(ret);
-			return ret;
+			ret = EntityUtils.toString(entity);
 
 			// parse the response - check
 		} catch (Exception e) {
+			error("endpoint %s user %s domain %s password %s", mesEndpoint, mesUser, mesDomain, mesPassword);
 			Logging.logException(e);
-			return e.getMessage();
+			ret = e.getMessage();
 		}
 
+		log.info(ret);
+		return ret;
+
 	}
-	
-	public void timerPurge()
-	{
-		if (timer != null){
-			timer.cancel(); 
+
+	public void purgeAllTasks() {
+		if (timer != null) {
+			timer.cancel();
 			timer.purge();
 		}
 	}
-	
-	public void addLocalTask(int interval, String method){
+
+	public void addLocalTask(int interval, String method) {
 		if (timer == null) {
 			timer = new Timer(String.format("%s.timer", getName()));
 		}
-		
+
 		Task task = new Task(interval, getName(), method);
 		timer.schedule(task, 0);
+	}
+
+	public void addLocalTaskWithCallback(int interval, String method) {
+		if (timer == null) {
+			timer = new Timer(String.format("%s.timer", getName()));
+		}
+
+		Task task = new Task(interval, getName(), method);
+		timer.schedule(task, 0);
+	}
+
+	public void pollAll() {
+		log.info("pollAll");
+		stopPolling();
+
+		worker = new Worker("pollAll");
+		worker.start();
+	}
+	
+	public void pollSet(ModuleList moduleList) {
+		log.info("pollSet");
+		stopPolling();
+
+		worker = new Worker("pollSet", moduleList);
+		worker.start();
+	}
+
+	public void stopPolling() {
+		if (worker != null) {
+			worker.interrupt();
+			worker.isWorking = false;
+			worker = null;
+		}
 	}
 
 	// ------------ TODO - IMPLEMENT - END ----------------------
@@ -729,34 +929,39 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 		PickToLight pick = new PickToLight("pick.1");
 		pick.startService();
-		pick.autoRefreshI2CDisplay();
-		
-		
-		boolean ret = true;
-		if (ret){
+		pick.systemCheck();
+
+		boolean stopHere = true;
+		if (stopHere) {
 			return;
 		}
-		
+
+		pick.register();
+
+		pick.autoRefreshI2CDisplay(1);
+
+		boolean ret = true;
+		if (ret) {
+			return;
+		}
+
 		pick.register();
 		pick.createModules();
-		
+
 		Controller controller = pick.getController();
 		pick.startService();
-		
+
 		int selector = 0x83; // IR selected - LED OFF
 
 		/*
-		int MASK_DISPLAY = 0x01;
-		int MASK_LED = 0x02;
-		int MASK_SENSOR = 0x80;
-		*/
-		
+		 * int MASK_DISPLAY = 0x01; int MASK_LED = 0x02; int MASK_SENSOR = 0x80;
+		 */
+
 		log.info(String.format("0x%s", Integer.toHexString(selector)));
 		selector &= ~Module.MASK_LED; // LED ON
 		log.info(String.format("0x%s", Integer.toHexString(selector)));
 		selector |= Module.MASK_LED; // LED OFF
 		log.info(String.format("0x%s", Integer.toHexString(selector)));
-
 
 		ArrayList<String> ips = Runtime.getLocalAddresses();
 
@@ -769,8 +974,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		for (int i = 0; i < ips.size(); ++i) {
 			log.info(ips.get(i));
 		}
-
-
 
 		// Controller2 c = pick.getController();
 		// log.info("{}", c);

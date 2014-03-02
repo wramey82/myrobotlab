@@ -25,13 +25,11 @@ package org.myrobotlab.service;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.myrobotlab.framework.Errors;
+import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
-
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Service;
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.roomba.RoombaCommSerialDevice;
 import org.myrobotlab.serial.SerialDevice;
@@ -39,8 +37,7 @@ import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.SerialDeviceService;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
-import org.myrobotlab.framework.Error;
+import org.slf4j.Logger;
 @Root
 public class Roomba extends Service implements SerialDeviceService {
 
@@ -637,7 +634,7 @@ public class Roomba extends Service implements SerialDeviceService {
 		return roombacomm.bump();
 	}
 
-	public ArrayList<Error> test() {
+	public Errors test() {
 		// must pause after every playNote to let to note sound
 		System.out.println("Playing some notes");
 		roombacomm.playNote(72, 10);

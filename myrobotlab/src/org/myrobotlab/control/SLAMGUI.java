@@ -34,15 +34,15 @@ import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+import org.slf4j.Logger;
 
 import wiiusej.wiiusejevents.physicalevents.IREvent;
 
@@ -60,8 +60,8 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoG
 
 	public Random rand = new Random();
 
-	public SLAMGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public SLAMGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
@@ -70,7 +70,7 @@ public class SLAMGUI extends ServiceGUI implements ListSelectionListener, VideoG
 		g = img.getGraphics();
 		video.displayFrame(new SerializableImage(img, boundServiceName));
 
-		video = new VideoWidget(boundServiceName, myService);
+		video = new VideoWidget(boundServiceName, myService, tabs);
 		video.init();
 		gc.gridx = 0;
 		gc.gridy = 0;

@@ -28,6 +28,7 @@ package org.myrobotlab.control;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -64,7 +65,6 @@ import org.myrobotlab.serial.SerialDevice;
 import org.myrobotlab.service.Arduino;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.data.Pin;
-import org.myrobotlab.service.GUIService;
 
 /*
  * TODO - move menu into ArduinoGUI from editor
@@ -88,17 +88,18 @@ import org.myrobotlab.service.GUIService;
  *      
  */
 
-public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener {
+public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListener, TabControlEventHandler {
 
-	public ArduinoGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public ArduinoGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
+		self = this;
 	}
 
 	/**
 	 * component array - to access all components by name
 	 */
 	public Arduino myArduino;
-	public ArduinoGUI myRef;
+	public ArduinoGUI self;
 	HashMap<String, Component> components = new HashMap<String, Component>();
 
 	static final long serialVersionUID = 1L;
@@ -165,7 +166,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	ArrayList<Pin> pinList = null;
 
 	public void init() {
-		myRef = this;
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				display.setLayout(new BorderLayout());
@@ -178,22 +179,22 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 				getEditorPanel();
 
 				display.add(tabs, BorderLayout.CENTER);
-				tabs.setSelectedIndex(0);
+				//tabs.setSelectedIndex(0);
 
-				serialRefresh.addActionListener(myRef);
-				softReset.addActionListener(myRef);
-				serialDisconnect.addActionListener(myRef);
+				serialRefresh.addActionListener(self);
+				softReset.addActionListener(self);
+				serialDisconnect.addActionListener(self);
 
 			}
 		});
 	}
 
-	public JLayeredPane getPinPanel() {
+	public void getPinPanel() {
 
 		if (myArduino != null && boardName != null && boardName.contains("Mega")) {
-			return getMegaPanel();
+			getMegaPanel();
 		}
-		return getDuemilanovePanel();
+		getDuemilanovePanel();
 	}
 
 	class SerialMenuListener implements ActionListener {
@@ -304,7 +305,7 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	}
 
 	public void publishMessage(String msg) {
-		if (editor != null){
+		if (editor != null) {
 			editor.console.append(msg);
 		}
 	}
@@ -496,64 +497,72 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 	int clearX = 0;
 	int lastTraceXPos = 0;
 
-	public void publishPin(Pin pin) {
-		if (!traceData.containsKey(pin.pin)) {
-			TraceData td = new TraceData();
-			float gradient = 1.0f / pinComponentList.size();
-			Color color = new Color(Color.HSBtoRGB((pin.pin * (gradient)), 0.8f, 0.7f));
-			td.color = color;
-			traceData.put(pin.pin, td);
-			td.index = lastTraceXPos;
-		}
+	public void publishPin(final Pin pin) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		TraceData t = traceData.get(pin.pin);
-		t.index++;
-		lastTraceXPos = t.index;
-		t.data[t.index] = pin.value;
-		++t.total;
-		t.sum += pin.value;
-		t.mean = t.sum / t.total;
+				if (!traceData.containsKey(pin.pin)) {
+					TraceData td = new TraceData();
+					float gradient = 1.0f / pinComponentList.size();
+					Color color = new Color(Color.HSBtoRGB((pin.pin * (gradient)), 0.8f, 0.7f));
+					td.color = color;
+					traceData.put(pin.pin, td);
+					td.index = lastTraceXPos;
+				}
 
-		g.setColor(t.color);
-		if (pin.type == Pin.DIGITAL_VALUE || pin.type == Pin.PWM_VALUE) {
-			int yoffset = pin.pin * 15 + 35;
-			int quantum = -10;
-			g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index, pin.value * quantum + yoffset);
-		} else if (pin.type == Pin.ANALOG_VALUE) {
-			g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
-		} else {
-			log.error("dont know how to display pin data method");
-		}
+				TraceData t = traceData.get(pin.pin);
+				t.index++;
+				lastTraceXPos = t.index;
+				t.data[t.index] = pin.value;
+				++t.total;
+				t.sum += pin.value;
+				t.mean = t.sum / t.total;
 
-		// computer min max and mean
-		// if different then blank & post to screen
-		if (pin.value > t.max)
-			t.max = pin.value;
-		if (pin.value < t.min)
-			t.min = pin.value;
+				g.setColor(t.color);
+				if (pin.type == Pin.DIGITAL_VALUE || pin.type == Pin.PWM_VALUE) {
+					int yoffset = pin.pin * 15 + 35;
+					int quantum = -10;
+					g.drawLine(t.index, t.data[t.index - 1] * quantum + yoffset, t.index, pin.value * quantum + yoffset);
+				} else if (pin.type == Pin.ANALOG_VALUE) {
+					g.drawLine(t.index, DATA_HEIGHT - t.data[t.index - 1] / 2, t.index, DATA_HEIGHT - pin.value / 2);
+				} else {
+					log.error("dont know how to display pin data method");
+				}
 
-		if (t.index < DATA_WIDTH - 1) {
-			clearX = t.index + 1;
-		} else {
-			// TODO - when hit marks all startTracePos - cause the screen is
-			// blank - must iterate through all
-			t.index = 0;
+				// computer min max and mean
+				// if different then blank & post to screen
+				if (pin.value > t.max)
+					t.max = pin.value;
+				if (pin.value < t.min)
+					t.min = pin.value;
 
-			clearScreen();
-			drawGrid();
+				if (t.index < DATA_WIDTH - 1) {
+					clearX = t.index + 1;
+				} else {
+					// TODO - when hit marks all startTracePos - cause the
+					// screen is
+					// blank - must iterate through all
+					t.index = 0;
 
-			g.setColor(Color.BLACK);
-			g.fillRect(20, t.pin * 15 + 5, 200, 15);
-			g.setColor(t.color);
+					clearScreen();
+					drawGrid();
 
-			g.drawString(String.format("min %d max %d mean %d ", t.min, t.max, t.mean), 20, t.pin * 15 + 20);
+					g.setColor(Color.BLACK);
+					g.fillRect(20, t.pin * 15 + 5, 200, 15);
+					g.setColor(t.color);
 
-			t.total = 0;
-			t.sum = 0;
+					g.drawString(String.format("min %d max %d mean %d ", t.min, t.max, t.mean), 20, t.pin * 15 + 20);
 
-		}
+					t.total = 0;
+					t.sum = 0;
 
-		oscope.displayFrame(sensorImage);
+				}
+
+				oscope.displayFrame(sensorImage);
+
+			}
+		});
+
 	}
 
 	public void clearScreen() // TODO - static - put in oscope/image package
@@ -612,276 +621,302 @@ public class ArduinoGUI extends ServiceGUI implements ItemListener, ActionListen
 		return count;
 	}
 
-	public JLayeredPane getMegaPanel() {
-		
+	public void getMegaPanel() {
 
-		if (imageMap != null) {
-			tabs.remove(imageMap);
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		pinComponentList = new ArrayList<PinComponent>();
-		imageMap = new JLayeredPane();
-		imageMap.setPreferredSize(size);
-
-		// set correct arduino image
-		JLabel image = new JLabel();
-
-		ImageIcon dPic = Util.getImageIcon("Arduino/mega.200.pins.png");
-		image.setIcon(dPic);
-		Dimension s = image.getPreferredSize();
-		image.setBounds(0, 0, s.width, s.height);
-		imageMap.add(image, new Integer(1));
-
-		for (int i = 0; i < 70; ++i) {
-
-			PinComponent p = null;
-
-			if (i > 1 && i < 14) { // pwm pins -----------------
-				p = new PinComponent(myService, boundServiceName, i, true, false, true);
-				int xOffSet = 0;
-				if (i > 7)
-					xOffSet = 18; // skip pin
-				p.inOut.setBounds(252 - 18 * i - xOffSet, 30, 15, 30);
-				imageMap.add(p.inOut, new Integer(2));
-				p.onOff.setBounds(252 - 18 * i - xOffSet, 0, 15, 30);
-				// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
-				imageMap.add(p.onOff, new Integer(2));
-
-				if (p.isPWM) {
-					p.pwmSlider.setBounds(252 - 18 * i - xOffSet, 75, 15, 90);
-					imageMap.add(p.pwmSlider, new Integer(2));
-					p.data.setBounds(252 - 18 * i - xOffSet, 180, 32, 15);
-					p.data.setForeground(Color.white);
-					p.data.setBackground(Color.decode("0x0f7391"));
-					p.data.setOpaque(true);
-					imageMap.add(p.data, new Integer(2));
+				if (imageMap != null) {
+					tabs.remove(imageMap);
 				}
-			} else if (i < 54 && i > 21) {
-				// digital pin racks
-				p = new PinComponent(myService, boundServiceName, i, false, false, false);
 
-				if (i != 23 && i != 25 && i != 27 && i != 29) {
-					if ((i % 2 == 0)) {
-						// first rack of digital pins
-						p.inOut.setBounds(472, 55 + 9 * (i - 21), 30, 15);
+				pinComponentList = new ArrayList<PinComponent>();
+				imageMap = new JLayeredPane();
+				imageMap.setPreferredSize(size);
+
+				// set correct arduino image
+				JLabel image = new JLabel();
+
+				ImageIcon dPic = Util.getImageIcon("Arduino/mega.200.pins.png");
+				image.setIcon(dPic);
+				Dimension s = image.getPreferredSize();
+				image.setBounds(0, 0, s.width, s.height);
+				imageMap.add(image, new Integer(1));
+
+				for (int i = 0; i < 70; ++i) {
+
+					PinComponent p = null;
+
+					if (i > 1 && i < 14) { // pwm pins -----------------
+						p = new PinComponent(myService, boundServiceName, i, true, false, true);
+						int xOffSet = 0;
+						if (i > 7)
+							xOffSet = 18; // skip pin
+						p.inOut.setBounds(252 - 18 * i - xOffSet, 30, 15, 30);
 						imageMap.add(p.inOut, new Integer(2));
-						p.onOff.setBounds(502, 55 + 9 * (i - 21), 30, 15);
+						p.onOff.setBounds(252 - 18 * i - xOffSet, 0, 15, 30);
 						// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
 						imageMap.add(p.onOff, new Integer(2));
+
+						if (p.isPWM) {
+							p.pwmSlider.setBounds(252 - 18 * i - xOffSet, 75, 15, 90);
+							imageMap.add(p.pwmSlider, new Integer(2));
+							p.data.setBounds(252 - 18 * i - xOffSet, 180, 32, 15);
+							p.data.setForeground(Color.white);
+							p.data.setBackground(Color.decode("0x0f7391"));
+							p.data.setOpaque(true);
+							imageMap.add(p.data, new Integer(2));
+						}
+					} else if (i < 54 && i > 21) {
+						// digital pin racks
+						p = new PinComponent(myService, boundServiceName, i, false, false, false);
+
+						if (i != 23 && i != 25 && i != 27 && i != 29) {
+							if ((i % 2 == 0)) {
+								// first rack of digital pins
+								p.inOut.setBounds(472, 55 + 9 * (i - 21), 30, 15);
+								imageMap.add(p.inOut, new Integer(2));
+								p.onOff.setBounds(502, 55 + 9 * (i - 21), 30, 15);
+								// p.onOff.getLabel().setUI(new
+								// VerticalLabelUI(true));
+								imageMap.add(p.onOff, new Integer(2));
+							} else {
+								// second rack of digital pins
+								p.inOut.setBounds(567, 45 + 9 * (i - 21), 30, 15);
+								imageMap.add(p.inOut, new Integer(2));
+								p.onOff.setBounds(597, 45 + 9 * (i - 21), 30, 15);
+								// p.onOff.getLabel().setUI(new
+								// VerticalLabelUI(true));
+								imageMap.add(p.onOff, new Integer(2));
+							}
+						}
+
+					} else if (i > 53) {
+						p = new PinComponent(myService, boundServiceName, i, false, true, true);
+						// analog pins -----------------
+						int xOffSet = 0;
+						if (i > 61)
+							xOffSet = 18; // skip pin
+						p.activeInActive.setBounds(128 + 18 * (i - 52) + xOffSet, 392, 15, 48);
+						imageMap.add(p.activeInActive, new Integer(2));
+						/*
+						 * bag data at the moment - go look at the Oscope
+						 * p.data.setBounds(208 + 18 * (i - 52) + xOffSet, 260,
+						 * 32, 18); p.data.setForeground(Color.white);
+						 * p.data.setBackground(Color.decode("0x0f7391"));
+						 * p.data.setOpaque(true); imageMap.add(p.data, new
+						 * Integer(2));
+						 */
 					} else {
-						// second rack of digital pins
-						p.inOut.setBounds(567, 45 + 9 * (i - 21), 30, 15);
-						imageMap.add(p.inOut, new Integer(2));
-						p.onOff.setBounds(597, 45 + 9 * (i - 21), 30, 15);
-						// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
-						imageMap.add(p.onOff, new Integer(2));
+						p = new PinComponent(myService, boundServiceName, i, false, false, false);
 					}
+
+					// set up the listeners
+					p.onOff.addActionListener(self);
+					p.inOut.addActionListener(self);
+					p.activeInActive.addActionListener(self);
+					p.trace.addActionListener(self);
+					// p.inOut2.addActionListener(this);
+
+					pinComponentList.add(p);
+
 				}
 
-			} else if (i > 53) {
-				p = new PinComponent(myService, boundServiceName, i, false, true, true);
-				// analog pins -----------------
-				int xOffSet = 0;
-				if (i > 61)
-					xOffSet = 18; // skip pin
-				p.activeInActive.setBounds(128 + 18 * (i - 52) + xOffSet, 392, 15, 48);
-				imageMap.add(p.activeInActive, new Integer(2));
-				/*
-				 * bag data at the moment - go look at the Oscope
-				 * p.data.setBounds(208 + 18 * (i - 52) + xOffSet, 260, 32, 18);
-				 * p.data.setForeground(Color.white);
-				 * p.data.setBackground(Color.decode("0x0f7391"));
-				 * p.data.setOpaque(true); imageMap.add(p.data, new Integer(2));
-				 */
-			} else {
-				p = new PinComponent(myService, boundServiceName, i, false, false, false);
+				JFrame top = myService.getFrame();
+				tabs.insertTab("pins", null, imageMap, "pin panel", 0);
+				GUIService gui = (GUIService) myService;// FIXME - bad bad bad
+				
+				//TabControl2(TabControlEventHandler handler, JTabbedPane tabs, Container myPanel, String label)
+				tabs.setTabComponentAt(0, new TabControl2(self, tabs, imageMap, "pins"));
+				
 			}
-
-			// set up the listeners
-			p.onOff.addActionListener(this);
-			p.inOut.addActionListener(this);
-			p.activeInActive.addActionListener(this);
-			p.trace.addActionListener(this);
-			// p.inOut2.addActionListener(this);
-
-			pinComponentList.add(p);
-
-		}
-
-		JFrame top = myService.getFrame();
-		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-		tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap, boundServiceName, "pins"));
-
-		return imageMap;
+		});
 	}
 
 	// public
 
-	public JLayeredPane getDuemilanovePanel() {
+	public void getDuemilanovePanel() {
 
-		if (imageMap != null) {
-			tabs.remove(imageMap);
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		imageMap = new JLayeredPane();
-		imageMap.setPreferredSize(size);
-		pinComponentList = new ArrayList<PinComponent>();
-
-		// set correct arduino image
-		JLabel image = new JLabel();
-
-		ImageIcon dPic = Util.getImageIcon("Arduino/arduino.duemilanove.200.pins.png");
-		image.setIcon(dPic);
-		Dimension s = image.getPreferredSize();
-		image.setBounds(0, 0, s.width, s.height);
-		imageMap.add(image, new Integer(1));
-
-		for (int i = 0; i < 20; ++i) {
-
-			PinComponent p = null;
-			if (i < 14) {
-				if (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
-					p = new PinComponent(myService, boundServiceName, i, true, false, false);
-				} else {
-					p = new PinComponent(myService, boundServiceName, i, false, false, false);
+				if (imageMap != null) {
+					tabs.remove(imageMap);
 				}
-			} else {
-				p = new PinComponent(myService, boundServiceName, i, false, true, false);
-			}
 
-			// set up the listeners
-			p.onOff.addActionListener(this);
-			p.inOut.addActionListener(this);
-			p.activeInActive.addActionListener(this);
-			p.trace.addActionListener(this);
-			// p.inOut2.addActionListener(this);
+				imageMap = new JLayeredPane();
+				imageMap.setPreferredSize(size);
+				pinComponentList = new ArrayList<PinComponent>();
 
-			pinComponentList.add(p);
+				// set correct arduino image
+				JLabel image = new JLabel();
 
-			if (i < 2) {
-				continue;
-			}
-			if (i < 14) { // digital pins -----------------
-				int yOffSet = 0;
-				if (i > 7)
-					yOffSet = 18; // skip pin
-				p.inOut.setBounds(406, 297 - 18 * i - yOffSet, 30, 15);
-				imageMap.add(p.inOut, new Integer(2));
-				p.onOff.setBounds(436, 297 - 18 * i - yOffSet, 30, 15);
-				// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
-				imageMap.add(p.onOff, new Integer(2));
+				ImageIcon dPic = Util.getImageIcon("Arduino/arduino.duemilanove.200.pins.png");
+				image.setIcon(dPic);
+				Dimension s = image.getPreferredSize();
+				image.setBounds(0, 0, s.width, s.height);
+				imageMap.add(image, new Integer(1));
 
-				if (p.isPWM) {
-					p.pwmSlider.setBounds(256, 297 - 18 * i - yOffSet, 90, 15);
-					imageMap.add(p.pwmSlider, new Integer(2));
-					p.data.setBounds(232, 297 - 18 * i - yOffSet, 32, 15);
-					p.data.setForeground(Color.white);
-					p.data.setBackground(Color.decode("0x0f7391"));
-					p.data.setOpaque(true);
-					imageMap.add(p.data, new Integer(2));
+				for (int i = 0; i < 20; ++i) {
+
+					PinComponent p = null;
+					if (i < 14) {
+						if (((i == 3) || (i == 5) || (i == 6) || (i == 9) || (i == 10) || (i == 11))) {
+							p = new PinComponent(myService, boundServiceName, i, true, false, false);
+						} else {
+							p = new PinComponent(myService, boundServiceName, i, false, false, false);
+						}
+					} else {
+						p = new PinComponent(myService, boundServiceName, i, false, true, false);
+					}
+
+					// set up the listeners
+					p.onOff.addActionListener(self);
+					p.inOut.addActionListener(self);
+					p.activeInActive.addActionListener(self);
+					p.trace.addActionListener(self);
+					// p.inOut2.addActionListener(this);
+
+					pinComponentList.add(p);
+
+					if (i < 2) {
+						continue;
+					}
+					if (i < 14) { // digital pins -----------------
+						int yOffSet = 0;
+						if (i > 7)
+							yOffSet = 18; // skip pin
+						p.inOut.setBounds(406, 297 - 18 * i - yOffSet, 30, 15);
+						imageMap.add(p.inOut, new Integer(2));
+						p.onOff.setBounds(436, 297 - 18 * i - yOffSet, 30, 15);
+						// p.onOff.getLabel().setUI(new VerticalLabelUI(true));
+						imageMap.add(p.onOff, new Integer(2));
+
+						if (p.isPWM) {
+							p.pwmSlider.setBounds(256, 297 - 18 * i - yOffSet, 90, 15);
+							imageMap.add(p.pwmSlider, new Integer(2));
+							p.data.setBounds(232, 297 - 18 * i - yOffSet, 32, 15);
+							p.data.setForeground(Color.white);
+							p.data.setBackground(Color.decode("0x0f7391"));
+							p.data.setOpaque(true);
+							imageMap.add(p.data, new Integer(2));
+						}
+					} else {
+						// analog pins -----------------
+						p.activeInActive.setBounds(11, 208 - 18 * (14 - i), 48, 15);
+						imageMap.add(p.activeInActive, new Integer(2));
+						p.data.setBounds(116, 205 - 18 * (14 - i), 32, 18);
+						p.data.setForeground(Color.white);
+						p.data.setBackground(Color.decode("0x0f7391"));
+						p.data.setOpaque(true);
+						imageMap.add(p.data, new Integer(2));
+					}
 				}
-			} else {
-				// analog pins -----------------
-				p.activeInActive.setBounds(11, 208 - 18 * (14 - i), 48, 15);
-				imageMap.add(p.activeInActive, new Integer(2));
-				p.data.setBounds(116, 205 - 18 * (14 - i), 32, 18);
-				p.data.setForeground(Color.white);
-				p.data.setBackground(Color.decode("0x0f7391"));
-				p.data.setOpaque(true);
-				imageMap.add(p.data, new Integer(2));
+
+				JFrame top = myService.getFrame();
+				tabs.insertTab("pins", null, imageMap, "pin panel", 0);
+				GUIService gui = (GUIService) myService;// FIXME - bad bad bad
+														// ...
+
+				// FIXME TabControl2 - tabs.setTabComponentAt(0, new
+				// TabControl(gui,
+				// tabs, imageMap, boundServiceName, "pins"));
 			}
-		}
-
-		JFrame top = myService.getFrame();
-		tabs.insertTab("pins", null, imageMap, "pin panel", 0);
-		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-
-		// FIXME TabControl2 - tabs.setTabComponentAt(0, new TabControl(gui, tabs, imageMap, boundServiceName, "pins"));
-		return imageMap;
+		});
 	}
 
-	public JPanel getOscopePanel() {
-		if (oscopePanel != null) {
-			tabs.remove(oscopePanel);
-		}
+	public void getOscopePanel() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
 
-		oscopePanel = new JPanel(new GridBagLayout());
-		GridBagConstraints opgc = new GridBagConstraints();
+				if (oscopePanel != null) {
+					tabs.remove(oscopePanel);
+				}
 
-		JPanel tracePanel = new JPanel(new GridBagLayout());
+				// CREATE SERVICE GUI !!! 
+				oscopePanel = new JPanel(new GridBagLayout());
+				GridBagConstraints opgc = new GridBagConstraints();
 
-		opgc.fill = GridBagConstraints.HORIZONTAL;
-		opgc.gridx = 0;
-		opgc.gridy = 0;
-		float gradient = 1.0f / pinComponentList.size();
+				JPanel tracePanel = new JPanel(new GridBagLayout());
 
-		// pinList.size() mega 60 deuo 20
-		for (int i = 0; i < pinComponentList.size(); ++i) {
-			PinComponent p = pinComponentList.get(i);
-			if (!p.isAnalog) { // digital pins -----------------
-				p.trace.setText("D " + (i));
-				p.trace.onText = "D " + (i);
-				p.trace.offText = "D " + (i);
-			} else {
-				// analog pins ------------------
-				p.trace.setText("A " + (i - 14));
-				p.trace.onText = "A " + (i - 14);
-				p.trace.offText = "A " + (i - 14);
-			}
-			tracePanel.add(p.trace, opgc);
-			Color hsv = new Color(Color.HSBtoRGB((i * (gradient)), 0.8f, 0.7f));
-			p.trace.setBackground(hsv);
-			p.trace.offBGColor = hsv;
-			++opgc.gridy;
-			if (opgc.gridy % 20 == 0) {
+				opgc.fill = GridBagConstraints.HORIZONTAL;
+				opgc.gridx = 0;
 				opgc.gridy = 0;
+				float gradient = 1.0f / pinComponentList.size();
+
+				// pinList.size() mega 60 deuo 20
+				for (int i = 0; i < pinComponentList.size(); ++i) {
+					PinComponent p = pinComponentList.get(i);
+					if (!p.isAnalog) { // digital pins -----------------
+						p.trace.setText("D " + (i));
+						p.trace.onText = "D " + (i);
+						p.trace.offText = "D " + (i);
+					} else {
+						// analog pins ------------------
+						p.trace.setText("A " + (i - 14));
+						p.trace.onText = "A " + (i - 14);
+						p.trace.offText = "A " + (i - 14);
+					}
+					tracePanel.add(p.trace, opgc);
+					Color hsv = new Color(Color.HSBtoRGB((i * (gradient)), 0.8f, 0.7f));
+					p.trace.setBackground(hsv);
+					p.trace.offBGColor = hsv;
+					++opgc.gridy;
+					if (opgc.gridy % 20 == 0) {
+						opgc.gridy = 0;
+						++opgc.gridx;
+					}
+				}
+
+				opgc.gridx = 0;
+				opgc.gridy = 0;
+
+				oscope = new VideoWidget(boundServiceName, myService, tabs, false);
+				oscope.init();
+				sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
+				g = sensorImage.getImage().getGraphics();
+				oscope.displayFrame(sensorImage);
+
+				oscopePanel.add(tracePanel, opgc);
 				++opgc.gridx;
+				oscopePanel.add(oscope.display, opgc);
+
+				JFrame top = myService.getFrame();
+				tabs.insertTab("oscope", null, oscopePanel, "oscope panel", 0);
+				tabs.setTabComponentAt(0, new TabControl2(self, tabs, oscopePanel, "oscope"));
+				myService.getFrame().pack();
 			}
-		}
-
-		opgc.gridx = 0;
-		opgc.gridy = 0;
-
-		oscope = new VideoWidget(boundServiceName, myService, false);
-		oscope.init();
-		sensorImage = new SerializableImage(new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_RGB), "output");
-		g = sensorImage.getImage().getGraphics();
-		oscope.displayFrame(sensorImage);
-
-		oscopePanel.add(tracePanel, opgc);
-		++opgc.gridx;
-		oscopePanel.add(oscope.display, opgc);
-
-		JFrame top = myService.getFrame();
-		tabs.insertTab("oscope", null, oscopePanel, "oscope panel", 0);
-		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-
-		tabs.setTabComponentAt(0, new TabControl(gui, tabs, oscopePanel, boundServiceName, "oscope"));
-		myService.getFrame().pack();
-		return oscopePanel;
+		});
 	}
 
 	EditorArduino editor = null;
 
-	public JPanel getEditorPanel() {
-		// if (editorPanel != null) {
-		// tabs.remove(editorPanel);
-		// }
+	public void getEditorPanel() {
+		editor = new EditorArduino(boundServiceName, myService, tabs);
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// if (editorPanel != null) {
+				// tabs.remove(editorPanel);
+				// }
 
-		// editorPanel = new JPanel(new BorderLayout());
+				// editorPanel = new JPanel(new BorderLayout());
 
-		editor = new EditorArduino(boundServiceName, myService);
-		editor.init();
-		// editorPanel.add(editor.getDisplay());
+				
+				editor.init();
+				// editorPanel.add(editor.getDisplay());
 
-		JFrame top = myService.getFrame();
-		tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
-		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
+				JFrame top = myService.getFrame();
+				tabs.insertTab("editor", null, editor.getDisplay(), "editor", 0);
+				GUIService gui = (GUIService) myService;// FIXME - bad bad bad
+														// ...
 
-		// FIXME TabControl2 - tabs.setTabComponentAt(0, new TabControl(gui, tabs, editor.getDisplay(), boundServiceName, "editor"));
-		myService.getFrame().pack();
-		return editor.getDisplay();
+				// FIXME TabControl2 - tabs.setTabComponentAt(0, new
+				// TabControl(gui,
+				// tabs, editor.getDisplay(), boundServiceName, "editor"));
+				myService.getFrame().pack();
+			}
+		});
 	}
 
 	public void createSerialDeviceMenu(JMenu m) {

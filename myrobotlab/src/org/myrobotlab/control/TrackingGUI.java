@@ -30,13 +30,14 @@ import java.awt.GridLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.framework.Status;
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Tracking;
 
 public class TrackingGUI extends ServiceGUI {
 
@@ -53,12 +54,12 @@ public class TrackingGUI extends ServiceGUI {
 	
 	VideoWidget video0 = null;
 
-	public TrackingGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public TrackingGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
-		video0 = new VideoWidget(boundServiceName, myService, false);
+		video0 = new VideoWidget(boundServiceName, myService, tabs, false);
 		video0.init();
 		//video0.allowFork = true;
 

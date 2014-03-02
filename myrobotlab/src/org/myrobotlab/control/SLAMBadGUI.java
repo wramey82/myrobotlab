@@ -28,9 +28,11 @@ package org.myrobotlab.control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JTabbedPane;
+
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.SLAMBad;
-import org.myrobotlab.service.GUIService;
 
 public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 
@@ -38,8 +40,8 @@ public class SLAMBadGUI extends ServiceGUI implements ActionListener {
 
 	SLAMBad mySimbad = null;
 
-	public SLAMBadGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public SLAMBadGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

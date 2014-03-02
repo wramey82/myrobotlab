@@ -28,6 +28,7 @@ package org.myrobotlab.control;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -35,6 +36,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -68,8 +70,8 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 
 	ACEduinoMotorShield myServo = null;
 
-	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public ACEduinoMotorShieldGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs)  {
+		super(boundServiceName, myService, tabs);
 		myServo = (ACEduinoMotorShield) Runtime.getService(boundServiceName);
 	}
 
@@ -251,5 +253,6 @@ public class ACEduinoMotorShieldGUI extends ServiceGUI {
 	public void detachGUI() {
 		unsubscribe("publishState", "getState", ACEduinoMotorShield.class);
 	}
+
 
 }

@@ -4,20 +4,25 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
 import com.googlecode.javacv.FrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 
+/**
+ * @author GroG
+ * 
+ * A pipeline frame grabber can attach to another OpenCV's output and
+ * perform its own processing.  They can be stacked creating much more
+ * complex image pipelines.
+ *
+ */
 public class PipelineFrameGrabber extends FrameGrabber {
 
 	public final static Logger log = LoggerFactory.getLogger(PipelineFrameGrabber.class.getCanonicalName());
-	
-
 	BlockingQueue<IplImage> blockingData;
-	
-	VideoSources2 vs = new VideoSources2();
 	String sourceKey = "";
 
 	public PipelineFrameGrabber(String sourceKey) {
@@ -51,7 +56,7 @@ public class PipelineFrameGrabber extends FrameGrabber {
 	
 	public void add(IplImage image)
 	{
-		//blockingData.add(image);
+		blockingData.add(image);
 	}
 
 	@Override
@@ -60,15 +65,14 @@ public class PipelineFrameGrabber extends FrameGrabber {
 
 	@Override
 	public IplImage grab() {
-		return vs.get(sourceKey);
-		/*
+	
 		try {
 			return blockingData.take();
 		} catch (InterruptedException e) {
 			Logging.logException(e);
 			return null;
 		}
-		*/
+		
 	}
 	
 	@Override

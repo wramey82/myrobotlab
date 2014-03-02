@@ -35,6 +35,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.PID;
 import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
@@ -52,8 +54,8 @@ public class PIDGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(PIDGUI.class.getCanonicalName());
 
-	public PIDGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public PIDGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

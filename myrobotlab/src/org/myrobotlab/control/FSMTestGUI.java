@@ -36,17 +36,17 @@ import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.image.KinectImageNode;
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.memory.NodeDeprecate;
 import org.myrobotlab.service.FSMTest;
 import org.myrobotlab.service.FSMTest.MatchResult;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+import org.slf4j.Logger;
 
 public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 
@@ -62,8 +62,8 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 	JLabel matchIndex = new JLabel("0");
 	JLabel matchWord = new JLabel();
 
-	public FSMTestGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public FSMTestGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public class StateActionListener implements ActionListener {
@@ -123,13 +123,13 @@ public class FSMTestGUI extends ServiceGUI implements VideoGUISource {
 		gc.gridx = 0;
 		++gc.gridy;
 
-		bestFitVideo = new VideoWidget(boundServiceName, myService);
+		bestFitVideo = new VideoWidget(boundServiceName, myService, tabs);
 		bestFitVideo.init();
 		display.add(bestFitVideo.display, gc);
 
 		gc.gridwidth = 10;
 		++gc.gridx;
-		newImageVideo = new VideoWidget(boundServiceName, myService);
+		newImageVideo = new VideoWidget(boundServiceName, myService, tabs);
 		newImageVideo.init();
 		display.add(newImageVideo.display, gc);
 

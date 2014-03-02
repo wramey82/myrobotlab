@@ -26,13 +26,20 @@
 package org.myrobotlab.opencv;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvAnd;
-import static com.googlecode.javacv.cpp.opencv_core.cvNot;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_core.cvConvertScale;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
+import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class OpenCVFilterAnd extends OpenCVFilter {
@@ -41,48 +48,79 @@ public class OpenCVFilterAnd extends OpenCVFilter {
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterAnd.class.getCanonicalName());
 
-	int frameCount = 0;
+	transient IplImage and = null;
 	
-	transient IplImage buffer = null;
-	transient IplImage negativeImage = null;
-	
-	public OpenCVFilterAnd()  {
+	public OpenCVFilterAnd() {
 		super();
 	}
-	
-	public OpenCVFilterAnd(String name)  {
+
+	public OpenCVFilterAnd(String name) {
 		super(name);
 	}
 
+	public void loadMask(String filename) {
+		try {
+			and = cvLoadImage(filename, CV_LOAD_IMAGE_GRAYSCALE);
+			/*
+			BufferedImage img = ImageIO.read(new File(filename));
+			mask = IplImage.createFrom(img);
+			*/
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+	
+	public void loadMask(BufferedImage mask){
+		this.and = IplImage.createFrom(mask);
+	}
+	
+	public void loadMask(IplImage mask){
+		this.and = mask;
+	}
+	
+	
 
 	@Override
 	public IplImage process(IplImage image, OpenCVData data) {
+		
+		
+		//IplImage img = cvLoadImage("data/boldt.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+		
+		if (and != null) {
+			
+			
+			//cvConvertScale(arg0, arg1, arg2, arg3)
+			//cvConvertScale(tfaceImg32, faceImg8, 255);
+			//cvSetImageROI(image, cvRect(0, 0, mask.width(), mask.height()));
+			//CvMat mask = CvMat.create(mask, mask.height(), CV_8U);
+			//cvAnd(image, mask, buffer, null); // use mask instead?
+			//cvAnd(src1, src2,  result, mask);
+			
+			cvSetImageROI(image, cvRect(0, 0, and.width(), and.height()));
+			//cvAnd(image, and, buffer, null); // use mask instead?
+			cvAnd(image, and, image, null); // use mask instead?
+			cvResetImageROI(image);
+			
+			
+			/*
+			CanvasFrame canvas = new CanvasFrame("My Image", 1);
+			canvas.showImage(and);
+			
+			CanvasFrame canvas2 = new CanvasFrame("My Image 2", 1);
+			canvas2.showImage(buffer);
 
-		++frameCount;
-
-		if ((negativeImage == null) && (frameCount % 100 == 0)) {
-			negativeImage = image.clone();
-			cvNot(image, negativeImage);
+			*/
+			// working example
+			// cvAnd(image, negativeImage, buffer, null); - both were clones of image negativeImage was an cvNot inverse
 		}
 
-		if (buffer == null) {
-			buffer = image.clone();
-		}
-
-		// cvAnd (src1, src2, dst, mask)
-
-		if (negativeImage != null) {
-			cvAnd(image, negativeImage, buffer, null);
-		}
-
-		return buffer;
-
+		return image;
 	}
 
 	@Override
 	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

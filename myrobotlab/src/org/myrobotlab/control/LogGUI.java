@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.myrobotlab.control.widget.ImageButton;
@@ -19,8 +20,8 @@ public class LogGUI extends ServiceGUI implements ActionListener {
 	JTextArea log = new JTextArea(20, 40);
 	ImageButton clearButton;
 
-	public LogGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public LogGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

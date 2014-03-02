@@ -75,8 +75,8 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		// docking panel will move the data of the frame to serializable
 		// position
 		// FIXME - very hacked
-		myService.undockedPanels.get(boundServiceName).savePosition();
-		myService.undockedPanels.get(boundServiceName).isDocked();
+		//myService.undockedPanels.get(boundServiceName).savePosition();
+		//myService.undockedPanels.get(boundServiceName).isDocked();
 
 		parent.add(myPanel);
 		parent.setTabComponentAt(parent.getTabCount() - 1, this);
@@ -114,6 +114,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 						undocked = new JFrame(boundServiceName);
 						// check to see if this frame was positioned before
 						UndockedPanel panel = null;
+						/*
 						if (myService.undockedPanels.containsKey(boundServiceName)) {
 							// has been undocked before
 							panel = myService.undockedPanels.get(boundServiceName);
@@ -126,7 +127,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 							panel.x = undocked.getWidth();
 							panel.y = undocked.getHeight();
 						}
-
+						*/
 						//panel.frame = undocked;
 						//panel.isDocked = false;
 						//undocked.setVisible(false);
@@ -159,7 +160,7 @@ public class TabControl extends JLabel implements ActionListener, MouseListener,
 		});
 	
 	}
-
+	
 	public TabControl(GUIService gui, JTabbedPane parent, Container myPanel, String boundServiceName, Color foreground, Color background) {
 		this(gui, parent, myPanel, boundServiceName, boundServiceName, foreground, background);
 	}

@@ -52,6 +52,8 @@ import javax.swing.text.DefaultCaret;
 
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.roomba.RoombaComm;
 import org.myrobotlab.service.Roomba;
 import org.myrobotlab.service.Runtime;
@@ -79,8 +81,8 @@ public class RoombaGUI extends ServiceGUI implements ListSelectionListener, Acti
 	Roomba roombacomm; // in MRL'land can't have direct access to this - must
 						// message it
 
-	public RoombaGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public RoombaGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		roombacomm = (Roomba) Runtime.getService(boundServiceName);
 	}
 

@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -43,9 +44,9 @@ import javax.swing.event.ListSelectionListener;
 import org.myrobotlab.control.widget.DirectionWidget;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.IPCamera;
 import org.myrobotlab.service.Runtime;
-import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
 
 public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
@@ -122,8 +123,8 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 	}
 
-	public IPCameraGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public IPCameraGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		myIPCamera = (IPCamera) Runtime.getService(boundServiceName);
 		direction.setDirectionListener(dirEventListener);
 	}
@@ -132,7 +133,7 @@ public class IPCameraGUI extends ServiceGUI implements ListSelectionListener {
 
 		display.setLayout(new BorderLayout());
 		
-		video0 = new VideoWidget(boundServiceName, myService, false);
+		video0 = new VideoWidget(boundServiceName, myService, tabs, false);
 		video0.init();
 	
 		JPanel config = new JPanel(new GridLayout(0,1));

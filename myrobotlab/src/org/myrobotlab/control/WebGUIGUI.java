@@ -31,6 +31,8 @@ import java.awt.event.ActionListener;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.WebGUI;
 import org.myrobotlab.service.GUIService;
 import org.slf4j.Logger;
@@ -40,8 +42,8 @@ public class WebGUIGUI extends ServiceGUI implements ActionListener {
 	static final long serialVersionUID = 1L;
 	public final static Logger log = LoggerFactory.getLogger(WebGUIGUI.class.getCanonicalName());
 
-	public WebGUIGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public WebGUIGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

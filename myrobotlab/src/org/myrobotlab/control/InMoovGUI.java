@@ -43,6 +43,8 @@ import javax.swing.JPanel;
 
 import org.myrobotlab.image.Util;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.InMoov;
 import org.slf4j.Logger;
@@ -52,7 +54,7 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 
 	HashSet<String> handTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sHand","%s.%sHand.index", "%s.%sHand.majeure", "%s.%sHand.ringFinger", "%s.%sHand.pinky", "%s.%sHand.thumb", "%s.%sHand.wrist"));
 	HashSet<String> armTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sArm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
-	HashSet<String> headTemplate = new HashSet<String>(Arrays.asList("%s.%s", "%s.%sArm","%s.%sArm.bicep", "%s.%sArm.rotate", "%s.%sArm.shoulder", "%s.%sArm.omoplate"));
+	HashSet<String> headTemplate = new HashSet<String>(Arrays.asList("%s.head", "%s.head.eyesTracking.xpid","%s.head.eyesTracking.ypid", "%s.head.jaw", "%s.head.mouthControl", "%s.head.eyesTracking", "%s.head.eyeX", "%s.head.eyeY", "%s.head.rothead", "%s.head.neck", "%s.head.headTracking.xpid", "%s.head.headTracking.ypid","%s.head.headTracking","%s.mouth","speechAudioFile"));
 	
 	HashMap<String, HashSet<String>> templates = new HashMap<String, HashSet<String>>();
 
@@ -72,8 +74,8 @@ public class InMoovGUI extends ServiceGUI implements ActionListener {
 	private String defaultLeftPort;
 	private String defaultRightPort;
 
-	public InMoovGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public InMoovGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		templates.put("hand", handTemplate);
 		templates.put("arm", armTemplate);
 		templates.put("head", headTemplate);

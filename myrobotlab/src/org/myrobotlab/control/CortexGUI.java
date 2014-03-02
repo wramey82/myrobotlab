@@ -37,6 +37,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -47,9 +48,9 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service.Cortex;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Tracking;
 import org.myrobotlab.service.data.Rectangle;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.MemoryDisplay;
 
 
@@ -66,12 +67,12 @@ public class CortexGUI extends ServiceGUI implements MemoryDisplay {
 	
 	MemoryWidget tree = new MemoryWidget(this);
 
-	public CortexGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public CortexGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
-		video0 = new VideoWidget(boundServiceName, myService, true);
+		video0 = new VideoWidget(boundServiceName, myService, tabs, true);
 		video0.init();
 		//video0.setNormalizedSize(160, 120);
 		

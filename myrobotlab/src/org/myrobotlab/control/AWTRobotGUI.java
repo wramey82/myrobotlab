@@ -56,6 +56,8 @@ import javax.swing.SwingUtilities;
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.AWTRobot;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service._TemplateService;
@@ -76,12 +78,12 @@ public class AWTRobotGUI extends ServiceGUI implements ActionListener,
 	private JFrame window;
 	private MyCanvas canvas;
 
-	public AWTRobotGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public AWTRobotGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
-		video0 = new VideoWidget(boundServiceName, myService, false);
+		video0 = new VideoWidget(boundServiceName, myService, tabs, false);
 
 		video0.init();
 		// video0.setNormalizedSize(400,400);

@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -37,10 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -78,7 +74,6 @@ import org.myrobotlab.control.Welcome;
 import org.myrobotlab.control.widget.AboutDialog;
 import org.myrobotlab.control.widget.ConnectDialog;
 import org.myrobotlab.control.widget.Console;
-import org.myrobotlab.control.widget.UndockedPanel;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.framework.Status;
@@ -87,11 +82,9 @@ import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.service.data.IPAndPort;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.string.Util;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
@@ -132,43 +125,23 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	@Element(required = false)
 	public String lastTabVisited;
 
-	/**
-	 * class to save the position and size of undocked panels
-	 */
-	@ElementMap(entry = "undockedPanels", value = "panel", attribute = true, inline = true, required = false)
-	transient public HashMap<String, UndockedPanel> undockedPanels = new HashMap<String, UndockedPanel>();
-
 	public transient JTabbedPane tabs = new JTabbedPane();
 
+	// system menu items - FIXME make all menus here
 	transient JMenuItem recording = new JMenuItem("start recording");
 	transient JMenuItem loadRecording = new JMenuItem("load recording");
 
 	final public String welcomeTabText = "Welcome";
 	// TODO - make MTOD !! from internet
 
-	/**
-	 * the GUIService's gui
-	 */
 	public transient GUIServiceGUI guiServiceGUI = null;
-	/**
-	 * welcome panel
-	 */
+
+	// FIXME - supply Welcome type - create WelcomeGUI type - with boundServiceName this GUIService
 	transient Welcome welcome = null;
 	transient HashMap<String, ServiceGUI> serviceGUIMap = new HashMap<String, ServiceGUI>();
 
-	/**
-	 * hashmap "quick lookup" of panels
-	 */
-	transient HashMap<String, JPanel> tabPanelMap = new HashMap<String, JPanel>();
-	transient Map<String, ServiceInterface> sortedMap = null;
-
-	transient GridBagConstraints gc = null;
-
-	String selectedTabTitle = null;
 	boolean isDisplaying = false;
 	transient JLabel status = new JLabel("status");
-
-	transient private GUIService myself;
 
 	public GUIService(String n) {
 		super(n);
@@ -176,7 +149,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		Runtime.getInstance().addListener("released", n, "released");
 		// TODO - add the release route too
 		load();// <-- HA was looking all over for it
-		myself = this;
 	}
 
 	public Service registered(final Service s) {
@@ -185,7 +157,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				addTab(s.getName());
 				// kind of kludgy but got to keep them in sync
 				RuntimeGUI rg = (RuntimeGUI) serviceGUIMap.get(Runtime.getInstance().getName());
-				if (rg != null){
+				if (rg != null) {
 					rg.registered(s);
 				}
 			}
@@ -199,7 +171,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				removeTab(s.getName());
 				// kind of kludgy but got to keep them in sync
 				RuntimeGUI rg = (RuntimeGUI) serviceGUIMap.get(Runtime.getInstance().getName());
-				if (rg != null){
+				if (rg != null) {
 					rg.released(s);
 				}
 			}
@@ -239,20 +211,23 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		return false;
 	}
 
+	/**
+	 * builds all the service tabs for the first time
+	 * called when GUIService starts
+	 * @return
+	 */
 	synchronized public JTabbedPane buildTabPanels() {
 		// add the welcome screen
 		if (!serviceGUIMap.containsKey(welcomeTabText)) {
-			welcome = new Welcome("", this);
+			welcome = new Welcome(welcomeTabText, this, tabs);
 			welcome.init();
-			tabs.addTab(welcomeTabText, welcome.display);
-			tabs.setTabComponentAt(0, new JLabel(welcomeTabText));
 			serviceGUIMap.put(welcomeTabText, welcome);
 		}
 
 		HashMap<String, ServiceInterface> services = Runtime.getRegistry();
 		log.info("buildTabPanels service count " + Runtime.getRegistry().size());
 
-		sortedMap = new TreeMap<String, ServiceInterface>(services);
+		TreeMap<String, ServiceInterface> sortedMap = new TreeMap<String, ServiceInterface>(services);
 		Iterator<String> it = sortedMap.keySet().iterator();
 		synchronized (sortedMap) { // FIXED YAY !!!!
 			while (it.hasNext()) {
@@ -265,8 +240,13 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		return tabs;
 	}
 
+	
 	/**
-	 * FIXME - normalize addTabPanel or everything else w/o Panel !
+	 * add a service tab to the GUIService
+	 * @param serviceName - name of service to add
+	 * 
+	 * FIXME - full parameter of addTab(final String serviceName, final String serviceType, final String lable)
+	 * then overload
 	 */
 	synchronized public void addTab(final String serviceName) {
 
@@ -303,19 +283,19 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				Component c = tabs.getTabComponentAt(index);
 				if (c instanceof TabControl2) {
 					TabControl2 tc = (TabControl2) c;
-					
-					if (!sw.isLocal()){
+
+					if (!sw.isLocal()) {
 						Color hsv = GUIService.getColorFromURI(sw.getHost());
-						tabs.setBackgroundAt(index, hsv);			
+						tabs.setBackgroundAt(index, hsv);
 					}
-					
+
 					// String serviceName = tc.getText();
-					if (undockedPanels.containsKey(serviceName)) {
-						UndockedPanel up = undockedPanels.get(serviceName);
-						if (!up.isDocked()) {
-							tc.undockPanel();
-						}
-					}
+					/*
+					 * REMOVED RECENTLY - implement in ServiceGUI if necessary
+					 * if (undockedPanels.containsKey(serviceName)) {
+					 * UndockedPanel up = undockedPanels.get(serviceName); if
+					 * (!up.isDocked()) { tc.undockPanel(); } }
+					 */
 				}
 
 				frame.pack();
@@ -324,7 +304,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		});
 	}
 
-	// DEPRECATED - NOT USED !?!?!?!?
 	public void removeTab(final String name) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -334,23 +313,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				// detaching & removing the ServiceGUI
 				ServiceGUI sg = serviceGUIMap.get(name);
 				if (sg != null) {
-					sg.detachGUI();
-				} else {
-					// warn not error - because service may have been removed
-					// recently
-					log.warn(String.format("%1$s was not in the serviceGUIMap - unable to preform detach", name));
-				}
-
-				// removing the tab
-				JPanel tab = tabPanelMap.get(name);
-				if (tab != null) {
-					tabs.remove(tab);
+					sg.remove();
 					serviceGUIMap.remove(name);
-					tabPanelMap.remove(name);
-
-					log.info(String.format("removeTab new size %1$d", serviceGUIMap.size()));
 				} else {
-					log.error(String.format("can not removeTab ", name));
+					log.warn(String.format("{} was not in the serviceGUIMap - unable to remove", name));
 				}
 
 				guiServiceGUI = (GUIServiceGUI) serviceGUIMap.get(getName());
@@ -361,15 +327,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			}
 		});
 	}
-
-	public synchronized void removeAllTabPanels() { // add swing
-		log.info("tab count" + tabs.getTabCount());
-		while (tabs.getTabCount() > 0) {
-			tabs.remove(0);
-		}
-
-	}
-
+	
 	/**
 	 * attempts to create a new ServiceGUI and add it to the map
 	 * 
@@ -383,23 +341,19 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		ServiceGUI gui = null;
 		ServiceInterface se = sw;
 
-		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this);
+		gui = (ServiceGUI) getNewInstance(guiClass, se.getName(), this, tabs);
 
 		if (gui == null) {
 			log.info(String.format("could not construct a %s object - creating generic template", guiClass));
-			gui = (ServiceGUI) getNewInstance("org.myrobotlab.control._TemplateServiceGUI", se.getName(), this);
+			gui = (ServiceGUI) getNewInstance("org.myrobotlab.control._TemplateServiceGUI", se.getName(), this, tabs);
 		}
 
 		gui.init();
 		serviceGUIMap.put(serviceName, gui);
-		// FIXME - add method gui.setService(registry.get(boundServiceName))
-		tabPanelMap.put(serviceName, gui.getDisplay());
 		gui.attachGUI();
 
 		// TODO - all auto-subscribtions could be done here
 		subscribe("publishStatus", se.getName(), "getStatus", String.class);
-		tabs.addTab(serviceName, gui.getDisplay());
-		tabs.setTabComponentAt(tabs.getTabCount() - 1, gui.getTabControl());
 		return gui;
 	}
 
@@ -432,9 +386,6 @@ public class GUIService extends Service implements WindowListener, ActionListene
 				frame = new JFrame();
 			}
 
-			// FIXME - deprecate
-			gc = new GridBagConstraints();
-
 			frame.addWindowListener(this);
 			frame.setTitle("myrobotlab - " + getName() + " " + Runtime.getVersion().trim());
 
@@ -456,44 +407,10 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			frame.setJMenuBar(buildMenu());
 			frame.setVisible(true);
 			frame.pack();
-			if (tabPanelMap.containsKey(lastTabVisited)) {
-				try {
-					tabs.setSelectedComponent(tabPanelMap.get(lastTabVisited));
-				} catch (Exception e) {
-					Logging.logException(e);
-				}
-			}
-
+			
 			isDisplaying = true;
 		}
 
-	}
-
-	private static void open(URI uri) {
-		if (Desktop.isDesktopSupported()) {
-			Desktop desktop = Desktop.getDesktop();
-			try {
-				desktop.browse(uri);
-			} catch (IOException e) {
-				// TODO: error handling
-			}
-		} else {
-			// TODO: error handling
-		}
-	}
-
-	public String setRemoteConnectionStatus(String state) {
-		welcome.setRemoteConnectionStatus(state);
-		return state;
-	}
-
-	public IPAndPort noConnection(IPAndPort conn) {
-		welcome.setRemoteConnectionStatus("<html><body><font color=\"red\">could not connect</font></body></html>");
-		return conn;
-	}
-
-	public BufferedImage processImage(BufferedImage bi) {
-		return bi;
 	}
 
 	// @Override - only in Java 1.6
@@ -513,15 +430,16 @@ public class GUIService extends Service implements WindowListener, ActionListene
 		Iterator<Map.Entry<String, ServiceGUI>> it = serviceGUIMap.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, ServiceGUI> pairs = (Map.Entry<String, ServiceGUI>) it.next();
-			String serviceName = pairs.getKey();
-			if (undockedPanels.containsKey(serviceName)) {
-				UndockedPanel up = undockedPanels.get(serviceName);
-				if (!up.isDocked()) {
-					up.savePosition();
-				}
-			}
-			pairs.getValue().isReadyForRelease();
-			pairs.getValue().makeReadyForRelease();
+			// String serviceName = pairs.getKey();
+			/*
+			 * if (undockedPanels.containsKey(serviceName)) { UndockedPanel up =
+			 * undockedPanels.get(serviceName); if (!up.isDocked()) {
+			 * up.savePosition(); } }
+			 */
+			ServiceGUI sg = pairs.getValue();
+			sg.savePosition();
+			sg.isReadyForRelease();
+			sg.makeReadyForRelease();
 		}
 
 		save();
@@ -649,9 +567,11 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	}
 
 	// FIXME - now I think its only "register" - Deprecate if possible
+	/*
 	public void registerServicesEvent() {
 		buildTabPanels();
 	}
+	*/
 
 	static public void console() {
 		attachJavaConsole();
@@ -757,11 +677,12 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			// TODO this needs to be changed into something like tryValueOf(cmd)
 			Logging logging = LoggingFactory.getInstance();
 			logging.setLevel(cmd);
-		} else /* if ("connect".equals(cmd)) {
-			ConnectDialog dlg = new ConnectDialog(new JFrame(), "connect", "message", this, lastHost, lastPort);
-			lastHost = dlg.host.getText();
-			lastPort = dlg.port.getText();
-		} else */ if (cmd.equals(Appender.NONE)) {
+		} else /*
+				 * if ("connect".equals(cmd)) { ConnectDialog dlg = new
+				 * ConnectDialog(new JFrame(), "connect", "message", this,
+				 * lastHost, lastPort); lastHost = dlg.host.getText(); lastPort
+				 * = dlg.port.getText(); } else
+				 */if (cmd.equals(Appender.NONE)) {
 			Logging logging = LoggingFactory.getInstance();
 			logging.removeAllAppenders();
 		} else if (cmd.equals(Appender.REMOTE)) {
@@ -954,55 +875,22 @@ public class GUIService extends Service implements WindowListener, ActionListene
 	 */
 	public void dockPanel(final String label) {
 
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				if (!undockedPanels.containsKey(label)) {
-					log.warn("request to dock a non-undocked panel {}", label);
-					return;
-				}
-				UndockedPanel undocked = undockedPanels.get(label);
-
-				JPanel p = undocked.getDisplay();
-				tabs.add(label, p); // grrr.. JPanel should be a composite +
-									// tabControl
-				p.setVisible(true);
-				ServiceGUI sg = serviceGUIMap.get(label);
-				tabs.setTabComponentAt(tabs.getTabCount() - 1, sg.getTabControl());
-
-				log.info("{}", tabs.indexOfTab(label));
-
-				// clear resources
-				undocked.close();
-				getFrame().invalidate();
-				getFrame().pack();
-				tabs.setSelectedComponent(p);
-
-			}
-		});
+		if (serviceGUIMap.containsKey(label)) {
+			ServiceGUI sg = serviceGUIMap.get(label);
+			sg.dockPanel();
+		} else {
+			log.error("dockPanel - {} not in serviceGUIMap", label);
+		}
 	}
 
 	// must handle docked or undocked
 	public void hidePanel(final String label) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				log.info("hidePanel {}", label);
-				if (undockedPanels.containsKey(label) && !undockedPanels.get(label).isDocked()) {
-					// undocked
-					UndockedPanel undocked = undockedPanels.get(label);
-					undocked.hide();
-				} else {
-					// docked - must remove / insert tabs - versus make them
-					// visible
-					// "title" MUST be set if "indexOfTab" is to work !
-					int index = tabs.indexOfTab(label);
-					if (index != -1) {
-						tabs.remove(index);
-					} else {
-						log.error("{} - has -1 index", label);
-					}
-				}
-			}
-		});
+		if (serviceGUIMap.containsKey(label)) {
+			ServiceGUI sg = serviceGUIMap.get(label);
+			sg.hidePanel();
+		} else {
+			log.error("hidePanel - {} not in serviceGUIMap", label);
+		}
 	}
 
 	public void hideAll() {
@@ -1023,71 +911,21 @@ public class GUIService extends Service implements WindowListener, ActionListene
 
 	// must handle docked or undocked & re-entrant for unhidden
 	public void unhidePanel(final String label) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				log.info("unhidePanel {}", label);
-				if (undockedPanels.containsKey(label) && !undockedPanels.get(label).isDocked()) {
-					// undocked
-					UndockedPanel undocked = undockedPanels.get(label);
-					undocked.unhide();
-				} else {
-					// docked - must remove / insert tabs - versus make them
-					// visible
-					// "title" MUST be set if "indexOfTab" is to work !
-					if (tabs.indexOfTab(label) == -1) {
-						log.info("unhiding {}", label);
-						// tab can not be found --- warning - similar code in
-						// dockPanel
-						ServiceGUI sg = serviceGUIMap.get(label);
-						JPanel p = sg.getDisplay();
-						tabs.add(label, p); // grrr.. JPanel should be a
-											// composite + tabControl
-						if (!"Welcome".equals(label)) {
-							tabs.setTabComponentAt(tabs.getTabCount() - 1, sg.getTabControl());
-						}
-						p.setVisible(true);
-					}
-
-				}
-
-				getFrame().revalidate();
-				getFrame().pack();
-			}
-		});
-
+		if (serviceGUIMap.containsKey(label)) {
+			ServiceGUI sg = serviceGUIMap.get(label);
+			sg.unhidePanel();
+		} else {
+			log.error("unhidePanel - {} not in serviceGUIMap", label);
+		}
 	}
 
 	public void undockPanel(final String label) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-
-				// get service gui
-				ServiceGUI sg = serviceGUIMap.get(label);
-
-				// remove from tabs
-				tabs.remove(sg.getDisplay());
-
-				// get undocked panel
-				UndockedPanel undocked;
-				// check to see if this frame was positioned before
-				if (undockedPanels.containsKey(label)) {
-					// has been undocked before
-					undocked = undockedPanels.get(label);
-				} else {
-					// first time undocked
-					undocked = new UndockedPanel(myself);
-					undockedPanels.put(label, undocked);
-				}
-
-				undocked.createFrame(label, sg.getDisplay());
-
-				getFrame().revalidate();
-				getFrame().pack();
-				save(); // ?
-
-			}
-		});
-
+		if (serviceGUIMap.containsKey(label)) {
+			ServiceGUI sg = serviceGUIMap.get(label);
+			sg.undockPanel();
+		} else {
+			log.error("undockPanel - {} not in serviceGUIMap", label);
+		}
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException, URISyntaxException {

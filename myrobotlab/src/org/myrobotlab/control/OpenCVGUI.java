@@ -57,6 +57,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -74,7 +75,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.opencv.FilterWrapper;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.VideoProcessor;
-import org.myrobotlab.opencv.VideoSources2;
+import org.myrobotlab.opencv.VideoSources;
 import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.OpenCV;
 import org.myrobotlab.service.Runtime;
@@ -134,14 +135,14 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 	OpenCV myOpenCV;
 	final OpenCVGUI self;
 
-	public OpenCVGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public OpenCVGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		self = this;
 	}
 
 	public void init() {
 
-		video0 = new VideoWidget(boundServiceName, myService, false);
+		video0 = new VideoWidget(boundServiceName, myService, tabs, false);
 		video0.init();
 
 		capture.addActionListener(captureListener);
@@ -511,7 +512,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 
 				IPCameraType.setVisible(false);
 				// this has static / global internals
-				VideoSources2 vs = new VideoSources2();
+				VideoSources vs = new VideoSources();
 				Set<String> p = vs.getKeySet();
 				pipelineHookModel.removeAllElements();
 				for (String i : p) {
@@ -692,7 +693,7 @@ public class OpenCVGUI extends ServiceGUI implements ListSelectionListener, Vide
 					}
 
 					currentFilters.removeListSelectionListener(self);
-					currentFilters.setSelectedValue(vp.displayFilter, true);// .setSelectedIndex(index);
+					currentFilters.setSelectedValue(vp.displayFilterName, true);// .setSelectedIndex(index);
 					currentFilters.addListSelectionListener(self);
 
 				} else {

@@ -55,14 +55,14 @@ public class OpenCVFilterAddAlpha extends OpenCVFilter {
 
 
 	@Override
-	public IplImage process(IplImage image, OpenCVData data) {
+	public IplImage process(IplImage image, OpenCVData data) throws InterruptedException {
 
 		// cvAnd (src1, src2, dst, mask)
 		// f'ing rocks ! -
 		// http://www.neuroforge.co.uk/index.php/masking-colour-images
 		if (sourceName != null) {
 			// INFO - This filter has 2 keys !!!
-			IplImage src = vp.sources.get(vp.boundServiceName, sourceName);
+			IplImage src = vp.sources.get(String.format("%s.%s", vp.boundServiceName, sourceName));
 			if (src != null) {
 				if (dst == null) {
 					dst = src.clone();

@@ -37,13 +37,14 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTabbedPane;
 
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.myrobotlab.arduino.compiler.Target;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.service.Arduino;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 
 public class EditorArduino extends Editor implements ActionListener {
@@ -68,8 +69,8 @@ public class EditorArduino extends Editor implements ActionListener {
 	JCheckBoxMenuItem digitalDebounce = new JCheckBoxMenuItem("Debounce");
 	JCheckBoxMenuItem digitalTriggerOnly = new JCheckBoxMenuItem("Digital Trigger Only");
 
-	public EditorArduino(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService, SyntaxConstants.SYNTAX_STYLE_C);
+	public EditorArduino(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService,  tabs,  SyntaxConstants.SYNTAX_STYLE_C);
 		ServiceInterface sw = Runtime.getService(boundServiceName);
 		myArduino = (Arduino) sw;
 		examplesMenu.add(createExamplesMenu());

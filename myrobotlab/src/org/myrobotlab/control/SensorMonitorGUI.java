@@ -57,6 +57,8 @@ import javax.swing.event.ListSelectionListener;
 import org.slf4j.Logger;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.framework.MRLListener;
@@ -191,13 +193,13 @@ public class SensorMonitorGUI extends ServiceGUI implements ListSelectionListene
 
 	}
 
-	public SensorMonitorGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public SensorMonitorGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
 
-		video = new VideoWidget(boundServiceName, myService);
+		video = new VideoWidget(boundServiceName, myService, tabs);
 		video.init();
 		addTrace.addActionListener(new AddTraceListener());
 		removeTrace.addActionListener(new RemoveTraceListener());
