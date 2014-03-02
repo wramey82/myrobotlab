@@ -10,7 +10,7 @@ public abstract class Logging {
 	public final static Logger log = LoggerFactory.getLogger(Logging.class);
 	// performance timing
 	public static long startTimeMilliseconds = 0;
-	private static boolean performanceTiming = false;
+	public static boolean performanceTiming = false;
 
 	// public static HashMap<String, Long> timerMap = null;
 
@@ -50,8 +50,9 @@ public abstract class Logging {
 
 	public abstract void removeAppender(Object console);
 
-	static public void logTimeEnable(Boolean b) {
+	static public Boolean logTimeEnable(Boolean b) {
 		performanceTiming = b;
+		return performanceTiming;
 	}
 
 	static public void logTimeStart() {

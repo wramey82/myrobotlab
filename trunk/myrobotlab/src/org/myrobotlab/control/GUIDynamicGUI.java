@@ -44,13 +44,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.control.widget.Style;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.MRLListener;
-import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.w3c.dom.Document;
 
@@ -102,8 +103,8 @@ public class GUIDynamicGUI extends GUIServiceGUI {
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
 
-	public GUIDynamicGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public GUIDynamicGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

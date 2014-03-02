@@ -26,68 +26,50 @@
 // http://stackoverflow.com/questions/11515072/how-to-identify-optimal-parameters-for-cvcanny-for-polygon-approximation
 package org.myrobotlab.opencv;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2GRAY;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
-
-import java.awt.image.BufferedImage;
 
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.slf4j.Logger;
 
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_objdetect.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_legacy.*;
-import static com.googlecode.javacv.cpp.opencv_video.*;
-import static com.googlecode.javacv.cpp.opencv_calib3d.*;
+
 public class OpenCVFilterCopy extends OpenCVFilter {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(OpenCVFilterCopy.class.getCanonicalName());
 
-
-	public OpenCVFilterCopy()  {
+	public OpenCVFilterCopy() {
 		super();
 	}
-	
-	public OpenCVFilterCopy(String name)  {
+
+	public OpenCVFilterCopy(String name) {
 		super(name);
 	}
 
-
 	/*
-	 
-	void getSubImg(IplImage* img, IplImage* subImg, CvRect roiRect) {
-
-	cvSetImageROI(img, roiRect);
-	subImg = cvCreateImage(cvGetSize(img), img->depth, img->nChannels);
-	cvCopy(img, subImg, NULL);
-	cvResetImageROI(img);
-	}
+	 * 
+	 * void getSubImg(IplImage* img, IplImage* subImg, CvRect roiRect) {
+	 * 
+	 * cvSetImageROI(img, roiRect); subImg = cvCreateImage(cvGetSize(img),
+	 * img->depth, img->nChannels); cvCopy(img, subImg, NULL);
+	 * cvResetImageROI(img); }
 	 */
-	
 
 	@Override
 	public IplImage process(IplImage img, OpenCVData data) {
 
 		try {
-		//CvRect roiRect = new CvRect(0, 0, 30, 120);
-		//cvSetImageROI(img, roiRect);
-		IplImage copy = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
+			// CvRect roiRect = new CvRect(0, 0, 30, 120);
+			// cvSetImageROI(img, roiRect);
+			IplImage copy = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
 
-		cvCopy(img, copy, null);
-		vp.sources.put(vp.boundServiceName, String.format("%.copy", name), img);
-		//cvResetImageROI(img);
+			cvCopy(img, copy, null);
+			vp.sources.put(vp.boundServiceName, String.format("%s.copy", vp.boundServiceName, name), img);
+			// cvResetImageROI(img);
 
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -98,7 +80,7 @@ public class OpenCVFilterCopy extends OpenCVFilter {
 	@Override
 	public void imageChanged(IplImage image) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -23,6 +23,8 @@ import javax.swing.tree.TreePath;
 import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.service.interfaces.MemoryDisplay;

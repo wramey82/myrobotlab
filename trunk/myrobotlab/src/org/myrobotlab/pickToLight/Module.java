@@ -21,10 +21,10 @@ import com.pi4j.io.i2c.I2CFactory;
  ALL writes to the I/O expander write that bit high.  
  As a result, there are only four possible values that should be written:
 
-0x80 - 128 = LED ON and display selected 
-0x81 - 129 = LED ON and display de-selected 
-0x82 - 130 = LED OFF and display selected 
-0x83 - 131 = LED OFF and display de-selected
+ 0x80 - 128 = LED ON and display selected 
+ 0x81 - 129 = LED ON and display de-selected 
+ 0x82 - 130 = LED OFF and display selected 
+ 0x83 - 131 = LED OFF and display de-selected
 
  */
 
@@ -56,25 +56,33 @@ public class Module {
 		public int blinkNumber = 5;
 		public int blinkDelay = 100;
 		public String value = "";
-		public boolean leaveOn = true;
+		public boolean leaveDisplayOn = true;
+		public boolean leaveLEDOn = false;
 
 		public void run() {
 			int count = 0;
 			while (count < 5) {
 				// selector &= ~MASK_DISPLAY; WRONG !
-				display(value);
+				if (value != null) {
+					display(value);
+				}
 				ledOn();
 				Service.sleep(blinkDelay);
-				display("");
+				if (value != null) {
+					display("");
+				}
 				ledOff();
 				// selector |= MASK_LED; WRONG !!
 				Service.sleep(blinkDelay);
 				++count;
 			}
 
-			if (leaveOn) {
+			if (leaveDisplayOn) {
 				// selector &= ~MASK_DISPLAY; WONG
 				display(value);
+			}
+
+			if (leaveLEDOn) {
 				ledOn();
 			}
 		}
@@ -170,13 +178,15 @@ public class Module {
 			logByteArray("writeDisplay", data);
 
 			// select display
-			device.write((byte) (selector &= ~MASK_DISPLAY)); // FIXME NOT CORRECT !
+			device.write((byte) (selector &= ~MASK_DISPLAY)); // FIXME NOT
+																// CORRECT !
 
 			I2CDevice display = i2cbus.getDevice(0x38);
 			display.write(data, 0, data.length);
 
 			// de-select display
-			device.write((byte) (selector |= MASK_DISPLAY));// FIXME NOT CORRECT ! for LED
+			device.write((byte) (selector |= MASK_DISPLAY));// FIXME NOT CORRECT
+															// ! for LED
 
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -224,7 +234,7 @@ public class Module {
 		b.blinkNumber = blinkNumber;
 		b.blinkDelay = blinkDelay;
 		b.value = msg;
-		b.leaveOn = false;
+		b.leaveDisplayOn = false;
 		b.start();
 	}
 
@@ -281,6 +291,9 @@ public class Module {
 	public void cycleStop() {
 		if (ct != null) {
 			ct.isRunning = false;
+			ct.interrupt();
+			ct = null;
+			display("    ");
 		}
 	}
 
@@ -296,7 +309,7 @@ public class Module {
 	public int ledOn() {
 		try {
 			selector &= ~MASK_LED;
-			log.info("ledOn {}",Integer.toHexString(selector));
+			log.info("ledOn {}", Integer.toHexString(selector));
 			device.write((byte) selector);
 		} catch (Exception e) {
 			Logging.logException(e);
@@ -307,12 +320,12 @@ public class Module {
 	public int ledOff() {
 		try {
 			selector |= MASK_LED;
-			log.info("ledOff {}",Integer.toHexString(selector));
+			log.info("ledOff {}", Integer.toHexString(selector));
 			device.write((byte) selector);
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
-		
+
 		return selector;
 	}
 
@@ -324,23 +337,14 @@ public class Module {
 			// lame should bitwise this
 			// I have a feeling LED and display affect
 			// YOU CANT HAVE LED ON WHEN POLLING SENSOR ??
-			device.write((byte) 0x83);
+			// device.write((byte) 0x83);
+			// need to do bitwise mask !!!
 			return device.read();
-			
+
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
 		return -1;
-	}
-	
-	public void sensorStart()
-	{
-		// polling
-		
-	}
-	
-	public void sensorStop() {
-		// stop polling
 	}
 
 	public Module(int bus, int i2cAddress) {

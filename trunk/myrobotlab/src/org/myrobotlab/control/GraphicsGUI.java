@@ -45,6 +45,8 @@ import javax.swing.JList;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.service.GUIService;
@@ -59,8 +61,8 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 	BufferedImage graph = null;
 	Graphics g = null;
 
-	public GraphicsGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public GraphicsGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
@@ -74,7 +76,7 @@ public class GraphicsGUI extends ServiceGUI implements VideoGUISource {
 			}
 		});
 
-		video = new VideoWidget(boundServiceName, myService);
+		video = new VideoWidget(boundServiceName, myService, tabs);
 		video.init();
 		display.add(cg);
 		display.add(video.display, gc);

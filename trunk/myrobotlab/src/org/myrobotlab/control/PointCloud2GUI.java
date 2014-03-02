@@ -32,12 +32,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.PointCloud2;
 import org.myrobotlab.service.data.SensorData;
-import org.myrobotlab.service.GUIService;
 
 public class PointCloud2GUI extends ServiceGUI implements ActionListener {
 
@@ -54,8 +55,8 @@ public class PointCloud2GUI extends ServiceGUI implements ActionListener {
 
 	JPanel eastPanel = new JPanel();
 
-	public PointCloud2GUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public PointCloud2GUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

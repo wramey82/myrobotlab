@@ -51,10 +51,10 @@ public class OpenCVFilterMask extends OpenCVFilter {
 	}
 
 	@Override
-	public IplImage process(IplImage image, OpenCVData data) {
+	public IplImage process(IplImage image, OpenCVData data) throws InterruptedException {
 
 		// INFO - This filter has 2 keys !!!
-		IplImage mask = vp.sources.get(vp.boundServiceName, String.format("%s_MASK", name));
+		IplImage mask = vp.sources.get(String.format("%s.mask", vp.boundServiceName));
 		
 		maskName = "kd";
 		if (mask != null) {

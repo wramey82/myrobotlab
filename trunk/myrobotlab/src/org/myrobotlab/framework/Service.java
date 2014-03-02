@@ -55,6 +55,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
+import java.util.Timer;
 import java.util.TreeMap;
 
 import org.myrobotlab.fileLib.FileIO;
@@ -111,6 +112,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	transient Outbox outbox = null;
 	transient Inbox inbox = null;
+	transient Timer timer = null;
 
 	@Element
 	protected boolean allowDisplay = true;
@@ -157,11 +159,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return host == null;
 	}
 
-	public ArrayList<Error> test() {
+	public Errors test() {
 		return test((Object[]) null);
 	}
 
-	public ArrayList<Error> test(Object... data) {
+	public Errors test(Object... data) {
 		return null;
 	}
 

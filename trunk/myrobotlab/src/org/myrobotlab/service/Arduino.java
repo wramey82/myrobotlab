@@ -592,7 +592,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		}
 		*/
 
-		log.info("servo index %d pin %d attached ", servoIndex, pin);
+		log.info("servo index {} pin {} attached ", servoIndex, pin);
 		return true;
 	}
 

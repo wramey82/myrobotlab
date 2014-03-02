@@ -161,6 +161,7 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 
 		cvFindContours(grey, cvStorage, contourPointer, Loader.sizeof(CvContour.class), 0, CV_CHAIN_APPROX_SIMPLE);
 		CvSeq contour = contourPointer;
+		ArrayList<Rectangle> list = new ArrayList<Rectangle>();
 
 		while (contour != null && !contour.isNull()) {
 			if (contour.elem_size() > 0) { // TODO - limit here for
@@ -209,7 +210,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 						box.width = rect.width();
 						box.height = rect.height();
 					}
-					data.add(box);
+					
+					list.add(box);
 
 					if (publishPolygon) {
 						CvSeq points = cvApproxPoly(contour, Loader.sizeof(CvContour.class), cvStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contour) * 0.02, 1);
@@ -261,6 +263,8 @@ public class OpenCVFilterFindContours extends OpenCVFilter {
 			contour = contour.h_next();
 		}
 
+		// FIXME - sources could use this too
+		data.put(list);
 		// if (publishOpenCVData) invoke("publishOpenCVData", data);
 
 		// cvPutText(display, " " + cnt, cvPoint(10, 14), font, CvScalar.RED);

@@ -30,12 +30,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.framework.MRLListener;
-import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.service.TestCatcher;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.TestCatcher;
 
 public class TestCatcherGUI extends ServiceGUI {
 
@@ -43,8 +42,8 @@ public class TestCatcherGUI extends ServiceGUI {
 	JLabel catchInteger = new JLabel("0");
 	JButton bindCatchIntegerButton = null;
 
-	public TestCatcherGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public TestCatcherGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

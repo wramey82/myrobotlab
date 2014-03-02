@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -53,8 +54,6 @@ import org.myrobotlab.opencv.OpenCVFilterPyramidDown;
 import org.myrobotlab.service.data.Point2Df;
 import org.myrobotlab.service.data.Rectangle;
 import org.slf4j.Logger;
-
-import org.myrobotlab.framework.Error;
 
 // TODO - attach() ???  Static name peer key list ???
 
@@ -88,7 +87,7 @@ public class Tracking extends Service {
 	public static final String STATE_FACE_DETECT_LOST_TRACK = "state face detect lost track";
 
 	// memory constants
-	private String state = STATE_NEED_TO_INITIALIZE;
+	private String state = STATE_IDLE;
 
 	// ------ PEER SERVICES BEGIN------
 	transient public PID xpid, ypid;
@@ -324,7 +323,7 @@ public class Tracking extends Service {
 	double sizeIndexForBackgroundForegroundFlip = 0.10;
 
 	public void waitForObjects(OpenCVData data) {
-		data.setFilterName(FILTER_FIND_CONTOURS);
+		data.setSelectedFilterName(FILTER_FIND_CONTOURS);
 		ArrayList<Rectangle> objects = data.getBoundingBoxArray();
 		int numberOfNewObjects = (objects == null) ? 0 : objects.size();
 
@@ -332,7 +331,7 @@ public class Tracking extends Service {
 		// countour == background ??
 		// set state to learn background
 		if (!STATE_LEARNING_BACKGROUND.equals(state) && numberOfNewObjects == 1) {
-			SerializableImage img = new SerializableImage(data.getBufferedImage(), data.getFilterName());
+			SerializableImage img = new SerializableImage(data.getBufferedImage(), data.getSelectedFilterName());
 			double width = img.getWidth();
 			double height = img.getHeight();
 
@@ -502,7 +501,7 @@ public class Tracking extends Service {
 		opencv.removeFilters();
 	}
 
-	public ArrayList<Error> test() {
+	public Errors test() {
 		for (int i = 0; i < 1000; ++i) {
 			// invoke("trackPoint", 0.5, 0.5);
 			// faceDetect();
@@ -575,10 +574,13 @@ public class Tracking extends Service {
 
 		case STATE_FACE_DETECT:
 			// check for bounding boxes
-			data.setFilterName(FaceDetectFilterName);
+			//data.setSelectedFilterName(FaceDetectFilterName);
 			ArrayList<Rectangle> bb = data.getBoundingBoxArray();
 
 			if (bb != null && bb.size() > 0) {
+
+				//data.logKeySet();
+				//log.error("{}",bb.size());
 
 				// found face
 				// find centroid of first bounding box
@@ -644,7 +646,7 @@ public class Tracking extends Service {
 
 		case STATE_LK_TRACKING_POINT:
 			// extract tracking info
-			data.setFilterName(LKOpticalTrackFilterName);
+			data.setSelectedFilterName(LKOpticalTrackFilterName);
 			Point2Df targetPoint = data.getFirstPoint();
 			if (targetPoint != null) {
 				updateTrackingPoint(targetPoint);

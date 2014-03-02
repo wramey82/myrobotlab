@@ -47,6 +47,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.service.GUIService;
 
@@ -70,8 +72,8 @@ public class KeyboardGUI extends ServiceGUI implements ListSelectionListener {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public KeyboardGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public KeyboardGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

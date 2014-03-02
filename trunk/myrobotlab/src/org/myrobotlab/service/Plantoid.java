@@ -106,11 +106,40 @@ public class Plantoid extends Service {
 		
 	}
 	
+	public void startHSVScanning(){
+		opencv.removeFilters();
+		opencv.addFilter("PyramidDown");
+		opencv.addFilter("HSV");
+		opencv.setDisplayFilter("HSV");
+		opencv.capture();
+		startScanning();
+	}
+	
+	public void startVisualScanning(){
+		opencv.addFilter("PyramidDown");
+		opencv.setDisplayFilter("PyramidDown");
+		opencv.removeFilters();
+		opencv.capture();
+		startScanning();
+	}
+	
+	public void startCannyScanning(){
+		opencv.addFilter("Canny");
+		opencv.setDisplayFilter("Canny");
+		opencv.capture();
+		startScanning();
+	}
+	
+	//public int scaleUp scaleDown
+	
 	public void startScanning() {
 		startScanning(pan);
 	}
 	
 	public void startScanning(Servo servo) {
+		if (scanner != null){
+			stopScanning();
+		}
 		scanner = new Scanner(servo, 10, 160, 300);
 		scanner.start();
 	}
@@ -281,6 +310,7 @@ public class Plantoid extends Service {
 //			attachServos();
 			detachLegs(); // at the moment detach legs
 //			stop();
+			streamer.startService();
 			streamer.attach(opencv);
 			
 		} catch (Exception e) {

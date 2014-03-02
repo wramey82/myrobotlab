@@ -57,8 +57,8 @@ public class SEARGUI extends ServiceGUI implements ActionListener {
     static final long serialVersionUID = 1L;
     public final static Logger log = Logger.getLogger(SEARGUI.class.getCanonicalName());
 
-    public SEARGUI(final String boundServiceName, final GUIService myService) {
-        super(boundServiceName, myService);
+    public SEARGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+        super(boundServiceName, myService, tabs);
     }
 
     public void init() {

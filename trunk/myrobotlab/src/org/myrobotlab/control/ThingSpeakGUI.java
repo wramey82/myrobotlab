@@ -39,6 +39,8 @@ import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.service.ThingSpeak;
 import org.myrobotlab.service.GUIService;
@@ -53,8 +55,8 @@ public class ThingSpeakGUI extends ServiceGUI implements ActionListener {
 	JLabel lastUpdate = new JLabel("");
 	JButton save = new JButton("save");
 
-	public ThingSpeakGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public ThingSpeakGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 
 	}
 

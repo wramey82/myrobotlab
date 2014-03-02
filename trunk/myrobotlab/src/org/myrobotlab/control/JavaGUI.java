@@ -183,8 +183,8 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 	 * @param boundServiceName
 	 * @param myService
 	 */
-	public JavaGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public JavaGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 
 		javaConsole = new Console();
 		pythonConsole = new JTextArea();
@@ -257,7 +257,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 		editorTabs.addTab(panel.getDisplayName(), panel.panel);
 		log.info(panel.getEditor().getFileFullPath());
 		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
-		TabControl tc = new TabControl(gui, editorTabs, panel.panel, boundServiceName, panel.getDisplayName(), panel.getFilename());
+		TabControl2 tc = new TabControl2(self, editorTabs, panel.panel, panel.getFilename());
 		tc.addMouseListener(this);
 		editorTabs.setTabComponentAt(editorTabs.getTabCount() - 1, tc);
 		currentScriptName = script.getName();
@@ -512,7 +512,7 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 		pane.addTab("java", javaConsole.getScrollPane());
 		GUIService gui = (GUIService) myService;// FIXME - bad bad bad ...
 
-		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, javaConsole.getScrollPane(), boundServiceName, "java"));
+		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl2(self, pane, javaConsole.getScrollPane(), "java"));
 
 //		pane.addTab("python", pythonScrollPane);
 //		pane.setTabComponentAt(pane.getTabCount() - 1, new TabControl(gui, pane, pythonScrollPane, boundServiceName, "python"));
@@ -741,9 +741,9 @@ public class JavaGUI extends ServiceGUI implements ActionListener, MouseListener
 	public void mousePressed(MouseEvent me) {
 		// TODO Auto-generated method stub
 		Object o = me.getSource();
-		if (o instanceof TabControl) {
-			TabControl tc = (TabControl) o;
-			currentScriptName = tc.getFilename();
+		if (o instanceof TabControl2) {
+			TabControl2 tc = (TabControl2) o;
+			currentScriptName = tc.getText();
 		}
 		// log.info(me);
 	}

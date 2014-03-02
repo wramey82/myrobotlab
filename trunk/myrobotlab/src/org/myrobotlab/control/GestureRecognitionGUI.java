@@ -32,13 +32,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.image.SerializableImage;
-import org.myrobotlab.openni.Points3DPanel;
-import org.myrobotlab.openni.PointsShape;
-import org.myrobotlab.service.GestureRecognition;
-import org.myrobotlab.service.data.SensorData;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.GestureRecognition;
 
 public class GestureRecognitionGUI extends ServiceGUI implements ActionListener {
 
@@ -55,9 +53,9 @@ public class GestureRecognitionGUI extends ServiceGUI implements ActionListener 
 
 	JPanel eastPanel = new JPanel();
 
-	public GestureRecognitionGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
-		video = new VideoWidget(boundServiceName, myService);
+	public GestureRecognitionGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
+		video = new VideoWidget(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

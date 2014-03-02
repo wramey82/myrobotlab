@@ -11,6 +11,7 @@ import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.net.MjpegServer;
 import org.myrobotlab.service.interfaces.VideoSink;
+import org.myrobotlab.service.interfaces.VideoSource;
 import org.slf4j.Logger;
 
 /**
@@ -100,6 +101,12 @@ public class VideoStreamer extends VideoSink {
 	@Override
 	public void releaseService() {
 		super.releaseService();
+	}
+	
+	public boolean attach(String videoSource){
+		VideoSource vs = (VideoSource)Runtime.getService(videoSource);
+		attach(vs);
+		return true;
 	}
 
 	public void publishDisplay(SerializableImage si) {

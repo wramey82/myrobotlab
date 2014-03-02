@@ -335,6 +335,7 @@ public class FileIO {
 	// jar pathing end ---------------
 	// -- os primitives begin -------
 
+	//
 	static public boolean copyResource(String fromFilename, String toFilename) {
 		try {
 			byte[] b = resourceToByteArray(fromFilename);

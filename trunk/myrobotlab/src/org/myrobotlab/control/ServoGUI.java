@@ -45,6 +45,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Servo;
 import org.myrobotlab.service.GUIService;
@@ -100,8 +102,8 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 		}
 	}
 
-	public ServoGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public ServoGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		myServo = (Servo) Runtime.getService(boundServiceName);
 		
 		pinModel.addElement(null);

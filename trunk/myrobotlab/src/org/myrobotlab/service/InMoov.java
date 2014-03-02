@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import java.util.HashMap;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -28,14 +29,12 @@ public class InMoov extends Service {
 
 	// services which do not require a body part
 	// or can influence multiple body parts
+	
+	// Dynamic reflective services such as WebGui & XMPP are to be left out of Peer definitions
+	
 	transient public Sphinx ear;
-
 	transient public Speech mouth;
-	transient public Python python;
-	transient public WebGUI webgui;
-	transient public Keyboard keyboard;
-	transient public XMPP xmpp;
-
+	
 	// hands and arms
 	transient public InMoovHead head;
 	transient public InMoovHand rightHand;
@@ -54,34 +53,37 @@ public class InMoov extends Service {
 	transient public Tracking headTracking;
 	transient public OpenCV opencv;
 	
-	// FIXME - needs to be at the Arduino end
-	// and related to max message speed for current serial baud rate
-	public static int MSG_DELAY = 500;
-
 	// static in Java are not overloaded but overwritten - there is no
 	// polymorphism for statics
 	public static Peers getPeers(String name) {
 		Peers peers = new Peers(name);
-				
+		
+		// SHARING !!!
 		peers.suggestAs("rightArm.arduino", "right", "Arduino", "shared right arduino");
 		peers.suggestAs("rightHand.arduino", "right", "Arduino", "shared right arduino");
 
 		peers.suggestAs("leftArm.arduino", "left", "Arduino", "shared left arduino");
 		peers.suggestAs("leftHand.arduino", "left", "Arduino", "shared left arduino");
-		peers.suggestAs("head.headArduino", "left", "Arduino", "shared left arduino");
 		
+		peers.suggestAs("head.headArduino", "left", "Arduino", "shared left arduino");
+		peers.suggestAs("head.headTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");		
+		peers.suggestAs("head.eyesTracking.opencv", "opencv", "OpenCV", "shared head OpenCV");
+		peers.suggestAs("head.mouthControl.arduino", "left", "Arduino", "shared head Arduino");
+		peers.suggestAs("head.headTracking.arduino", "left", "Arduino", "shared head Arduino");
+		peers.suggestAs("head.eyesTracking.arduino", "left", "Arduino", "shared head Arduino");
+		peers.suggestAs("head.mouthControl.mouth", "mouth", "Speech", "shared Speech");
+
 		peers.put("ear", "Sphinx", "InMoov spech recognition service");
 		peers.put("mouth", "Speech", "InMoov speech service");
-		peers.put("python", "Python", "Python service");
-		peers.put("webgui", "WebGUI", "WebGUI service");
-		peers.put("keyboard", "Keyboard", "Keyboard service");
-		peers.put("xmpp", "XMPP", "XMPP service");
+		peers.put("opencv", "OpenCV", "InMoov OpenCV service");
 		peers.put("head", "InMoovHead", "the head");
 		peers.put("rightHand", "InMoovHand", "right hand");
 		peers.put("leftHand", "InMoovHand", "left hand");
 		peers.put("rightArm", "InMoovArm", "right arm");
 		peers.put("leftArm", "InMoovArm", "left arm");
 		
+		peers.put("leftArm", "InMoovArm", "left arm");
+
 		return peers;
 	}
 
@@ -120,38 +122,13 @@ public class InMoov extends Service {
 		}
 	}
 
-	public boolean startKeyboard() {
-		info("starting keyboard");
-		keyboard = (Keyboard) startPeer("keyboard");
-		return true;
-	}
-
-	// NOTE - these start routines are relatively worthless
-	// but only put in for consistency - since they
-	// could be brought into the system at any time
-	// and they expose interfaces which are dynamically generated
-	public boolean startWebGUI() {
-		info("starting webgui");
-		webgui = (WebGUI) startPeer("webgui");
-		return true;
-	}
-
-	public boolean startXMPP() {
-		info("starting xmpp");
-		xmpp = (XMPP) startPeer("xmpp");
-		return true;
-	}
-
-	public boolean startPython() {
-		info("starting python engine");
-		python = (Python) startPeer("python");
-		return true;
-	}
+	// NOTE - BEST Services are one which are reflective on startService
+	// like xmpp which exposes a the reflective REST API are startService
 
 
 	public Speech startMouth() {
 		mouth = (Speech) startPeer("mouth");
-		mouth.speak("starting mouth");
+		mouth.speakBlocking("starting mouth");
 
 		if (ear != null) {
 			ear.attach(mouth);
@@ -162,79 +139,37 @@ public class InMoov extends Service {
 	// TODO TODO TODO - context & status report - "current context is right hand"
 	// FIXME - voice control for all levels (ie just a hand or head !!!!)
 	public Sphinx startEar() {
-		info("starting ear");
+		log.debug("startEar");
 
 		ear = (Sphinx) startPeer("ear");
-		mouth = (Speech) startPeer("mouth");
-		ear.attach(mouth);
+		if (mouth != null) {
+			ear.attach(mouth);
+			mouth.speakBlocking("starting ear");
+		}
 
 		ear.addCommand("rest", getName(), "rest");
+		ear.addCommand("attach", getName(), "attach");
+		ear.addCommand("detach", getName(), "detach");
 		ear.addCommand("open hand", getName(), "bothHandsOpen");
 		ear.addCommand("close hand", getName(), "handClose", "both");
+		
 		ear.addCommand("camera on", getName(), "cameraOn");
 		ear.addCommand("off camera", getName(), "cameraOff");
-		ear.addCommand("capture gesture", getName(), "captureGesture");
+		
+		ear.addCommand("capture gesture", getName(), "captureGesture"); // TODO
+		
 		ear.addCommand("track", getName(), "track");
 		ear.addCommand("freeze track", getName(), "stopTracking");
+		
+		ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control"); // important
+		
 		//ear.addCommand("hello", getName(), "hello");
-		ear.addCommand("hello", "python", "hello");
-		ear.addCommand("giving", getName(), "giving");
-		ear.addCommand("fighter", getName(), "fighter");
-		ear.addCommand("fist hips", getName(), "fistHips");
-		ear.addCommand("look at this", getName(), "lookAtThis");
-		ear.addCommand("victory", getName(), "victory");
-		ear.addCommand("arms up", getName(), "armsUp");
-		ear.addCommand("arms front", getName(), "armsFront");
-		ear.addCommand("da vinci", getName(), "daVinci");
-		 ;
-		ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control");
-		ear.addCommand("voice control", ear.getName(), "clearLock");
-		ear.addCommand("stop listening", ear.getName(), "stopListening");
-		;
-		////sets the servos back to full speed, anywhere in sequence or gestures;
-		ear.addCommand("full speed", getName(), "fullSpeed");
-		////sequence1;
-		ear.addCommand("grab the bottle", "python", "grabthebottle");
-		ear.addCommand("take the glass", "python", "grabtheglass");
-		ear.addCommand("poor bottle", "python", "poorbottle");
-		ear.addCommand("give the glass", "python", "givetheglass");
-		////sequence2;
-		ear.addCommand("take the ball", "python", "takeball");
-		ear.addCommand("keep the ball", "python", "keepball");
-		ear.addCommand("approach the left hand", "python", "approachlefthand");
-		ear.addCommand("use the left hand", "python", "uselefthand");
-		ear.addCommand("more", "python", "more");
-		ear.addCommand("hand down", "python", "handdown");
-		ear.addCommand("is it a ball", "python", "isitaball");
-		ear.addCommand("put it down", "python", "putitdown");
-		ear.addCommand("drop it", "python", "dropit");
-		ear.addCommand("remove your left arm", "python", "removeleftarm");
-		ear.addCommand("further", "python", "further");
-		////extras;
-		ear.addCommand("perfect", "python", "perfect");
-		ear.addCommand("delicate grab", "python", "delicategrab");
-		ear.addCommand("release delicate", "python", "releasedelicate");
-		ear.addCommand("open your right hand", "python", "openrighthand");
-		ear.addCommand("open your left hand", "python", "openlefthand");
-		ear.addCommand("surrender", "python", "surrender");
-		ear.addCommand("picture on the right side", "python", "picturerightside");
-		ear.addCommand("picture on the left side", "python", "pictureleftside");
-		ear.addCommand("picture on both sides", "python", "picturebothside");
-		ear.addCommand("before happy", "python", "beforehappy");
-		ear.addCommand("happy birthday", "python", "happy");
-		//ear.addCommand("photo", "python", "photo");
-		ear.addCommand("about", "python", "about");
-		//ear.addCommand("power down", "python", "powerdown");
-		//ear.addCommand("power up", "python", "powerup");
-		ear.addCommand("servo", "python", "servos");
-		ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave");
-		;
+		ear.addCommand("hello", "python", "hello"); // wrong
+		
 		ear.addComfirmations("yes","correct","ya") ;
 		ear.addNegations("no","wrong","nope","nah");
-		 ;
-		ear.startListening();
-		 ;
-
+		
+		// ear.startListening();
 		return ear;
 	}
 
@@ -259,8 +194,10 @@ public class InMoov extends Service {
 	}
 
 	public InMoovHand startHand(String side, String port, String type) {
+		if (mouth != null){
+			mouth.speakBlocking("starting %s hand", side);
+		}
 		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
-		
 		hands.put(side, hand);
 		
 		if (type == null && right.equals(side)){
@@ -269,11 +206,17 @@ public class InMoov extends Service {
 			type = Arduino.BOARD_TYPE_ATMEGA2560;
 		}
 		
-		hand.getArduino().setBoard(type);
+		hand.arduino.setBoard(type);
 		hand.connect(port);
 		
-		if (!hand.isValid()) {
-			error("%s hand is not valid", side);
+		if (mouth != null){
+			mouth.speakBlocking("testing %s hand", side);
+		}
+		
+		Errors errors = hand.test();
+		if (errors.hasErrors())
+		{
+			mouth.speakBlocking("error " + errors.firstError());
 		}
 
 		return hand;
@@ -298,6 +241,10 @@ public class InMoov extends Service {
 	}
 
 	public InMoovArm startArm(String side, String port, String type) {
+		if (mouth != null){
+			mouth.speakBlocking("starting %s arm", side);
+		}
+		
 		InMoovArm Arm = (InMoovArm) createPeer(String.format("%sArm", side));
 		arms.put(side, Arm);
 		// connect will start if not already started
@@ -310,25 +257,51 @@ public class InMoov extends Service {
 		
 		Arm.connect(port);
 
-		if (!Arm.isValid()) {
-			error("%s Arm is not valid", side);
+		if (mouth != null){
+			mouth.speakBlocking("testing %s arm", side);
 		}
 
+		Errors errors = Arm.test();
+		if (errors.hasErrors())
+		{
+			mouth.speakBlocking("error " + errors.firstError());
+		}
+		
 		return Arm;
 	}
 	
 	public InMoovHead startHead(String port)
 	{
+		
+		opencv = (OpenCV)startPeer("opencv");
 		return startHead(port, null);
 	}
 
 	public InMoovHead startHead(String port, String type) {
+		//log.warn(InMoov.buildDNA(myKey, serviceClass))
+		if (mouth != null){
+			mouth.speakBlocking("starting head on %s", port );
+		}
 		head = (InMoovHead) createPeer("head");
+		
 		if (type == null){
 			type = Arduino.BOARD_TYPE_ATMEGA2560;
 		}
-		head.getArduino().setBoard(type);
+		
+		head.arduino.setBoard(type);
 		head.connect(port);
+		
+		if (mouth != null){
+			mouth.speakBlocking("testing head");
+		}
+		
+		Errors errors = head.test();
+		if (errors.hasErrors())
+		{
+			mouth.speakBlocking("error " + errors.firstError());
+		}
+		
+		
 		return head;
 	}
 
@@ -407,6 +380,7 @@ public class InMoov extends Service {
 		}
 	}
 
+	// This is an in-flight check vs a startup or shutdown
 	public void systemCheck() {
 		// FIXME
 		// systemCheck
@@ -423,7 +397,7 @@ public class InMoov extends Service {
 		// FIXME !!!! set to mout = speak errors & warnings !!!!
 
 		if (rightHand != null) {
-			rightHand.isValid();
+			rightHand.test();
 		}
 
 		sleep(500);
@@ -487,119 +461,17 @@ public class InMoov extends Service {
 
 	// gestures end --------------
 
-	
-	/* ------------------------- GETTERS SETTERS BEGIN ----------------------------- */
-	
-	public Sphinx getEar() {
-		return ear;
-	}
-
-	public void setEar(Sphinx ear) {
-		this.ear = ear;
-	}
-
-	public Speech getMouth() {
-		return mouth;
-	}
-
-	public void setMouth(Speech mouth) {
-		this.mouth = mouth;
-	}
-
-	public Python getPython() {
-		return python;
-	}
-
-	public void setPython(Python python) {
-		this.python = python;
-	}
-
-	public WebGUI getWebgui() {
-		return webgui;
-	}
-
-	public void setWebgui(WebGUI webgui) {
-		this.webgui = webgui;
-	}
-
-	public Keyboard getKeyboard() {
-		return keyboard;
-	}
-
-	public void setKeyboard(Keyboard keyboard) {
-		this.keyboard = keyboard;
-	}
-
-	public XMPP getXmpp() {
-		return xmpp;
-	}
-
-	public void setXmpp(XMPP xmpp) {
-		this.xmpp = xmpp;
-	}
-
-	public InMoovHead getHead() {
-		return head;
-	}
-
-	public void setHead(InMoovHead head) {
-		this.head = head;
-	}
-
-	public InMoovHand getRightHand() {
-		return rightHand;
-	}
-
-	public void setRightHand(InMoovHand rightHand) {
-		this.rightHand = rightHand;
-	}
-
-	public InMoovHand getLeftHand() {
-		return leftHand;
-	}
-
-	public void setLeftHand(InMoovHand leftHand) {
-		this.leftHand = leftHand;
-	}
-
-	public InMoovArm getRightArm() {
-		return rightArm;
-	}
-
-	public void setRightArm(InMoovArm rightArm) {
-		this.rightArm = rightArm;
-	}
-
-	public InMoovArm getLeftArm() {
-		return leftArm;
-	}
-
-	public void setLeftArm(InMoovArm leftArm) {
-		this.leftArm = leftArm;
-	}
-
-	public OpenCV getOpencv() {
-		return opencv;
-	}
-
-	public void setOpencv(OpenCV opencv) {
-		this.opencv = opencv;
-	}
-
-	public void setEyesTracking(Tracking eyesTracking) {
-		this.eyesTracking = eyesTracking;
-	}
-
-	public void setHeadTracking(Tracking headTracking) {
-		this.headTracking = headTracking;
-	}
-	
 	public void startAll(String leftPort, String rightPort){
+		// TODO add vision
+		startMouth();
+		startHead(leftPort);
+		startEar();
 		startLeftHand(leftPort);
 		startRightHand(rightPort);
 		startLeftArm(leftPort);
 		startRightArm(rightPort);
-		startHead(leftPort);
+		
+		mouth.speakBlocking("startup sequence completed");
 	}
 	
 	public void stopTracking(){
@@ -1035,6 +907,14 @@ public class InMoov extends Service {
 			log.error("I have a null head");
 		}
 	}
+	
+	public void shutdown(){
+		if (mouth != null){
+			mouth.speakBlocking("shutting down now");
+		}
+		
+		detach();
+	}
 
 	
 	/* ------------------------- GETTERS SETTERS END ----------------------------- */
@@ -1043,12 +923,36 @@ public class InMoov extends Service {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
 		
-		log.warn(Runtime.buildDNA("head", "InMoovHead").toString());
 		
-		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
-		InMoovHead head = i01.startHead("COM4");
+		String leftPort= "COM15";
+
+		InMoov i01 = (InMoov)Runtime.createAndStart("i01", "InMoov");
+		InMoovArm leftArm = i01.startLeftArm(leftPort);
+
+		InMoovHead head = i01.startHead(leftPort);
+		Tracking neck = i01.getHeadTracking();
+		neck.faceDetect();
+
+		
+		/*
+		
+		log.warn(Runtime.buildDNA("head", "InMoovHead").toString());
+		log.warn("----------------------------------------------");
+		log.warn(Runtime.buildDNA("i01", "InMoov").toString());
 		
 		Runtime.createAndStart("gui", "GUIService");
+		
+		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		i01.startAll("COM15", "COM12");
+		i01.shutdown();
+		
+		boolean leaveNow = true;
+		if (leaveNow){
+			return;
+		}
+		
+		Runtime.createAndStart("gui", "GUIService");
+		Runtime.createAndStart("python", "Python");
 		
 		log.warn(Runtime.buildDNA("i01", "InMoov").toString());
 
@@ -1069,11 +973,11 @@ public class InMoov extends Service {
 		i01.addRoutes();
 		i01.startMouth();
 		
-		i01.getRightArm().getShoulder().setRest(39);
+		//i01.getRightArm().getShoulder().setRest(39);
 		
-		head.rothead.moveTo(96);
-		head.rothead.moveTo(150);
-		head.rothead.moveTo(88);
+		//head.rothead.moveTo(96);
+		//head.rothead.moveTo(150);
+		//head.rothead.moveTo(88);
 		
 		Tracking t = i01.getHeadTracking();
 		t.x.moveTo(30);
@@ -1107,12 +1011,15 @@ public class InMoov extends Service {
 		hand.open();
 		log.info("here");
 		Runtime.createAndStart("gui", "GUIService");
-	}
+	
 
 	// I2C - needs bus and address (if on BBB or RasPi) .. or Arduino - needs
 	// port / bus & address
 	// startRightHand(String port)
 	// startRightHand(String bus, String address)
 	// startRightHand(String port, String bus, String address)
+	 * 
+	 */
+	}
 
 }

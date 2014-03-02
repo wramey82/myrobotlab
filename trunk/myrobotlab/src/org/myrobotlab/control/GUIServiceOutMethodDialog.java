@@ -44,6 +44,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.framework.MethodEntry;
 import org.myrobotlab.framework.ToolTip;

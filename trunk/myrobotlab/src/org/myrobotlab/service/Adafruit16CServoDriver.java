@@ -11,6 +11,7 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -20,7 +21,6 @@ import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ArduinoShield;
 import org.myrobotlab.service.interfaces.ServoController;
 import org.slf4j.Logger;
-import org.myrobotlab.framework.Error;
 /**
  * AdaFruit Motor Shield Controller Service
  * 
@@ -215,7 +215,7 @@ public class Adafruit16CServoDriver extends Service implements ArduinoShield, Se
 	}
 	// motor controller api
 	
-	public ArrayList<Error> test()
+	public Errors test()
 	{
 
 		setServo(0, SERVOMIN);

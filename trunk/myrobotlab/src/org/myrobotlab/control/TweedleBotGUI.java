@@ -30,10 +30,11 @@ import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.RobotPlatform;
 
 public class TweedleBotGUI extends ServiceGUI {
 
@@ -72,8 +73,8 @@ public class TweedleBotGUI extends ServiceGUI {
 
 	JLabel inMotion = new JLabel("false");
 
-	public TweedleBotGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public TweedleBotGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

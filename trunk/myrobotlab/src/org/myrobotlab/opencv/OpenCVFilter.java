@@ -78,7 +78,8 @@ public abstract class OpenCVFilter implements Serializable {
 		this.sourceKey = sourceKey;
 	}
 
-	public abstract IplImage process(IplImage image, OpenCVData data);
+	public abstract IplImage process(IplImage image, OpenCVData data) throws InterruptedException;
+	
 	public IplImage display(IplImage image, OpenCVData data) {
 		return image;
 	}
@@ -99,9 +100,6 @@ public abstract class OpenCVFilter implements Serializable {
 	}
 
 	public IplImage preProcess(int frameIndex, IplImage frame, OpenCVData data) {
-		data.setFilterName(String.format("%s.%s", vp.boundServiceName, this.name));
-		this.frameIndex = frameIndex;
-		
 		//Logging.logTime(String.format("preProcess begin %s", data.filtername));
 		if (frame.width() != width || frame.nChannels() != channels)
 		{
@@ -152,10 +150,10 @@ public abstract class OpenCVFilter implements Serializable {
 	{
 	}
 
+	/*
 	public IplImage postProcess(IplImage image, OpenCVData data) {
-		data.setWidth(image.width());
-		data.setHeight(image.height());
 		return image;
 	}
+	*/
 
 }

@@ -33,6 +33,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.control.widget.Number;
 import org.myrobotlab.image.SerializableImage;
@@ -68,13 +70,13 @@ public class WiiGUI extends ServiceGUI implements ListSelectionListener, VideoGU
 	public Random rand = new Random();
 	public IRData lastIRData = null;
 
-	public WiiGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public WiiGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	@Override
 	public void init() {
-		video0 = new VideoWidget(boundServiceName, myService);
+		video0 = new VideoWidget(boundServiceName, myService, tabs);
 		video0.init();
 
 		camImage = new BufferedImage(width / divisor, height / divisor, BufferedImage.TYPE_INT_RGB);

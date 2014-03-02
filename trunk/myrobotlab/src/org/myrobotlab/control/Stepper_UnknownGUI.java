@@ -2,6 +2,8 @@ package org.myrobotlab.control;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 
 public class Stepper_UnknownGUI extends StepperControllerPanel {

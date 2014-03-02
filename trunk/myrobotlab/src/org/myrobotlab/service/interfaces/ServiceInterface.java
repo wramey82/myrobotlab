@@ -3,9 +3,9 @@ package org.myrobotlab.service.interfaces;
 import java.net.URI;
 import java.util.ArrayList;
 
+import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
-import org.myrobotlab.framework.Error;
 public interface ServiceInterface {
 	
 	// FIXME !!!!
@@ -17,8 +17,8 @@ public interface ServiceInterface {
 	
 	// hasError() - publish subscribe - getError().getSourceName()
 	
-	public ArrayList<Error> test(Object... data);
-	public ArrayList<Error> test();
+	public Errors test(Object... data);
+	public Errors test();
 	
 	public URI getHost();
 		

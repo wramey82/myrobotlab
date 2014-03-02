@@ -30,10 +30,11 @@ import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import org.myrobotlab.service.RobotPlatform;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.RobotPlatform;
 
 public class RobotPlatformGUI extends ServiceGUI {
 
@@ -72,8 +73,8 @@ public class RobotPlatformGUI extends ServiceGUI {
 
 	JLabel inMotion = new JLabel("false");
 
-	public RobotPlatformGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public RobotPlatformGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

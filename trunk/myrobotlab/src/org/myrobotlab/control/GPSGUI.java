@@ -37,6 +37,8 @@ import org.myrobotlab.control.widget.MemoryWidget;
 import org.myrobotlab.control.widget.NodeGUI;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.memory.Node;
 import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.service._TemplateService;
@@ -53,8 +55,8 @@ public class GPSGUI extends ServiceGUI implements ActionListener {
     private JTextField altitudeTextField = new JTextField(10);
     private JTextField stringTypeTextField = new JTextField(10);
 
-    public GPSGUI(final String boundServiceName, final GUIService myService) {
-        super(boundServiceName, myService);
+    public GPSGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+        super(boundServiceName, myService, tabs);
     }
 
     public void init() {

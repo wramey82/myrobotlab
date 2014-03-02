@@ -39,16 +39,17 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.myrobotlab.control.widget.ImageButton;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.Arduino;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Runtime;
 import org.myrobotlab.service.Stepper;
 import org.myrobotlab.service.data.Pin;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.myrobotlab.service.interfaces.StepperController;
 
@@ -104,8 +105,8 @@ public class StepperGUI extends ServiceGUI implements ActionListener, ChangeList
 		}
 	}
 
-	public StepperGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public StepperGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

@@ -1,6 +1,6 @@
 package org.myrobotlab.framework;
 
-public class Error extends Throwable {
+public class Error extends Exception {
 	private static final long serialVersionUID = 1L;
 	
 	public Error(){

@@ -48,6 +48,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import org.slf4j.Logger;
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 
 import org.myrobotlab.service.GUIService;
 
@@ -82,8 +84,8 @@ public class SoccerGameGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public SoccerGameGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public SoccerGameGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

@@ -38,6 +38,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.myrobotlab.logging.LoggerFactory;
+import javax.swing.JTabbedPane;
+
 import org.myrobotlab.service.Twitter;
 import org.myrobotlab.service._TemplateService;
 import org.myrobotlab.service.GUIService;
@@ -57,8 +59,8 @@ public class TwitterGUI extends ServiceGUI implements ActionListener {
 	JButton tweet = new JButton("tweet");
 	Twitter twitter = null;
 	
-	public TwitterGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public TwitterGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 		display.setLayout(new BorderLayout());
 		JPanel keyInfo = new JPanel(new GridLayout(5,2));
 		keyInfo.add(new JLabel("consumer key"));

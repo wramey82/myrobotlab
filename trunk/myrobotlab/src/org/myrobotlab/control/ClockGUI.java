@@ -36,6 +36,7 @@ import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -59,8 +60,8 @@ public class ClockGUI extends ServiceGUI implements ActionListener {
 	JTextField interval = new JTextField("1000");
 	JTextField data = new JTextField(10);
 
-	public ClockGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public ClockGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

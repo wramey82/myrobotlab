@@ -25,6 +25,7 @@
 package org.myrobotlab.control;
 
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.service.GUIService;
 
@@ -32,8 +33,8 @@ public class SphinxGUI extends ServiceGUI {
 
 	static final long serialVersionUID = 1L;
 
-	public SphinxGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public SphinxGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

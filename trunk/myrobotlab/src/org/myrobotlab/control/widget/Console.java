@@ -30,7 +30,7 @@ public class Console extends AppenderSkeleton {
 	/**
 	 * to begin logging call this function Log must not begin before the GUIService
 	 * has finished drawing. For some reason, if log entries are written to a
-	 * JScrollPane before the gui has complted the whole gui will tank
+	 * JScrollPane before the gui has completed the whole gui will tank
 	 * 
 	 * by default logging is off
 	 */
@@ -38,10 +38,7 @@ public class Console extends AppenderSkeleton {
 		PatternLayout layout = new PatternLayout("%-4r [%t] %-5p %c %x - %m%n");
 		setLayout(layout);
 		setName("ConsoleGUI");
-		//setName(Appender.ConsoleGui.toString());
-		//Logger.getRootLogger().addAppender(this);
 		LoggingFactory.getInstance().addAppender(this);
-
 		logging = true;
 	}
 

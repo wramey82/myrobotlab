@@ -38,17 +38,17 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.service.GUIService;
+import org.slf4j.Logger;
 
 public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
@@ -77,15 +77,15 @@ public class AudreyGUI extends ServiceGUI implements ListSelectionListener {
 
 	Keyboard keyboard = null;
 
-	public AudreyGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public AudreyGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
 
-		video0 = new VideoWidget(boundServiceName, myService);
+		video0 = new VideoWidget(boundServiceName, myService, tabs);
 		video0.init();
-		video1 = new VideoWidget(boundServiceName, myService);
+		video1 = new VideoWidget(boundServiceName, myService, tabs);
 		video0.init();
 		keyboard = new Keyboard();
 		// build input begin ------------------

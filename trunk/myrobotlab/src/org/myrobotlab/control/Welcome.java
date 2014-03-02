@@ -31,12 +31,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import org.myrobotlab.control.widget.JIntegerField;
 import org.myrobotlab.image.Util;
-import org.myrobotlab.service.interfaces.CommunicationInterface;
 import org.myrobotlab.service.GUIService;
+import org.myrobotlab.service.interfaces.CommunicationInterface;
 
 public class Welcome extends ServiceGUI {
 
@@ -48,8 +49,8 @@ public class Welcome extends ServiceGUI {
 	JTextField hostnameValue = new JTextField("localhost", 15);
 	JIntegerField servicePortValue = new JIntegerField();
 
-	public Welcome(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public Welcome(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

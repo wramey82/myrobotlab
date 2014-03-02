@@ -44,6 +44,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.control.GUIServiceGraphVertex.Type;
 import org.myrobotlab.control.widget.Style;
@@ -101,8 +102,8 @@ public class GUIServiceGUI extends ServiceGUI {
 	JButton showRouteLabelsButton = new JButton("show route labels");
 	JButton dumpButton = new JButton("dump");
 
-	public GUIServiceGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public GUIServiceGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {

@@ -175,12 +175,12 @@ public class FindHuman extends Service {
 		// }
 		
 		
-		if ((opencvData.getFilterName().equals("lk")
+		if ((opencvData.getSelectedFilterName().equals("lk")
 				&& opencvData.getPoints() != null && opencvData.getPoints()
 				.size() > 0)
 				|| (opencvData.getBoundingBoxArray() != null && opencvData
 						.getBoundingBoxArray().size() > 0)) {
-			if (opencvData.getFilterName().equals("lk")) {
+			if (opencvData.getSelectedFilterName().equals("lk")) {
 				// do lktracking
 				x = (int) (opencvData.getPoints().get(0).x * 160f);
 				y = (int) (opencvData.getPoints().get(0).y * 120f);

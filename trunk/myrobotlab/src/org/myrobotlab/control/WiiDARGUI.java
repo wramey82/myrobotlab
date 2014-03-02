@@ -37,18 +37,18 @@ import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.slf4j.Logger;
-import org.myrobotlab.logging.LoggerFactory;
-
 import org.myrobotlab.image.SerializableImage;
+import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.Wii.IRData;
 import org.myrobotlab.service.WiiDAR;
 import org.myrobotlab.service.WiiDAR.Point;
-import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.interfaces.VideoGUISource;
+import org.slf4j.Logger;
 
 public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, VideoGUISource {
 
@@ -74,12 +74,12 @@ public class WiiDARGUI extends ServiceGUI implements ListSelectionListener, Vide
 	public Random rand = new Random();
 	public IRData lastIRData = null;
 
-	public WiiDARGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public WiiDARGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
-		screen = new VideoWidget(boundServiceName, myService);
+		screen = new VideoWidget(boundServiceName, myService, tabs);
 		screen.init();
 
 		camImage = new BufferedImage(width / xyScale, height / xyScale, BufferedImage.TYPE_INT_RGB);

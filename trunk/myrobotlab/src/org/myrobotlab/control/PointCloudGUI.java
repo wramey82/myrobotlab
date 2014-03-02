@@ -29,16 +29,16 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.ShortBuffer;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.myrobotlab.openni.Points3DPanel;
 import org.myrobotlab.openni.PointsShape;
+import org.myrobotlab.service.GUIService;
 import org.myrobotlab.service.PointCloud;
 import org.myrobotlab.service.data.SensorData;
-import org.myrobotlab.service.GUIService;
 
 public class PointCloudGUI extends ServiceGUI implements ActionListener {
 
@@ -55,8 +55,8 @@ public class PointCloudGUI extends ServiceGUI implements ActionListener {
 
 	JPanel eastPanel = new JPanel();
 
-	public PointCloudGUI(final String boundServiceName, final GUIService myService) {
-		super(boundServiceName, myService);
+	public PointCloudGUI(final String boundServiceName, final GUIService myService, final JTabbedPane tabs) {
+		super(boundServiceName, myService, tabs);
 	}
 
 	public void init() {
