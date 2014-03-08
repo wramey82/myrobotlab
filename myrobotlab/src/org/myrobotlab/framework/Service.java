@@ -159,12 +159,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		return host == null;
 	}
 
-	public Errors test() {
-		return test((Object[]) null);
+	public void test() {
+		test((Object[]) null);
 	}
 
-	public Errors test(Object... data) {
-		return null;
+	public void test(Object... data) {
+		info("test completed - no valid tests");
 	}
 
 	/**
@@ -620,6 +620,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		ServiceInterface si = createPeer(reservedKey);
 		if (si == null) {
 			error("could not create service from key %s", reservedKey);
+			return null;
 		}
 
 		si.startService();
@@ -815,7 +816,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		// note - if stopService is overwritten with extra
 		// threads - releaseService will need to be overwritten too
 		stopService();
-		//Runtime.unregister(null, name);
+		// Runtime.unregister(null, name);
 		// recently changed
 		Runtime.release(getName());
 	}
@@ -962,7 +963,7 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		try {
 			return getThrowableNewInstance(cast, classname, params);
 		} catch (ClassNotFoundException e) {
-			// quiet no class  
+			// quiet no class
 			log.info("class %s not found", classname);
 		} catch (Exception e) {
 			// noisy otherwise
@@ -2008,11 +2009,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 
 	public void info(String msg) {
 		log.info(msg);
+		
 		// can only read "so" fast
-		if (System.currentTimeMillis() - lastInfo > 300) {
+		//if (System.currentTimeMillis() - lastInfo > 300) {
 			invoke("publishStatus", "info", msg);
 			lastInfo = System.currentTimeMillis();
-		}
+		//}
 	}
 
 	public void info(String format, Object... args) {
@@ -2035,11 +2037,11 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	public String error(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastError > 300) {
+		//if (System.currentTimeMillis() - lastError > 300) {
 			invoke("publishStatus", "error", msg);
 			invoke("publishError", msg);
 			lastError = System.currentTimeMillis();
-		}
+		//}
 
 		return lastErrorMsg;
 	}
@@ -2055,12 +2057,12 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	}
 
 	public void warn(String msg) {
-		lastErrorMsg = msg;
 		log.error(msg);
-		if (System.currentTimeMillis() - lastWarn > 300) {
-			invoke("publishStatus", "warn", msg);
-			lastWarn = System.currentTimeMillis();
-		}
+		// if (System.currentTimeMillis() - lastWarn > 300) {
+		invoke("publishStatus", "warn", msg);
+		lastWarn = System.currentTimeMillis();
+		// }
+		lastErrorMsg = msg;
 	}
 
 	public Status publishStatus(String level, String msg) {

@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -860,7 +859,7 @@ public class GUIService extends Service implements WindowListener, ActionListene
 			status.setBackground(Color.red);
 		} else if (inStatus.isWarn()) {
 			status.setOpaque(true);
-			status.setForeground(Color.white);
+			status.setForeground(Color.black);
 			status.setBackground(Color.yellow);
 		} else {
 			status.setForeground(Color.black);

@@ -3,9 +3,9 @@ package org.myrobotlab.service.interfaces;
 import java.net.URI;
 import java.util.ArrayList;
 
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.Status;
 public interface ServiceInterface {
 	
 	// FIXME !!!!
@@ -17,8 +17,8 @@ public interface ServiceInterface {
 	
 	// hasError() - publish subscribe - getError().getSourceName()
 	
-	public Errors test(Object... data);
-	public Errors test();
+	public void test(Object... data);
+	public void test();
 	
 	public URI getHost();
 		
@@ -61,6 +61,10 @@ public interface ServiceInterface {
 	public void subscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
 	
 	public void unsubscribe(String outMethod, String publisherName, String inMethod, Class<?>... parameterType);
+	
+	public void addListener(String outMethod, String namedInstance, String inMethod, Class<?>... paramTypes);
+	
+	public void removeListener(String outMethod, String serviceName, String inMethod, Class<?>... paramTypes);
 	
 	public Object invoke(String method);
 

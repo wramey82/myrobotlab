@@ -1,5 +1,16 @@
-# a minimal tracking script - this will start all peer# services and attach everything appropriately# change parameters depending on your pan tilt, pins and# Arduino details# all commented code is not necessary but allows custom# optionsport = "COM12"xServoPin = 13yServoPin = 12
-tracker = Runtime.createAndStart("tracker", "Tracking")
+# a minimal tracking script - this will start all peer
+# services and attach everything appropriately
+# change parameters depending on your pan tilt, pins and
+# Arduino details
+# all commented code is not necessary but allows custom
+# options
+
+port = "COM15"
+xServoPin = 13
+yServoPin = 12
+
+tracker = Runtime.createAndStart("tracker", "Tracking")
+
 # set specifics on each Servo
 servoX = tracker.getX()
 servoX.setPin(xServoPin)

@@ -1,8 +1,8 @@
 package org.myrobotlab.service;
 
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -23,7 +23,7 @@ public class InMoovHand extends Service {
 	transient public Servo pinky;
 	transient public Servo wrist;
 	transient public Arduino arduino;
-
+	private String side;
 
 	// static in Java are not overloaded but overwritten - there is no
 	// polymorphism for statics
@@ -136,7 +136,7 @@ public class InMoovHand extends Service {
 
 	@Override
 	public String getDescription() {
-		return "used as a general template";
+		return "hand service for inmoov";
 	}
 
 	// TODO - waving thread fun
@@ -269,8 +269,8 @@ public class InMoovHand extends Service {
 		five();
 	}
 
-	public String getScript() {
-		return String.format("%s.moveTo(%d,%d,%d,%d,%d,%d)\n", Python.makeSafeName(getName()), thumb.getPosition(), index.getPosition(), majeure.getPosition(),
+	public String getScript(String inMoovServiceName) {
+		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, side, thumb.getPosition(), index.getPosition(), majeure.getPosition(),
 				ringFinger.getPosition(), pinky.getPosition(), wrist.getPosition());
 	}
 
@@ -303,15 +303,14 @@ public class InMoovHand extends Service {
 		moveTo(130, 140, 180, 180, 180);
 	}
 
-	public Errors test() {
-		Errors errors = new Errors();
+	public void test() {
 		try {
 			if (arduino == null) {
-				errors.add("arduino is null");
+				Status.throwError("arduino is null");
 			}
-			
-			if (!arduino.isConnected()){
-				errors.add("arduino not connected");
+
+			if (!arduino.isConnected()) {
+				Status.throwError("arduino not connected");
 			}
 
 			thumb.moveTo(thumb.getPosition() + 2);
@@ -320,11 +319,12 @@ public class InMoovHand extends Service {
 			ringFinger.moveTo(ringFinger.getPosition() + 2);
 			pinky.moveTo(pinky.getPosition() + 2);
 			wrist.moveTo(wrist.getPosition() + 2);
+
 		} catch (Exception e) {
-			errors.add(e);
+			error(e);
 		}
 
-		return errors;
+		info("test completed");
 	}
 
 	public static void main(String[] args) {
@@ -347,6 +347,14 @@ public class InMoovHand extends Service {
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
 		 */
+	}
+
+	public void setSide(String side) {
+		this.side = side;
+	}
+
+	public String getSide() {
+		return side;
 	}
 
 }

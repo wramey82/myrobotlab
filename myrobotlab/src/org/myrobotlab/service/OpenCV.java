@@ -65,6 +65,7 @@ import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Error;
 import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
@@ -231,7 +232,7 @@ public class OpenCV extends VideoSource {
 	public OpenCVData add(IplImage image) {
 		FrameGrabber grabber = videoProcessor.getGrabber();
 		if (grabber == null || grabber.getClass() != BlockingQueueGrabber.class) {
-			log.error("can't add an image to the video processor - grabber must be not null and BlockingQueueGrabber");
+			error("can't add an image to the video processor - grabber must be not null and BlockingQueueGrabber");
 			return null;
 		}
 
@@ -399,7 +400,7 @@ public class OpenCV extends VideoSource {
 		if (filter != null) {
 			Service.copyShallowFrom(filter, otherFilter.filter);
 		} else {
-			log.error(String.format("setFilterState - could not find %s ", otherFilter.name));
+			error("setFilterState - could not find %s ", otherFilter.name);
 		}
 
 	}
@@ -626,8 +627,8 @@ public class OpenCV extends VideoSource {
 		videoProcessor.showTimestamp(b);
 	}
 
-	public Errors test() {
-		Errors errors = new Errors();
+	public void test() {
+
 		try {
 			// smart testing - determine what environment has
 			// do i have a camera ?
@@ -727,11 +728,7 @@ public class OpenCV extends VideoSource {
 			String outfile = o.writeDisplay();
 			log.info("wrote masked file to {}", outfile);
 			
-			boolean blah = true;
-			if (blah){
-				return errors;
-			}
-
+		
 			// type of test - test which saves result of web page
 			// test combination (combinatorics filter)
 			for (int i = 0; i < VALID_FILTERS.length; ++i) {
@@ -784,12 +781,11 @@ public class OpenCV extends VideoSource {
 			}
 
 		} catch (Exception e) {
-			Error error = new Error(e);
-			errors.add(error);
+			error(e);
+			return;
 		}
 
-		return errors;
-
+		info("test completed");
 	}
 
 	public void captureFromResourceFile(String filename) {
@@ -820,8 +816,7 @@ public class OpenCV extends VideoSource {
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
 		Runtime.createAndStart("gui", "GUIService");
 		
-		Errors errors = opencv.test();
-		errors.log();
+		opencv.test();
 		
 		boolean leaveNow = true;
 		if (leaveNow) return;

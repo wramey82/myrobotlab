@@ -18,7 +18,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.ivy.util.EncrytedProperties;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Message;
@@ -31,6 +30,7 @@ import org.myrobotlab.service.interfaces.AuthorizationProvider;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.slf4j.Logger;
 
+// SINGLETON ???  similar to Runtime ???
 // http://blog.palominolabs.com/2011/10/18/java-2-way-tlsssl-client-certificates-and-pkcs12-vs-jks-keystores/
 // http://juliusdavies.ca/commons-ssl/ssl.html
 // http://stackoverflow.com/questions/4319496/how-to-encrypt-and-decrypt-data-in-java
@@ -130,12 +130,12 @@ public class Security extends Service implements AuthorizationProvider {
 
 	public boolean setDefaultNewGroupId(String userId, String groupId) {
 		if (!users.containsKey(userId)) {
-			log.error(String.format("user %s does not exist can not change groupId", userId));
+			error("user %s does not exist can not change groupId", userId);
 			return false;
 		}
 
 		if (!groups.containsKey(groupId)) {
-			log.error(String.format("group %s does not exist can not change groupId", groupId));
+			error("group %s does not exist can not change groupId", groupId);
 			return false;
 		}
 
@@ -245,11 +245,11 @@ public class Security extends Service implements AuthorizationProvider {
 
 	public boolean setGroup(String userId, String groupId) {
 		if (!users.containsKey(userId)) {
-			log.error(String.format("user %s does not exist", userId));
+			error("user %s does not exist", userId);
 			return false;
 		}
 		if (!groups.containsKey(groupId)) {
-			log.error(String.format("group %s does not exist", groupId));
+			error("group %s does not exist", groupId);
 			return false;
 		}
 
@@ -277,7 +277,7 @@ public class Security extends Service implements AuthorizationProvider {
 			u.groupId = groupId;
 		}
 		if (!groups.containsKey(u.groupId)) {
-			log.error(String.format("could not add user %s groupId %s does not exist", userId, groupId));
+			error("could not add user %s groupId %s does not exist", userId, groupId);
 			return false;
 		}
 		users.put(userId, u);
@@ -489,7 +489,7 @@ public class Security extends Service implements AuthorizationProvider {
 		final String KEY_FILE = "c:/tempPass/howto.key";
 		final String PWD_FILE = "c:/tempPass/howto.properties";
 
-		//initializeStore("im a rockin rocker");
+		// initializeStore("im a rockin rocker");
 		loadStore();
 		log.info(Security.getSecret("xmpp.user"));
 		Security.addSecret("xmpp.user", "supertick@gmail.com");

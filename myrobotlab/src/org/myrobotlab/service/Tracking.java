@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -104,8 +103,8 @@ public class Tracking extends Service {
 	// MRL points
 	public Point2Df lastPoint = new Point2Df();
 
-	private int lastXServoPos;
-	private int lastYServoPos;
+	private float lastXServoPos;
+	private float lastYServoPos;
 
 	// ----- INITIALIZATION DATA BEGIN -----
 	public double xSetpoint = 0.5;
@@ -353,7 +352,7 @@ public class Tracking extends Service {
 		}
 
 		if (waitInterval < System.currentTimeMillis() - lastTimestamp) {
-			setLocation(data);
+			//setLocation(data);
 			// number of objects have stated the same
 			if (STATE_LEARNING_BACKGROUND.equals(state)) {
 				if (numberOfNewObjects == 0) {
@@ -386,11 +385,13 @@ public class Tracking extends Service {
 	// TODO - enhance with location - not just heading
 	// TODO - array of attributes expanded Object[] ... ???
 	// TODO - use GEOTAG - LAT LONG ALT DIRECTION LOCATION CITY GPS TIME OFFSET
+	/*
 	public OpenCVData setLocation(OpenCVData data) {
 		data.setX(x.getPosition());
 		data.setY(y.getPosition());
 		return data;
 	}
+	*/
 
 	// ------------------- tracking & detecting methods end
 	// ---------------------
@@ -449,15 +450,19 @@ public class Tracking extends Service {
 
 		xpid.setInput(targetPoint.x);
 		ypid.setInput(targetPoint.y);
-		int currentXServoPos = x.getPosition();
-		int currentYServoPos = y.getPosition();
+		float currentXServoPos = x.getPosition();
+		float currentYServoPos = y.getPosition();
 
 		// TODO - work on removing currentX/YServoPos - and use the servo's
 		// directly ???
 		// if I'm at my min & and the target is further min - don't compute
 		// pid
 		if ((currentXServoPos <= x.getMin() && xSetpoint - targetPoint.x < 0) || (currentXServoPos >= x.getMax() && xSetpoint - targetPoint.x > 0)) {
-			error(String.format("%d x limit out of range", currentXServoPos));
+			if (currentXServoPos == (int)currentXServoPos){
+				error(String.format("%d x limit out of range", (int)currentXServoPos));
+			} else {
+				error(String.format("%f x limit out of range", currentXServoPos));
+			}
 		} else {
 
 			if (xpid.compute()) {
@@ -475,7 +480,11 @@ public class Tracking extends Service {
 		}
 
 		if ((currentYServoPos <= y.getMin() && ySetpoint - targetPoint.y < 0) || (currentYServoPos >= y.getMax() && ySetpoint - targetPoint.y > 0)) {
-			error(String.format("%d y limit out of range", currentYServoPos));
+			if (currentYServoPos == (int)currentYServoPos){
+				error(String.format("%d x limit out of range", (int)currentYServoPos));
+			} else {
+				error(String.format("%f x limit out of range", currentYServoPos));
+			}
 		} else {
 			if (ypid.compute()) {
 				currentYServoPos += (int) ypid.getOutput();
@@ -501,7 +510,8 @@ public class Tracking extends Service {
 		opencv.removeFilters();
 	}
 
-	public Errors test() {
+	public void test() {
+		try {
 		for (int i = 0; i < 1000; ++i) {
 			// invoke("trackPoint", 0.5, 0.5);
 			// faceDetect();
@@ -512,8 +522,12 @@ public class Tracking extends Service {
 			searchForeground();
 			removeFilters();
 		}
+		
+		} catch(Exception e){
+			error(e);
+		}
 
-		return null;
+		info("test completed");
 	}
 
 	public void trackPoint() {
@@ -603,7 +617,7 @@ public class Tracking extends Service {
 				faceFoundFrameCount = 0;
 
 				if (scan) {
-					int xpos = x.getPosition();
+					float xpos = x.getPosition();
 
 					if (xpos + scanXStep >= x.getMax() && scanXStep > 0 || xpos + scanXStep <= x.getMin() && scanXStep < 0) {
 						scanXStep = scanXStep * -1;
@@ -625,7 +639,7 @@ public class Tracking extends Service {
 
 		// FIXME - remove not used
 		case STATE_FACE_DETECT_LOST_TRACK:
-			int xpos = x.getPosition();
+			float xpos = x.getPosition();
 
 			if (xpos >= x.getMax() && scanXStep > 0) {
 				scanXStep = scanXStep * -1;
@@ -646,7 +660,7 @@ public class Tracking extends Service {
 
 		case STATE_LK_TRACKING_POINT:
 			// extract tracking info
-			data.setSelectedFilterName(LKOpticalTrackFilterName);
+			//data.setSelectedFilterName(LKOpticalTrackFilterName);
 			Point2Df targetPoint = data.getFirstPoint();
 			if (targetPoint != null) {
 				updateTrackingPoint(targetPoint);

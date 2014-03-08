@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
@@ -38,6 +39,7 @@ import org.myrobotlab.serial.SerialDeviceService;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
+
 @Root
 public class Roomba extends Service implements SerialDeviceService {
 
@@ -634,41 +636,47 @@ public class Roomba extends Service implements SerialDeviceService {
 		return roombacomm.bump();
 	}
 
-	public Errors test() {
-		// must pause after every playNote to let to note sound
-		System.out.println("Playing some notes");
-		roombacomm.playNote(72, 10);
-		roombacomm.pause(200);
-		roombacomm.playNote(79, 10);
-		roombacomm.pause(200);
-		roombacomm.playNote(76, 10);
-		roombacomm.pause(200);
+	public void test() {
+		try {
+			// must pause after every playNote to let to note sound
+			System.out.println("Playing some notes");
+			roombacomm.playNote(72, 10);
+			roombacomm.pause(200);
+			roombacomm.playNote(79, 10);
+			roombacomm.pause(200);
+			roombacomm.playNote(76, 10);
+			roombacomm.pause(200);
 
-		// test Logo-like functions (blocking)
-		// speed is in mm/s, go* is in mm, spin is in degrees
-		roombacomm.setSpeed(100); // can be positive or negative
-		roombacomm.goStraight(100); // can be positive or negative
-		roombacomm.goForward(100); // negative numbers not allowed
-		roombacomm.goBackward(200); // negative numbers not allowed
+			// test Logo-like functions (blocking)
+			// speed is in mm/s, go* is in mm, spin is in degrees
+			roombacomm.setSpeed(100); // can be positive or negative
+			roombacomm.goStraight(100); // can be positive or negative
+			roombacomm.goForward(100); // negative numbers not allowed
+			roombacomm.goBackward(200); // negative numbers not allowed
 
-		roombacomm.setSpeed(150);
-		roombacomm.spin(-360); // can be positive or negative
-		roombacomm.spinRight(360); // negative numbers not allowed
-		roombacomm.spinLeft(360); // negative numbers not allowed
+			roombacomm.setSpeed(150);
+			roombacomm.spin(-360); // can be positive or negative
+			roombacomm.spinRight(360); // negative numbers not allowed
+			roombacomm.spinLeft(360); // negative numbers not allowed
 
-		// test non-blocking functions
-		roombacomm.goStraightAt(200); // speed argument
-		roombacomm.pause(1000);
-		roombacomm.goForwardAt(200); // speed argument
-		roombacomm.pause(1000);
-		roombacomm.goBackwardAt(400); // speed argument
-		roombacomm.pause(1000);
+			// test non-blocking functions
+			roombacomm.goStraightAt(200); // speed argument
+			roombacomm.pause(1000);
+			roombacomm.goForwardAt(200); // speed argument
+			roombacomm.pause(1000);
+			roombacomm.goBackwardAt(400); // speed argument
+			roombacomm.pause(1000);
 
-		roombacomm.spinLeftAt(-15); // mm/s or degs/sec ?
-		roombacomm.pause(1000);
-		roombacomm.spinRightAt(15);
-		roombacomm.pause(1000);
-		return null;
+			roombacomm.spinLeftAt(-15); // mm/s or degs/sec ?
+			roombacomm.pause(1000);
+			roombacomm.spinRightAt(15);
+			roombacomm.pause(1000);
+		} catch (Exception e) {
+			error(e);
+			return;
+		}
+
+		info("test completed");
 	}
 
 	public void purr() {
@@ -773,31 +781,31 @@ public class Roomba extends Service implements SerialDeviceService {
 		 */
 		GUIService gui = new GUIService("gui");
 		gui.startService();
-		
+
 	}
 
 	@Override
 	public void write(String data) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void write(byte[] data) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void write(char data) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void write(int data) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

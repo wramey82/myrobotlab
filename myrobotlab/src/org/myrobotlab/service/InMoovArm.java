@@ -1,11 +1,9 @@
 package org.myrobotlab.service;
 
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.logging.Level;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.logging.LoggingFactory;
 import org.slf4j.Logger;
 
 public class InMoovArm extends Service {
@@ -21,6 +19,7 @@ public class InMoovArm extends Service {
 	transient public Servo shoulder;
 	transient public Servo omoplate;
 	transient public Arduino arduino;
+	String side;
 	
 	public Servo getBicep() {
 		return bicep;
@@ -243,8 +242,8 @@ public class InMoovArm extends Service {
 		this.omoplate.setSpeed(omoplate);
 	}
 
-	public String getScript() {
-		return String.format("%s.moveArm(%d,%d,%d,%d)\n", getName(), bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
+	public String getScript(String inMoovServiceName) {
+		return String.format("%s.moveArm(\"%s\",%d,%d,%d,%d)\n", inMoovServiceName, side, bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
 	}
 
 	public void moveTo(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
@@ -257,15 +256,14 @@ public class InMoovArm extends Service {
 		this.omoplate.moveTo(omoplate);
 	}
 
-	public Errors test() {
-		Errors errors = new Errors();
+	public void test() {
 		try {
 			if (arduino == null) {
-				errors.add("arduino is null");
+				Status.throwError("arduino is null");
 			}
 			
 			if (!arduino.isConnected()){
-				errors.add("arduino not connected");
+				Status.throwError("arduino not connected");
 			}
 
 			bicep.moveTo(bicep.getPosition() + 2);
@@ -274,10 +272,18 @@ public class InMoovArm extends Service {
 			omoplate.moveTo(omoplate.getPosition() + 2);
 			
 		} catch (Exception e) {
-			errors.add(e);
+			error(e);
+			return;
 		}
 
-		return errors;
+		info("test completed");
 	}
 
+	public void setSide(String side) {
+		this.side = side;
+	}
+	
+	public String getSide() {
+		return side;
+	}
 }

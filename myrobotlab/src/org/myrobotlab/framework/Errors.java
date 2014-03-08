@@ -47,12 +47,25 @@ public class Errors extends Exception {
 		}
 	}
 
-	public String firstError() {
+	public String getFirstError() {
 		if (errors.size() > 0){
 			return errors.get(0).getMessage();
 		}
 		
 		return null;
+	}
+	
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < errors.size(); ++i){
+			Error e = errors.get(i);
+			sb.append(e.toString());
+			if (i < errors.size() - 1){
+				sb.append(" ");
+			}
+		}
+		
+		return sb.toString();
 	}
 
 }

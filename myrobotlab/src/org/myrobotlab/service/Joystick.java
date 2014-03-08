@@ -86,7 +86,7 @@ public class Joystick extends Service {
 		public void run() {
 
 			if (controller == null) {
-				log.error("controller is null - can not poll");
+				error("controller is null - can not poll");
 			}
 
 			/* Get all the axis and buttons */
@@ -284,7 +284,7 @@ public class Joystick extends Service {
 			return true;
 		}
 
-		log.error(String.format("unknown axis %s", axis));
+		error("unknown axis %s", axis);
 		return false;
 	}
 
@@ -299,7 +299,7 @@ public class Joystick extends Service {
 			return true;
 		}
 		log.info("here 3");
-		log.error("bad index");
+		error("bad index");
 		return false;
 	}
 
@@ -308,7 +308,7 @@ public class Joystick extends Service {
 			setController(controllerNames.get(s));
 			return true;
 		}
-		log.error(String.format("cant find %s", s));
+		error("cant find %s", s);
 		return false;
 	}
 

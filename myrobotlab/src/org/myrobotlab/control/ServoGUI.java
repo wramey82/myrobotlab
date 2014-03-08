@@ -256,7 +256,7 @@ public class ServoGUI extends ServiceGUI implements ActionListener, MouseListene
 				} else {
 					boundPos.setText(servo.getPosition().toString());
 					slider.removeChangeListener(sliderListener);
-					slider.setValue(servo.getPosition());
+					slider.setValue(Math.round(servo.getPosition()));
 					slider.addChangeListener(sliderListener);
 				}
 				posMin.setText(servo.getMin().toString());

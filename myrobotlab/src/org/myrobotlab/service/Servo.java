@@ -28,7 +28,6 @@ package org.myrobotlab.service;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -40,7 +39,18 @@ import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 
 /**
- * @author grperry
+ * @author GroG
+ * 
+ * Servos have both input and output.  Input is usually of the range of integers between 0 - 180, and
+ * output can relay those values directly to the servo's firmware (Arduino ServoLib, I2C controller, etc)
+ * 
+ * However there can be the occasion that the input comes from a system which does not have the same range.
+ * Such that input can vary from 0.0 to 1.0.  For example, OpenCV coordinates are often returned in this range.
+ * When a mapping is needed Servo.map can be used.  For this mapping Servo.map(0.0, 1.0, 0, 180) might be
+ * desired.  Reversing input would be done with Servo.map(180, 0, 0, 180)
+ * 
+ * outputY - is the values sent to the firmware, and should not necessarily be confused with the inputX
+ * which is the input values sent to the servo
  *
  */
 @Root
@@ -53,22 +63,23 @@ public class Servo extends Service implements ServoControl {
 	ServoController controller;
 
 	@Element
-	private Integer position;
+	private Float inputX;
+	
+	// clipping
 	@Element
-	private int limitMin = 0; // IS minY ???
+	private float outputYMin = 0;
 	@Element
-	private int limitMax = 180; // IS maxY ???
+	private float outputYMax = 180; 
 
-	// private boolean isMapped = false;
-
+	// range mapping
 	@Element
-	private int minX;
+	private float minX = 0;
 	@Element
-	private int maxX;
+	private float maxX = 180;
 	@Element
-	private int minY;
+	private float minY = 0;
 	@Element
-	private int maxY;
+	private float maxY = 180;
 
 	private int rest = 90;
 
@@ -78,12 +89,7 @@ public class Servo extends Service implements ServoControl {
 	 * beneficial to store it allowing a re-attach during runtime
 	 */
 	private Integer pin;
-
-	private boolean inverted = false;
-
 	Vector<String> controllers;
-
-	// private float speed = 1.0f; // fractional speed component 0 to 1.0
 
 	// FIXME - should be implemented inside the Arduino / ServoController - but
 	// has to be tied to position
@@ -95,6 +101,12 @@ public class Servo extends Service implements ServoControl {
 	transient Thread sweeper = null;
 
 	private boolean isAttached = false;
+
+
+	/**
+	 * not needed but kept to allow setInverted 
+	 */
+	private boolean inverted = false;
 
 	public Servo(String n) {
 		super(n);
@@ -111,11 +123,11 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public boolean setController(ServoController controller) {
-		log.info(String.format("setting %s pin to %s", getName(), controller));
+		log.info(String.format("%s setController %s", getName(), controller));
 		
 		if (isAttached())
 		{
-			error("can not set pin when servo is attached");
+			warn("can not set controller %s when servo %s is attached", controller, getName());
 			return false;
 		}
 		
@@ -136,7 +148,7 @@ public class Servo extends Service implements ServoControl {
 		log.info(String.format("setting %s pin to %d", getName(), pin));
 		if (isAttached())
 		{
-			error("can not set pin when servo is attached");
+			warn("%s can not set pin %d when servo is attached", getName(), pin);
 			return false;
 		}
 		this.pin = pin;
@@ -183,11 +195,26 @@ public class Servo extends Service implements ServoControl {
 	
 	
 	public void setInverted(boolean isInverted) {
-		inverted = isInverted;
+		if (!inverted  && isInverted){
+			map(maxX, minX, minY, maxY);
+			inverted = true;
+		} else {
+			inverted = false;
+		}
+		
 	}
 
 	public boolean isInverted() {
 		return inverted;
+	}
+	
+	public boolean map(float minX, float maxX, float minY, float maxY) {
+		this.minX = minX;
+		this.maxX = maxX;
+		this.minY = minY;
+		this.maxY = maxY;
+
+		return true;
 	}
 
 	public boolean map(int minX, int maxX, int minY, int maxY) {
@@ -198,6 +225,16 @@ public class Servo extends Service implements ServoControl {
 
 		return true;
 	}
+	
+	/*
+	public static double mapRange(double minX, double maxX, double minY, double maxY, double s){
+		return minY + ((s - minX)*(maxY - minY))/(maxX - minX);
+	}
+	*/
+	
+	public float calc(float s){
+		return  minY + ((s - minX)*(maxY - minY))/(maxX - minX);
+	}
 
 	/**
 	 * simple move servo to the location desired TODO Float Version - is range 0
@@ -205,34 +242,43 @@ public class Servo extends Service implements ServoControl {
 	 */
 	@Override
 	public void moveTo(Integer pos) {
-		Integer newPos = pos;
-		if (inverted) {
-			newPos = 180 - pos;
-		}
+		moveTo((float)pos);
+	}
+	
+	public void moveTo(float inputX) {
 		if (controller == null) {
 			error(String.format("%s's controller is not set", getName()));
 			return;
 		}
-		if (newPos >= limitMin && newPos <= limitMax) {
-			log.info("servoWrite({})", newPos);
-			controller.servoWrite(getName(), newPos);
-			position = newPos;
-		} else {
-			error(String.format("%s.moveTo(%d) out of range", getName(), newPos));
+		
+		// the magic mapping
+		float outputY = calc(inputX);
+		
+		if (outputY > outputYMax || outputY < outputYMin){
+			if ((int)outputY == outputY){
+				warn(String.format("%s.moveTo(%d) out of range", getName(), (int)outputY));
+			} else {
+				warn(String.format("%s.moveTo(%f) out of range", getName(), outputY));
+			}
+			return;
 		}
+		
+		// FIXME - currently their is no timerPosition
+		// this could be gotten with 100 * outputY for some valid range
+		log.info("servoWrite({})", outputY);
+		controller.servoWrite(getName(), (int)outputY);
+		this.inputX = inputX;
 	}
 
 	/**
 	 * moves the servo in the range -1.0 to 1.0 where in a typical servo -1.0 =
 	 * 0 0.0 = 90 1.0 = 180 setting the min and max will affect the range where
 	 * -1.0 will always be the minPos and 1.0 will be maxPos
-	 */
+	 *//*
 	@Override
 	public void move(Float pos) {
 		Float amount = pos;
-		if (inverted) {
-			amount = pos * -1;
-		}
+
 		if (amount > 1 || amount < -1) {
 			error("%s.move %d out of range", getName(), amount);
 			return;
@@ -245,48 +291,32 @@ public class Servo extends Service implements ServoControl {
 		position = newPos;
 
 	}
-
+*/
+	
 	public boolean isAttached() {
 		return isAttached;
 	}
 
 	public void setMinMax(int min, int max) {
-		if (inverted) {
-			this.limitMin = 180 - max;
-			this.limitMax = 180 - min;
-		} else {
-			this.limitMin = min;
-			this.limitMax = max;
-		}
-		
+		setMinMax((float)min, (float)max);
+	}
+	
+	public void setMinMax(float min, float max){
+		minY = min;
+		maxY = max;
 		broadcastState();
 	}
 
 	public Integer getMin() {
-		if (inverted) {
-			return 180 - this.limitMax;
-		} else {
-			return limitMin;
-		}
+		return (int) minY;
 	}
 
 	public Integer getMax() {
-		if (inverted) {
-			return 180 - this.limitMin;
-		} else {
-			return limitMax;
-		}
+		return (int) maxY;
 	}
 
-	public Integer getPosition() {
-		if (position == null) {
-			// unknown position - never set
-			return null;
-		}
-		if (inverted) {
-			return 180 - position;
-		} else
-			return position;
+	public Float getPosition() {
+		return inputX;
 	}
 
 	@Override
@@ -305,14 +335,14 @@ public class Servo extends Service implements ServoControl {
 
 			while (sweeperRunning) {
 				// controller.servoMoveTo(name, position);
-				position += sweepIncrement;
+				inputX += sweepIncrement;
 
 				// switch directions
-				if ((position <= sweepStart && sweepIncrement < 0) || (position >= sweepEnd && sweepIncrement > 0)) {
+				if ((inputX <= sweepStart && sweepIncrement < 0) || (inputX >= sweepEnd && sweepIncrement > 0)) {
 					sweepIncrement = sweepIncrement * -1;
 				}
 
-				moveTo(position);
+				moveTo(inputX);
 
 				try {
 					Thread.sleep(sweepDelayMS);
@@ -401,8 +431,9 @@ public class Servo extends Service implements ServoControl {
 	}
 	
 	
-	public Errors test() {
+	public void test() {
 		
+		try {
 		ArrayList<String> errors = new ArrayList<String>();
 		
 		// test standard Python service page script
@@ -453,8 +484,11 @@ public class Servo extends Service implements ServoControl {
 			moveTo(180);
 		}
 		
-		return null;
-
+		} catch (Exception e){
+			error(e);
+		}
+		
+		info("test completed");
 	}
 
 	public Vector<String> refreshControllers() {
@@ -501,6 +535,15 @@ public class Servo extends Service implements ServoControl {
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
 		
 		Servo right = new Servo("servo01");
+		
+		right.map(5, 180, 5, 180);
+		log.info("{}",right.calc(1));
+		log.info("{}",right.calc(3));
+		right.map(180, 0, 0, 180);
+		log.info("{}",right.calc(3));
+		right.map(0, 180, 5, 178);
+		log.info("{}",right.calc(0));
+		
 		right.startService();
 		right.test();
 

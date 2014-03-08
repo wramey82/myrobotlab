@@ -609,7 +609,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 			return true;
 		}
 
-		log.error(String.format("servo %s detach failed - not found", servoName));
+		error("servo %s detach failed - not found", servoName);
 		return false;
 
 	}
@@ -617,7 +617,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Override
 	public void servoWrite(String servoName, Integer newPos) {
 		if (serialDevice == null) {
-			log.error("serialPort is NULL !");
+			error("serialPort is NULL !");
 			return;
 		}
 
@@ -814,8 +814,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 							++error_mrl_rx;
 							byteCount = 0;
 							msgSize = 0;
-							error(String.format("%d rx errors", error_mrl_rx));
-							log.error("MAGIC_NUMBER {}", newByte);
+							warn(String.format("bad magic number %d - %d rx errors", newByte, error_mrl_rx));
 							dump.setLength(0);
 						}
 						continue;
@@ -1395,7 +1394,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	public boolean motorAttach(String motorName, Object... motorData) {
 		ServiceInterface sw = Runtime.getService(motorName);
 		if (!sw.isLocal()) {
-			log.error("motor is not in the same MRL instance as the motor controller");
+			error("motor is not in the same MRL instance as the motor controller");
 			return false;
 		}
 		ServiceInterface service = sw;
@@ -1427,12 +1426,12 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	 */
 	private boolean motorAttach(MotorControl motor, Object... motorData) {
 		if (motor == null || motorData == null) {
-			log.error("null data or motor - can't attach motor");
+			error("null data or motor - can't attach motor");
 			return false;
 		}
 
 		if (motorData.length != 2 || motorData[0] == null || motorData[1] == null) {
-			log.error("motor data must be of the folowing format - motorAttach(Integer PWMPin, Integer directionPin)");
+			error("motor data must be of the folowing format - motorAttach(Integer PWMPin, Integer directionPin)");
 			return false;
 		}
 
@@ -1508,17 +1507,17 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		log.info(String.format("attaching %s", serviceName));
 		ServiceInterface sw = Runtime.getService(serviceName);
 		if (sw == null) {
-			log.error(String.format("could not attach % - not found in registry", serviceName));
+			error("could not attach %s - not found in registry", serviceName);
 			return false;
 		}
 		if (sw instanceof Servo) // Servo or ServoControl ???
 		{
 			if (data.length != 1) {
-				log.error("can not attach a Servo without a pin number");
+				error("can not attach a Servo without a pin number");
 				return false;
 			}
 			if (!sw.isLocal()) {
-				log.error("servo controller and servo must be local");
+				error("servo controller and servo must be local");
 				return false;
 			}
 			return servoAttach(serviceName, (Integer) (data[0]));
@@ -1527,11 +1526,11 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		if (sw instanceof Motor) // Servo or ServoControl ???
 		{
 			if (data.length != 2) {
-				log.error("can not attach a Motor without a PWMPin & directionPin ");
+				error("can not attach a Motor without a PWMPin & directionPin ");
 				return false;
 			}
 			if (!sw.isLocal()) {
-				log.error("motor controller and motor must be local");
+				error("motor controller and motor must be local");
 				return false;
 			}
 			return motorAttach(serviceName, data);
@@ -1541,14 +1540,14 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 		{
 
 			if (!sw.isLocal()) {
-				log.error("motor controller and motor must be local");
+				error("motor controller and motor must be local");
 				return false;
 			}
 
 			return ((ArduinoShield) sw).attach(this);
 		}
 
-		log.error("don't know how to attach");
+		error("don't know how to attach");
 		return false;
 	}
 
@@ -1584,7 +1583,7 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Override
 	public void setServoSpeed(String servoName, Float speed) {
 		if (speed == null || speed < 0.0f || speed > 1.0f) {
-			log.error(String.format("speed %f out of bounds", speed));
+			error("speed %f out of bounds", speed);
 			return;
 		}
 		sendMsg(SET_SERVO_SPEED, servos.get(servoName).servoIndex, (int) (speed * 100));
@@ -1593,6 +1592,9 @@ public class Arduino extends Service implements SerialDeviceEventListener, Senso
 	@Override
 	public void releaseService() {
 		super.releaseService();
+		// soft reset - detaches servos & resets polling & pinmodes
+		softReset();
+		sleep(300);
 		disconnect();
 	}
 
