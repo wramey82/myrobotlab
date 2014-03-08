@@ -151,7 +151,7 @@ public class AudioCapture extends Service {
 				}// end while
 				byteArrayOutputStream.close();
 			} catch (Exception e) {
-				log.error(Service.stackToString(e));
+				error(e);
 			}// end catch
 		}// end run
 	}// end inner class CaptureThread
@@ -180,7 +180,7 @@ public class AudioCapture extends Service {
 				sourceDataLine.drain();
 				sourceDataLine.close();
 			} catch (Exception e) {
-				log.error(Service.stackToString(e));
+				error(e);
 			}// end catch
 		}// end run
 	}// end inner class PlayThread
@@ -213,7 +213,7 @@ public class AudioCapture extends Service {
 			Thread playThread = new Thread(new PlayThread());
 			playThread.start();
 		} catch (Exception e) {
-			log.error(Service.stackToString(e));
+			error(e);
 		}// end catch
 	}// end playAudio
 

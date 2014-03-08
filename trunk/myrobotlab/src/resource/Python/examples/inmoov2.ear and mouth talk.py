@@ -1,5 +1,6 @@
 #inmoov2.ear and mouth talk
 headPort = "COM7"
+headPort = "COM15"
 
 i01 = Runtime.createAndStart("i01", "InMoov")
 head = i01.startHead(headPort)

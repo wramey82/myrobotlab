@@ -278,7 +278,7 @@ public class RemoteAdapter extends Service implements Communicator {
 
 					} catch (Exception e) {
 						logException(e);
-						log.error("udp datagram dumping bad msg");
+						error("udp datagram dumping bad msg");
 					}
 					dgram.setLength(b.length); // must reset length field!
 					b_in.reset(); // reset so next read is from start of byte[]
@@ -286,7 +286,7 @@ public class RemoteAdapter extends Service implements Communicator {
 				} // while isRunning
 
 			} catch (Exception e) {
-				log.error("UDPListener could not listen");
+				error("UDPListener could not listen");
 				logException(e);
 			}
 		}

@@ -59,10 +59,6 @@ import com.pi4j.io.i2c.I2CFactory;
 // update uri
 // blinkOff
 
-/*
- * 
- * DEPRECATE Worker .. maybe
- */
 
 // TODO - automated registration
 // Polling / Sensor - important - check sensor state
@@ -83,7 +79,14 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	transient public RasPi raspi;
 	transient public WebGUI webgui;
-	transient public Worker worker;
+	
+	transient public Worker cycleWorker;
+	transient public Worker pollingWorker;
+	transient public Worker blinkWorker;
+	
+	int cycleDelayMs = 300;
+	int pollingDelayMs = 150;
+	int blinkDelayMs = 150;
 
 	// static HashMap<String, Module> modules = new HashMap<String, Module>();
 	ConcurrentHashMap<String, Module> modules = new ConcurrentHashMap<String, Module>();
@@ -163,6 +166,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 		String task;
 		Object[] data;
+		int counter = 0;
 
 		public Worker(String task, Object... data) {
 			super(task);
@@ -175,9 +179,38 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 				isWorking = true;
 				while (isWorking) {
+					++counter;
 
 					switch (task) {
+					
+					case "blinkAll":
+						for (Map.Entry<String, Module> o : modules.entrySet()) {
+							Module m = o.getValue();
+							if (counter%2 == 0){
+								m.ledOn();
+							} else {
+								m.ledOff();
+							}
+						}
 
+						// poll pause
+						sleep(blinkDelayMs);
+						break;
+
+					case "blinkCycle":
+						for (Map.Entry<String, Module> o : modules.entrySet()) {
+							Module m = o.getValue();
+							//if (counter%2 == 0){
+								m.ledOn();
+							//} else {
+								sleep(blinkDelayMs);
+								m.ledOff();
+							//}
+						}
+
+						// poll pause
+						sleep(blinkDelayMs);
+						break;
 					case "pollAll":
 						for (Map.Entry<String, Module> o : modules.entrySet()) {
 							Module m = o.getValue();
@@ -206,26 +239,33 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 						}
 
 						// poll pause
-						sleep(300);
+						sleep(pollingDelayMs);
 						break;
 
 					case "cycleAll":
-
-						// TreeMap<String, Module> sorted = new TreeMap<String,
-						// Module>(modules);
-						/*
-						 * for (Map.Entry<String, Module> o :
-						 * modules.entrySet()) { o.getValue().cycle((String)
-						 * data.get("msg")); } isWorking = false;
-						 */
+						
+						log.info("Worker - cycleAll");
+						String msg = ("    " + (String) data[0] + "    ");
+						
+						// start with scroll on page
+						for (int i = 0; i < msg.length() - 3; ++i) {				
+							for (Map.Entry<String, Module> o : modules.entrySet()) {
+								Module m = o.getValue();
+								m.display(msg.substring(i, i + 4));
+							}
+							sleep(cycleDelayMs);
+						}
+						
+						sleep(cycleDelayMs); // so 0 length msgs don't peg cpu
+						
 						break;
 
 					default:
-						log.error(String.format("don't know how to handle task %s", task));
+						error(String.format("don't know how to handle task %s", task));
 						break;
 					}
 
-				}
+				} // while is working
 				log.info("leaving Worker");
 			} catch (Exception e) {
 				isWorking = false;
@@ -351,7 +391,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			return msg;
 		} else {
 			String err = String.format("display could not find module %d", key);
-			log.error(err);
+			error(err);
 			return err;
 		}
 	}
@@ -384,7 +424,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	// FIXME normalize splitting code
 	public String display(String moduleList, String value) {
 		if (moduleList == null) {
-			log.error("box list is null");
+			error("box list is null");
 			return "box list is null";
 		}
 		String[] list = moduleList.split(" ");
@@ -397,7 +437,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					if (modules.containsKey(key)) {
 						modules.get(key).display(value);
 					} else {
-						log.error(String.format("display could not find module %s", strKey));
+						error(String.format("display could not find module %s", strKey));
 					}
 				}
 			} catch (Exception e) {
@@ -469,19 +509,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		createModules();
 		
 		systemCheck();
-
-		// TODO - SystemCheck - cycle ip, cycle mac, all leds, all displays 8888
-		// - display all sensor states S1 S2 S3 S4
-		// TODO - blinkAllOn(Msg)
-		/*
-		 * String result = register(); cycleAll(result);
-		 */
-
-		//
-		// blinkAllOn("S001");
-		// sleep(5000);
-		// autoRegister(10);
-		// register();
+		autoRegister(1800);
 	}
 
 	public void systemCheck() {
@@ -496,7 +524,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		displayAll("ip  ");
 		sleep(1000);
 		cycleAll(c.getIpAddress());
-		sleep(5000);
+		sleep(6000);
 		cycleAllStop();
 
 		// mac address
@@ -551,7 +579,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 			ArrayList<String> addresses = Runtime.getLocalAddresses();
 			if (addresses.size() != 1) {
-				log.error(String.format("incorrect number of ip addresses %d", addresses.size()));
+				error(String.format("incorrect number of ip addresses %d", addresses.size()));
 			}
 
 			if (!addresses.isEmpty()) {
@@ -560,7 +588,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 			ArrayList<String> macs = Runtime.getLocalHardwareAddresses();
 			if (macs.size() != 1) {
-				log.error(String.format("incorrect number of mac addresses %d", addresses.size()));
+				error(String.format("incorrect number of mac addresses %d", addresses.size()));
 			}
 			if (!macs.isEmpty()) {
 				mac = macs.get(0);
@@ -603,7 +631,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public Module getModule(Integer bus, Integer address) {
 		String key = makeKey(bus, address);
 		if (!modules.containsKey(key)) {
-			log.error(String.format("get module - could not find module with key %s", key));
+			error(String.format("get module - could not find module with key %s", key));
 			return null;
 		}
 		return modules.get(key);
@@ -616,28 +644,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	public void cycle(Integer address, String msg, Integer delay) {
 		getModule(address).cycle(msg, delay);
-	}
-
-	public void cycleStop(Integer address) {
-		getModule(address).cycleStop();
-	}
-
-	public void cycleAll(String msg) {
-		cycleAll(msg, 300);
-	}
-
-	public void cycleAll(String msg, int delay) {
-		TreeMap<String, Module> sorted = new TreeMap<String, Module>(modules);
-		for (Map.Entry<String, Module> o : sorted.entrySet()) {
-			o.getValue().cycle(msg, delay);
-		}
-	}
-
-	public void cycleAllStop() {
-		TreeMap<String, Module> sorted = new TreeMap<String, Module>(modules);
-		for (Map.Entry<String, Module> o : sorted.entrySet()) {
-			o.getValue().cycleStop();
-		}
 	}
 
 	public void clearAll() {
@@ -901,31 +907,101 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		log.info("pollAll");
 		stopPolling();
 
-		worker = new Worker("pollAll");
-		worker.start();
+		pollingWorker = new Worker("pollAll");
+		pollingWorker.start();
 	}
 	
 	public void pollSet(ModuleList moduleList) {
 		log.info("pollSet");
 		stopPolling();
 
-		worker = new Worker("pollSet", moduleList);
-		worker.start();
+		pollingWorker = new Worker("pollSet", moduleList);
+		pollingWorker.start();
 	}
 
 	public void stopPolling() {
-		if (worker != null) {
-			worker.interrupt();
-			worker.isWorking = false;
-			worker = null;
+		if (pollingWorker != null) {
+			pollingWorker.interrupt();
+			pollingWorker.isWorking = false;
+			pollingWorker = null;
+		}
+	}
+	
+	public void cycleAll(String msg) {
+		log.info("cycleAll");
+		cycleAllStop();
+
+		cycleWorker = new Worker("cycleAll", msg);
+		cycleWorker.start();
+	}
+
+	public void cycleAllStop() {
+		if (cycleWorker != null){
+			cycleWorker.interrupt();
+			cycleWorker.isWorking = false;
+			cycleWorker = null;
+		}
+	}
+	
+	public void blinkAllOn() {
+		log.info("blinkAllOn");
+		blinkStop();
+		
+		blinkWorker = new Worker("blinkAll");
+		blinkWorker.start();
+	}
+	
+	public void blinkCycle() {
+		log.info("blinkAllOn");
+		blinkStop();
+		
+		blinkWorker = new Worker("blinkCycle");
+		blinkWorker.start();
+	}
+	
+	public void blinkStop(){
+		if (blinkWorker != null){
+			blinkWorker.interrupt();
+			blinkWorker.isWorking = false;
+			blinkWorker = null;
 		}
 	}
 
+	public int getCycleDelayMs() {
+		return cycleDelayMs;
+	}
+
+	public int setCycleDelayMs(int cycleDelayMs) {
+		this.cycleDelayMs = cycleDelayMs;
+		return cycleDelayMs;
+	}
+
+	public int getPollingDelayMs() {
+		return pollingDelayMs;
+	}
+
+	public int setPollingDelayMs(int pollingDelayMs) {
+		this.pollingDelayMs = pollingDelayMs;
+		return pollingDelayMs;
+	}
+	
+	public int getBlinkDelayMs() {
+		return blinkDelayMs;
+	}
+
+	public int setBlinkDelayMs(int blinkDelayMs) {
+		this.blinkDelayMs = blinkDelayMs;
+		return blinkDelayMs;
+	}
+	//
+	
 	// ------------ TODO - IMPLEMENT - END ----------------------
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
+		
+		//Runtime.getStartInfo();
 
 		PickToLight pick = new PickToLight("pick.1");
 		pick.startService();

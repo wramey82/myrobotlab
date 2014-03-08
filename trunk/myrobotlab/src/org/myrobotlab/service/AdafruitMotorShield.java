@@ -317,7 +317,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	public boolean attach(Arduino inArduino) {
 
 		if (inArduino == null) {
-			log.error("can't attach - arduino is invalid");
+			error("can't attach - arduino is invalid");
 			return false;
 		}
 
@@ -333,7 +333,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		if (insertPoint > 0) {
 			newProgram.insert(Arduino.VENDOR_DEFINES_BEGIN.length() + insertPoint, ADAFRUIT_DEFINES);
 		} else {
-			log.error("could not find insert point in MRLComm.ino");
+			error("could not find insert point in MRLComm.ino");
 			// get info back to user
 			return false;
 		}
@@ -343,7 +343,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		if (insertPoint > 0) {
 			newProgram.insert(Arduino.VENDOR_SETUP_BEGIN.length() + insertPoint, ADAFRUIT_SETUP);
 		} else {
-			log.error("could not find insert point in MRLComm.ino");
+			error("could not find insert point in MRLComm.ino");
 			// get info back to user
 			return false;
 		}
@@ -353,7 +353,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		if (insertPoint > 0) {
 			newProgram.insert(Arduino.VENDOR_CODE_BEGIN.length() + insertPoint, ADAFRUIT_CODE);
 		} else {
-			log.error("could not find insert point in MRLComm.ino");
+			error("could not find insert point in MRLComm.ino");
 			// get info back to user
 			return false;
 		}
@@ -367,7 +367,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 		// servo9.attach(arduinoName, 9); // FIXME ??? - createServo(Integer i)
 		// servo10.attach(arduinoName, 10);
 
-		// log.error(String.format("couldn't find %s", arduinoName));
+		// error(String.format("couldn't find %s", arduinoName));
 		return true;
 	}
 
@@ -408,7 +408,7 @@ public class AdafruitMotorShield extends Service implements MotorController, Ste
 	public boolean motorAttach(String motorName, Object... motorData) {
 		ServiceInterface sw = Runtime.getService(motorName);
 		if (!sw.isLocal()) {
-			log.error("motor needs to be in same instance of mrl as controller");
+			error("motor needs to be in same instance of mrl as controller");
 			return false;
 		}
 

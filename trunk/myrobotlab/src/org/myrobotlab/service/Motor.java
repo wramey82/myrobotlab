@@ -134,7 +134,7 @@ public class Motor extends Service implements MotorControl {
 		}
 		
 		if (Math.abs(newPowerLevel) > maxPower) {
-			log.error(String.format("invalid power level %d", newPowerLevel));
+			error(String.format("invalid power level %d", newPowerLevel));
 			return;
 		}
 
@@ -163,7 +163,7 @@ public class Motor extends Service implements MotorControl {
 	@Override
 	public void setMaxPower(float max) {
 		if (maxPower > 1 || maxPower < 0) {
-			log.error("max power must be between 0.0 and 0.1");
+			error("max power must be between 0.0 and 0.1");
 			return;
 		}
 		maxPower = max;
@@ -277,7 +277,7 @@ public class Motor extends Service implements MotorControl {
 				durationThread.start();
 			} else {
 				if (inMotion) {
-					log.error("duration is busy with another move" + durationThread.duration);
+					error("duration is busy with another move" + durationThread.duration);
 				} else {
 					synchronized (lock) {
 						durationThread.power = power;

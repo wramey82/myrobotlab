@@ -209,12 +209,16 @@ public class Python extends Service {
 					Message msg = inputQueue.take();
 
 					try {
-						// serious bad bug in it which I think I fixed - the msgHandle is really the data coming from a callback
-						// it can originate from the same calling function such as Sphinx.send - but we want the callback to 
-						// call a different method - this means the data needs to go to a data structure which is keyed by only the
-						// sending method, but must call the appropriate method in Sphinx
+						// serious bad bug in it which I think I fixed - the
+						// msgHandle is really the data coming from a callback
+						// it can originate from the same calling function such
+						// as Sphinx.send - but we want the callback to
+						// call a different method - this means the data needs
+						// to go to a data structure which is keyed by only the
+						// sending method, but must call the appropriate method
+						// in Sphinx
 						StringBuffer msgHandle = new StringBuffer().append("msg_").append(getSafeReferenceName(msg.sender)).append("_").append(msg.sendingMethod);
-						
+
 						PyObject compiledObject = getCompiledMethod(msg.method, String.format("%s()", msg.method), interp);
 						log.info(String.format("setting data %s", msgHandle));
 						interp.set(msgHandle.toString(), msg);
@@ -231,12 +235,10 @@ public class Python extends Service {
 		}
 	}
 
-	
-	public static final String getSafeReferenceName(String name)
-	{
+	public static final String getSafeReferenceName(String name) {
 		return name.replaceAll("[/ .]", "_");
 	}
-	
+
 	/**
 	 * 
 	 * @param instanceName
@@ -271,7 +273,7 @@ public class Python extends Service {
 
 		subscribe("registered", Runtime.getInstance().getName(), "registered", ServiceInterface.class);
 	}
-	
+
 	public static String makeSafeName(String name) {
 		return name.replaceAll("[\\-/ .]", "");
 	}
@@ -281,9 +283,8 @@ public class Python extends Service {
 		String registerScript = "";
 
 		// load the import
-		if (!"unknown".equals(s.getSimpleName())) // FIXME - RuntimeGlobals &
-													// static values for
-													// "unknown"
+		// RIXME - RuntimeGlobals & static values for unknown
+		if (!"unknown".equals(s.getSimpleName())) 
 		{
 			registerScript = String.format("from org.myrobotlab.service import %s\n", s.getSimpleName());
 		}
@@ -359,6 +360,9 @@ public class Python extends Service {
 	 */
 	public void exec(String code, boolean replace) {
 		log.info(String.format("exec %s", code));
+		
+	//	code = code.replaceAll("\r\n", "\n"); // DOS2UNIX
+		
 		if (interp == null) {
 			createPythonInterpreter();
 		}
@@ -453,14 +457,15 @@ public class Python extends Service {
 
 	/**
 	 * executes an external Python file
+	 * 
 	 * @param filename
-	 * the full path name of the python file to execute
+	 *            the full path name of the python file to execute
 	 */
 	public void execFile(String filename) {
 		String script = FileIO.fileToString(filename);
 		exec(script);
 	}
-	
+
 	public void execResource(String filename) {
 		String script = FileIO.resourceToString(filename);
 		exec(script);
@@ -548,9 +553,9 @@ public class Python extends Service {
 
 	/**
 	 * this method can be used to load a Python script from the Python's local
-	 * file system, which may not be the GUIService's local system. Because it can be
-	 * done programatically on a different machine we want to broadcast our
-	 * changed state to other listeners (possibly the GUIService)
+	 * file system, which may not be the GUIService's local system. Because it
+	 * can be done programatically on a different machine we want to broadcast
+	 * our changed state to other listeners (possibly the GUIService)
 	 * 
 	 * @param filename
 	 *            - name of file to load
@@ -574,12 +579,11 @@ public class Python extends Service {
 	}
 
 	/**
-	 * Loads script from the users .myrobotlab directory - maintain the only non-absolute
-	 * filename
+	 * Loads script from the users .myrobotlab directory - maintain the only
+	 * non-absolute filename
 	 * 
 	 * @param filename
-	 * @return
-	 * true if successfully loaded
+	 * @return true if successfully loaded
 	 */
 	public boolean loadUserScript(String filename) {
 		String newCode = FileIO.fileToString(getCFGDir() + File.separator + filename);
@@ -601,8 +605,8 @@ public class Python extends Service {
 	/**
 	 * gets the listing of current example python scripts in the myrobotlab.jar
 	 * under /Python/examples
-	 * @return
-	 * list of python examples
+	 * 
+	 * @return list of python examples
 	 */
 	public ArrayList<String> getExampleListing() {
 		ArrayList<String> r = FileIO.listResourceContents("/Python/examples");
@@ -610,11 +614,11 @@ public class Python extends Service {
 	}
 
 	/**
-	 * list files from user directory 
-	 * user directory is located where MRL was unzipped (dot) .myrobotlab directory
-	 * these are typically hidden on Linux systems
-	 * @return
-	 * returns list of files with .py extension
+	 * list files from user directory user directory is located where MRL was
+	 * unzipped (dot) .myrobotlab directory these are typically hidden on Linux
+	 * systems
+	 * 
+	 * @return returns list of files with .py extension
 	 */
 	public ArrayList<String> getFileListing() {
 		try {
@@ -632,11 +636,12 @@ public class Python extends Service {
 	}
 
 	/**
-	 * load a script from the myrobotlab.jar - location of example scripts are /resource/Python/examples
+	 * load a script from the myrobotlab.jar - location of example scripts are
+	 * /resource/Python/examples
+	 * 
 	 * @param filename
-	 * name of file to load
-	 * @return
-	 * true if successfully loaded
+	 *            name of file to load
+	 * @return true if successfully loaded
 	 */
 	public boolean loadScriptFromResource(String filename) {
 		log.debug(String.format("loadScriptFromResource scripts/%1s", filename));
@@ -661,10 +666,10 @@ public class Python extends Service {
 
 	/**
 	 * append more Python to the current script
+	 * 
 	 * @param data
-	 * the code to append
-	 * @return
-	 * the resulting concatenation
+	 *            the code to append
+	 * @return the resulting concatenation
 	 */
 	public String appendScript(String data) {
 		currentScript.setCode(String.format("%s\n%s", currentScript.getCode(), data));

@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -101,7 +102,7 @@ public class Speech extends Service {
 
 	transient private Voice myVoice = null;
 	private boolean initialized = false;
-	public AudioFile speechAudioFile = null;
+	public AudioFile audioFile = null;
 	transient private DefaultHttpClient client = new DefaultHttpClient();
 
 	public static enum FrontendType {
@@ -125,6 +126,12 @@ public class Speech extends Service {
 	private String isSaying ;
 
 	final public static HashMap<String, String> googleLanguageMap = new HashMap<String, String>();
+	
+	public static Peers getPeers(String name) {
+		Peers peers = new Peers(name);
+		peers.put("audioFile", "AudioFile", "plays tts files");
+		return peers;
+	}
 
 	public Speech(String n) {
 		super(n);
@@ -137,6 +144,12 @@ public class Speech extends Service {
 		googleLanguageMap.put("french", "fr");
 		googleLanguageMap.put("japanese", "ja");
 		googleLanguageMap.put("portuguese", "pt");
+		
+		audioFile = (AudioFile)createPeer("audioFile");
+	}
+	
+	public void startService(){
+		audioFile.startService();
 	}
 
 	public synchronized Boolean isSpeaking(Boolean b) {
@@ -211,15 +224,18 @@ public class Speech extends Service {
 		if (myVoice != null && myVoice.isLoaded()) {
 			myVoice.deallocate();
 		}
-		if (speechAudioFile != null) {
-			speechAudioFile.stopService();
-			speechAudioFile = null;
+		if (audioFile != null) {
+			audioFile.stopService();
+			audioFile = null;
 		}
 		super.stopService();
 	}
 
 	// front-end functions
 	public boolean speak(String toSpeak) {
+		if (toSpeak == null || toSpeak.length() == 0){
+			return false;
+		}
 		if (frontendType == FrontendType.NORMAL) {
 			return speakNormal(toSpeak);
 		} else if (frontendType == FrontendType.QUEUED) {
@@ -253,7 +269,7 @@ public class Speech extends Service {
 		return speakBlocking(toSpeak, (Object[])null);
 	}
 	public boolean speakBlocking(String speak, Object... fdata) {
-		if (speak == null)
+		if (speak == null || speak.length() == 0)
 			return false;
 		
 		String toSpeak = String.format(speak, fdata);
@@ -357,9 +373,10 @@ public class Speech extends Service {
 	}
 
 	public void speakGoogle(String toSpeak) {
-		if (speechAudioFile == null) {
-			speechAudioFile = new AudioFile("speechAudioFile");
-			speechAudioFile.startService();
+		
+		if (audioFile == null) {
+			audioFile = new AudioFile("speechAudioFile");
+			audioFile.startService();
 		}
 
 		if (!fileCacheInitialized) {
@@ -371,8 +388,8 @@ public class Speech extends Service {
 			}
 		}
 
-		String audioFile = "audioFile/google/" + language + "/" + voiceName + "/" + toSpeak + ".mp3";
-		File f = new File(audioFile);
+		String audioFileName = "audioFile/google/" + language + "/" + voiceName + "/" + toSpeak + ".mp3";
+		File f = new File(audioFileName);
 		log.info(f + (f.exists() ? " is found " : " is missing "));
 
 		if (!f.exists()) {
@@ -412,7 +429,7 @@ public class Speech extends Service {
 
 				byte[] data = getByteArrayFromResponse(response);
 
-				FileOutputStream fos = new FileOutputStream(audioFile);
+				FileOutputStream fos = new FileOutputStream(audioFileName);
 				fos.write(data);
 
 			} catch (Exception e) {
@@ -423,7 +440,7 @@ public class Speech extends Service {
 
 		invoke("isSpeaking", true);
 		invoke("saying", toSpeak);
-		speechAudioFile.playFile(audioFile, true);
+		audioFile.playFile(audioFileName, true);
 		sleep(600);// important pause after speech
 		invoke("isSpeaking", false);
 	}

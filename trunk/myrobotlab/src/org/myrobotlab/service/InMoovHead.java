@@ -3,6 +3,7 @@ package org.myrobotlab.service;
 import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
+import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -11,12 +12,10 @@ public class InMoovHead extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(InMoovHead.class);
-
-	transient public Tracking headTracking;
-	transient public Tracking eyesTracking;
-	transient public MouthControl mouthControl;
+	
 	transient public Servo jaw;
-	transient public Servo eyeX, eyeY;
+	transient public Servo eyeX;
+	transient public Servo eyeY;
 	transient public Servo rothead;
 	transient public Servo neck;
 	transient public Arduino arduino;
@@ -26,36 +25,24 @@ public class InMoovHead extends Service {
 	{
 		Peers peers = new Peers(name);
 		
-		peers.suggestAs("mouthControl.jaw", "jaw", "Servo", "shared servo");		
-		peers.suggestAs("headTracking.x", "rothead", "Servo", "shared servo");		
-		peers.suggestAs("headTracking.y", "neck", "Servo", "shared servo");		
-		peers.suggestAs("eyesTracking.x", "eyeX", "Servo", "shared servo");		
-		peers.suggestAs("eyesTracking.y", "eyeY", "Servo", "shared servo");		
-		
-		peers.put("mouthControl", "MouthControl", "MouthControl");	
-		peers.put("headTracking", "Tracking", "Head tracking system");
-		peers.put("eyesTracking", "Tracking", "Tracking for the eyes");
 		peers.put("jaw", "Servo", "Jaw servo");
 		peers.put("eyeX", "Servo", "Eyes pan servo");
 		peers.put("eyeY", "Servo", "Eyes tilt servo");
 		peers.put("rothead", "Servo", "Head pan servo");
 		peers.put("neck", "Servo", "Head tilt servo");
-		peers.put("headArduino", "Arduino", "Arduino controller for this arm");
+		peers.put("arduino", "Arduino", "Arduino controller for this arm");
 				
 		return peers;
 	}
 	
 	public InMoovHead(String n) {
 		super(n);
-		headTracking = (Tracking)createPeer("headTracking");
-		eyesTracking = (Tracking)createPeer("eyesTracking");
 		jaw = (Servo) createPeer("jaw");
-		mouthControl = (MouthControl) createPeer("mouthControl");
 		eyeX = (Servo) createPeer("eyeX");
 		eyeY = (Servo) createPeer("eyeY");
 		rothead = (Servo) createPeer("rothead");
 		neck = (Servo) createPeer("neck");
-		arduino = (Arduino) createPeer("headArduino");
+		arduino = (Arduino) createPeer("arduino");
 
 		// connection details
 		neck.setPin(12);
@@ -72,7 +59,8 @@ public class InMoovHead extends Service {
 		
 		neck.setMinMax(20, 160);
 		rothead.setMinMax(30, 150);
-		jaw.setMinMax(10, 25);
+		// reset by mouth control
+		jaw.setMinMax(10, 25); 
 		eyeX.setMinMax(60,100);
 		eyeY.setMinMax(50,100);
 		
@@ -87,9 +75,6 @@ public class InMoovHead extends Service {
 	@Override
 	public void startService() {
 		super.startService();
-		headTracking.startService();
-		eyesTracking.startService();
-		mouthControl.startService();
 		jaw.startService();
 		eyeX.startService();
 		eyeY.startService();
@@ -148,20 +133,20 @@ public class InMoovHead extends Service {
 		return true;
 	}
 
-	public void moveTo(Integer rothead, Integer headY) {
-		moveTo(rothead, headY, null, null, null);
+	public void moveTo(Integer neck, Integer rothead) {
+		moveTo(neck, rothead, null, null, null);
 	}
 
-	public void moveTo(Integer rothead, Integer headY, Integer eyeX, Integer eyeY) {
-		moveTo(rothead, headY, eyeX, eyeY, null);
+	public void moveTo(Integer neck, Integer rothead, Integer eyeX, Integer eyeY) {
+		moveTo(neck, rothead, eyeX, eyeY, null);
 	}
 
-	public void moveTo(Integer rothead, Integer headY, Integer eyeX, Integer eyeY, Integer jaw) {
+	public void moveTo(Integer neck, Integer rothead, Integer eyeX, Integer eyeY, Integer jaw) {
 		if (log.isDebugEnabled()) {
-			log.debug(String.format("%s.moveTo %d %d %d %d %d", rothead, headY, eyeX, eyeY, jaw));
+			log.debug(String.format("%s.moveTo %d %d %d %d %d", neck, rothead, eyeX, eyeY, jaw));
 		}
 		this.rothead.moveTo(rothead);
-		this.neck.moveTo(headY);
+		this.neck.moveTo(neck);
 		if (eyeX != null)
 			this.eyeX.moveTo(eyeX);
 		if (eyeY != null)
@@ -188,25 +173,14 @@ public class InMoovHead extends Service {
 		eyeX.broadcastState();
 		eyeY.broadcastState();
 		jaw.broadcastState();
-
-		headTracking.getXPID().broadcastState();
-		headTracking.getYPID().broadcastState();
-		eyesTracking.getXPID().broadcastState();
-		eyesTracking.getYPID().broadcastState();
-		
 	}
 
 	public void detach() {	
 		rothead.detach();
-		//sleep(InMoov.MSG_DELAY);
 		neck.detach();
-		//sleep(InMoov.MSG_DELAY);
 		eyeX.detach();
-		//sleep(InMoov.MSG_DELAY);
 		eyeY.detach();
-		//sleep(InMoov.MSG_DELAY);
 		jaw.detach();
-		//sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {
@@ -231,8 +205,8 @@ public class InMoovHead extends Service {
 			
 	}
 
-	public String getScript() {
-		return String.format("%s.moveTo(\"%s\",%d,%d,%d,%d,%d)\n", getName(), rothead.getPosition(), neck.getPosition(), eyeX.getPosition(), eyeY.getPosition(),
+	public String getScript(String inMoovServiceName) {
+		return String.format("%s.moveHead(%d,%d,%d,%d,%d)\n", inMoovServiceName, neck.getPosition(), rothead.getPosition(), eyeX.getPosition(), eyeY.getPosition(),
 				jaw.getPosition());
 	}
 
@@ -254,7 +228,7 @@ public class InMoovHead extends Service {
 		return true;
 	}
 	
-	public Errors test() {
+	public void test() {
 		Errors errors = new Errors();
 		try {
 			if (arduino == null) {
@@ -272,10 +246,10 @@ public class InMoovHead extends Service {
 			jaw.moveTo(jaw.getPosition() + 2);
 			
 		} catch (Exception e) {
-			errors.add(e);
+			error(e);
 		}
 
-		return errors;
+		info("test completed");
 	}
 
 	public void setLimits(int headXMin, int headXMax, int headYMin, int headYMax, int eyeXMin, int eyeXMax, int eyeYMin, int eyeYMax, int jawMin, int jawMax) {

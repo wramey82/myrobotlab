@@ -1,33 +1,33 @@
 headPort = "COM8"
+headPort = "COM15"
 
 i01 = Runtime.createAndStart("i01", "InMoov")
+mouth = i01.startMouth()
+ear = i01.startEar()
+mouthControl = i01.startMouthControl(headPort)
 head = i01.startHead(headPort)
-neck = i01.getHeadTracking()
+neck = i01.startHeadTracking(headPort)
+eyes = i01.startEyesTracking(headPort)
+
 neck.startLKTracking()
+#eyes.startLKTracking()
 
 ############################################################
 #!!!my eyeY servo and jaw servo are reverted, Gael should delete this part !!!!
-i01.head.eyeY.setInverted(True)
-i01.head.eyeY.setMinMax(22,85)
-i01.head.eyeY.setRest(45)
-i01.head.eyeY.moveTo(45)
-i01.head.jaw.setInverted(True)
-i01.head.jaw.setMinMax(0,50)
-i01.head.jaw.moveTo(20)
-i01.head.mouthControl.setmouth(50,0)
+# i01.head.eyeY.setInverted(True)
+# i01.head.eyeY.setMinMax(22,85)
+# i01.head.eyeY.setRest(45)
+# i01.head.eyeY.moveTo(45)
+# i01.head.jaw.setInverted(True)
+# i01.mouthControl.setmouth(50,0)
+i01.opencv.setCameraIndex(1)
 ############################################################
 
-i01.head.headTracking.xpid.setPID(15.0,5.0,0.1)
-i01.head.headTracking.ypid.setPID(20.0,5.0,0.1)
-i01.head.eyesTracking.xpid.setPID(15.0,5.0,1.0)
-i01.head.eyesTracking.ypid.setPID(15.0,5.0,1.0)
+i01.headTracking.xpid.setPID(15.0,5.0,0.1)
+i01.headTracking.ypid.setPID(20.0,5.0,0.1)
+i01.eyesTracking.xpid.setPID(15.0,5.0,1.0)
+i01.eyesTracking.ypid.setPID(15.0,5.0,1.0)
 
-eyes = i01.getEyesTracking()
-eyes.startLKTracking()
-
-ear = runtime.createAndStart("ear","Sphinx")
- 
-ear.attach(i01.head.mouthControl.mouth)
 ear.addCommand("attach", "i01.head", "attach")
 ear.addCommand("detach", "i01.head", "detach")
 ear.addCommand("track humans", "i01.head.headTracking", "faceDetect")

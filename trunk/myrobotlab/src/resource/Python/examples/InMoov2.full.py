@@ -22,7 +22,10 @@ inMoov = Runtime.createAndStart("inMoov", "InMoov")
 #leftArm  = inMoov.startLeftArm(leftPort)
 
 # starts only the head
-head = inMoov.startHead(leftPort)
+#head = inMoov.startHead(leftPort)
+
+# starts only opencv
+opencv = inMoov.startOpenCV()
 
 
 def delicategrab():

@@ -149,7 +149,7 @@ public class AudioFile extends Service {
 
 		} catch (Exception e) {
 			Logging.logException(e);
-			log.error("Problem playing file " + filename);
+			error("Problem playing file ", filename);
 			return;
 		}
 

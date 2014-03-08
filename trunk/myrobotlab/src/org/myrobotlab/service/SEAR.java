@@ -178,7 +178,7 @@ public class SEAR extends Service {
             simulator = (GPSSimulator) simulator;
             instanceName = m.sender.substring(0, m.sender.lastIndexOf("_GPSsimulator_Serial_Service"));
         } else {
-            log.error("serialDevice instanceName not found");
+            error("serialDevice instanceName not found");
             return false;
         }
 
@@ -186,7 +186,7 @@ public class SEAR extends Service {
             Method method = simulator.getClass().getMethod(m.method);
             log.info(String.format("my simulator type is %s", simulator.getClass().getSimpleName()));
         } catch (NoSuchMethodException | SecurityException e) {
-            log.error("Something did not jive while attempting to send the serial data from SEARservice to " + m.sender);
+            error("Something did not jive while attempting to send the serial data from SEARservice to " + m.sender);
             Logging.logException(e);
         }
 

@@ -2,6 +2,7 @@ package org.myrobotlab.service;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +16,8 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +37,6 @@ import java.util.Vector;
 import org.myrobotlab.cmdline.CMDLine;
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Encoder;
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.MRLListener;
 import org.myrobotlab.framework.Message;
 import org.myrobotlab.framework.MethodEntry;
@@ -61,6 +63,17 @@ import org.slf4j.Logger;
  * running in a process The host and registry maps are used in routing
  * communication to the appropriate service (be it local or remote) It will be
  * the first Service created It also wraps the real JVM Runtime object
+ * 
+ * TODO - get last args & better restart (with Agent possibly?)
+ * 
+ * RuntimeMXBean - scares me - but the stackTrace is clever RuntimeMXBean
+ * runtimeMxBean = ManagementFactory.getRuntimeMXBean(); List<String> arguments
+ * = runtimeMxBean.getInputArguments();
+ * 
+ * final StackTraceElement[] stackTrace =
+ * Thread.currentThread().getStackTrace(); final String mainClassName =
+ * stackTrace[stackTrace.length - 1].getClassName();
+ * 
  * 
  */
 @Root
@@ -102,7 +115,7 @@ public class Runtime extends Service {
 	/**
 	 * The singleton of this class.
 	 */
-	private static Runtime localInstance = null;
+	private static Runtime self = null;
 
 	private static int autoUpdateCheckIntervalSeconds = 300;
 
@@ -189,7 +202,7 @@ public class Runtime extends Service {
 		super(n);
 
 		synchronized (instanceLockObject) {
-			localInstance = this;
+			self = this;
 		}
 
 		String libararyPath = System.getProperty("java.library.path");
@@ -327,8 +340,8 @@ public class Runtime extends Service {
 	public static boolean isRuntime(Service newService) {
 		return newService.getClass().equals(Runtime.class);
 	}
-	
-	// FIXME - should probably be in a StringUtil 
+
+	// FIXME - should probably be in a StringUtil
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	public static String bytesToHex(byte[] bytes) {
@@ -341,24 +354,23 @@ public class Runtime extends Service {
 		return new String(hexChars);
 	}
 
-
 	/**
 	 * Get a handle to the Runtime singleton.
 	 * 
 	 * @return the Runtime
 	 */
 	public static Runtime getInstance() {
-		if (localInstance == null) {
+		if (self == null) {
 			synchronized (instanceLockObject) {
-				if (localInstance == null) {
+				if (self == null) {
 					if (runtimeName == null) {
 						runtimeName = "runtime";
 					}
-					localInstance = new Runtime(runtimeName);
+					self = new Runtime(runtimeName);
 				}
 			}
 		}
-		return localInstance;
+		return self;
 	}
 
 	/**
@@ -374,7 +386,7 @@ public class Runtime extends Service {
 		 * null) { timer.cancel(); // stop all scheduled jobs timer.purge(); }
 		 */
 		super.stopService();
-		localInstance = null;
+		self = null;
 	}
 
 	/**
@@ -490,9 +502,9 @@ public class Runtime extends Service {
 
 		if (se.serviceDirectory.containsKey(s.getName())) {
 			log.info(String.format("attempting to register %1$s which is already registered in %2$s", s.getName(), url));
-			if (localInstance != null) {
-				localInstance.invoke("collision", s.getName());
-				localInstance.warn("collision registering %s", s.getName());
+			if (self != null) {
+				self.invoke("collision", s.getName());
+				self.warn("collision registering %s", s.getName());
 				Runtime.getInstance().info(String.format(" name collision with %s", s.getName()));
 			}
 			return s;
@@ -537,8 +549,8 @@ public class Runtime extends Service {
 		// CONDITION ????
 		registry.put(s.getName(), s); // FIXME FIXME FIXME FIXME !!!!!! pre-pend
 										// URI if not NULL !!!
-		if (localInstance != null) {
-			localInstance.invoke("registered", s);
+		if (self != null) {
+			self.invoke("registered", s);
 		}
 
 		return s;
@@ -581,7 +593,7 @@ public class Runtime extends Service {
 
 		ServiceEnvironment se = hosts.get(sw.getHost());
 		if (se == null) {
-			error(String.format("no service environment for %s", sw.getHost()));
+			error("no service environment for %s", sw.getHost());
 			return;
 		}
 
@@ -596,8 +608,8 @@ public class Runtime extends Service {
 
 		se.serviceDirectory.put(sw.getName(), sw);
 		registry.put(sw.getName(), sw);
-		if (localInstance != null) {
-			localInstance.invoke("registered", sw);
+		if (self != null) {
+			self.invoke("registered", sw);
 		}
 
 	}
@@ -638,12 +650,12 @@ public class Runtime extends Service {
 			si.setHost(uri);
 
 			registry.put(serviceName, si);
-			localInstance.invoke("registered", s.serviceDirectory.get(serviceName));
+			self.invoke("registered", s.serviceDirectory.get(serviceName));
 
 			// if I find a runtime - subscribe this Runtime to remote Runtime
 			if ("org.myrobotlab.service.Runtime".equals(s.getClass().getCanonicalName())) {
 				log.info(String.format("found runtime %s", serviceName));
-				localInstance.subscribe("registered", serviceName, "register", ServiceInterface.class);
+				self.subscribe("registered", serviceName, "register", ServiceInterface.class);
 			}
 
 		}
@@ -714,7 +726,7 @@ public class Runtime extends Service {
 	 */
 	public static ServiceEnvironment getLocalServices() {
 		if (!hosts.containsKey(null)) {
-			log.error("local (null) ServiceEnvironment does not exist");
+			self.error("local (null) ServiceEnvironment does not exist");
 			return null;
 		}
 
@@ -739,7 +751,7 @@ public class Runtime extends Service {
 	 */
 	public static ServiceEnvironment getLocalServicesForExport() {
 		if (!hosts.containsKey(null)) {
-			log.error("local (null) ServiceEnvironment does not exist");
+			self.error("local (null) ServiceEnvironment does not exist");
 			return null;
 		}
 
@@ -850,6 +862,7 @@ public class Runtime extends Service {
 	 * 
 	 * FIXME - send SHUTDOWN event to all running services with a timeout period
 	 * - end with System.exit()
+	 * FIXME normalize with releaseAllLocal and releaseAllExcept
 	 */
 	public static void releaseAll() /* local only? YES !!! LOCAL ONLY !! */
 	{
@@ -872,7 +885,7 @@ public class Runtime extends Service {
 		while (seit.hasNext()) {
 			serviceName = seit.next();
 			sw = se.serviceDirectory.get(serviceName);
-			localInstance.invoke("released", se.serviceDirectory.get(serviceName));
+			self.invoke("released", se.serviceDirectory.get(serviceName));
 		}
 
 		seit = se.serviceDirectory.keySet().iterator();
@@ -930,7 +943,7 @@ public class Runtime extends Service {
 	 */
 	public static HashMap<String, MethodEntry> getMethodMap(String serviceName) {
 		if (!registry.containsKey(serviceName)) {
-			log.error(String.format("%1$s not in registry - can not return method map", serviceName));
+			self.error(String.format("%1$s not in registry - can not return method map", serviceName));
 			return null;
 		}
 
@@ -1185,7 +1198,7 @@ public class Runtime extends Service {
 				if (s != null) {
 					s.startService();
 				} else {
-					log.error(String.format("could not create service %1$s %2$s", name, type));
+					self.error(String.format("could not create service %1$s %2$s", name, type));
 				}
 
 			}
@@ -1742,9 +1755,7 @@ public class Runtime extends Service {
 			} finally {
 				out.close();
 			}
-
-			//
-
+			
 		} catch (IOException e) {
 			Logging.logException(e);
 		}
@@ -1752,9 +1763,9 @@ public class Runtime extends Service {
 
 	// References :
 	// http://java.dzone.com/articles/programmatically-restart-java
+	// better - http://java.dzone.com/articles/programmatically-restart-java
 	static public void restart(String restartScript) {
-		log.info("new components - restart?");
-
+		log.info("restart - restart?");
 		Runtime.releaseAll();
 		try {
 			if (restartScript == null) {
@@ -1775,6 +1786,101 @@ public class Runtime extends Service {
 					java.lang.Runtime.getRuntime().exec(command);
 				}
 			}
+		} catch (Exception ex) {
+			Logging.logException(ex);
+		}
+		System.exit(0);
+
+	}
+
+	static class Move implements Runnable {
+
+		File src;
+		File dst;
+
+		Move(File src, File dst) throws FileNotFoundException {
+			this.src = src;
+			this.dst = dst;
+		}
+
+		Move(String src, String dst) throws FileNotFoundException {
+			this(new File(src), new File(dst));
+		}
+
+		@Override
+		public void run() {
+			try {
+				// Files.move(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				Files.move(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				Logging.logException(e);
+			}
+		}
+
+	}
+
+	static public void updateAndRestart() {
+		try {
+			Runtime.getBleedingEdgeMyRobotLabJar();
+			restart(new Move("update/myrobotlab.jar", "libraries/jar/myrobotlab.jar"));
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
+	static public void restart(Runnable runBeforeRestart) {
+		final java.lang.Runtime r = java.lang.Runtime.getRuntime();
+		log.info("restart - restart?");
+		Runtime.releaseAll();
+		try {
+			// java binary
+			String java = System.getProperty("java.home") + "/bin/java";
+			// vm arguments
+			/*
+			 * getRuntimeMXBean scares me List<String> vmArguments =
+			 * ManagementFactory.getRuntimeMXBean().getInputArguments();
+			 * StringBuffer vmArgsOneLine = new StringBuffer(); for (String arg
+			 * : vmArguments) { // if it's the agent argument : we ignore it
+			 * otherwise the // address of the old application and the new one
+			 * will be in conflict if (!arg.contains("-agentlib")) {
+			 * vmArgsOneLine.append(arg); vmArgsOneLine.append(" "); } }
+			 */
+			// init the command to execute, add the vm args
+			final StringBuffer cmd = new StringBuffer("\"" + java + "\" ");
+
+			// program main and program arguments
+			String[] mainCommand = startingArgs;
+			// program main is a jar
+			if (mainCommand[0].endsWith(".jar")) {
+				// if it's a jar, add -jar mainJar
+				cmd.append("-jar " + new File(mainCommand[0]).getPath());
+			} else {
+				// else it's a .class, add the classpath and mainClass
+				cmd.append("-cp \"" + System.getProperty("java.class.path") + "\" " + mainCommand[0]);
+			}
+			// finally add program arguments
+			for (int i = 1; i < mainCommand.length; i++) {
+				cmd.append(" ");
+				cmd.append(mainCommand[i]);
+			}
+			// execute the command in a shutdown hook, to be sure that all the
+			// resources have been disposed before restarting the application
+
+			r.addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try {
+						r.exec(cmd.toString());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			// execute some custom code before restarting
+			if (runBeforeRestart != null) {
+				runBeforeRestart.run();
+			}
+			// exit
 		} catch (Exception ex) {
 			Logging.logException(ex);
 		}
@@ -2038,19 +2144,18 @@ public class Runtime extends Service {
 				NetworkInterface current = interfaces.nextElement();
 				byte[] mac = current.getHardwareAddress();
 
-				if (mac == null || mac.length == 0){
+				if (mac == null || mac.length == 0) {
 					continue;
 				}
-				
+
 				String m = bytesToHex(mac);
 				log.info(String.format("mac address : %s", m));
 
 				/*
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < mac.length; i++) {
-					sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-				}
-				*/
+				 * StringBuilder sb = new StringBuilder(); for (int i = 0; i <
+				 * mac.length; i++) { sb.append(String.format("%02X%s", mac[i],
+				 * (i < mac.length - 1) ? "-" : "")); }
+				 */
 
 				ret.add(m);
 				log.info("added mac");
@@ -2058,7 +2163,7 @@ public class Runtime extends Service {
 		} catch (Exception e) {
 			Logging.logException(e);
 		}
-		
+
 		log.info("done");
 		return ret;
 	}
@@ -2076,12 +2181,6 @@ public class Runtime extends Service {
 		return Boolean.parseBoolean(b);
 	}
 
-	public Errors test() {
-		// TODO - need method to releaseAll - except runtime - test it
-		// create all services
-
-		return null;
-	}
 
 	/**
 	 * Runtime's setLogLevel will set the root log level if its called from a
@@ -2093,54 +2192,57 @@ public class Runtime extends Service {
 		logging.setLevel(level);
 		return level;
 	}
-	
+
 	public static boolean setJSONPrettyPrinting(boolean b) {
 		return Encoder.setJSONPrettyPrinting(b);
 	}
+	
+	public static void releaseAllServicesExcept(HashSet<String> saveMe){
+		log.info("releaseAllServicesExcept");
+		List<ServiceInterface> list = Runtime.getServices();
+		for (int i = 0; i < list.size(); ++i){
+			ServiceInterface si = list.get(i);
+			if (saveMe != null && saveMe.contains(si.getName())){
+				log.info("leaving {}", si.getName());
+				continue;
+			} else {
+				si.releaseService();
+			}
+		}
+		
+	}
 
 	/*
-	public static String getLocalMacAddress2() {
-		try {
-			log.info("getLocalMacAddress2");
-
-			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-			while (interfaces.hasMoreElements()) {
-				NetworkInterface current = interfaces.nextElement();
-				// log.info(current);
-				if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
-					log.info("skipping interface is down, a loopback or virtual");
-					continue;
-				}
-				Enumeration<InetAddress> addresses = current.getInetAddresses();
-				while (addresses.hasMoreElements()) {
-					InetAddress currentAddress = addresses.nextElement();
-					if (currentAddress.isLoopbackAddress()) {
-						log.info("skipping loopback address");
-						continue;
-					}
-					log.info(currentAddress.getHostAddress());
-
-					NetworkInterface network = NetworkInterface.getByInetAddress(currentAddress);
-
-					byte[] mac = network.getHardwareAddress();
-
-					System.out.print("Current MAC address : ");
-
-					StringBuilder sb = new StringBuilder();
-					for (int i = 0; i < mac.length; i++) {
-						sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-					}
-
-					return sb.toString();
-
-				}
-			}
-		} catch (Exception e) {
-			Logging.logException(e);
-		}
-
-		log.info("not found");
-		return null;
-	}
-*/
+	 * public static String getLocalMacAddress2() { try {
+	 * log.info("getLocalMacAddress2");
+	 * 
+	 * Enumeration<NetworkInterface> interfaces =
+	 * NetworkInterface.getNetworkInterfaces(); while
+	 * (interfaces.hasMoreElements()) { NetworkInterface current =
+	 * interfaces.nextElement(); // log.info(current); if (!current.isUp() ||
+	 * current.isLoopback() || current.isVirtual()) {
+	 * log.info("skipping interface is down, a loopback or virtual"); continue;
+	 * } Enumeration<InetAddress> addresses = current.getInetAddresses(); while
+	 * (addresses.hasMoreElements()) { InetAddress currentAddress =
+	 * addresses.nextElement(); if (currentAddress.isLoopbackAddress()) {
+	 * log.info("skipping loopback address"); continue; }
+	 * log.info(currentAddress.getHostAddress());
+	 * 
+	 * NetworkInterface network =
+	 * NetworkInterface.getByInetAddress(currentAddress);
+	 * 
+	 * byte[] mac = network.getHardwareAddress();
+	 * 
+	 * System.out.print("Current MAC address : ");
+	 * 
+	 * StringBuilder sb = new StringBuilder(); for (int i = 0; i < mac.length;
+	 * i++) { sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ?
+	 * "-" : "")); }
+	 * 
+	 * return sb.toString();
+	 * 
+	 * } } } catch (Exception e) { Logging.logException(e); }
+	 * 
+	 * log.info("not found"); return null; }
+	 */
 }

@@ -175,7 +175,9 @@ public class Module {
 
 		try {
 
-			logByteArray("writeDisplay", data);
+			if(log.isDebugEnabled()){
+				logByteArray("writeDisplay", data);
+			}
 
 			// select display
 			device.write((byte) (selector &= ~MASK_DISPLAY)); // FIXME NOT

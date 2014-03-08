@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
@@ -138,11 +139,23 @@ public class Sphinx extends Service implements SpeechRecognizer {
 		// simplexml = simplexml.replaceAll("resource:/resource/",
 		// cfgDir.replaceAll("\\\\", "/"));
 		simplexml = simplexml.replaceAll("resource:/resource/", ".myrobotlab");
-		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\"" + this.getName() + "\"");
+		
+		// a filename like i01.ear.gram (without the gram extention of course because is sucks this out of the xml"
+		// and re-processes it to be as fragile as possible :P
+		String grammarFileName = getName();
+		grammarFileName = grammarFileName.replaceAll("\\.", "_");
+		if (grammarFileName.contains(".")){
+			grammarFileName = grammarFileName.substring(0,grammarFileName.indexOf("."));
+		}
+		
+		
+		simplexml = simplexml.replaceAll("name=\"grammarName\" value=\"simple\"", "name=\"grammarName\" value=\"" + grammarFileName + "\"");
+		FileIO.stringToFile(String.format("%s%s%s.%s", cfgDir, File.separator, grammarFileName, "xml"), simplexml);
 		save("xml", simplexml);
 
-		String gramdef = "#JSGF V1.0;\n" + "grammar " + getName() + ";\n" + "public <greet> = (" + grammar + ");";
-		save("gram", gramdef);
+		String gramdef = "#JSGF V1.0;\n" + "grammar " + grammarFileName + ";\n" + "public <greet> = (" + grammar + ");";
+		FileIO.stringToFile(String.format("%s%s%s.%s", cfgDir, File.separator, grammarFileName, "gram"), gramdef);
+		//save("gram", gramdef);
 
 		return true;
 	}
@@ -327,7 +340,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 					}
 				}
 			} catch (Exception e) {
-				logException(e);
+				error(e);
 			}
 		}
 

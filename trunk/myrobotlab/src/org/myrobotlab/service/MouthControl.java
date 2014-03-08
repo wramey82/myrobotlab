@@ -13,8 +13,8 @@ public class MouthControl extends Service {
 
 	public final static Logger log = LoggerFactory.getLogger(MouthControl.class.getCanonicalName());
 
-	public int Mouthclose = 20;
-	public int Mouthopen = 4;
+	public int moutClosedPos = 20;
+	public int mouthOpenedPos = 4;
 	public int delaytime = 100;
 	public int delaytimestop = 200;
 	public int delaytimeletter = 60;
@@ -40,10 +40,7 @@ public class MouthControl extends Service {
 
 		jaw.setPin(7);
 		jaw.setController(arduino);
-		
-		if (mouth != null) {
-			mouth.addListener(getName(), "saying");
-		}
+		mouth.addListener(getName(), "saying");
 	}
 
 	public void setdelays(Integer d1, Integer d2, Integer d3) {
@@ -53,17 +50,16 @@ public class MouthControl extends Service {
 	}
 
 	public void setmouth(Integer closed, Integer opened) {
-		Mouthclose = closed;
-		Mouthopen = opened;
+		//jaw.setMinMax(closed, opened);
+		moutClosedPos = closed;
+		mouthOpenedPos = opened;
 	}
 
 	public void startService() {
 		super.startService();
 		jaw.startService();
 		arduino.startService();
-		if (mouth != null) {
-			mouth.startService();
-		}
+		mouth.startService();
 	}
 
 	// FIXME make interface
@@ -115,11 +111,11 @@ public class MouthControl extends Service {
 
 					if ((s == 'a' || s == 'e' || s == 'i' || s == 'o' || s == 'u' || s == 'y') && !ison) {
 
-						jaw.moveTo(Mouthopen); // # move the servo to the
+						jaw.moveTo(mouthOpenedPos); // # move the servo to the
 												// open spot
 						ison = true;
 						sleep(delaytime);
-						jaw.moveTo(Mouthclose);// #// close the servo
+						jaw.moveTo(moutClosedPos);// #// close the servo
 					} else if (s == '.') {
 						ison = false;
 						sleep(delaytimestop);
