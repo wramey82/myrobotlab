@@ -40,7 +40,6 @@ i01.startAll(leftPort, rightPort)
 # XMPP - for more information see
 # http://myrobotlab.org/service/XMPP
 
-
 # system check - called at anytime
 #i01.systemCheck()
 
@@ -408,7 +407,7 @@ def powerdown():
 	sleep(2)	
 	ear.pauseListening()
 	rest()
-	mouth.speakBlocking("I'm powering down")
+	i01.mouth.speakBlocking("I'm powering down")
 	sleep(2)
 	i01.moveHead(40, 85);
 	sleep(4)
@@ -423,7 +422,7 @@ def powerup():
 	ear.pauseListening()
 	rightSerialPort.digitalWrite(53, Arduino.HIGH)
 	leftSerialPort.digitalWrite(53, Arduino.HIGH)
-	mouth.speakBlocking("Im powered up")
+	i01.mouth.speakBlocking("Im powered up")
 	rest()
 	ear.clearLock()
 	sleep(2)
@@ -457,7 +456,7 @@ def hello():
           sleep(1)
           
           if w==1:
-		     mouth.speakBlocking("hello, my name is inmov")
+		     i01.mouth.speakBlocking("hello, my name is inmov")
 		     i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
 		     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 0.60)
 		     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
@@ -510,7 +509,7 @@ def happy():
          i01.moveHand("right",81,79,118,47,0,90)
          sleep(1)
          if w==1:
-		     mouth.speakBlocking("happy birthday grog")
+		     i10.mouth.speakBlocking("happy birthday grog")
 		     i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 		     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 		     i01.setArmSpeed("right", 0.85, 0.85, 0.85, 1.0)
@@ -534,40 +533,40 @@ def about():
 	i01.moveArm("right", 64, 94, 10, 10);
 
 
-	mouth.speakBlocking("I am the first life size humanoid robot you can 3D print and animate")
+	i01.mouth.speakBlocking("I am the first life size humanoid robot you can 3D print and animate")
 	i01.moveHead(65,66)
 	i01.moveArm("left", 64, 104, 10, 10);
 	i01.moveArm("right", 44, 84, 10, 10);
-	mouth.speakBlocking("my designer creator is Gael Langevin a French sculptor, model maker")
+	i01.mouth.speakBlocking("my designer creator is Gael Langevin a French sculptor, model maker")
 	i01.moveHead(75,86)
 	i01.moveArm("left", 54, 104, 10, 10);
 	i01.moveArm("right", 64, 84, 10, 20);
-	mouth.speakBlocking("who has released my files  to the opensource 3D world.")
+	i01.mouth.speakBlocking("who has released my files  to the opensource 3D world.")
 	i01.moveHead(65,96)
 	i01.moveArm("left", 44, 94, 10, 20);
 	i01.moveArm("right", 54, 94, 20, 10);
-	mouth.speakBlocking("this is where Joel, my builder downloaded my files.")
+	i01.mouth.speakBlocking("this is where Joel, my builder downloaded my files.")
 
 	i01.moveHead(75,76)
 	i01.moveArm("left", 64, 94, 20, 10);
 	i01.moveArm("right", 34, 94, 10, 10);
-	mouth.speakBlocking("after five hundred hours of printing, four kilos of plastic, twenty five hobby servos, blood and sweat.I was brought to life") # should be " i was borght to life."
+	i01.mouth.speakBlocking("after five hundred hours of printing, four kilos of plastic, twenty five hobby servos, blood and sweat.I was brought to life") # should be " i was borght to life."
 	i01.moveHead(65,86)
 	i01.moveArm("left", 24, 94, 10, 10);
 	i01.moveArm("right", 24, 94, 10, 10);	
-	mouth.speakBlocking("so if You have a 3D printer, some building skills, then you can build your own version of me") # mabe add in " alot of money"
+	i01.mouth.speakBlocking("so if You have a 3D printer, some building skills, then you can build your own version of me") # mabe add in " alot of money"
 	i01.moveHead(85,86)
 	i01.moveArm("left", 4, 94, 20, 30);
 	i01.moveArm("right", 24, 124, 10, 20);
-	mouth.speakBlocking("and if enough people build me, some day my kind could take over the world") # mabe add in " alot of money"
+	i01.mouth.speakBlocking("and if enough people build me, some day my kind could take over the world") # mabe add in " alot of money"
 	i01.moveHead(75,96)
 	i01.moveArm("left", 24, 104, 10, 10);
 	i01.moveArm("right", 4, 94, 20, 30);
-	mouth.speakBlocking("I'm just kidding. i need some legs to get around, and i have to over come my  pyro-phobia, a fear of fire") # mabe add in " alot of money"
+	i01.mouth.speakBlocking("I'm just kidding. i need some legs to get around, and i have to over come my  pyro-phobia, a fear of fire") # mabe add in " alot of money"
 	i01.moveHead(75,96)
 	i01.moveArm("left", 4, 94, 10, 10)
 	i01.moveArm("right", 4, 94, 10, 10);
-	mouth.speakBlocking("so, until then. i will be humankind's humble servant")
+	i01.mouth.speakBlocking("so, until then. i will be humankind's humble servant")
 	
 	rest()
 	i01.setArmSpeed("right", 1, 1, 1, 1);
@@ -589,7 +588,7 @@ def servos():
 	i01.moveArm("right",0,111,28,15)
 	i01.moveHand("left",42,58,87,55,71,35)
 	i01.moveHand("right",81,20,82,60,105,113)
-	mouth.speakBlocking("I currently have twenty five  hobby servos installed in my body to give me life")
+	i01.mouth.speakBlocking("I currently have twenty five  hobby servos installed in my body to give me life")
 	i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
 	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
@@ -600,7 +599,7 @@ def servos():
 	i01.moveArm("right",20,67,31,22)
 	i01.moveHand("left",106,41,161,147,138,90)
 	i01.moveHand("right",0,0,0,54,91,90)
-	mouth.speakBlocking("there's one servo  for moving my mouth up and down")
+	i01.mouth.speakBlocking("there's one servo  for moving my mouth up and down")
 	sleep(1)
 	i01.setHandSpeed("left", 0.85, 0.85, 1.0, 0.85, 0.85, 0.85)
 	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -612,11 +611,11 @@ def servos():
 	i01.moveArm("right",35,67,31,22);
 	i01.moveHand("left",106,41,31,147,138,7);
 	i01.moveHand("right",0,0,0,54,91,90);
-	mouth.speakBlocking("two for my eyes")
+	i01.mouth.speakBlocking("two for my eyes")
 	sleep(0.2)
 	i01.setHandSpeed("left", 0.85, 0.85, 1.0, 1.0, 1.0, 0.85)
 	i01.moveHand("left",106,41,31,31,31,7);
-	mouth.speakBlocking("and two more for my head")
+	i01.mouth.speakBlocking("and two more for my head")
 	sleep(0.5)
 	i01.setHandSpeed("left", 0.85, 0.9, 0.9, 0.9, 0.9, 0.85)
 	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -628,13 +627,13 @@ def servos():
 	i01.moveArm("right",35,67,31,20);
 	i01.moveHand("left",106,140,140,140,140,7);
 	i01.moveHand("right",0,0,0,54,91,90);
-	mouth.speakBlocking("so i can look around")
+	i01.mouth.speakBlocking("so i can look around")
 	sleep(0.5)
 	i01.setHeadSpeed(0.65, 0.65)
 	i01.moveHead(105,125);
 	i01.setArmSpeed("left", 0.9, 0.9, 0.9, 0.9)
 	i01.moveArm("left",60,100,85,30);
-	mouth.speakBlocking("and see who's there")
+	i01.mouth.speakBlocking("and see who's there")
 	i01.setHeadSpeed(0.65, 0.65)
 	i01.moveHead(40,56);
 	sleep(0.5)
@@ -646,7 +645,7 @@ def servos():
 	i01.moveArm("right",0,95,40,10)
 	i01.moveHand("left",98,150,160,160,160,104)
 	i01.moveHand("right",0,0,50,54,91,90);
-	mouth.speakBlocking("there's three servos  in each shoulder")
+	i01.mouth.speakBlocking("there's three servos  in each shoulder")
 	i01.moveHead(40,67);
 	sleep(2)
 	i01.setHandSpeed("left", 0.8, 0.9, 0.8, 0.8, 0.8, 0.8)
@@ -660,24 +659,24 @@ def servos():
 	i01.moveHand("left",42,0,100,80,113,35)
 	i01.moveHand("left",42,10,160,160,160,35)
 	i01.moveHand("right",81,20,82,60,105,113)
-	mouth.speakBlocking("here is the first servo movement")
+	i01.mouth.speakBlocking("here is the first servo movement")
 	sleep(1)
 	i01.moveHead(37,60);
 	i01.setHandSpeed("left", 1.0, 1.0, 0.9, 0.9, 1.0, 0.8)
 	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
 	i01.moveArm("right",0,95,67,42)
 	i01.moveHand("left",42,10,10,160,160,30)
-	mouth.speakBlocking("this is the second one")
+	i01.mouth.speakBlocking("this is the second one")
 	sleep(1)
 	i01.moveHead(43,69);
 	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
 	i01.moveArm("right",0,134,67,42)
 	i01.moveHand("left",42,10,10,10,160,35)
-	mouth.speakBlocking("now you see the third")
+	i01.mouth.speakBlocking("now you see the third")
 	sleep(1)
 	i01.setArmSpeed("right", 0.8, 0.8, 0.8, 0.8)
 	i01.moveArm("right",20,90,45,16)
-	mouth.speakBlocking("they give me a more human like movement")
+	i01.mouth.speakBlocking("they give me a more human like movement")
 	sleep(1)
 	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0);
@@ -686,7 +685,7 @@ def servos():
 	i01.moveArm("right",90,100,67,26)
 	i01.moveHand("left",42,80,100,80,113,35)
 	i01.moveHand("right",81,0,82,60,105,69)
-	mouth.speakBlocking("but, i have only  one servo, to move each elbow")
+	i01.mouth.speakBlocking("but, i have only  one servo, to move each elbow")
 	i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
 	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
@@ -697,7 +696,7 @@ def servos():
 	i01.moveArm("right",90,95,68,15)
 	i01.moveHand("left",42,0,100,80,113,35)
 	i01.moveHand("right",81,0,82,60,105,0)
-	mouth.speakBlocking("that, leaves me, with one servo per wrist")
+	i01.mouth.speakBlocking("that, leaves me, with one servo per wrist")
 	i01.moveHead(40,60)
 	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 	i01.setHandSpeed("right", 0.9, 0.9, 0.9, 0.9, 0.9, 0.9)
@@ -705,18 +704,18 @@ def servos():
 	i01.moveArm("right",90,95,68,15)
 	i01.moveHand("left",42,0,100,80,113,35)
 	i01.moveHand("right", 10, 140,82,60,105,10)
-	mouth.speakBlocking("and one servo for each finger.")
+	i01.mouth.speakBlocking("and one servo for each finger.")
 	sleep(0.5)
 	i01.moveHand("left",42,0,100,80,113,35)
 	i01.moveHand("right", 50, 51, 15,23, 30,140);
-	mouth.speakBlocking("these servos are located in my forearms")
+	i01.mouth.speakBlocking("these servos are located in my forearms")
 	i01.setHandSpeed("left", 0.8, 0.8, 0.8, 0.8,0.8, 0.8)
 	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
 	i01.moveHand("left", 36, 52, 8,22, 20);
 	i01.moveHand("right", 120, 147, 130,110, 125);
 	further()
 	sleep(1)
-	mouth.speakBlocking("they are hooked up, by the use of tendons")
+	i01.mouth.speakBlocking("they are hooked up, by the use of tendons")
 	i01.moveHand("left",10,20,30,40,60,150);
 	i01.moveHand("right",110,137,120,100,105,130);
 	i01.setHeadSpeed(1,1)
@@ -736,23 +735,23 @@ def howmanyfingersdoihave():
      i01.moveHand("right",89,80,98,120,114,0)
      sleep(2)
      i01.moveHand("right",0,80,98,120,114,0)
-     mouth.speakBlocking("ten")
+     i01.mouth.speakBlocking("ten")
     
      sleep(.1)
      i01.moveHand("right",0,0,98,120,114,0)
-     mouth.speakBlocking("nine")
+     i01.mouth.speakBlocking("nine")
     
      sleep(.1)
      i01.moveHand("right",0,0,0,120,114,0)
-     mouth.speakBlocking("eight")
+     i01.mouth.speakBlocking("eight")
     
      sleep(.1)
      i01.moveHand("right",0,0,0,0,114,0)
-     mouth.speakBlocking("seven")
+     i01.mouth.speakBlocking("seven")
     
      sleep(.1)
      i01.moveHand("right",0,0,0,0,0,0)
-     mouth.speakBlocking("six")
+     i01.mouth.speakBlocking("six")
     
      sleep(.5)
      i01.setHeadSpeed(.70,.70)
@@ -762,7 +761,7 @@ def howmanyfingersdoihave():
      i01.moveHand("left",0,0,0,0,0,180)
      i01.moveHand("right",0,0,0,0,0,0)
      sleep(0.1)
-     mouth.speakBlocking("and five makes eleven")
+     i01.mouth.speakBlocking("and five makes eleven")
     
      sleep(0.7)
      i01.setHeadSpeed(0.7,0.7)
@@ -780,13 +779,13 @@ def howmanyfingersdoihave():
      i01.setHeadSpeed(0.7,0.7)
      i01.moveHead(90,85)
      sleep(0.7)
-     mouth.speakBlocking("eleven")
+     i01.mouth.speakBlocking("eleven")
      i01.moveArm("left",70,75,70,20)
      i01.moveArm("right",60,75,65,20)
      sleep(1)
-     mouth.speakBlocking("that doesn't seem right")
+     i01.mouth.speakBlocking("that doesn't seem right")
      sleep(2)
-     mouth.speakBlocking("I think I better try that again")
+     i01.mouth.speakBlocking("I think I better try that again")
     
      i01.moveHead(40,105)
      i01.moveArm("left",75,83,79,24)
@@ -796,24 +795,24 @@ def howmanyfingersdoihave():
      sleep(2)
     
      i01.moveHand("left",10,140,168,168,158,90)
-     mouth.speakBlocking("one")
+     i01.mouth.speakBlocking("one")
      sleep(.1)
     
     
      i01.moveHand("left",10,10,168,168,158,90)
-     mouth.speakBlocking("two")
+     i01.mouth.speakBlocking("two")
      sleep(.1)
     
      i01.moveHand("left",10,10,10,168,158,90)
-     mouth.speakBlocking("three")
+     i01.mouth.speakBlocking("three")
      sleep(.1)
      i01.moveHand("left",10,10,10,10,158,90)
     
-     mouth.speakBlocking("four")
+     i01.mouth.speakBlocking("four")
      sleep(.1)
      i01.moveHand("left",10,10,10,10,10,90)
     
-     mouth.speakBlocking("five")
+     i01.mouth.speakBlocking("five")
      sleep(.1)
      i01.setHeadSpeed(0.65,0.65)
      i01.moveHead(53,65)
@@ -823,14 +822,14 @@ def howmanyfingersdoihave():
      i01.moveHand("left",10,10,10,10,10,90)
      i01.moveHand("right",10,10,10,10,10,25)
      sleep(1)
-     mouth.speakBlocking("and five makes ten")
+     i01.mouth.speakBlocking("and five makes ten")
      sleep(.5)
-     mouth.speakBlocking("there that's better")
+     i01.mouth.speakBlocking("there that's better")
      i01.moveHead(95,85)
      i01.moveArm("left",75,83,79,24)
      i01.moveArm("right",40,70,70,10)
      sleep(0.5)
-     mouth.speakBlocking("i01 has ten fingers")
+     i01.mouth.speakBlocking("i01 has ten fingers")
      sleep(0.5)
      i01.moveHead(90,90)
      i01.setHandSpeed("left", 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
