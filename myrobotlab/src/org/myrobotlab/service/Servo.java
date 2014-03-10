@@ -82,6 +82,8 @@ public class Servo extends Service implements ServoControl {
 	private float maxY = 180;
 
 	private int rest = 90;
+	
+	private long lastActivityTime = 0;
 
 	/**
 	 * the pin is a necessary part of servo - even though this is really
@@ -111,6 +113,7 @@ public class Servo extends Service implements ServoControl {
 	public Servo(String n) {
 		super(n);
 		load();
+		lastActivityTime = System.currentTimeMillis();
 	}
 
 	public void releaseService() {
@@ -173,6 +176,7 @@ public class Servo extends Service implements ServoControl {
 	 * @see org.myrobotlab.service.interfaces.ServoControl#attach()
 	 */
 	public boolean attach() {
+		lastActivityTime = System.currentTimeMillis();
 		if (isAttached){
 			log.info(String.format("%s.attach() - already attached - detach first", getName()));
 			return false;
@@ -267,6 +271,7 @@ public class Servo extends Service implements ServoControl {
 		// this could be gotten with 100 * outputY for some valid range
 		log.info("servoWrite({})", outputY);
 		controller.servoWrite(getName(), (int)outputY);
+		lastActivityTime = System.currentTimeMillis();
 		this.inputX = inputX;
 	}
 
@@ -317,6 +322,14 @@ public class Servo extends Service implements ServoControl {
 
 	public Float getPosition() {
 		return inputX;
+	}
+	
+	public int getPositionInt() {
+		return Math.round(inputX);
+	}
+
+	public long getLastActivityTime(){
+		return lastActivityTime;
 	}
 
 	@Override

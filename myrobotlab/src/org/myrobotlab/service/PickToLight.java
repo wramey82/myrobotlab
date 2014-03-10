@@ -122,38 +122,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	// FIXME push Task add/remove/repeat into Service
-	class Task extends TimerTask {
-
-		Message msg;
-		int interval = 0;
-
-		public Task(Task s) {
-			this.msg = s.msg;
-			this.interval = s.interval;
-		}
-
-		public Task(int interval, String name, String method) {
-			this(interval, name, method, (Object[]) null);
-		}
-
-		public Task(int interval, String name, String method, Object... data) {
-			this.msg = createMessage(name, method, data);
-			this.interval = interval;
-		}
-
-		@Override
-		public void run() {
-
-			getInbox().add(msg);
-
-			if (interval > 0) {
-				Task t = new Task(this);
-				// clear history list - becomes "new" message
-				t.msg.historyList.clear();
-				timer.schedule(t, interval);
-			}
-		}
-	}
 
 	/**
 	 * Worker is a PickToLight level thread which operates over (potentially)
@@ -876,31 +844,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		log.info(ret);
 		return ret;
 
-	}
-
-	public void purgeAllTasks() {
-		if (timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
-	}
-
-	public void addLocalTask(int interval, String method) {
-		if (timer == null) {
-			timer = new Timer(String.format("%s.timer", getName()));
-		}
-
-		Task task = new Task(interval, getName(), method);
-		timer.schedule(task, 0);
-	}
-
-	public void addLocalTaskWithCallback(int interval, String method) {
-		if (timer == null) {
-			timer = new Timer(String.format("%s.timer", getName()));
-		}
-
-		Task task = new Task(interval, getName(), method);
-		timer.schedule(task, 0);
 	}
 
 	public void pollAll() {
