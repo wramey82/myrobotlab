@@ -149,6 +149,7 @@ public class Speech extends Service {
 	}
 	
 	public void startService(){
+		super.startService();
 		audioFile.startService();
 	}
 

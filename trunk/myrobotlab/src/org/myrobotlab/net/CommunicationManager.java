@@ -89,7 +89,9 @@ public class CommunicationManager implements Serializable, CommunicationInterfac
 		if (sw == null) {
 			log.error(String.format("could not find %s.%s for sender %s - tearing down route", msg.name, msg.method, msg.sender));
 			ServiceInterface sender = Runtime.getService(msg.sender);
-			sender.removeListener(msg.sendingMethod, msg.getName(), msg.method);
+			if (sender != null){
+				sender.removeListener(msg.sendingMethod, msg.getName(), msg.method);
+			}
 			return;
 		}
 		

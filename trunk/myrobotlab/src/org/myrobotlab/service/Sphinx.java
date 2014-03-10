@@ -321,7 +321,7 @@ public class Sphinx extends Service implements SpeechRecognizer {
 									Command cmd = commands.get(resultText);
 									send(cmd.name, cmd.method, cmd.params);
 								} else {
-									error(String.format("unknown use case for Sphinx commands - key is %s", resultText));
+									error(String.format("unknown use case for Sphinx commands - word is %s", resultText));
 								}
 							}
 							
@@ -453,6 +453,10 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 	// TODO - make "Speech" interface if desired
 	public boolean attach(Speech mouth) {
+		if (mouth == null){
+			warn("can not attach mouth is null");
+			return false;
+		}
 		// if I'm speaking - I shouldn't be listening
 		subscribe("isSpeaking", mouth.getName(), "isSpeaking", Boolean.class);
 		// TODO - make config drive whether confirmation is desired

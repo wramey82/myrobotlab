@@ -206,8 +206,8 @@ public class InMoovHead extends Service {
 	}
 
 	public String getScript(String inMoovServiceName) {
-		return String.format("%s.moveHead(%d,%d,%d,%d,%d)\n", inMoovServiceName, neck.getPosition(), rothead.getPosition(), eyeX.getPosition(), eyeY.getPosition(),
-				jaw.getPosition());
+		return String.format("%s.moveHead(%d,%d,%d,%d,%d)\n", inMoovServiceName, neck.getPositionInt(), rothead.getPositionInt(), eyeX.getPositionInt(), eyeY.getPositionInt(),
+				jaw.getPositionInt());
 	}
 
 	public void setpins(int headXPin, int headYPin, int eyeXPin, int eyeYPin, int jawPin) {
@@ -259,6 +259,17 @@ public class InMoovHead extends Service {
 		eyeY.setMinMax(eyeYMin, eyeYMax);
 		jaw.setMinMax(jawMin, jawMax);
 	}
+	
+	public long getLastActivityTime() {
+		long minLastActivity = 0;
+		
+		minLastActivity = (minLastActivity < rothead.getLastActivityTime())?rothead.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < neck.getLastActivityTime())?neck.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < eyeX.getLastActivityTime())?eyeX.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < eyeY.getLastActivityTime())?eyeY.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < jaw.getLastActivityTime())?jaw.getLastActivityTime():minLastActivity;
+		return minLastActivity;
+	}
 
 	// ----- initialization end --------
 	// ----- movements begin -----------
@@ -266,6 +277,18 @@ public class InMoovHead extends Service {
 	@Override
 	public String getDescription() {
 		return "InMoov Head Service";
+	}
+
+	public boolean isAttached() {
+		boolean attached = false;
+		
+		attached |= rothead.isAttached();
+		attached |= neck.isAttached();
+		attached |= eyeX.isAttached();
+		attached |= eyeY.isAttached();
+		attached |= jaw.isAttached();
+		
+		return attached;
 	}
 
 

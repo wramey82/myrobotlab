@@ -56,6 +56,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import org.myrobotlab.fileLib.FileIO;
@@ -137,7 +138,68 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 	private transient ObjectInputStream playback;
 	private transient OutputStream recordingXML;
 	private transient OutputStream recordingPython;
+	
+	// FIXME upgrade to ScheduledExecutorService
+	protected class Task extends TimerTask {
 
+		Message msg;
+		int interval = 0;
+
+		public Task(Task s) {
+			this.msg = s.msg;
+			this.interval = s.interval;
+		}
+
+		public Task(int interval, String name, String method, Object... data) {
+			this.msg = createMessage(name, method, data);
+			this.interval = interval;
+		}
+
+		@Override
+		public void run() {
+
+			getInbox().add(msg);
+
+			if (interval > 0) {
+				Task t = new Task(this);
+				// clear history list - becomes "new" message
+				t.msg.historyList.clear();
+				timer.schedule(t, interval);
+			}
+		}
+	}
+
+	/*
+	public void addLocalTask(int interval, String method) {
+		addLocalTask(interval, method, (Object[])null);
+	}
+	*/
+	/* LAME - cant be purged
+	private void removeLocalTask(String string) {
+		if (timer != null) {
+			timer.
+		}
+		
+	}
+	*/
+	
+	public void addLocalTask(int interval, String method,  Object[]...params) {
+		if (timer == null) {
+			timer = new Timer(String.format("%s.timer", getName()));
+		}
+
+		Task task = new Task(interval, getName(), method, (Object[])params);
+		timer.schedule(task, 0);
+	}
+	
+	public void purgeAllTasks() {
+		if (timer != null) {
+			timer.cancel();
+			timer.purge();
+		}
+	}
+
+	
 	/**
 	 * Short description of the service
 	 */

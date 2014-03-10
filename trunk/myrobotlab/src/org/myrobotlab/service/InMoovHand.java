@@ -270,11 +270,11 @@ public class InMoovHand extends Service {
 	}
 
 	public String getScript(String inMoovServiceName) {
-		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, side, thumb.getPosition(), index.getPosition(), majeure.getPosition(),
-				ringFinger.getPosition(), pinky.getPosition(), wrist.getPosition());
+		return String.format("%s.moveHand(\"%s\",%d,%d,%d,%d,%d,%d)\n", inMoovServiceName, side, thumb.getPositionInt(), index.getPositionInt(), majeure.getPositionInt(),
+				ringFinger.getPositionInt(), pinky.getPositionInt(), wrist.getPositionInt());
 	}
 
-	public void setpins(int thumb, int index, int majeure, int ringFinger, int pinky, int wrist) {
+	public void setPins(int thumb, int index, int majeure, int ringFinger, int pinky, int wrist) {
 		log.info(String.format("setPins %d %d %d %d %d %d", thumb, index, majeure, ringFinger, pinky, wrist));
 		this.thumb.setPin(thumb);
 		this.index.setPin(index);
@@ -355,6 +355,47 @@ public class InMoovHand extends Service {
 
 	public String getSide() {
 		return side;
+	}
+
+	public long getLastActivityTime() {
+		long minLastActivity = 0;
+		
+		minLastActivity = (minLastActivity < thumb.getLastActivityTime())?thumb.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < index.getLastActivityTime())?index.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < majeure.getLastActivityTime())?majeure.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < ringFinger.getLastActivityTime())?ringFinger.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < pinky.getLastActivityTime())?pinky.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < wrist.getLastActivityTime())?wrist.getLastActivityTime():minLastActivity;
+		
+		return minLastActivity;
+
+	}
+
+	public boolean isAttached() {
+		boolean attached = false;
+		attached |= thumb.isAttached();
+		attached |= index.isAttached();
+		attached |= majeure.isAttached();
+		attached |= ringFinger.isAttached();
+		attached |= pinky.isAttached();
+		attached |= wrist.isAttached();
+		return attached;
+	}
+	
+	public void setRest(int thumb, int index, int majeure, int ringFinger, int pinky){
+		setRest(thumb, index, majeure, ringFinger, pinky, null);
+	}
+
+	public void setRest(int thumb, int index, int majeure, int ringFinger, int pinky, Integer wrist) {
+		log.info(String.format("setRest %d %d %d %d %d %d", thumb, index, majeure, ringFinger, pinky, wrist));
+		this.thumb.setRest(thumb);
+		this.index.setRest(index);
+		this.majeure.setRest(majeure);
+		this.ringFinger.setRest(ringFinger);
+		this.pinky.setRest(pinky);
+		if (wrist != null){
+			this.wrist.setRest(wrist);
+		}
 	}
 
 }

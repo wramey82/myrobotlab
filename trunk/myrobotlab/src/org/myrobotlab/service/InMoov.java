@@ -66,6 +66,13 @@ public class InMoov extends Service {
 	// transient public XMPP xmpp;
 	// transient public Security security;
 
+	boolean speakErrors = true;
+	String lastError = "";
+
+	long lastActivityTime;
+
+	int maxInactivityTimeSeconds = 120;
+
 	// static in Java are not overloaded but overwritten - there is no
 	// polymorphism for statics
 	public static Peers getPeers(String name) {
@@ -115,10 +122,8 @@ public class InMoov extends Service {
 		super(n);
 		addRoutes();
 	}
-	
-	boolean speakErrors = true;
-	
-	public boolean speakErrors(boolean b){
+
+	public boolean speakErrors(boolean b) {
 		speakErrors = b;
 		return b;
 	}
@@ -148,10 +153,9 @@ public class InMoov extends Service {
 		subscribe(sw.getName(), "publishError", "handleError");
 	}
 
-	String lastError = "";
 	public void handleError(String msg) {
 		// lets try not to nag
-		if (!lastError.equals(msg) && speakErrors){
+		if (!lastError.equals(msg) && speakErrors) {
 			speakBlocking(msg);
 		}
 		lastError = msg;
@@ -180,31 +184,10 @@ public class InMoov extends Service {
 	// FIXME - voice control for all levels (ie just a hand or head !!!!)
 	public Sphinx startEar() {
 		speakBlocking("starting ear");
-
 		ear = (Sphinx) startPeer("ear");
-		ear.addCommand("rest", getName(), "rest");
-		ear.addCommand("attach", getName(), "attach");
-		ear.addCommand("detach", getName(), "detach");
-		ear.addCommand("open hand", getName(), "bothHandsOpen");
-		ear.addCommand("close hand", getName(), "handClose", "both");
-
-		ear.addCommand("camera on", getName(), "cameraOn");
-		ear.addCommand("off camera", getName(), "cameraOff");
-
-		ear.addCommand("capture gesture", getName(), "captureGesture"); // TODO
-
-		ear.addCommand("track", getName(), "track");
-		ear.addCommand("freeze track", getName(), "stopTracking");
-
-		ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control"); // important
-
-		// ear.addCommand("hello", getName(), "hello");
-		ear.addCommand("hello", "python", "hello"); // wrong
-
-		ear.addComfirmations("yes", "correct", "ya");
-		ear.addNegations("no", "wrong", "nope", "nah");
-
-		// ear.startListening();
+		if (mouth != null){
+			ear.attach(mouth);
+		}
 		return ear;
 	}
 
@@ -282,7 +265,7 @@ public class InMoov extends Service {
 	public InMoovHand startHand(String side, String port, String boardType) {
 		speakBlocking("starting %s hand", side);
 
-		InMoovHand hand = (InMoovHand) createPeer(String.format("%sHand", side));
+		InMoovHand hand = (InMoovHand) startPeer(String.format("%sHand", side));
 		hand.setSide(side);
 		hands.put(side, hand);
 
@@ -313,50 +296,44 @@ public class InMoov extends Service {
 		leftArm = startArm(left, port, type);
 		return leftArm;
 	}
-	
-	String getBoardType(String side, String type){
-		if (type != null){
+
+	String getBoardType(String side, String type) {
+		if (type != null) {
 			return type;
 		}
-		
-		if (right.equals(side)){
+
+		if (right.equals(side)) {
 			return Arduino.BOARD_TYPE_UNO;
 		}
-		
+
 		return Arduino.BOARD_TYPE_ATMEGA2560;
 	}
 
 	public InMoovArm startArm(String side, String port, String boardType) {
 		speakBlocking("starting %s arm", side);
 
-		InMoovArm arm = (InMoovArm) createPeer(String.format("%sArm", side));
+		InMoovArm arm = (InMoovArm) startPeer(String.format("%sArm", side));
 		arms.put(side, arm);
-		arm.setSide(side);//FIXME WHO USES SIDE - THIS SHOULD BE NAME !!!
+		arm.setSide(side);// FIXME WHO USES SIDE - THIS SHOULD BE NAME !!!
 		arm.arduino.setBoard(getBoardType(side, boardType));
 		arm.connect(port);
 
 		speakBlocking("testing %s arm", side);
-		arm.test();	
+		arm.test();
 
 		return arm;
 	}
 
-	public void speakBlocking(Status test) {
-		if (test != null){
-			speakBlocking(test.toString());
-		}
-	}
-
 	public InMoovHead startHead(String port) {
-
-		opencv = (OpenCV) startPeer("opencv");
 		return startHead(port, null);
 	}
 
 	public InMoovHead startHead(String port, String type) {
 		// log.warn(InMoov.buildDNA(myKey, serviceClass))
 		speakBlocking("starting head on %s", port);
-		head = (InMoovHead) createPeer("head");
+
+		opencv = (OpenCV) startPeer("opencv");
+		head = (InMoovHead) startPeer("head");
 
 		if (type == null) {
 			type = Arduino.BOARD_TYPE_ATMEGA2560;
@@ -367,7 +344,7 @@ public class InMoov extends Service {
 
 		speakBlocking("testing head");
 		head.test();
-		
+
 		return head;
 	}
 
@@ -397,9 +374,16 @@ public class InMoov extends Service {
 		return false;
 	}
 
-	boolean speakBlocking(String toSpeak) {
+	public boolean speakBlocking(String toSpeak) {
 		if (mouth != null) {
 			return mouth.speakBlocking(toSpeak);
+		}
+		return false;
+	}
+
+	public boolean speakBlocking(Status test) {
+		if (test != null) {
+			return speakBlocking(test.toString());
 		}
 		return false;
 	}
@@ -488,20 +472,30 @@ public class InMoov extends Service {
 		rest();
 		sleep(500);
 
-		// FIXME !!!! set to mout = speak errors & warnings !!!!
-
 		if (rightHand != null) {
+			speakBlocking("testing right hand");
 			rightHand.test();
 		}
 
-		sleep(500);
-		rest();
+		if (rightArm != null) {
+			speakBlocking("testing right arm");
+			rightArm.test();
+		}
 
-		// check servos
+		if (leftHand != null) {
+			speakBlocking("testing left hand");
+			leftHand.test();
+		}
 
-		// check ear
+		if (leftArm != null) {
+			speakBlocking("testing left arm");
+			leftArm.test();
+		}
 
-		// check mount - all my circuits are functioning perfectly
+		if (head != null) {
+			speakBlocking("testing head");
+			head.test();
+		}
 
 		broadcastState();
 		speakBlocking("system check completed");
@@ -527,249 +521,17 @@ public class InMoov extends Service {
 		if (head != null) {
 			head.broadcastState();
 		}
+
+		if (headTracking != null) {
+			headTracking.broadcastState();
+		}
+
+		if (eyesTracking != null) {
+			eyesTracking.broadcastState();
+		}
 	}
 
 	// ------ composites servos end -----------
-
-	// ---------- canned gestures begin ---------
-	public void bothHandsOpen() {
-		moveHand(left, 0, 0, 0, 0, 0);
-		moveHand(right, 0, 0, 0, 0, 0);
-	}
-
-	public void bothHandsClose() {
-		moveHand(left, 130, 180, 180, 180, 180);
-		moveHand(right, 130, 180, 180, 180, 180);
-	}
-
-	public void delicategrab() {
-		setHandSpeed("left", 0.60f, 0.60f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.75f);
-		moveHead(21, 98);
-		moveArm("left", 30, 72, 77, 10);
-		moveArm("right", 0, 91, 28, 17);
-		moveHand("left", 131, 130, 4, 0, 0, 180);
-		moveHand("right", 86, 51, 133, 162, 153, 180);
-	}
-
-	public void perfect() {
-		setHandSpeed("left", 0.80f, 0.80f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 0.85f, 0.85f, 0.85f, 0.95f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.75f);
-		moveHead(88, 79);
-		moveArm("left", 89, 75, 93, 11);
-		moveArm("right", 0, 91, 28, 17);
-		moveHand("left", 120, 130, 60, 40, 0, 34);
-		moveHand("right", 86, 51, 133, 162, 153, 180);
-	}
-
-	public void releasedelicate() {
-		setHandSpeed("left", 0.60f, 0.60f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 0.75f, 0.75f, 0.75f, 0.95f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.75f);
-		moveHead(20, 98);
-		moveArm("left", 30, 72, 64, 10);
-		moveArm("right", 0, 91, 28, 17);
-		moveHand("left", 101, 74, 66, 58, 44, 180);
-		moveHand("right", 86, 51, 133, 162, 153, 180);
-	}
-
-	public void grabthebottle() {
-		setHandSpeed("left", 1.0f, 0.80f, 0.80f, 0.80f, 1.0f, 0.80f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.90f, 0.80f);
-		moveHead(20, 88);
-		moveArm("left", 77, 85, 45, 15);
-		moveArm("right", 0, 90, 30, 10);
-		moveHand("left", 109, 138, 180, 109, 180, 93);
-		moveHand("right", 0, 0, 0, 0, 0, 90);
-	}
-
-	public void grabtheglass() {
-		setHandSpeed("left", 0.60f, 0.60f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 0.60f, 0.60f, 1.0f, 1.0f, 0.70f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(20, 68);
-		moveArm("left", 77, 85, 45, 15);
-		moveArm("right", 48, 91, 72, 10);
-		moveHand("left", 109, 138, 180, 109, 180, 93);
-		moveHand("right", 140, 95, 100, 105, 143, 90);
-	}
-
-	public void poorbottle() {
-		setHandSpeed("left", 0.60f, 0.60f, 0.60f, 0.60f, 0.60f, 0.60f);
-		setHandSpeed("right", 0.60f, 0.80f, 0.60f, 0.60f, 0.60f, 0.60f);
-		setArmSpeed("left", 0.60f, 0.60f, 0.60f, 0.60f);
-		setArmSpeed("right", 0.60f, 0.60f, 0.60f, 0.60f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(20, 84);
-		moveArm("left", 58, 40, 95, 30);
-		moveArm("right", 68, 74, 43, 10);
-		moveHand("left", 109, 138, 180, 109, 180, 4);
-		moveHand("right", 145, 95, 110, 105, 143, 90);
-	}
-
-	public void givetheglass() {
-		setHandSpeed("left", 0.60f, 0.60f, 0.60f, 0.60f, 0.60f, 0.60f);
-		setHandSpeed("right", 0.60f, 0.80f, 0.60f, 0.60f, 0.60f, 0.60f);
-		setArmSpeed("left", 0.60f, 0.60f, 0.60f, 0.60f);
-		setArmSpeed("right", 0.60f, 0.60f, 0.60f, 0.60f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(47, 79);
-		moveArm("left", 77, 75, 45, 17);
-		moveArm("right", 21, 80, 77, 10);
-		moveHand("left", 109, 138, 180, 109, 180, 93);
-		moveHand("right", 102, 41, 72, 105, 143, 90);
-	}
-
-	public void takeball() {
-		setHandSpeed("right", 0.75f, 0.75f, 0.75f, 0.75f, 0.85f, 0.75f);
-		setArmSpeed("right", 0.85f, 0.85f, 0.85f, 0.85f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(30, 70);
-		moveArm("left", 0, 84, 16, 15);
-		moveArm("right", 6, 73, 76, 16);
-		moveHand("left", 50, 50, 40, 20, 20, 90);
-		moveHand("right", 150, 153, 153, 153, 153, 11);
-	}
-
-	public void keepball() {
-		setHandSpeed("left", 0.65f, 0.65f, 0.65f, 0.65f, 0.65f, 1.0f);
-		setHandSpeed("right", 0.65f, 0.65f, 0.65f, 0.65f, 0.65f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.75f, 0.85f, 0.95f, 0.85f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(20, 70);
-		moveArm("left", 0, 84, 16, 15);
-		moveArm("right", 54, 77, 55, 16);
-		moveHand("left", 50, 65, 80, 46, 74, 90);
-		moveHand("right", 40, 40, 40, 106, 180, 0);
-	}
-
-	public void approachlefthand() {
-		setHandSpeed("right", 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.65f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.25f, 0.25f, 0.25f, 0.25f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(20, 70);
-		moveArm("left", 90, 52, 59, 23);
-		moveArm("right", 54, 77, 55, 16);
-		moveHand("left", 50, 28, 30, 10, 10, 15);
-		moveHand("right", 30, 30, 30, 106, 180, 0);
-	}
-
-	public void uselefthand() {
-		setHandSpeed("right", 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.65f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.25f, 0.25f, 0.25f, 0.25f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(18, 84);
-		moveArm("left", 90, 52, 59, 23);
-		moveArm("right", 60, 64, 55, 16);
-		moveHand("left", 50, 28, 30, 10, 10, 15);
-		moveHand("right", 20, 20, 20, 106, 180, 0);
-	}
-
-	public void more() {
-		setHandSpeed("right", 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.65f);
-		setArmSpeed("left", 0.85f, 0.85f, 0.85f, 0.95f);
-		setArmSpeed("right", 0.75f, 0.65f, 0.65f, 0.65f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(16, 84);
-		moveArm("left", 90, 52, 59, 23);
-		moveArm("right", 65, 56, 59, 16);
-		moveHand("left", 145, 75, 148, 85, 10, 15);
-		moveHand("right", 20, 20, 20, 106, 180, 0);
-	}
-
-	public void handdown() {
-		setHandSpeed("left", 0.75f, 0.75f, 0.75f, 0.75f, 0.75f, 0.75f);
-		setHandSpeed("right", 0.70f, 0.70f, 0.70f, 0.70f, 0.70f, 1.0f);
-		moveHead(16, 84);
-		moveArm("left", 90, 52, 59, 23);
-		moveArm("right", 39, 56, 59, 16);
-		moveHand("left", 145, 75, 148, 85, 10, 15);
-		moveHand("right", 103, 66, 84, 106, 180, 0);
-	}
-
-	public void isitaball() {
-		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.75f, 0.85f, 0.90f, 0.85f);
-		setHeadSpeed(0.65f, 0.75f);
-		moveHead(65, 74);
-		moveArm("left", 70, 64, 87, 15);
-		moveArm("right", 0, 82, 33, 15);
-		moveHand("left", 147, 130, 140, 34, 34, 164);
-		moveHand("right", 20, 40, 40, 30, 30, 80);
-		sleep(2);
-	}
-
-	public void putitdown() {
-		setHandSpeed("left", 0.90f, 0.90f, 0.90f, 0.90f, 0.90f, 0.90f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.75f, 0.85f, 0.95f, 0.85f);
-		setHeadSpeed(0.75f, 0.75f);
-		moveHead(20, 99);
-		moveArm("left", 1, 45, 87, 31);
-		moveArm("right", 0, 82, 33, 15);
-		moveHand("left", 147, 130, 135, 34, 34, 35);
-		moveHand("right", 20, 40, 40, 30, 30, 72);
-		sleep(2);
-	}
-
-	public void dropit() {
-		setHandSpeed("left", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.75f, 0.85f, 1.0f, 0.85f);
-		setHeadSpeed(0.75f, 0.75f);
-		moveHead(20, 99);
-		moveArm("left", 1, 45, 87, 31);
-		moveArm("right", 0, 82, 33, 15);
-		sleep(3);
-		moveHand("left", 60, 61, 67, 34, 34, 35);
-		moveHand("right", 20, 40, 40, 30, 30, 72);
-	}
-
-	public void removeleftarm() {
-		setHandSpeed("left", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.95f, 0.65f, 0.75f, 0.75f);
-		setHeadSpeed(0.75f, 0.75f);
-		moveHead(20, 100);
-		moveArm("left", 71, 94, 41, 31);
-		moveArm("right", 0, 82, 28, 15);
-		moveHand("left", 60, 43, 45, 34, 34, 35);
-		moveHand("right", 20, 40, 40, 30, 30, 72);
-	}
-
-	public void further() {
-		setHandSpeed("left", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setHandSpeed("right", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.95f, 0.65f, 0.75f, 0.75f);
-		setHeadSpeed(0.75f, 0.75f);
-		moveHead(79, 100);
-		moveArm("left", 0, 94, 28, 15);
-		moveArm("right", 0, 82, 28, 15);
-		moveHand("left", 42, 58, 87, 55, 71, 35);
-		moveHand("right", 81, 50, 82, 60, 105, 113);
-	}
 
 	public void openlefthand() {
 		moveHand("left", 0, 0, 0, 0, 0, 0);
@@ -779,58 +541,6 @@ public class InMoov extends Service {
 		moveHand("right", 0, 0, 0, 0, 0, 0);
 	}
 
-	public void surrender() {
-		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.75f, 0.85f, 0.95f, 0.85f);
-		setArmSpeed("left", 0.75f, 0.85f, 0.95f, 0.85f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(90, 90);
-		moveArm("left", 90, 139, 15, 80);
-		moveArm("right", 90, 145, 37, 80);
-		moveHand("left", 50, 28, 30, 10, 10, 76);
-		moveHand("right", 10, 10, 10, 10, 10, 139);
-	}
-
-	public void pictureleftside() {
-		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 0.75f, 0.85f, 0.95f, 0.85f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(109, 90);
-		moveArm("left", 90, 105, 24, 80);
-		moveArm("right", 0, 82, 28, 15);
-		moveHand("left", 50, 86, 97, 74, 106, 119);
-		moveHand("right", 81, 65, 82, 60, 105, 113);
-	}
-
-	public void picturerightside() {
-		setHandSpeed("left", 0.85f, 0.85f, 0.85f, 0.85f, 0.85f, 0.85f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 0.85f, 0.85f, 0.85f, 0.85f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(109, 90);
-		moveArm("left", 0, 94, 28, 15);
-		moveArm("right", 90, 115, 23, 68);
-		moveHand("left", 42, 58, 87, 55, 71, 35);
-		moveHand("right", 10, 112, 95, 91, 125, 45);
-	}
-
-	public void picturebothside() {
-		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
-		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
-		setHeadSpeed(0.65f, 0.65f);
-		moveHead(109, 90);
-		moveArm("left", 90, 105, 24, 80);
-		moveArm("right", 90, 115, 23, 68);
-		moveHand("left", 50, 86, 97, 74, 106, 119);
-		moveHand("right", 10, 112, 95, 91, 125, 45);
-	}
-
 	public void powerdown() {
 		sleep(2);
 		ear.pauseListening();
@@ -838,8 +548,8 @@ public class InMoov extends Service {
 		speakBlocking("I'm powering down");
 		sleep(2);
 		moveHead(40, 85);
-		;
 		sleep(4);
+		detach();
 		// rightA
 		// rightSerialPort.digitalWrite(53, Arduino.LOW);
 		// leftSerialPort.digitalWrite(53, Arduino.LOW);
@@ -863,7 +573,8 @@ public class InMoov extends Service {
 	// ---------- canned gestures end ---------
 
 	public void cameraOn() {
-		if (opencv != null) {
+		if (opencv == null) {
+			opencv = startOpenCV();
 			opencv.capture();
 		}
 	}
@@ -964,11 +675,6 @@ public class InMoov extends Service {
 		}
 	}
 
-	public void shutdown() {
-		speakBlocking("shutting down now");
-		detach();
-	}
-
 	public String captureGesture() {
 		return captureGesture(null);
 	}
@@ -1011,104 +717,130 @@ public class InMoov extends Service {
 		return script.toString();
 	}
 
-	/*
-	 * ------------------------- GETTERS SETTERS END
-	 * -----------------------------
+	public void shutdown() {
+		speakBlocking("shutting down now");
+		detach();
+	}
+
+	public void startAutoDetach(int intervalSeconds) {
+		addLocalTask(intervalSeconds * 1000, "checkForInactivity");
+	}
+
+	/**
+	 * finds most recent activity
+	 * 
+	 * @return
 	 */
+	public long getLastActivityTime() {
+
+		long lastActivityTime = System.currentTimeMillis();
+		long myLastActivity = 0;
+
+		if (leftHand != null) {
+			myLastActivity = leftHand.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+
+		if (leftArm != null) {
+			myLastActivity = leftArm.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+
+		if (rightHand != null) {
+			myLastActivity = rightHand.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+
+		if (rightArm != null) {
+			myLastActivity = rightArm.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+
+		if (head != null) {
+			myLastActivity = head.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+
+		return lastActivityTime;
+
+	}
+
+	public void autoDetachOnInactivity(int maxInactivityTimeSeconds) {
+		this.maxInactivityTimeSeconds = maxInactivityTimeSeconds;
+		speakBlocking("auto detach on %s seconds inactivity is on", this.maxInactivityTimeSeconds);
+		addLocalTask(5 * 1000, "detachOnInactivity");
+	}
+
+	public long detachOnInactivity() {
+		// speakBlocking("checking");
+		long lastActivityTime = getLastActivityTime();
+		long now = System.currentTimeMillis();
+		long inactivitySeconds = (now - lastActivityTime) / 1000;
+		if (inactivitySeconds > maxInactivityTimeSeconds && isAttached()) {
+			speakBlocking("%d seconds have passed without activity. detaching", inactivitySeconds);
+			speakBlocking("goodbye");
+			detach();
+		}
+		return lastActivityTime;
+	}
+
+	public boolean isAttached() {
+		boolean attached = false;
+		if (leftHand != null) {
+			attached |= leftHand.isAttached();
+		}
+
+		if (leftArm != null) {
+			attached |= leftArm.isAttached();
+		}
+
+		if (rightHand != null) {
+			attached |= rightHand.isAttached();
+		}
+
+		if (rightArm != null) {
+			attached |= rightArm.isAttached();
+		}
+
+		if (head != null) {
+			attached |= head.isAttached();
+		}
+		return attached;
+	}
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
 
-		String leftPort = "COM15";
-		
 		String x = "";
 		String b = x + null;
 		if (b != null)
-		log.info(b);
-		
-		
+			log.info(b);
+
 		Runtime.createAndStart("gui", "GUIService");
 		Runtime.createAndStart("python", "Python");
 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
-		Tracking neck = i01.startHeadTracking(leftPort);
-		i01.detach();
-		//neck.startLKTracking();
-		
+		i01.startMouth();
+		i01.autoDetachOnInactivity(120);
+		InMoovHand lefthand = i01.startLeftHand("COM15");
+		i01.leftHand.setRest(10, 10, 10, 10, 10);
+
+		log.info("inactivity {}", i01.detachOnInactivity());
+
+		lefthand.moveTo(5, 10, 30, 40, 50);
+
+		log.info("inactivity {}", i01.detachOnInactivity());
+
+		lefthand.rest();
+
+		log.info("inactivity {}", i01.detachOnInactivity());
+
 		/*
-		InMoovArm leftArm = i01.startLeftArm(leftPort);
-
-		InMoovHead head = i01.startHead(leftPort);
-		Tracking neck = i01.startHeadTracking(leftPort);
-
-		neck.faceDetect();
-		*/
-
-		/*
 		 * 
-		 * log.warn(Runtime.buildDNA("head", "InMoovHead").toString());
-		 * log.warn("----------------------------------------------");
-		 * log.warn(Runtime.buildDNA("i01", "InMoov").toString());
-		 * 
-		 * Runtime.createAndStart("gui", "GUIService");
-		 * 
-		 * InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
-		 * i01.startAll("COM15", "COM12"); i01.shutdown();
-		 * 
-		 * boolean leaveNow = true; if (leaveNow){ return; }
-		 * 
-		 * Runtime.createAndStart("gui", "GUIService");
-		 * Runtime.createAndStart("python", "Python");
-		 * 
-		 * log.warn(Runtime.buildDNA("i01", "InMoov").toString());
-		 * 
-		 * 
-		 * // log.info(Runtime.buildDNA("i01.head", "InMoovHead").toString());
-		 * 
-		 * 
-		 * 
-		 * Tracking eyes = i01.getEyesTracking(); Tracking neck =
-		 * i01.getHeadTracking();
-		 * 
-		 * eyes.faceDetect();
-		 * 
-		 * i01.startRightHand("COM4");
-		 * 
-		 * Runtime.createAndStart("gui", "GUIService");
-		 * 
-		 * i01.addRoutes(); i01.startMouth();
-		 * 
-		 * //i01.getRightArm().getShoulder().setRest(39);
-		 * 
-		 * //head.rothead.moveTo(96); //head.rothead.moveTo(150);
-		 * //head.rothead.moveTo(88);
-		 * 
-		 * Tracking t = i01.getHeadTracking(); t.x.moveTo(30); t.x.moveTo(90);
-		 * t.x.moveTo(150); t.x.moveTo(90); t.x.moveTo(30); t.x.setSpeed(0.2f);
-		 * t.x.moveTo(30); t.x.moveTo(90); t.x.moveTo(150); t.x.moveTo(90);
-		 * t.x.moveTo(30);
-		 * 
-		 * // i01.getHeadTracking().faceDetect();
-		 * 
-		 * // get("eyesTracking");
-		 * 
-		 * 
-		 * 
-		 * InMoovHand hand = i01.startRightHand("COM12"); hand.close();
-		 * hand.moveTo(30, 30, 30, 30, 30); hand.moveTo(40, 40, 40, 40, 40);
-		 * hand.moveTo(60, 60, 60, 60, 60, 60); hand.detach(); hand.moveTo(30,
-		 * 30, 30, 30, 30);
-		 * 
-		 * hand.attach(); hand.moveTo(30, 30, 30, 30, 30); hand.open();
-		 * log.info("here"); Runtime.createAndStart("gui", "GUIService");
-		 * 
-		 * 
-		 * // I2C - needs bus and address (if on BBB or RasPi) .. or Arduino -
-		 * needs // port / bus & address // startRightHand(String port) //
-		 * startRightHand(String bus, String address) // startRightHand(String
-		 * port, String bus, String address)
+		 * Tracking neck = i01.startHeadTracking(leftPort); i01.detach();
 		 */
+
 	}
 
 }

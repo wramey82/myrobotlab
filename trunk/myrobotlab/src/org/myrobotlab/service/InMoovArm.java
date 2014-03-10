@@ -243,7 +243,7 @@ public class InMoovArm extends Service {
 	}
 
 	public String getScript(String inMoovServiceName) {
-		return String.format("%s.moveArm(\"%s\",%d,%d,%d,%d)\n", inMoovServiceName, side, bicep.getPosition(), rotate.getPosition(), shoulder.getPosition(), omoplate.getPosition());
+		return String.format("%s.moveArm(\"%s\",%d,%d,%d,%d)\n", inMoovServiceName, side, bicep.getPositionInt(), rotate.getPositionInt(), shoulder.getPositionInt(), omoplate.getPositionInt());
 	}
 
 	public void moveTo(Integer bicep, Integer rotate, Integer shoulder, Integer omoplate) {
@@ -285,5 +285,26 @@ public class InMoovArm extends Service {
 	
 	public String getSide() {
 		return side;
+	}
+	
+	public long getLastActivityTime() {
+		long minLastActivity = 0;
+		
+		minLastActivity = (minLastActivity < bicep.getLastActivityTime())?bicep.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < rotate.getLastActivityTime())?rotate.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < shoulder.getLastActivityTime())?shoulder.getLastActivityTime():minLastActivity;
+		minLastActivity = (minLastActivity < omoplate.getLastActivityTime())?omoplate.getLastActivityTime():minLastActivity;
+		return minLastActivity;
+	}
+
+	public boolean isAttached() {
+		boolean attached = false;
+		
+		attached |= bicep.isAttached();
+		attached |= rotate.isAttached();
+		attached |= shoulder.isAttached();
+		attached |= omoplate.isAttached();
+		
+		return attached;
 	}
 }
