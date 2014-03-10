@@ -651,7 +651,7 @@ public class InMoov extends Service {
 		if (head != null) {
 			head.moveTo(neck, rothead);
 		} else {
-			log.error("I have a null head");
+			log.error("moveHead - I have a null head");
 		}
 	}
 
@@ -664,14 +664,18 @@ public class InMoov extends Service {
 	}
 
 	public void setHeadSpeed(Float rothead, Float neck) {
-		head.setSpeed(rothead, neck, null, null, null);
+		if (head != null){
+			head.setSpeed(rothead, neck, null, null, null);
+		} else {
+			log.warn("setHeadSpeed - I have no head");
+		}
 	}
 
 	public void moveEyes(Integer eyeX, Integer eyeY) {
 		if (head != null) {
 			head.moveTo(null, null, eyeX, eyeY, null);
 		} else {
-			log.error("I have a null head");
+			log.error("moveEyes - I have a null head");
 		}
 	}
 

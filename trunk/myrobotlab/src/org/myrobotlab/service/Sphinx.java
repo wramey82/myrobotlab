@@ -185,6 +185,8 @@ public class Sphinx extends Service implements SpeechRecognizer {
 
 	public void stopService() {
 		stopListening();
+		microphone.stopRecording();
+		recognizer.deallocate();
 		super.stopService();
 	}
 
