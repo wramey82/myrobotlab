@@ -114,7 +114,7 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Cortex" workingLevel="3">
       <dependsOn>
-      	 <description>general clock and event producer
+      	 <description>visual processing and memory
       	 </description>
          <list>
             <string>org.apache.log4j</string>
@@ -127,7 +127,7 @@
    </serviceType>
    <serviceType string="org.myrobotlab.service.Cron" workingLevel="2">
       <dependsOn>
-      	 <description>general clock and event producer
+      	 <description>general clock and event producer - cron syntax
       	 </description>
          <list>
             <string>org.apache.log4j</string>
