@@ -12,6 +12,7 @@ i01 = Runtime.createAndStart("i01", "InMoov")
 
 # starting parts
 i01.startMouth()
+i01.speakBlocking("Yes master. I am alive")
 #i01.startLeftHand(leftPort)
 #i01.startLeftArm(leftPort)
 i01.startHead(leftPort)
