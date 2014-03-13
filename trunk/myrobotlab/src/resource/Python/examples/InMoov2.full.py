@@ -28,7 +28,7 @@ i01.startAll(leftPort, rightPort)
 #i01.attach()
 
 # auto detaches any attached servos after 120 seconds of inactivity
-#i01.autoDetachOnInactivity(120)
+i01.autoDetachOnInactivity(120)
 
 # purges any "auto" methods
 #i01.purgeAllTasks()
@@ -56,12 +56,16 @@ i01.startAll(leftPort, rightPort)
 # verbal commands
 ear = i01.ear
 
+ear.addCommand("attach", i01.getName(), "attach")
+ear.addCommand("detach", i01.getName(), "detach")
 ear.addCommand("rest", i01.getName(), "rest")
+
 ear.addCommand("open hand", i01.getName(), "handOpen", "both")
 ear.addCommand("close hand", i01.getName(), "handClose", "both")
 ear.addCommand("camera on", i01.getName(), "cameraOn")
 ear.addCommand("off camera", i01.getName(), "cameraOff")
 ear.addCommand("capture gesture", i01.getName(), "captureGesture")
+# FIXME - lk tracking setpoint
 ear.addCommand("track", i01.getName(), "track")
 ear.addCommand("freeze track", i01.getName(), "clearTrackingPoints")
 #ear.addCommand("hello", i01.getName(), "hello")
@@ -74,7 +78,7 @@ ear.addCommand("victory", i01.getName(), "victory")
 ear.addCommand("arms up", i01.getName(), "armsUp")
 ear.addCommand("arms front", i01.getName(), "armsFront")
 ear.addCommand("da vinci", i01.getName(), "daVinci")
- 
+# FIXME -  
 ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
 ear.addCommand("voice control", ear.getName(), "clearLock")
 ear.addCommand("stop listening", ear.getName(), "stopListening")
@@ -406,7 +410,7 @@ def picturebothside():
 def powerdown():
 	sleep(2)	
 	ear.pauseListening()
-	rest()
+	i01.rest()
 	i01.mouth.speakBlocking("I'm powering down")
 	sleep(2)
 	i01.moveHead(40, 85);
@@ -423,7 +427,7 @@ def powerup():
 	rightSerialPort.digitalWrite(53, Arduino.HIGH)
 	leftSerialPort.digitalWrite(53, Arduino.HIGH)
 	i01.mouth.speakBlocking("Im powered up")
-	rest()
+	i01.rest()
 	ear.clearLock()
 	sleep(2)
 	ear.resumeListening()
@@ -568,7 +572,7 @@ def about():
 	i01.moveArm("right", 4, 94, 10, 10);
 	i01.mouth.speakBlocking("so, until then. i will be humankind's humble servant")
 	
-	rest()
+	i01.rest()
 	i01.setArmSpeed("right", 1, 1, 1, 1);
 	i01.setArmSpeed("left", 1, 1, 1, 1);
 	i01.setHeadSpeed(1,1)
