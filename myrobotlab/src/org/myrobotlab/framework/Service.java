@@ -168,20 +168,6 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 			}
 		}
 	}
-
-	/*
-	public void addLocalTask(int interval, String method) {
-		addLocalTask(interval, method, (Object[])null);
-	}
-	*/
-	/* LAME - cant be purged
-	private void removeLocalTask(String string) {
-		if (timer != null) {
-			timer.
-		}
-		
-	}
-	*/
 	
 	public void addLocalTask(int interval, String method,  Object[]...params) {
 		if (timer == null) {

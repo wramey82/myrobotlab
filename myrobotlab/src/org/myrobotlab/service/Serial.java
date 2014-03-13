@@ -46,6 +46,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public static final int PUBLISH_BYTE_ARRAY = 3;
 	public static final int PUBLISH_STRING = 4;
 	public static final int PUBLISH_MESSAGE = 5;
+	public static final int PUBLISH_MRL_MESSAGE = 6;
 
 	public boolean useFixedWidth = false;
 	public int msgWidth = 10;
@@ -65,7 +66,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		buffer = new byte[size];
 	}
 
-//	@Override
+	// @Override
 	public String getDescription() {
 		return "used as a general template";
 	}
@@ -105,8 +106,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 				byte newByte;
 				recievedByteCount = 0;
 				log.info("--------begin---------------");
-				// FIXME available you should stay in the wile loop and read that many !!!!
-				while (serialDevice.isOpen()  && serialDevice.available() > 0){
+				// FIXME available you should stay in the wile loop and read
+				// that many !!!!
+				while (serialDevice.isOpen() && serialDevice.available() > 0) {
 					newByte = (byte) serialDevice.read();
 					++recievedByteCount;
 
@@ -115,8 +117,8 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 							blockingData.add(newByte);
 						} else {
 							warn(String.format("overrun data > %d", BUFFER_SIZE));
-						blockingData.clear();  //clears the buffer 
-                                                }
+							blockingData.clear(); // clears the buffer
+						}
 					}
 
 					if (publish) {
@@ -138,20 +140,18 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 						case PUBLISH_INT: {
 							buffer[recievedByteCount - 1] = newByte;
 							/*
-							if (recievedByteCount % BYTE_SIZE_LONG == 0) {
-								long value = 0;
-								for (int i = 0; i < BYTE_SIZE_LONG; i++) {
-									value = (value << 8) + (buffer[i] & 0xff);
-								}
+							 * if (recievedByteCount % BYTE_SIZE_LONG == 0) {
+							 * long value = 0; for (int i = 0; i <
+							 * BYTE_SIZE_LONG; i++) { value = (value << 8) +
+							 * (buffer[i] & 0xff); }
+							 * 
+							 * invoke("publishInt", value); recievedByteCount =
+							 * 0; }
+							 */
 
-								invoke("publishInt", value);
-								recievedByteCount = 0;
-							}
-							*/
-							
 							int newInt = (newByte & 0xFF);
 							invoke("publishInt", newInt);
-							
+
 							break;
 						}
 
@@ -160,8 +160,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 							log.warn(String.format("%s published byte %d", getName(), newByte));
 							break;
 						}
-                                                    case PUBLISH_STRING: {
-                                                        // here be dragons...
+						
+						case PUBLISH_STRING: {
+							// here be dragons...
 							buffer[recievedByteCount - 1] = newByte;
 							if (recievedByteCount % BYTE_SIZE_LONG == 0) {
 								String value = "";
@@ -174,9 +175,9 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 						}
 					} // if publish
 				}
-				
+
 				log.info("---out of loop----");
-				log.info("cnt {}",recievedByteCount);
+				log.info("cnt {}", recievedByteCount);
 			} catch (IOException e) {
 				Logging.logException(e);
 			}
@@ -242,7 +243,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	// FIXME - block read(until block size)
 
 	public byte publishByte(Byte data) {
-		log.info(String.format("%s published byte %02x", getName(), (int)data.byteValue()));
+		log.info(String.format("%s published byte %02x", getName(), (int) data.byteValue()));
 		return data;
 	}
 
@@ -263,7 +264,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	}
 
 	public String publishString(String data) {
-            return data;
+		return data;
 	}
 
 	/**
@@ -363,17 +364,19 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 	@Override
 	public void write(int data) throws IOException {
-	
-		//log.error("NOT IMPLEMENTED");
-            /*Since the SEAR LIDARsimulator (and other serial stuffs) sends bytes 
-             * stored as Integers this only needs to spit out a byte at a time for SEAR.
-             */
-             
-            serialDevice.write(data);
-		//log.error("NOT IMPLEMENTED");
+
+		// log.error("NOT IMPLEMENTED");
+		/*
+		 * Since the SEAR LIDARsimulator (and other serial stuffs) sends bytes
+		 * stored as Integers this only needs to spit out a byte at a time for
+		 * SEAR.
+		 */
+
+		serialDevice.write(data);
+		// log.error("NOT IMPLEMENTED");
 		// FIXME bit shift send 4 bytes
 	}
-	
+
 	public void write(char[] cs) throws IOException {
 		for (int i = 0; i < cs.length; ++i)
 			write(cs[i]);
@@ -421,9 +424,8 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 	public static void main(String[] args) throws IOException, InterruptedException {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.WARN);
-		
-		
-		//Create two virtual ports for UART and user and null them together:
+
+		// Create two virtual ports for UART and user and null them together:
 		// create 2 virtual ports
 		VirtualSerialPort vp0 = new VirtualSerialPort("/dev/vp0");
 		VirtualSerialPort vp1 = new VirtualSerialPort("/dev/vp1");
@@ -431,107 +433,104 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 		// make null modem cable ;)
 		VirtualSerialPort.makeNullModem(vp0, vp1);
 		/*
-		vp1.tx = vp0.rx;
-		vp1.rx = vp0.tx;
-		vp1.listener 
-		*/
+		 * vp1.tx = vp0.rx; vp1.rx = vp0.tx; vp1.listener
+		 */
 
 		// add virtual ports to the serial device factory
 		SerialDeviceFactory.add(vp0);
 		SerialDeviceFactory.add(vp1);
 
 		// create the UART serial service
-		//log.info("Creating a LIDAR UART Serial service named: " + getName() + "SerialService");
-		//String serialName = getName() + "SerialService";
+		// log.info("Creating a LIDAR UART Serial service named: " + getName() +
+		// "SerialService");
+		// String serialName = getName() + "SerialService";
 		Serial serial0 = new Serial("serial0");
 		serial0.startService();
 		serial0.connect("/dev/vp0");
-		
+
+		Arduino arduino = (Arduino) Runtime.createAndStart("arduino", "Arduino");
+		arduino.connect("/dev/vp1");
+
+		arduino.sendMsg(2, 2, 2);
+
+		Runtime.createAndStart("webgui", "WebGUI");
+
 		// user serial
-		Serial serial1 = new Serial("lidar_serial");
-		serial1.startService();
-		serial1.connect("/dev/vp1");
-		
-		for (int i = 0; i < 1000; ++i)
-		{
-			byte x = (byte)i;
-			serial0.write((byte)x);
-		}
-
-		serial0.write(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21});
-		serial0.write(new byte[]{5,5,5,5,5});
-		serial0.write(new byte[]{6,6,6,6,6});
-		serial0.write(new byte[]{7,7,7,7,7});
-		serial0.write(new byte[]{8,8,8,8,8});
-		serial0.write(new byte[]{9,9,9,9,9});
-		serial0.write(new byte[]{5,5,5,5,5});
-		serial0.write(new byte[]{6,6,6,6,6});
-		serial0.write(new byte[]{7,7,7,7,7});
-		serial0.write(new byte[]{8,8,8,8,8});
-		serial0.write(new byte[]{9,9,9,9,9});
-		
-		serial1.write(new byte[]{10,9,8,7,6,5,4,3,2,1});
-		serial1.write(new byte[]{6,6,6,6,6,6});
-		
-		serial0.write(new byte[]{16});
-		log.info("here");
-		
-/*
-		
-		Serial serial = new Serial("serial");
-		serial.startService();
-		
-		serial.connect("COM16", 9600, 8, 1, 0);
-/*
-		// create 2 virtual ports
-		VirtualSerialPort vp0 = new VirtualSerialPort("/dev/virtualPort0");
-		VirtualSerialPort vp1 = new VirtualSerialPort("/dev/virtualPort1");
-
-		// make null modem cable ;)
-		vp1.tx = vp0.rx;
-		vp1.rx = vp0.tx;
-
-		// add virtual ports to the serial device factory
-		SerialDeviceFactory.add(vp0);
-		SerialDeviceFactory.add(vp1);
-
-		// create two serial services
-		Serial searSerial = new Serial("searSerial");
+		// Serial serial1 = new Serial("lidar_serial");
 		Serial serial1 = new Serial("serial1");
-
-		searSerial.startService();
 		serial1.startService();
 
-		ArrayList<String> portNames = searSerial.getPortNames();
+		// Runtime.createAndStart("gui", "GUIService");
 
-		log.info("listing port names:");
-		for (int i = 0; i < portNames.size(); ++i) {
-			log.info(portNames.get(i));
+		serial1.connect("/dev/vp1");
+
+		for (int i = 0; i < 1000; ++i) {
+			byte x = (byte) i;
+			serial0.write((byte) x);
 		}
 
-		searSerial.connect("/dev/virtualPort0");
-		serial1.connect("/dev/virtualPort1");
+		serial0.write(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+		serial0.write(new byte[] { 5, 5, 5, 5, 5 });
+		serial0.write(new byte[] { 6, 6, 6, 6, 6 });
+		serial0.write(new byte[] { 7, 7, 7, 7, 7 });
+		serial0.write(new byte[] { 8, 8, 8, 8, 8 });
+		serial0.write(new byte[] { 9, 9, 9, 9, 9 });
+		serial0.write(new byte[] { 5, 5, 5, 5, 5 });
+		serial0.write(new byte[] { 6, 6, 6, 6, 6 });
+		serial0.write(new byte[] { 7, 7, 7, 7, 7 });
+		serial0.write(new byte[] { 8, 8, 8, 8, 8 });
+		serial0.write(new byte[] { 9, 9, 9, 9, 9 });
 
-		WebGUI web = new WebGUI("web");
-		web.startService();
+		serial1.write(new byte[] { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 });
+		serial1.write(new byte[] { 6, 6, 6, 6, 6, 6 });
 
-		// user starts initialization sequence
-		log.info("user sends first set of bytes");
-		serial1.write(new byte[] { 13, 117, 100, 58 });
+		serial0.write(new byte[] { 16 });
+		log.info("here");
 
-		// second initialization sequence
-		log.info("user sends second set of bytes");
-		serial1.write(new byte[] { 5, 5, 5, 5 });
-
-		// now the lidar is initialized sear virtual lidar will send
-		// a long sequence of bytes
-		log.info("lidar sending back data");
-		searSerial.write(new byte[] { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 });
 		/*
+		 * 
+		 * Serial serial = new Serial("serial"); serial.startService();
+		 * 
+		 * serial.connect("COM16", 9600, 8, 1, 0); /* // create 2 virtual ports
+		 * VirtualSerialPort vp0 = new VirtualSerialPort("/dev/virtualPort0");
+		 * VirtualSerialPort vp1 = new VirtualSerialPort("/dev/virtualPort1");
+		 * 
+		 * // make null modem cable ;) vp1.tx = vp0.rx; vp1.rx = vp0.tx;
+		 * 
+		 * // add virtual ports to the serial device factory
+		 * SerialDeviceFactory.add(vp0); SerialDeviceFactory.add(vp1);
+		 * 
+		 * // create two serial services Serial searSerial = new
+		 * Serial("searSerial"); Serial serial1 = new Serial("serial1");
+		 * 
+		 * searSerial.startService(); serial1.startService();
+		 * 
+		 * ArrayList<String> portNames = searSerial.getPortNames();
+		 * 
+		 * log.info("listing port names:"); for (int i = 0; i <
+		 * portNames.size(); ++i) { log.info(portNames.get(i)); }
+		 * 
+		 * searSerial.connect("/dev/virtualPort0");
+		 * serial1.connect("/dev/virtualPort1");
+		 * 
+		 * WebGUI web = new WebGUI("web"); web.startService();
+		 * 
+		 * // user starts initialization sequence
+		 * log.info("user sends first set of bytes"); serial1.write(new byte[] {
+		 * 13, 117, 100, 58 });
+		 * 
+		 * // second initialization sequence
+		 * log.info("user sends second set of bytes"); serial1.write(new byte[]
+		 * { 5, 5, 5, 5 });
+		 * 
+		 * // now the lidar is initialized sear virtual lidar will send // a
+		 * long sequence of bytes log.info("lidar sending back data");
+		 * searSerial.write(new byte[] { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+		 * 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+		 * 15 }); /*
 		 * 
 		 * Arduino arduino = new Arduino("arduino"); arduino.startService();
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * 
 		 */
 		/*
 		 * Serial serial = new Serial("serial"); serial.startService();
@@ -546,10 +545,7 @@ public class Serial extends Service implements SerialDeviceService, SerialDevice
 
 		/*
 		 * GUIService gui = new GUIService("gui"); gui.startService();
-		 * 
 		 */
 	}
 
-
-        
 }

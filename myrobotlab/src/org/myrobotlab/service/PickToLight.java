@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.myrobotlab.framework.Message;
+import org.myrobotlab.framework.Encoder;
 import org.myrobotlab.framework.Peers;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.logging.Level;
@@ -100,6 +99,13 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	String mode = "kitting";
 	String messageGoodPick = "GOOD";
+	
+	final public static String soapRegisterTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
+	final public static String soapEventTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:PickToLightEvent><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:EventType>%s</tem:EventType><tem:Data>%s</tem:Data></tem:PickToLightEvent></soapenv:Body></soapenv:Envelope>";
+
+	public final static String ERROR_CONNECTION_REFUSED = "E001";
+	public final static String ERROR_CONNECTION_RESET = "E002";
+	public final static String ERROR_NO_RESPONSE = "E003";
 
 	private int rasPiBus = 1;
 	// FIXME - who will update me ?
@@ -113,6 +119,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	Date lastKitRequestDate;
 	int kitRequestCount;
 	Properties properties = new Properties();
+	private String currentPresentationId;
 
 	public static Peers getPeers(String name) {
 		Peers peers = new Peers(name);
@@ -189,7 +196,22 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 						}
 
 						// poll pause
-						sleep(300);
+						sleep(pollingDelayMs);
+						break;
+						
+					case "learn":
+						log.info("Worker - learn");
+						for (Map.Entry<String, Module> o : modules.entrySet()) {
+							Module m = o.getValue();
+							log.info("sensor {} value {} ", m.getI2CAddress(), m.readSensor());
+							if (m.readSensor() == 1){ // FIXME !!!! BITMASK READ !!! (m.readSensor() == 3
+								blinkOff(m.getI2CAddress());
+								sendEvent("learn", new String[]{currentPresentationId, ""+m.getI2CAddress()});
+							}
+						}
+
+						// poll pause
+						sleep(pollingDelayMs);
 						break;
 
 					case "pollSet":
@@ -652,14 +674,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		getModule(address).blinkOff(msg, blinkNumber, blinkDelay);
 	}
 
-	/*
-	 * public void startWorker(String key) { stopWorker(key); }
-	 * 
-	 * public void stopWorker(String key) { if (workers.containsKey("cycleAll"))
-	 * { if (worker != null) { worker.isWorking = false; worker.interrupt();
-	 * worker = null; } } }
-	 */
-
 	public void autoRefreshI2CDisplay(int seconds) {
 		addLocalTask(seconds * 1000, "refreshI2CDisplay");
 	}
@@ -770,13 +784,6 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		this.mode = mode;
 	}
 
-	final public static String soapRegisterTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
-	final public static String soapEventTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:PickToLightEvent><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:EventType>%s</tem:EventType><tem:Data>%s</tem:Data></tem:PickToLightEvent></soapenv:Body></soapenv:Envelope>";
-
-	public final static String ERROR_CONNECTION_REFUSED = "E001";
-	public final static String ERROR_CONNECTION_RESET = "E002";
-	public final static String ERROR_NO_RESPONSE = "E003";
-
 	public SOAPResponse register() {
 		Controller controller = getController();
 		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress());
@@ -799,7 +806,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	public String sendEvent(String eventType, Object data) {
 		Controller controller = getController();
-		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress());
+		String body = String.format(soapEventTemplate, "name", controller.getMacAddress(), controller.getIpAddress(), eventType, Encoder.gson.toJson(data));
 		return sendSoap("http://tempuri.org/SoapService/PickToLightEvent", body);
 	}
 
@@ -936,6 +943,16 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		this.blinkDelayMs = blinkDelayMs;
 		return blinkDelayMs;
 	}
+	
+	public void learn(String presentationId){
+		log.info(String.format("learn %s", presentationId));
+		stopPolling();
+
+		currentPresentationId = presentationId;
+		pollingWorker = new Worker("learn");
+		pollingWorker.start();
+	}
+	
 	//
 	
 	// ------------ TODO - IMPLEMENT - END ----------------------

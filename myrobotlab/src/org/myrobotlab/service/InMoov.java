@@ -8,6 +8,8 @@ import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.serial.SerialDeviceFactory;
+import org.myrobotlab.serial.VirtualSerialPort;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -207,7 +209,9 @@ public class InMoov extends Service {
 	// very useful in the fact a head subsystem can be tested without starting
 	// all of the peer services of the head
 	public OpenCV startOpenCV() {
-		opencv = (OpenCV) startPeer("opencv");
+		if (opencv != null) {
+			opencv = (OpenCV) startPeer("opencv");
+		}
 		return opencv;
 	}
 
@@ -573,10 +577,8 @@ public class InMoov extends Service {
 	// ---------- canned gestures end ---------
 
 	public void cameraOn() {
-		if (opencv == null) {
-			opencv = startOpenCV();
-			opencv.capture();
-		}
+		startOpenCV();
+		opencv.capture();
 	}
 
 	public void cameraOff() {
@@ -811,15 +813,35 @@ public class InMoov extends Service {
 		}
 		return attached;
 	}
-
+	
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
+		
+		
+		
+		// Create two virtual ports for UART and user and null them together:
+		// create 2 virtual ports
+		VirtualSerialPort vp0 = new VirtualSerialPort("UART15");
+		VirtualSerialPort vp1 = new VirtualSerialPort("COM15");
 
-		String x = "";
-		String b = x + null;
-		if (b != null)
-			log.info(b);
+		// make null modem cable ;)
+		VirtualSerialPort.makeNullModem(vp0, vp1);
+		/*
+		 * vp1.tx = vp0.rx; vp1.rx = vp0.tx; vp1.listener
+		 */
+
+		// add virtual ports to the serial device factory
+		SerialDeviceFactory.add(vp0);
+		SerialDeviceFactory.add(vp1);
+
+		// create the UART serial service
+		// log.info("Creating a LIDAR UART Serial service named: " + getName() +
+		// "SerialService");
+		// String serialName = getName() + "SerialService";
+		Serial serial0 = new Serial("UART15");
+		serial0.startService();
+		serial0.connect("UART15");
 
 		Runtime.createAndStart("gui", "GUIService");
 		Runtime.createAndStart("python", "Python");
