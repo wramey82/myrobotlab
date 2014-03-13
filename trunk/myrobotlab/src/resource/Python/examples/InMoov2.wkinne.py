@@ -55,6 +55,7 @@ i01.autoDetachOnInactivity(120)
 # i01.systemCheck()
  
 # verbal commands
+i01.startEar()
 ear = i01.ear
 
 ear.addCommand("attach", i01.getName(), "attach")
