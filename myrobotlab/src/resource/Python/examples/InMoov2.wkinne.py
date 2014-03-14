@@ -11,11 +11,18 @@ i01 = Runtime.createAndStart("i01", "InMoov")
 #i01.startAll(leftPort, rightPort)
 
 # starting parts
+
 i01.startMouth()
+i01.startHead(leftPort)
 i01.speakBlocking("Yes master. I am alive")
+i01.startMouthControl(leftPort)	
+i01.head.jaw.setMinMax(50, 120)
+i01.head.jaw.setRest(55)
+i01.mouthControl.setmouth(40, 110)
+
 #i01.startLeftHand(leftPort)
 #i01.startLeftArm(leftPort)
-i01.startHead(leftPort)
+
 # starting part with a reference, with a reference
 # you can interact further
 #opencv = i01.startOpenCV()
