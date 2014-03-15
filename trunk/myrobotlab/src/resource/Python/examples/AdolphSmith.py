@@ -5,19 +5,15 @@ mouth = Runtime.createAndStart("mouth","Speech")
 mouth.speakBlocking("Hello. I have powered up")
 mouth.speakBlocking("And now I will start a Tracking service")
 
-port = "COM15"
-xServoPin = 13
-yServoPin = 12
-
 tracker = Runtime.createAndStart("tracker", "Tracking")
 
 # set specifics on each Servo
 servoX = tracker.getX()
-servoX.setPin(xServoPin)
+servoX.setPin(6)
 servoX.setMinMax(30, 150)
 
 servoY = tracker.getY()
-servoY.setPin(yServoPin)
+servoY.setPin(13)
 servoY.setMinMax(30, 150)
 
 # optional filter settings
@@ -27,7 +23,7 @@ opencv = tracker.getOpenCV()
 opencv.setCameraIndex(1) 
 
 # connect to the Arduino
-tracker.connect(port)
+tracker.connect("COM10")
 
 # Gray & PyramidDown make face tracking
 # faster - if you dont like these filters - you
