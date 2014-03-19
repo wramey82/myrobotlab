@@ -7,6 +7,13 @@ mouth.speakBlocking("And now I will start a Tracking service")
 
 tracker = Runtime.createAndStart("tracker", "Tracking")
 
+mouthControl = Runtime.createAndStart("mouthControl","MouthControl")
+mouthControl.connect("COM10")
+mouthControl.jaw.detach()
+mouthControl.jaw.setPin(5)
+mouthControl.jaw.attach()
+mouthControl.mouth.speak("hello. i am testing mouth control. does it work. i dont know")
+
 # set specifics on each Servo
 servoX = tracker.getX()
 servoX.setPin(6)
