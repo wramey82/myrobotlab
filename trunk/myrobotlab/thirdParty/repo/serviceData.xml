@@ -102,6 +102,17 @@
          </list>
       </dependsOn>
    </serviceType>
+   <serviceType string="org.myrobotlab.service.CleverBot" workingLevel="3">
+         <dependsOn>
+         	 <description>interface to CleverBot JaberWacky and PandoraBots
+         	 </description>
+            <list>
+               <string>org.apache.log4j</string>
+               <string>org.simpleframework.xml</string>
+               <string>com.googlecode.chatterbot</string>
+            </list>
+         </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Clock" workingLevel="3">
       <dependsOn>
       	 <description>general clock and event producer
