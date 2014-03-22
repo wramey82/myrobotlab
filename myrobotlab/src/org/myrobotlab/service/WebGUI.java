@@ -86,6 +86,11 @@ public class WebGUI extends Service {
 	public Integer getPort() {
 		return port;
 	}
+	
+	public Integer setPort(Integer port){
+		this.port = port;
+		return port;
+	}
 
 	/**
 	 * determines if references to JQuery JavaScript library are local or if the

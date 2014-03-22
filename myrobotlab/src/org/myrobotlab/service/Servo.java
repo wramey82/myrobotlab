@@ -307,17 +307,17 @@ public class Servo extends Service implements ServoControl {
 	}
 	
 	public void setMinMax(float min, float max){
-		minY = min;
-		maxY = max;
+		outputYMin = min;
+		outputYMax = max;
 		broadcastState();
 	}
 
 	public Integer getMin() {
-		return (int) minY;
+		return (int) outputYMin;
 	}
 
 	public Integer getMax() {
-		return (int) maxY;
+		return (int) outputYMax;
 	}
 
 	public Float getPosition() {

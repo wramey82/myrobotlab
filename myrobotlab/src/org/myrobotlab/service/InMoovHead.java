@@ -100,7 +100,10 @@ public class InMoovHead extends Service {
 		}
 
 		attach();
+		setSpeed(0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
 		rest();
+		sleep(1000);
+		setSpeed(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		broadcastState();
 		return true;
 	}

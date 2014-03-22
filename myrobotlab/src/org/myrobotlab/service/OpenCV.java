@@ -63,9 +63,7 @@ import javax.imageio.ImageIO;
 
 import org.myrobotlab.fileLib.FileIO;
 import org.myrobotlab.framework.Error;
-import org.myrobotlab.framework.Errors;
 import org.myrobotlab.framework.Service;
-import org.myrobotlab.framework.Status;
 import org.myrobotlab.image.ColoredPoint;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.Level;
@@ -77,6 +75,7 @@ import org.myrobotlab.opencv.OpenCVData;
 import org.myrobotlab.opencv.OpenCVFilter;
 import org.myrobotlab.opencv.OpenCVFilterAnd;
 import org.myrobotlab.opencv.OpenCVFilterFaceDetect;
+import org.myrobotlab.opencv.OpenCVFilterLKOpticalTrack;
 import org.myrobotlab.opencv.VideoProcessor;
 import org.myrobotlab.reflection.Instantiator;
 import org.myrobotlab.service.data.Point2Df;
@@ -816,7 +815,12 @@ public class OpenCV extends VideoSource {
 		OpenCV opencv = (OpenCV) Runtime.createAndStart("opencv", "OpenCV");
 		Runtime.createAndStart("gui", "GUIService");
 		
-		opencv.test();
+		opencv.capture();
+		
+		OpenCVFilterLKOpticalTrack jj = new OpenCVFilterLKOpticalTrack("lk");
+		opencv.addFilter(jj);
+		
+		//opencv.test();
 		
 		boolean leaveNow = true;
 		if (leaveNow) return;
