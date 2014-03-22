@@ -34,6 +34,8 @@ public class SOAP {
 
 	// http://www.soapclient.com/soaptest.html
 	// http://publib.boulder.ibm.com/infocenter/iseries/v5r4/index.jsp?topic=%2Frzatz%2F51%2Fwebserv%2Fwsdevmap.htm
+	
+	
 
 	public final static Logger log = LoggerFactory.getLogger(Clock.class.getCanonicalName());
 

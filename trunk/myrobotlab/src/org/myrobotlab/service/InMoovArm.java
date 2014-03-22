@@ -130,7 +130,10 @@ public class InMoovArm extends Service {
 		}
 
 		attach();
+		setSpeed(0.7f, 0.7f, 0.7f, 0.7f);
 		rest();
+		sleep(4000);
+		setSpeed(1.0f, 1.0f, 1.0f, 1.0f);
 		broadcastState();
 		return true;
 	}

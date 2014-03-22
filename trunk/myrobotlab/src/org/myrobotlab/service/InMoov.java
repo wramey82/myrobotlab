@@ -49,9 +49,6 @@ public class InMoov extends Service {
 	transient public InMoovArm rightArm;
 	transient public InMoovHand rightHand;
 
-	public final String left = "left";
-	public final String right = "right";
-
 	transient private HashMap<String, InMoovArm> arms = new HashMap<String, InMoovArm>();
 	transient private HashMap<String, InMoovHand> hands = new HashMap<String, InMoovHand>();
 
@@ -62,6 +59,9 @@ public class InMoov extends Service {
 	transient public Tracking headTracking;
 	transient public OpenCV opencv;
 	transient public MouthControl mouthControl;
+
+	transient public final static String LEFT = "left";
+	transient public final static String RIGHT = "right";
 
 	// reflective or non-interactive peers
 	// transient public WebGUI webgui;
@@ -122,7 +122,8 @@ public class InMoov extends Service {
 
 	public InMoov(String n) {
 		super(n);
-		addRoutes();
+		//addRoutes();
+		// FIXME - mebbe starts with same error - don't say it again unless a certain time has passed
 	}
 
 	public boolean speakErrors(boolean b) {
@@ -241,10 +242,18 @@ public class InMoov extends Service {
 	}
 
 	public MouthControl startMouthControl(String port) {
-		mouthControl = (MouthControl) startPeer("mouthControl");
-		mouthControl.jaw.setPin(26);
-		mouthControl.arduino.connect(port);
-		mouthControl.setmouth(10, 50);
+		speakBlocking("starting mouth control");
+		if (mouthControl == null){
+			
+			if (head == null) {
+				startHead(port);
+			}
+			
+			mouthControl = (MouthControl) startPeer("mouthControl");
+			mouthControl.jaw.setPin(26);
+			mouthControl.arduino.connect(port);
+			mouthControl.setmouth(10, 50);
+		}
 		return mouthControl;
 	}
 
@@ -253,7 +262,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovHand startRightHand(String port, String type) {
-		rightHand = startHand(right, port, type);
+		rightHand = startHand(RIGHT, port, type);
 		return rightHand;
 	}
 
@@ -262,7 +271,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovHand startLeftHand(String port, String type) {
-		leftHand = startHand(left, port, type);
+		leftHand = startHand(LEFT, port, type);
 		return leftHand;
 	}
 
@@ -272,14 +281,9 @@ public class InMoov extends Service {
 		InMoovHand hand = (InMoovHand) startPeer(String.format("%sHand", side));
 		hand.setSide(side);
 		hands.put(side, hand);
-
 		hand.arduino.setBoard(getBoardType(side, boardType));
-
 		hand.connect(port);
-
-		speakBlocking("testing %s hand", side);
-		hand.test();
-
+		
 		return hand;
 	}
 
@@ -288,7 +292,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovArm startRightArm(String port, String type) {
-		rightArm = startArm(right, port, type);
+		rightArm = startArm(RIGHT, port, type);
 		return rightArm;
 	}
 
@@ -297,7 +301,7 @@ public class InMoov extends Service {
 	}
 
 	public InMoovArm startLeftArm(String port, String type) {
-		leftArm = startArm(left, port, type);
+		leftArm = startArm(LEFT, port, type);
 		return leftArm;
 	}
 
@@ -306,7 +310,7 @@ public class InMoov extends Service {
 			return type;
 		}
 
-		if (right.equals(side)) {
+		if (RIGHT.equals(side)) {
 			return Arduino.BOARD_TYPE_UNO;
 		}
 
@@ -321,10 +325,7 @@ public class InMoov extends Service {
 		arm.setSide(side);// FIXME WHO USES SIDE - THIS SHOULD BE NAME !!!
 		arm.arduino.setBoard(getBoardType(side, boardType));
 		arm.connect(port);
-
-		speakBlocking("testing %s arm", side);
-		arm.test();
-
+		
 		return arm;
 	}
 
@@ -345,9 +346,6 @@ public class InMoov extends Service {
 
 		head.arduino.setBoard(type);
 		head.connect(port);
-
-		speakBlocking("testing head");
-		head.test();
 
 		return head;
 	}
@@ -455,15 +453,19 @@ public class InMoov extends Service {
 			head.attach();
 		}
 		if (rightHand != null) {
+			sleep(100);
 			rightHand.attach();
 		}
 		if (leftHand != null) {
+			sleep(100);
 			leftHand.attach();
 		}
 		if (rightArm != null) {
+			sleep(100);
 			rightArm.attach();
 		}
 		if (leftArm != null) {
+			sleep(100);
 			leftArm.attach();
 		}
 	}

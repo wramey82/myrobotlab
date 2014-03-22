@@ -113,7 +113,10 @@ public class InMoovHand extends Service {
 		}
 
 		attach();
+		setSpeed(0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
 		rest();
+		sleep(2000);
+		setSpeed(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		broadcastState();
 		return true;
 	}
@@ -396,6 +399,14 @@ public class InMoovHand extends Service {
 		if (wrist != null){
 			this.wrist.setRest(wrist);
 		}
+	}
+	
+	public void map(int minX, int maxX, int minY, int maxY){
+		thumb.map(minX, maxX, minY, maxY);
+		index.map(minX, maxX, minY, maxY);
+		majeure.map(minX, maxX, minY, maxY);
+		ringFinger.map(minX, maxX, minY, maxY);
+		pinky.map(minX, maxX, minY, maxY);
 	}
 
 }

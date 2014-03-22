@@ -58,9 +58,9 @@ import com.pi4j.io.i2c.I2CFactory;
 // update uri
 // blinkOff
 
-
 // TODO - automated registration
 // Polling / Sensor - important - check sensor state
+// FIXME - EROR is not being handled in non IP address & no connectivity !!!!
 
 // - read config in /boot/  - registration url including password - proxy ? 
 
@@ -78,11 +78,11 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	transient public RasPi raspi;
 	transient public WebGUI webgui;
-	
+
 	transient public Worker cycleWorker;
 	transient public Worker pollingWorker;
 	transient public Worker blinkWorker;
-	
+
 	int cycleDelayMs = 300;
 	int pollingDelayMs = 150;
 	int blinkDelayMs = 150;
@@ -99,8 +99,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	String mode = "kitting";
 	String messageGoodPick = "GOOD";
-	
-	final public static String soapRegisterTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses></tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
+
+	final public static String soapRegisterTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:a=\"http://schemas.microsoft.com/2003/10/Serialization/Arrays\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:RegisterController><tem:Name>%s</tem:Name><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:I2CAddresses>%s</tem:I2CAddresses></tem:RegisterController></soapenv:Body></soapenv:Envelope>";
 	final public static String soapEventTemplate = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:PickToLightEvent><tem:MACAddress>%s</tem:MACAddress><tem:IPAddress>%s</tem:IPAddress><tem:EventType>%s</tem:EventType><tem:Data>%s</tem:Data></tem:PickToLightEvent></soapenv:Body></soapenv:Envelope>";
 
 	public final static String ERROR_CONNECTION_REFUSED = "E001";
@@ -157,11 +157,11 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					++counter;
 
 					switch (task) {
-					
+
 					case "blinkAll":
 						for (Map.Entry<String, Module> o : modules.entrySet()) {
 							Module m = o.getValue();
-							if (counter%2 == 0){
+							if (counter % 2 == 0) {
 								m.ledOn();
 							} else {
 								m.ledOff();
@@ -175,12 +175,12 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					case "blinkCycle":
 						for (Map.Entry<String, Module> o : modules.entrySet()) {
 							Module m = o.getValue();
-							//if (counter%2 == 0){
-								m.ledOn();
-							//} else {
-								sleep(blinkDelayMs);
-								m.ledOff();
-							//}
+							// if (counter%2 == 0){
+							m.ledOn();
+							// } else {
+							sleep(blinkDelayMs);
+							m.ledOff();
+							// }
 						}
 
 						// poll pause
@@ -198,15 +198,17 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 						// poll pause
 						sleep(pollingDelayMs);
 						break;
-						
+
 					case "learn":
 						log.info("Worker - learn");
 						for (Map.Entry<String, Module> o : modules.entrySet()) {
 							Module m = o.getValue();
 							log.info("sensor {} value {} ", m.getI2CAddress(), m.readSensor());
-							if (m.readSensor() == 1){ // FIXME !!!! BITMASK READ !!! (m.readSensor() == 3
+							if (m.readSensor() == 1) { // FIXME !!!! BITMASK
+														// READ !!!
+														// (m.readSensor() == 3
 								blinkOff(m.getI2CAddress());
-								sendEvent("learn", new String[]{currentPresentationId, ""+m.getI2CAddress()});
+								sendEvent("learn", new String[] { currentPresentationId, "" + m.getI2CAddress() });
 							}
 						}
 
@@ -217,15 +219,22 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 					case "pollSet":
 						log.info("Worker - pollSet");
 						ArrayList<Module> list = ((ModuleList) data[0]).list;
-						
+
 						Iterator<Module> iter = list.iterator();
 						while (iter.hasNext()) {
 							Module m = iter.next();
 							log.info("sensor {} value {} ", m.getI2CAddress(), m.readSensor());
-							if (m.readSensor() == 1){ // FIXME !!!! BITMASK READ !!! (m.readSensor() == 3
+							if (m.readSensor() == 1) { // FIXME !!!! BITMASK
+														// READ !!!
+														// (m.readSensor() == 3
 								blinkOff(m.getI2CAddress());
 								iter.remove();
 							}
+						}
+						
+						if (list.size() == 0){
+							stopPolling();
+							clearAll();
 						}
 
 						// poll pause
@@ -233,21 +242,21 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 						break;
 
 					case "cycleAll":
-						
+
 						log.info("Worker - cycleAll");
 						String msg = ("    " + (String) data[0] + "    ");
-						
+
 						// start with scroll on page
-						for (int i = 0; i < msg.length() - 3; ++i) {				
+						for (int i = 0; i < msg.length() - 3; ++i) {
 							for (Map.Entry<String, Module> o : modules.entrySet()) {
 								Module m = o.getValue();
 								m.display(msg.substring(i, i + 4));
 							}
 							sleep(cycleDelayMs);
 						}
-						
+
 						sleep(cycleDelayMs); // so 0 length msgs don't peg cpu
-						
+
 						break;
 
 					default:
@@ -497,7 +506,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		raspi.startService();
 		webgui.startService();
 		createModules();
-		
+
 		systemCheck();
 		autoRegister(1800);
 	}
@@ -661,8 +670,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	public void blinkOn(Integer address, String msg, int blinkNumber, int blinkDelay) {
 		getModule(address).blinkOn(msg, blinkNumber, blinkDelay);
 	}
-	
-	public void blinkOff(Integer address){
+
+	public void blinkOff(Integer address) {
 		blinkOff(address, null);
 	}
 
@@ -723,14 +732,14 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 				m.display(mr.quantity);
 				m.ledOn();
-				
+
 				pollingList.list.add(m);
 
 			} else {
 				error("could not find i2c address %d for vin %s kitId %s", mr.i2c, kit.vin, kit.kitId);
 			}
 		}
-		
+
 		pollSet(pollingList);
 
 		return kit;
@@ -786,7 +795,14 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 
 	public SOAPResponse register() {
 		Controller controller = getController();
-		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress());
+		StringBuffer sb = new StringBuffer();
+
+		for (Map.Entry<String, Module> o : modules.entrySet()) {
+			Module m = o.getValue();
+			sb.append(String.format("<a:string>%s</a:string>", m.getI2CAddress()));
+		}
+
+		String body = String.format(soapRegisterTemplate, "name", controller.getMacAddress(), controller.getIpAddress(), sb.toString());
 		String soapResponse = sendSoap("http://tempuri.org/SoapService/RegisterController", body);
 
 		SOAPResponse ret = new SOAPResponse();
@@ -811,6 +827,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public String sendSoap(String soapAction, String soapEnv) {
+		log.info(String.format("sendSoap - action %s [%s]", soapAction, soapEnv));
 		String mesEndpoint = properties.getProperty("mes.endpoint");
 		String mesUser = properties.getProperty("mes.user");
 		String mesDomain = properties.getProperty("mes.domain");
@@ -860,7 +877,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		pollingWorker = new Worker("pollAll");
 		pollingWorker.start();
 	}
-	
+
 	public void pollSet(ModuleList moduleList) {
 		log.info("pollSet");
 		stopPolling();
@@ -876,7 +893,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 			pollingWorker = null;
 		}
 	}
-	
+
 	public void cycleAll(String msg) {
 		log.info("cycleAll");
 		cycleAllStop();
@@ -886,31 +903,31 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 	}
 
 	public void cycleAllStop() {
-		if (cycleWorker != null){
+		if (cycleWorker != null) {
 			cycleWorker.interrupt();
 			cycleWorker.isWorking = false;
 			cycleWorker = null;
 		}
 	}
-	
+
 	public void blinkAllOn() {
 		log.info("blinkAllOn");
 		blinkStop();
-		
+
 		blinkWorker = new Worker("blinkAll");
 		blinkWorker.start();
 	}
-	
+
 	public void blinkCycle() {
 		log.info("blinkAllOn");
 		blinkStop();
-		
+
 		blinkWorker = new Worker("blinkCycle");
 		blinkWorker.start();
 	}
-	
-	public void blinkStop(){
-		if (blinkWorker != null){
+
+	public void blinkStop() {
+		if (blinkWorker != null) {
 			blinkWorker.interrupt();
 			blinkWorker.isWorking = false;
 			blinkWorker = null;
@@ -934,7 +951,7 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		this.pollingDelayMs = pollingDelayMs;
 		return pollingDelayMs;
 	}
-	
+
 	public int getBlinkDelayMs() {
 		return blinkDelayMs;
 	}
@@ -943,8 +960,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		this.blinkDelayMs = blinkDelayMs;
 		return blinkDelayMs;
 	}
-	
-	public void learn(String presentationId){
+
+	public void learn(String presentationId) {
 		log.info(String.format("learn %s", presentationId));
 		stopPolling();
 
@@ -952,16 +969,14 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		pollingWorker = new Worker("learn");
 		pollingWorker.start();
 	}
-	
-	//
-	
+
 	// ------------ TODO - IMPLEMENT - END ----------------------
 
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.DEBUG);
-		
-		//Runtime.getStartInfo();
+
+		// Runtime.getStartInfo();
 
 		PickToLight pick = new PickToLight("pick.1");
 		pick.startService();
