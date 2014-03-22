@@ -1,9 +1,11 @@
-headPort = "COM4"
+leftPort = "COM7"
+headPort = "COM7"
 
 i01 = Runtime.createAndStart("i01", "InMoov")
-head = i01.startHead(headPort)
-neck = i01.getHeadTracking()
-neck.faceDetect()
+i01.startHead(leftPort)
+i01.startHeadTracking(leftPort)
+i01.startEyesTracking(leftPort)
 
-eyes = i01.getEyesTracking()
-eyes.faceDetect()
+i01.headTracking.faceDetect()
+i01.eyesTracking.faceDetect()
+i01.headTracking.pyramidDown()
