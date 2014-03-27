@@ -1,4 +1,4 @@
-port = "COM4"
+port = "COM5"
 
 i01 = Runtime.createAndStart("i01", "InMoov")
 mouth = i01.startMouth()
