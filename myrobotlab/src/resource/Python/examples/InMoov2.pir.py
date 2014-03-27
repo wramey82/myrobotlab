@@ -6,6 +6,7 @@ head = i01.startHead(port)
 arduino = head.arduino
 arduino.addListener("publishPin", python.getName(), "input")
 arduino.setSampleRate(8000)
+arduino.digitalReadPollStart(12)
 head.setSpeed(0.5, 0.5, 0.5, 0.5, 0.5)
 
 def input():
