@@ -51,11 +51,11 @@ public class InMoovHand extends Service {
 		wrist = (Servo) createPeer("wrist");
 		arduino = (Arduino) createPeer("arduino");
 
-		thumb.setRest(0);
-		index.setRest(0);
-		majeure.setRest(0);
-		ringFinger.setRest(0);
-		pinky.setRest(0);
+		thumb.setRest(2);
+		index.setRest(2);
+		majeure.setRest(2);
+		ringFinger.setRest(2);
+		pinky.setRest(2);
 		wrist.setRest(90);
 
 		// connection details
@@ -128,11 +128,17 @@ public class InMoovHand extends Service {
 	 * @return
 	 */
 	public boolean attach() {
+		sleep(InMoov.attachPauseMs);
 		thumb.attach();
+		sleep(InMoov.attachPauseMs);
 		index.attach();
+		sleep(InMoov.attachPauseMs);
 		majeure.attach();
+		sleep(InMoov.attachPauseMs);
 		ringFinger.attach();
+		sleep(InMoov.attachPauseMs);
 		pinky.attach();
+		sleep(InMoov.attachPauseMs);
 		wrist.attach();
 		return true;
 	}
@@ -184,17 +190,16 @@ public class InMoovHand extends Service {
 
 	public void detach() {
 		thumb.detach();
-		// sleep(InMoov.MSG_DELAY);
+		sleep(InMoov.attachPauseMs);
 		index.detach();
-		// sleep(InMoov.MSG_DELAY);
+		sleep(InMoov.attachPauseMs);
 		majeure.detach();
-		// sleep(InMoov.MSG_DELAY);
+		sleep(InMoov.attachPauseMs);
 		ringFinger.detach();
-		// sleep(InMoov.MSG_DELAY);
+		sleep(InMoov.attachPauseMs);
 		pinky.detach();
-		// sleep(InMoov.MSG_DELAY);
+		sleep(InMoov.attachPauseMs);
 		wrist.detach();
-		// sleep(InMoov.MSG_DELAY);
 	}
 
 	public void release() {

@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 
 import org.myrobotlab.logging.Logging;
-import org.myrobotlab.runtime.ProcParser;
 
 public class Platform implements Serializable {
 
@@ -46,6 +45,10 @@ public class Platform implements Serializable {
 			platform.os = System.getProperty("os.name").toLowerCase();
 			if (platform.os.indexOf("win") >= 0) {
 				platform.os = OS_WINDOWS;
+			} else if (platform.os.indexOf("mac") >= 0) {
+				platform.os = OS_MAC;
+			} else if (platform.os.indexOf("linux") >= 0) {
+				platform.os = OS_LINUX;
 			}
 
 			platform.vmName = System.getProperty("java.vm.name").toLowerCase();

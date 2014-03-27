@@ -93,12 +93,12 @@ public class InMoovArm extends Service {
 		shoulder.setController(arduino);
 		omoplate.setController(arduino);
 		
-		bicep.setMinMax(0, 90);
+		bicep.setMinMax(5, 90);
 		rotate.setMinMax(40, 180);
 		shoulder.setMinMax(0, 180);
 		omoplate.setMinMax(10, 80);
 		
-		bicep.setRest(0);
+		bicep.setRest(5);
 		rotate.setRest(90);
 		shoulder.setRest(30);
 		omoplate.setRest(10);
@@ -146,21 +146,14 @@ public class InMoovArm extends Service {
 	 */
 	public boolean attach() {
 		boolean result = true; 
+		sleep(InMoov.attachPauseMs);
 		result &= bicep.attach();
+		sleep(InMoov.attachPauseMs);
 		result &= rotate.attach();
+		sleep(InMoov.attachPauseMs);
 		result &= shoulder.attach();
+		sleep(InMoov.attachPauseMs);
 		result &= omoplate.attach();
-		
-		/*
-		result &= arduino.servoAttach(bicep);
-		sleep(InMoov.MSG_DELAY);
-		result &= arduino.servoAttach(rotate);
-		sleep(InMoov.MSG_DELAY);
-		result &= arduino.servoAttach(shoulder);		
-		sleep(InMoov.MSG_DELAY);
-		result &= arduino.servoAttach(omoplate);
-		sleep(InMoov.MSG_DELAY);
-		*/
 		return result;
 	}
 
@@ -174,9 +167,13 @@ public class InMoovArm extends Service {
 		setSpeed(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// initial position
+		sleep(InMoov.attachPauseMs);
 		bicep.rest();
+		sleep(InMoov.attachPauseMs);
 		rotate.rest();
+		sleep(InMoov.attachPauseMs);
 		shoulder.rest();
+		sleep(InMoov.attachPauseMs);
 		omoplate.rest();
 	}
 
@@ -208,13 +205,12 @@ public class InMoovArm extends Service {
 
 	public void detach() {
 			bicep.detach();
-			//sleep(InMoov.MSG_DELAY);
+			sleep(InMoov.attachPauseMs);
 			rotate.detach();
-			//sleep(InMoov.MSG_DELAY);
+			sleep(InMoov.attachPauseMs);
 			shoulder.detach();
-			//sleep(InMoov.MSG_DELAY);
+			sleep(InMoov.attachPauseMs);
 			omoplate.detach();
-			//sleep(InMoov.MSG_DELAY);
 	}
 
 	// FIXME - releasePeers()

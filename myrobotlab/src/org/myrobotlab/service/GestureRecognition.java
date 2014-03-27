@@ -1,44 +1,41 @@
 package org.myrobotlab.service;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.nio.ShortBuffer;
+import java.awt.Color;
 import java.util.ArrayList;
 
-import org.OpenNI.Context;
-import org.OpenNI.DepthGenerator;
-import org.OpenNI.DepthMetaData;
-import org.OpenNI.License;
-import org.OpenNI.MapOutputMode;
-import org.OpenNI.OutArg;
-import org.OpenNI.ScriptNode;
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
+import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.openni.PApplet;
+import org.myrobotlab.openni.PImage;
+import org.myrobotlab.openni.PVector;
 import org.myrobotlab.service.interfaces.VideoSink;
 import org.slf4j.Logger;
 
-public class GestureRecognition extends Service {
+import SimpleOpenNI.SimpleOpenNI;
+
+public class GestureRecognition extends Service // implements
+// UserTracker.NewFrameListener,
+// HandTracker.NewFrameListener
+{
 
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(GestureRecognition.class);
-
-	// public UserTracker viewer;
-
-	private OpenNIThread openniThread;
-
-	private OutArg<ScriptNode> scriptNode;
-	private Context context;
-	private DepthGenerator depthGen;
-	private byte[] imgbytes;
-	private float histogram[];
-	private int IM_WIDTH = 640;
-	private int IM_HEIGHT = 480;
+	SimpleOpenNI context;
 
 	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
+
+	// user begin
+	Color[] userClr = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN, Color.CYAN };
+	PVector com = new PVector();
+	PVector com2d = new PVector();
+
+	transient Worker worker = null;
+
+	// user end
 
 	public GestureRecognition(String n) {
 		super(n);
@@ -49,104 +46,68 @@ public class GestureRecognition extends Service {
 		return "used as a general template";
 	}
 
-	private DepthMetaData depthMD;
-
-	public void configOpenNI() // FIXME - move most to constructor
-	// create context and depth generator
-	{
-		try {
-			log.info("configOpenNI begin");
-
-			context = new Context();
-
-			// add the NITE License
-			License license = new License("PrimeSense", "0KOIk2JeIBYClPWVnMoRKn5cdY4=");
-			// vendor, key
-			context.addLicense(license);
-
-			depthGen = DepthGenerator.create(context);
-			depthMD = depthGen.getMetaData();
-
-			MapOutputMode mapMode = new MapOutputMode(IM_WIDTH, IM_HEIGHT, 30);
-			// xRes, yRes, FPS
-			depthGen.setMapOutputMode(mapMode);
-
-			// set Mirror mode for all
-			context.setGlobalMirror(true);
-
-			context.startGeneratingAll();
-
-			histogram = new float[10000];
-			// IM_WIDTH = depthMD.getFullXRes();
-			// IM_HEIGHT = depthMD.getFullYRes();
-
-			imgbytes = new byte[IM_WIDTH * IM_HEIGHT];
-
-			DataBufferByte dataBuffer = new DataBufferByte(imgbytes, IM_WIDTH * IM_HEIGHT);
-			Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
-			bimg = new BufferedImage(IM_WIDTH, IM_HEIGHT, BufferedImage.TYPE_BYTE_GRAY);
-			bimg.setData(raster);
-
-			System.out.println("Started context generating...");
-
-			// depthMD = depthGen.getMetaData();
-			// use depth metadata to access depth info (avoids bug with
-			// DepthGenerator)
-			log.info("configOpenNI begin");
-		} catch (Exception e) {
-			logException(e);
-		}
-	} // end of configOpenNI()
-
 	@Override
 	public void startService() {
 		super.startService();
-		configOpenNI();
+		initContext(); // FIXME - manual or auto call to initContext ?
 	}
 
-	SerializableImage simg;
-	private BufferedImage bimg;
+	@Override
+	public void stopService() {
+		super.stopService();
+		closeContext();
+	}
 
-	class OpenNIThread extends Thread {
+	public void initContext() {
 
-		private boolean shouldRun = true;
+		System.load("C:\\mrl\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
 
-		public OpenNIThread(String string) {
-			super(string);
+		// String s = SimpleOpenNI.getLibraryPathWin();
+		SimpleOpenNI.start();
 
+		SimpleOpenNI.initContext();
+		int cnt = SimpleOpenNI.deviceCount();
+		info("initContext found %d devices", cnt);
+
+		if (cnt < 1) {
+			error("found 0 devices - Jenga software not initialized :P");
 		}
 
-		public void run() {
-			while (shouldRun) {
-				log.debug("pre updateDepth");
+		PApplet fake = new PApplet();
+		context = new SimpleOpenNI(fake);
 
-				updateDepth(); // viewer.updateDepth()
-				// viewer.repaint(); // publish
-				log.debug("post updateDepth");
-
-				DataBufferByte dataBuffer = new DataBufferByte(imgbytes, IM_WIDTH * IM_HEIGHT);
-				Raster raster = Raster.createPackedRaster(dataBuffer, IM_WIDTH, IM_HEIGHT, 8, null);
-				bimg.setData(raster);
-				simg = new SerializableImage(bimg, getName());
-				invoke("publishFrame", simg);
-				for (int i = 0; i < sinks.size(); ++i) {
-// FIXME - videosource/sink					sinks.get(i).add(simg);
-				}
-			}
-			// frame.dispose();
-		}
+		// b.init();
+		/*
+		 * context.enableDepth(); context.enableRGB();
+		 * 
+		 * int r = 0; while (r < 1000) { r++; context.update(); PImage p =
+		 * context.depthImage(); int z = p.get(240, 320); log.info("d{}", z);
+		 * 
+		 * invoke("publishFrame", new SerializableImage(p.getImage(),
+		 * getName()));
+		 * 
+		 * PImage p2 = context.rgbImage();
+		 * 
+		 * int z2 = p2.get(240, 320); log.info("r{}", z2); }
+		 */
 
 	}
 
-	public void capture() {
-		log.info("capture");
-		if (openniThread != null) {
-			openniThread.shouldRun = false;
+	public void closeContext() {
+		stopWorker();
+		if (context != null) {
+			context.close();
 		}
+	}
 
-		openniThread = new OpenNIThread("openniThread");
-		openniThread.start();
-
+	/**
+	 * FIXME - input needs to be OpenCVData THIS IS NOT USED ! VideoProcessor
+	 * NOW DOES OpenCVData - this will return NULL REMOVE !!
+	 */
+	public final SerializableImage publishDisplay(SerializableImage img) {
+		// lastDisplay = new SerializableImage(img, source);
+		// return lastDisplay;
+		return img;
 	}
 
 	public SerializableImage publishFrame(SerializableImage frame) {
@@ -162,82 +123,169 @@ public class GestureRecognition extends Service {
 		sinks.remove(vs);
 	}
 
-	public void stopCapture() {
-		log.info("stopCapture");
-		openniThread.shouldRun = false;
-		openniThread = null;
+	// USER BEGIN ---------------------------------------------
+
+	public void startUserTracking() {
+		setUpUser();
+		info("starting user worker");
+		if (worker != null) {
+			stopWorker();
+		}
+		worker = new Worker("user");
+		worker.start();
 	}
 
-	private void calcHist(DepthMetaData depthMD) {
-		// reset
-		for (int i = 0; i < histogram.length; ++i)
-			histogram[i] = 0;
-
-		ShortBuffer depth = depthMD.getData().createShortBuffer();
-		depth.rewind();
-
-		int points = 0;
-		while (depth.remaining() > 0) {
-			short depthVal = depth.get();
-			if (depthVal != 0) {
-				histogram[depthVal]++;
-				points++;
-			}
-		}
-
-		for (int i = 1; i < histogram.length; i++) {
-			histogram[i] += histogram[i - 1];
-		}
-
-		if (points > 0) {
-			for (int i = 1; i < histogram.length; i++) {
-				histogram[i] = (int) (256 * (1.0f - (histogram[i] / (float) points)));
-			}
+	public void stopWorker() {
+		if (worker != null) {
+			info(String.format("stopping worker %s", worker.type));
+			worker.isRunning = false;
+			worker = null;
 		}
 	}
 
-	void updateDepth() {
-		try {
-			DepthMetaData depthMD = depthGen.getMetaData();
+	void setUpUser() {
 
-			context.waitAnyUpdateAll();
+		if (context.isInit() == false) {
+			error("Can't init SimpleOpenNI, maybe the camera is not connected!");
 
-			calcHist(depthMD);
-			ShortBuffer depth = depthMD.getData().createShortBuffer();
-			depth.rewind();
+			return;
+		}
 
-			// log.debug(depth.remaining());
-			while (depth.remaining() > 0) {
-				int pos = depth.position();
-				short pixel = depth.get();
-				if (pos > imgbytes.length || pixel > histogram.length) {
-					log.error(String.format("here %d %d %d %d", pos, pixel, imgbytes.length, histogram.length));
+		// enable depthMap generation
+		context.enableDepth();
+
+		// enable skeleton generation for all joints
+		context.enableUser();
+
+	}
+
+	public class Worker extends Thread {
+		public boolean isRunning = false;
+		public String type = null;
+
+		public Worker(String type) {
+			super(String.format("%s.worker", type));
+			this.type = type;
+		}
+
+		public void run() {
+			try {
+				isRunning = true;
+				while (isRunning) {
+					if ("user".equals(type)) {
+						drawUser();
+					} else {
+						error("unkown worker %s", type);
+						isRunning = false;
+					}
+
 				}
-				imgbytes[pos] = (byte) histogram[pixel];
+
+			} catch (Exception e) {
+				Logging.logException(e);
 			}
-		} catch (Exception e) {
-			logException(e);
 		}
 	}
+
+	void drawUser() {
+		// update the cam
+		context.update();
+
+		// draw depthImageMap
+		// image(context.depthImage(),0,0);
+		context.depthImage();
+		// context.userImage();
+
+		// draw the skeleton if it's available
+		int[] userList = context.getUsers();
+		for (int i = 0; i < userList.length; i++) {
+			if (context.isTrackingSkeleton(userList[i])) {
+				// stroke(userClr[(userList[i] - 1) % userClr.length]);
+				drawSkeleton(userList[i]);
+			}
+
+			// draw the center of mass
+			if (context.getCoM(userList[i], com)) {
+				context.convertRealWorldToProjective(com, com2d);
+				/*
+				 * stroke(100, 255, 0); strokeWeight(1); beginShape(LINES);
+				 * vertex(com2d.x, com2d.y - 5); vertex(com2d.x, com2d.y + 5);
+				 * 
+				 * vertex(com2d.x - 5, com2d.y); vertex(com2d.x + 5, com2d.y);
+				 * endShape();
+				 * 
+				 * 
+				 * fill(0, 255, 100); text(Integer.toString(userList[i]),
+				 * com2d.x, com2d.y);
+				 */
+
+				Integer.toString(userList[i]);
+			}
+		}
+	}
+
+	// draw the skeleton with the selected joints
+	void drawSkeleton(int userId) {
+		// to get the 3d joint data
+		/*
+		 * PVector jointPos = new PVector();
+		 * context.getJointPositionSkeleton(userId
+		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
+		 */
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_LEFT_HIP);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_HIP, SimpleOpenNI.SKEL_LEFT_KNEE);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_KNEE, SimpleOpenNI.SKEL_LEFT_FOOT);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
+	}
+
+	// -----------------------------------------------------------------
+	// SimpleOpenNI events
+
+	void onNewUser(SimpleOpenNI curContext, int userId) {
+		info("onNewUser - userId: " + userId);
+		info("\tstart tracking skeleton");
+
+		curContext.startTrackingSkeleton(userId);
+	}
+
+	void onLostUser(SimpleOpenNI curContext, int userId) {
+		info("onLostUser - userId: " + userId);
+	}
+
+	void onVisibleUser(SimpleOpenNI curContext, int userId) {
+		// println("onVisibleUser - userId: " + userId);
+
+		log.info("onVisibleUser - userId: " + userId);
+	}
+
+	// USER END ---------------------------------------------
 
 	public static void main(String s[]) {
 		LoggingFactory.getInstance().configure();
 
+		Runtime.createAndStart("gui", "GUIService");
+		Runtime.createAndStart("python", "Python");
+
 		GestureRecognition gr = new GestureRecognition("gr");
 		gr.startService();
-
-		Runtime.createAndStart("gui", "GUIService");
-		
-
-		/*
-		 * JFrame f = new JFrame("OpenNI User Tracker"); f.addWindowListener(new
-		 * WindowAdapter() { public void windowClosing(WindowEvent e)
-		 * {System.exit(0);} }); UserTrackerApplication app = new
-		 * UserTrackerApplication(f);
-		 * 
-		 * app.viewer = new UserTracker(); f.add("Center", app.viewer);
-		 * f.pack(); f.setVisible(true); app.run();
-		 */
+		gr.startUserTracking();
 	}
 
 }

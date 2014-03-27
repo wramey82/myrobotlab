@@ -447,21 +447,22 @@ public class InMoov extends Service {
 			leftArm.detach();
 		}
 	}
+	
+	public static int attachPauseMs = 100;
 
 	public void attach() {
 		if (head != null) {
 			head.attach();
 		}
 		if (rightHand != null) {
-			sleep(100);
 			rightHand.attach();
 		}
 		if (leftHand != null) {
-			sleep(100);
+			sleep(attachPauseMs);
 			leftHand.attach();
 		}
 		if (rightArm != null) {
-			sleep(100);
+			sleep(attachPauseMs);
 			rightArm.attach();
 		}
 		if (leftArm != null) {
@@ -814,6 +815,105 @@ public class InMoov extends Service {
 			attached |= head.isAttached();
 		}
 		return attached;
+	}
+	
+	
+	// gestures begin ---------------
+
+	public void hello() {
+		setHeadSpeed(1.0f, 1.0f);
+		setArmSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f);
+		setArmSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f);
+		setHandSpeed("left", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		setHandSpeed("right", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		moveHead(105, 78);
+		moveArm("left", 78, 48, 37, 10);
+		moveArm("right", 90, 144, 60, 75);
+		moveHand("left", 112, 111, 105, 102, 81, 10);
+		moveHand("right", 0, 0, 0, 50, 82, 180);
+	}
+
+	public void giving() {
+		moveHead(44, 82);
+		moveArm("left", 15, 55, 68, 10);
+		moveArm("right", 13, 40, 74, 13);
+		moveHand("left", 61, 0, 14, 0, 0, 180);
+		moveHand("right", 0, 24, 24, 19, 21, 25);
+	}
+
+	public void fighter() {
+		moveHead(160, 87);
+		moveArm("left", 31, 75, 152, 10);
+		moveArm("right", 3, 94, 33, 16);
+		moveHand("left", 161, 151, 133, 127, 107, 83);
+		moveHand("right", 99, 130, 152, 154, 145, 180);
+	}
+
+	public void fistHips() {
+		moveHead(138, 80);
+		moveArm("left", 71, 41, 20, 39);
+		moveArm("right", 71, 40, 14, 39);
+		moveHand("left", 161, 151, 133, 127, 107, 83);
+		moveHand("right", 99, 130, 152, 154, 145, 180);
+	}
+
+	public void lookAtThis() {
+		moveHead(66, 79);
+		moveArm("left", 89, 75, 78, 19);
+		moveArm("right", 90, 91, 72, 26);
+		moveHand("left", 92, 106, 133, 127, 107, 29);
+		moveHand("right", 86, 51, 133, 162, 153, 180);
+	}
+
+	public void victory() {
+		moveHead(114, 90);
+		moveArm("left", 90, 91, 106, 10);
+		moveArm("right", 0, 73, 30, 17);
+		moveHand("left", 170, 0, 0, 168, 167, 0);
+		moveHand("right", 98, 37, 34, 67, 118, 166);
+	}
+
+	public void armsUp() {
+		moveHead(160, 97);
+		moveArm("left", 9, 85, 168, 18);
+		moveArm("right", 0, 68, 180, 10);
+		moveHand("left", 61, 38, 14, 38, 15, 64);
+		moveHand("right", 0, 0, 0, 50, 82, 180);
+	}
+
+	public void armsFront() {
+		moveHead(99, 82);
+		moveArm("left", 9, 115, 96, 51);
+		moveArm("right", 13, 104, 101, 49);
+		moveHand("left", 61, 0, 14, 38, 15, 0);
+		moveHand("right", 0, 24, 54, 50, 82, 180);
+	}
+
+	public void daVinci() {
+		moveHead(75, 79);
+		moveArm("left", 9, 115, 28, 80);
+		moveArm("right", 13, 118, 26, 80);
+		moveHand("left", 61, 49, 14, 38, 15, 64);
+		moveHand("right", 0, 24, 54, 50, 82, 180);
+	}
+	
+	boolean useHeadForTracking = true;
+	boolean useEyesForTracking = false;
+	
+	public void track() {
+		if (headTracking == null) {
+			error("attach head before tracking");
+		} else {
+			headTracking.trackPoint(0.5f, 0.5f);
+		}
+	}
+
+	public void clearTrackingPoints() {
+		if (headTracking == null) {
+			error("attach head before tracking");
+		} else {
+			headTracking.clearTrackingPoints();
+		}
 	}
 	
 	public static void main(String[] args) {
