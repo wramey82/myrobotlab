@@ -115,23 +115,16 @@ public class InMoovHead extends Service {
 	 * @return
 	 */
 	public boolean attach() {
+		sleep(InMoov.attachPauseMs);
 		eyeX.attach();
+		sleep(InMoov.attachPauseMs);
 		eyeY.attach();
+		sleep(InMoov.attachPauseMs);
 		jaw.attach();
+		sleep(InMoov.attachPauseMs);
 		rothead.attach();
+		sleep(InMoov.attachPauseMs);
 		neck.attach();
-		/*
-		arduino.servoAttach(eyeX);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(eyeY);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(jaw);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(rothead);
-		sleep(InMoov.MSG_DELAY);
-		arduino.servoAttach(neck);
-		sleep(InMoov.MSG_DELAY);
-		*/
 		
 		return true;
 	}
@@ -146,7 +139,7 @@ public class InMoovHead extends Service {
 
 	public void moveTo(Integer neck, Integer rothead, Integer eyeX, Integer eyeY, Integer jaw) {
 		if (log.isDebugEnabled()) {
-			log.debug(String.format("%s.moveTo %d %d %d %d %d", neck, rothead, eyeX, eyeY, jaw));
+			log.debug(String.format("head.moveTo %d %d %d %d %d", neck, rothead, eyeX, eyeY, jaw));
 		}
 		this.rothead.moveTo(rothead);
 		this.neck.moveTo(neck);
@@ -179,10 +172,15 @@ public class InMoovHead extends Service {
 	}
 
 	public void detach() {	
+		sleep(InMoov.attachPauseMs);
 		rothead.detach();
+		sleep(InMoov.attachPauseMs);
 		neck.detach();
+		sleep(InMoov.attachPauseMs);
 		eyeX.detach();
+		sleep(InMoov.attachPauseMs);
 		eyeY.detach();
+		sleep(InMoov.attachPauseMs);
 		jaw.detach();
 	}
 
