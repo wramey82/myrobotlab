@@ -46,7 +46,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.rsyntaxtextarea/rsyntaxtextarea/2.0.4.1/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.fife.autocomplete/autocomplete/2.0.4/autocomplete.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.jssc/jssc/0.9.0/jssc.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.openni/openni/1.5.4.0/x86.64.windows/org.OpenNI.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlecode.chatterbot/1.2.1/chatter-bot-api.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.googlcode.jsonsimple/1.1/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.pi4j.pi4j/pi4j/0.0.5/pi4j-core.jar"/>
@@ -64,11 +63,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpcore-4.2.4.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.apache.commons.httpclient/httpclient/4.2.5/httpmime-4.2.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.wolfram.alpha/alpha/1.1/WolframAlpha-1.1.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-async-3.0.3.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-core-3.0.3.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-examples-3.0.3.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-media-support-3.0.3.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.3/twitter4j-stream-3.0.3.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.strobel.decompiler/decompiler/0.3.2/procyon-decompiler-0.3.2.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/edu.northwestern.topcodes/topcodes/1.0/topcodes.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.simpleframework.xml/xml/2.7/simple-xml-2.7.jar"/>
@@ -83,6 +77,12 @@
 	<classpathentry kind="lib" path="thirdParty/repo/net.sourceforge.opencv/opencv/2.4.6/opencv-2.4.6.1-linux-x86_64.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/net.sourceforge.opencv/opencv/2.4.6/opencv-2.4.6.1-linux-x86.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/net.sourceforge.opencv/opencv/2.4.6/opencv-2.4.6.1-macosx-x86_64.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/org.java_websocket.websocket/websocket/1.1/java_websocket.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.java_websocket.websocket/websocket/1.2/java_websocket.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-async-3.0.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-core-3.0.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-examples-3.0.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-media-support-3.0.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-stream-3.0.5.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.google.simpleopenni/simpleopenni/1.96/library/SimpleOpenNI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
