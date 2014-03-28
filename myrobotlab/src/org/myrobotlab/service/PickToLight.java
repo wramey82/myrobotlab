@@ -649,6 +649,8 @@ public class PickToLight extends Service implements GpioPinListenerDigital {
 		for (Map.Entry<String, Module> o : modules.entrySet()) {
 			o.getValue().clear();
 		}
+		
+		stopPolling();
 	}
 
 	public void displayI2CAddresses() {

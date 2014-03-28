@@ -19,6 +19,8 @@ public class InMoov extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(InMoov.class);
+	
+	// FIXME - EVERYTHING .. ya EVERYTHING a local top level reference !
 
 	// OBJECTIVE - try only have complex composite interaction here - everything
 	// else should be done directly to targeted services !!!
@@ -28,7 +30,9 @@ public class InMoov extends Service {
 	// will no right & left and com ports
 	// 3 definitions at the top left right and head
 	// port index, local references
-	// HashMap <String, Arduino> arduinos = new HashMap <String, Arduino>();
+	
+	// this is good, because arduino's ultimately are identified by port keys
+	HashMap <String, Arduino> arduinos = new HashMap <String, Arduino>();
 
 	// services which do not require a body part
 	// or can influence multiple body parts
@@ -181,6 +185,10 @@ public class InMoov extends Service {
 
 		speakBlocking("startup sequence completed");
 	}
+	
+	public void startPIR(String port, int pin){
+		
+	}
 
 	// TODO TODO TODO - context & status report -
 	// "current context is right hand"
@@ -252,10 +260,24 @@ public class InMoov extends Service {
 			mouthControl = (MouthControl) startPeer("mouthControl");
 			mouthControl.jaw.setPin(26);
 			mouthControl.arduino.connect(port);
+			String p = mouthControl.arduino.getPortName();
+			if (p != null){
+				arduinos.put(p, mouthControl.arduino);
+			}			
 			mouthControl.setmouth(10, 50);
 		}
 		return mouthControl;
 	}
+	
+	/*
+	
+	public void startPIR(String port, int pin){
+		Arduino
+		arduino.setSampleRate(8000)
+		arduino.digitalReadPollStart(12)
+	}
+	
+	*/
 
 	public InMoovHand startRightHand(String port) {
 		return startRightHand(port, null);
@@ -283,7 +305,7 @@ public class InMoov extends Service {
 		hands.put(side, hand);
 		hand.arduino.setBoard(getBoardType(side, boardType));
 		hand.connect(port);
-		
+		arduinos.put(port, hand.arduino);
 		return hand;
 	}
 
@@ -325,6 +347,7 @@ public class InMoov extends Service {
 		arm.setSide(side);// FIXME WHO USES SIDE - THIS SHOULD BE NAME !!!
 		arm.arduino.setBoard(getBoardType(side, boardType));
 		arm.connect(port);
+		arduinos.put(port, arm.arduino);
 		
 		return arm;
 	}
@@ -346,6 +369,7 @@ public class InMoov extends Service {
 
 		head.arduino.setBoard(type);
 		head.connect(port);
+		arduinos.put(port, head.arduino);
 
 		return head;
 	}
@@ -357,6 +381,30 @@ public class InMoov extends Service {
 	public String getDescription() {
 		return "The InMoov service";
 	}
+	
+	public void trackHumans(){
+		if (eyesTracking != null) {
+			eyesTracking.faceDetect();
+		}
+
+		if (headTracking != null) {
+			headTracking.faceDetect();
+		}
+	}
+	
+	public void trackPoint(){
+				
+		if (eyesTracking != null) {
+			eyesTracking.startLKTracking();
+			eyesTracking.trackPoint(0.5f, 0.5f);
+		}
+
+		if (headTracking != null) {
+			headTracking.startLKTracking();
+			headTracking.trackPoint(0.5f, 0.5f);
+		}
+	}
+	
 
 	public void stopTracking() {
 		if (eyesTracking != null) {
