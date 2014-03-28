@@ -60,7 +60,7 @@ public class GestureRecognition extends Service // implements
 
 	public void initContext() {
 
-//		System.load("C:\\mrlx\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
+		// System.load("C:\\mrlx\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
 
 		// String s = SimpleOpenNI.getLibraryPathWin();
 		SimpleOpenNI.start();
@@ -73,7 +73,7 @@ public class GestureRecognition extends Service // implements
 			error("found 0 devices - Jenga software not initialized :P");
 		}
 
-		PApplet fake = new PApplet();
+		PApplet fake = new PApplet(this);
 		context = new SimpleOpenNI(fake);
 
 		// b.init();
@@ -223,22 +223,22 @@ public class GestureRecognition extends Service // implements
 				Integer.toString(userList[i]);
 			}
 		}
-		
-		
+
 	}
 
 	// draw the skeleton with the selected joints
 	void drawSkeleton(int userId) {
+		log.info(String.format("i would be drawing user %d if i knew how", userId));
 		// to get the 3d joint data
 		/*
 		 * PVector jointPos = new PVector();
 		 * context.getJointPositionSkeleton(userId
 		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
 		 */
-		
+
 		PVector jointPos = new PVector();
-		context.getJointPositionSkeleton(userId ,SimpleOpenNI.SKEL_NECK,jointPos); 
-		//println(jointPos);
+		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, jointPos);
+		// println(jointPos);
 		log.info("jointPos skeleton neck {} ", jointPos);
 
 		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
@@ -266,21 +266,29 @@ public class GestureRecognition extends Service // implements
 	// -----------------------------------------------------------------
 	// SimpleOpenNI events
 
-	void onNewUser(SimpleOpenNI curContext, int userId) {
+	public void onNewUser(SimpleOpenNI context, int userId) {
 		info("onNewUser - userId: " + userId);
 		info("\tstart tracking skeleton");
 
-		curContext.startTrackingSkeleton(userId);
+		context.startTrackingSkeleton(userId);
 	}
 
-	void onLostUser(SimpleOpenNI curContext, int userId) {
+	public void onLostUser(SimpleOpenNI curContext, int userId) {
 		info("onLostUser - userId: " + userId);
 	}
 
-	void onVisibleUser(SimpleOpenNI curContext, int userId) {
-		// println("onVisibleUser - userId: " + userId);
-
+	public void onVisibleUser(SimpleOpenNI curContext, int userId) {
 		log.info("onVisibleUser - userId: " + userId);
+	}
+	
+	public void onOutOfSceneUser(SimpleOpenNI curContext, int userId){
+		log.info("onOutOfSceneUser - userId: " + userId);
+		
+	}
+
+	public void onNewHand(SimpleOpenNI openni, int userId, PVector v) {
+		log.info("onVisibleUser - userId: " + userId);
+
 	}
 
 	// USER END ---------------------------------------------
