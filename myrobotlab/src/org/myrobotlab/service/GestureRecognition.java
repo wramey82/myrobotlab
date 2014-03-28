@@ -60,7 +60,7 @@ public class GestureRecognition extends Service // implements
 
 	public void initContext() {
 
-		System.load("C:\\mrl\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
+//		System.load("C:\\mrlx\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
 
 		// String s = SimpleOpenNI.getLibraryPathWin();
 		SimpleOpenNI.start();
@@ -193,7 +193,8 @@ public class GestureRecognition extends Service // implements
 
 		// draw depthImageMap
 		// image(context.depthImage(),0,0);
-		context.depthImage();
+		PImage p = context.depthImage();
+		invoke("publishFrame", new SerializableImage(p.getImage(), getName()));
 		// context.userImage();
 
 		// draw the skeleton if it's available
@@ -222,6 +223,8 @@ public class GestureRecognition extends Service // implements
 				Integer.toString(userList[i]);
 			}
 		}
+		
+		
 	}
 
 	// draw the skeleton with the selected joints
@@ -232,6 +235,11 @@ public class GestureRecognition extends Service // implements
 		 * context.getJointPositionSkeleton(userId
 		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
 		 */
+		
+		PVector jointPos = new PVector();
+		context.getJointPositionSkeleton(userId ,SimpleOpenNI.SKEL_NECK,jointPos); 
+		//println(jointPos);
+		log.info("jointPos skeleton neck {} ", jointPos);
 
 		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
