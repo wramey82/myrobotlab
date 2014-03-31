@@ -33,7 +33,7 @@ ear.startListening("hello | forward | back | stop | go |turn left | turn right |
 
 
 # set up a message route from the ear --to--> python method "heard"
-ear.addListener("recognized", python.name, "heard", String().getClass()); 
+ear.addListener("recognized", python.getName(), "heard"); 
 
 # this method is invoked when something is 
 # recognized by the ear - in this case we

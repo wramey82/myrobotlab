@@ -31,7 +31,8 @@ public class PApplet {
 	}
 
 	public void line(Object x, Object y, Object x2, Object y2) {
-		log.info("line");
+		log.info(String.format("line %f %f %f %f", x, y, x2, y2));
+		gr.line((Float)x, (Float)y, (Float)x2, (Float)y2);
 	}
 
 	static public final float sqrt(float a) {
