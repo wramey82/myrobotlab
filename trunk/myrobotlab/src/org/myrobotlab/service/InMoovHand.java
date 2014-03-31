@@ -170,12 +170,12 @@ public class InMoovHand extends Service {
 		// initial positions
 		setSpeed(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 
-		thumb.moveTo(0);
-		index.moveTo(0);
-		majeure.moveTo(0);
-		ringFinger.moveTo(0);
-		pinky.moveTo(0);
-		wrist.moveTo(90);
+		thumb.rest();
+		index.rest();
+		majeure.rest();
+		ringFinger.rest();
+		pinky.rest();
+		wrist.rest();
 	}
 
 	public void broadcastState() {
@@ -300,7 +300,7 @@ public class InMoovHand extends Service {
 	}
 
 	public void open() {
-		moveTo(0, 0, 0, 0, 0);
+		rest();
 	}
 
 	public void openPinch() {

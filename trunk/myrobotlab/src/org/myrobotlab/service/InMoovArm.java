@@ -166,14 +166,9 @@ public class InMoovArm extends Service {
 
 		setSpeed(1.0f, 1.0f, 1.0f, 1.0f);
 
-		// initial position
-		sleep(InMoov.attachPauseMs);
 		bicep.rest();
-		sleep(InMoov.attachPauseMs);
 		rotate.rest();
-		sleep(InMoov.attachPauseMs);
 		shoulder.rest();
-		sleep(InMoov.attachPauseMs);
 		omoplate.rest();
 	}
 
