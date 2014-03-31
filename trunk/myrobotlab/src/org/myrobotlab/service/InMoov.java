@@ -10,6 +10,7 @@ import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.serial.SerialDeviceFactory;
 import org.myrobotlab.serial.VirtualSerialPort;
+import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -19,6 +20,9 @@ public class InMoov extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(InMoov.class);
+	
+	// FIXME - startPIR - all other starts of complex composite service need to try to get their Arduino from the Arduino MAP !!! FIRST
+	// BEFORE CREATING ONE !!!
 	
 	// FIXME - EVERYTHING .. ya EVERYTHING a local top level reference !
 
@@ -41,10 +45,10 @@ public class InMoov extends Service {
 	// Peer definitions
 
 	@Element(required = false)
-	String defaultLeftPort;
+	String defaultLeftPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS THROUGH MAP !!!
 
 	@Element(required = false)
-	String defaultRightPort;
+	String defaultRightPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS THROUGH MAP !!!
 
 	// hands and arms
 	transient public InMoovHead head;
@@ -186,8 +190,32 @@ public class InMoov extends Service {
 		speakBlocking("startup sequence completed");
 	}
 	
+	public Integer pirPin = null;
+	Long startSleep = null; 
+	
 	public void startPIR(String port, int pin){
+		if (arduinos.containsKey(port)){
+			Arduino arduino = arduinos.get(port);
+			arduino.connect(port);
+			arduino.setSampleRate(8000);
+			arduino.digitalReadPollStart(pin);
+			pirPin = pin;
+			arduino.addListener("publishPin", this.getName(), "publishPin");
+			
+		} else {
+			// FIXME - SHOULD ALLOW STARTUP AND LATER ACCESS VIA PORT ONCE OTHER STARTS CHECK MAP FIRST
+			log.error(String.format("%s arduino not found - start some other system first (head, arm, hand)", port));
+		}
 		
+	}
+	
+	public void publishPin(Pin pin){
+		if (pirPin == pin.pin){
+			if (startSleep != null){
+				speakBlocking("hello. i was sleeping but now i am awake");
+				// TODO - add saying time asleep
+			}
+		}
 	}
 
 	// TODO TODO TODO - context & status report -
@@ -234,7 +262,7 @@ public class InMoov extends Service {
 		}
 		headTracking = (Tracking) startPeer("headTracking");
 		headTracking.connect(port);
-		// TODO - test- report errors
+		arduinos.put(port, headTracking.arduino);
 		return headTracking;
 	}
 
@@ -246,6 +274,7 @@ public class InMoov extends Service {
 		}
 		eyesTracking = (Tracking) startPeer("eyesTracking");
 		eyesTracking.connect(port);
+		arduinos.put(port, eyesTracking.arduino);
 		return eyesTracking;
 	}
 
@@ -260,6 +289,7 @@ public class InMoov extends Service {
 			mouthControl = (MouthControl) startPeer("mouthControl");
 			mouthControl.jaw.setPin(26);
 			mouthControl.arduino.connect(port);
+			arduinos.put(port, mouthControl.arduino);
 			String p = mouthControl.arduino.getPortName();
 			if (p != null){
 				arduinos.put(p, mouthControl.arduino);

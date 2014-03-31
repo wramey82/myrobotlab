@@ -1,6 +1,8 @@
 package org.myrobotlab.service;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.myrobotlab.framework.Service;
@@ -33,6 +35,10 @@ public class GestureRecognition extends Service // implements
 	PVector com = new PVector();
 	PVector com2d = new PVector();
 
+	PApplet fake;
+
+	BufferedImage frame;
+
 	transient Worker worker = null;
 
 	// user end
@@ -60,8 +66,6 @@ public class GestureRecognition extends Service // implements
 
 	public void initContext() {
 
-		// System.load("C:\\mrlx\\myrobotlab\\libraries\\native\\x86.64.windows\\OpenNI2.dll");
-
 		// String s = SimpleOpenNI.getLibraryPathWin();
 		SimpleOpenNI.start();
 
@@ -73,23 +77,8 @@ public class GestureRecognition extends Service // implements
 			error("found 0 devices - Jenga software not initialized :P");
 		}
 
-		PApplet fake = new PApplet(this);
+		fake = new PApplet(this);
 		context = new SimpleOpenNI(fake);
-
-		// b.init();
-		/*
-		 * context.enableDepth(); context.enableRGB();
-		 * 
-		 * int r = 0; while (r < 1000) { r++; context.update(); PImage p =
-		 * context.depthImage(); int z = p.get(240, 320); log.info("d{}", z);
-		 * 
-		 * invoke("publishFrame", new SerializableImage(p.getImage(),
-		 * getName()));
-		 * 
-		 * PImage p2 = context.rgbImage();
-		 * 
-		 * int z2 = p2.get(240, 320); log.info("r{}", z2); }
-		 */
 
 	}
 
@@ -187,16 +176,23 @@ public class GestureRecognition extends Service // implements
 		}
 	}
 
+	Graphics2D g2d;
+	//BasicStroke bs = new BasicStroke(BasicStroke.CAP_ROUND);
+	
 	void drawUser() {
 		// update the cam
 		context.update();
 
 		// draw depthImageMap
 		// image(context.depthImage(),0,0);
+		
+		// FIXME - THIS IS INCORRECT - DATA CAN BE BROADCAST BUT NO GRAPHICS !
 		PImage p = context.depthImage();
-		invoke("publishFrame", new SerializableImage(p.getImage(), getName()));
-		// context.userImage();
+		frame = p.getImage();
 
+		g2d = frame.createGraphics();
+		g2d.setColor(Color.RED);
+		
 		// draw the skeleton if it's available
 		int[] userList = context.getUsers();
 		for (int i = 0; i < userList.length; i++) {
@@ -224,11 +220,13 @@ public class GestureRecognition extends Service // implements
 			}
 		}
 
+		invoke("publishFrame", new SerializableImage(frame, getName()));
+
 	}
 
 	// draw the skeleton with the selected joints
 	void drawSkeleton(int userId) {
-		log.info(String.format("i would be drawing user %d if i knew how", userId));
+		info(String.format("i would be drawing user %d if i knew how", userId));
 		// to get the 3d joint data
 		/*
 		 * PVector jointPos = new PVector();
@@ -280,10 +278,10 @@ public class GestureRecognition extends Service // implements
 	public void onVisibleUser(SimpleOpenNI curContext, int userId) {
 		log.info("onVisibleUser - userId: " + userId);
 	}
-	
-	public void onOutOfSceneUser(SimpleOpenNI curContext, int userId){
+
+	public void onOutOfSceneUser(SimpleOpenNI curContext, int userId) {
 		log.info("onOutOfSceneUser - userId: " + userId);
-		
+
 	}
 
 	public void onNewHand(SimpleOpenNI openni, int userId, PVector v) {
@@ -291,6 +289,11 @@ public class GestureRecognition extends Service // implements
 
 	}
 
+	// PApplet
+	public void line(Float x, Float y, Float x2, Float y2) {
+		// TODO Auto-generated method stub
+		 g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
+	}
 	// USER END ---------------------------------------------
 
 	public static void main(String s[]) {
@@ -303,5 +306,7 @@ public class GestureRecognition extends Service // implements
 		gr.startService();
 		gr.startUserTracking();
 	}
+
+	
 
 }
