@@ -8,8 +8,6 @@ import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.serial.SerialDeviceFactory;
-import org.myrobotlab.serial.VirtualSerialPort;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
@@ -20,10 +18,11 @@ public class InMoov extends Service {
 	private static final long serialVersionUID = 1L;
 
 	public final static Logger log = LoggerFactory.getLogger(InMoov.class);
-	
-	// FIXME - startPIR - all other starts of complex composite service need to try to get their Arduino from the Arduino MAP !!! FIRST
+
+	// FIXME - startPIR - all other starts of complex composite service need to
+	// try to get their Arduino from the Arduino MAP !!! FIRST
 	// BEFORE CREATING ONE !!!
-	
+
 	// FIXME - EVERYTHING .. ya EVERYTHING a local top level reference !
 
 	// OBJECTIVE - try only have complex composite interaction here - everything
@@ -34,9 +33,9 @@ public class InMoov extends Service {
 	// will no right & left and com ports
 	// 3 definitions at the top left right and head
 	// port index, local references
-	
+
 	// this is good, because arduino's ultimately are identified by port keys
-	HashMap <String, Arduino> arduinos = new HashMap <String, Arduino>();
+	HashMap<String, Arduino> arduinos = new HashMap<String, Arduino>();
 
 	// services which do not require a body part
 	// or can influence multiple body parts
@@ -45,10 +44,12 @@ public class InMoov extends Service {
 	// Peer definitions
 
 	@Element(required = false)
-	String defaultLeftPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS THROUGH MAP !!!
+	String defaultLeftPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS
+							// THROUGH MAP !!!
 
 	@Element(required = false)
-	String defaultRightPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS THROUGH MAP !!!
+	String defaultRightPort; // FIXME - THIS IS A BUG GET RID OF IT - ALL ACCESS
+								// THROUGH MAP !!!
 
 	// hands and arms
 	transient public InMoovHead head;
@@ -130,8 +131,9 @@ public class InMoov extends Service {
 
 	public InMoov(String n) {
 		super(n);
-		//addRoutes();
-		// FIXME - mebbe starts with same error - don't say it again unless a certain time has passed
+		// addRoutes();
+		// FIXME - mebbe starts with same error - don't say it again unless a
+		// certain time has passed
 	}
 
 	public boolean speakErrors(boolean b) {
@@ -189,29 +191,33 @@ public class InMoov extends Service {
 
 		speakBlocking("startup sequence completed");
 	}
-	
+
 	public Integer pirPin = null;
-	Long startSleep = null; 
-	
-	public void startPIR(String port, int pin){
-		if (arduinos.containsKey(port)){
+	Long startSleep = null;
+
+	public void startPIR(String port, int pin) {
+		speakBlocking("starting pee eye are sensor on port %s pin %d", port, pin);
+		if (arduinos.containsKey(port)) {
 			Arduino arduino = arduinos.get(port);
 			arduino.connect(port);
 			arduino.setSampleRate(8000);
 			arduino.digitalReadPollStart(pin);
 			pirPin = pin;
 			arduino.addListener("publishPin", this.getName(), "publishPin");
-			
+
 		} else {
-			// FIXME - SHOULD ALLOW STARTUP AND LATER ACCESS VIA PORT ONCE OTHER STARTS CHECK MAP FIRST
+			// FIXME - SHOULD ALLOW STARTUP AND LATER ACCESS VIA PORT ONCE OTHER
+			// STARTS CHECK MAP FIRST
 			log.error(String.format("%s arduino not found - start some other system first (head, arm, hand)", port));
 		}
-		
+
 	}
-	
-	public void publishPin(Pin pin){
-		if (pirPin == pin.pin){
-			if (startSleep != null){
+
+	public void publishPin(Pin pin) {
+		if (pirPin == pin.pin) {
+			if (startSleep != null) {
+				attach(); // good morning / evening / night... asleep for % hours
+				powerUp();
 				speakBlocking("hello. i was sleeping but now i am awake");
 				// TODO - add saying time asleep
 			}
@@ -224,7 +230,7 @@ public class InMoov extends Service {
 	public Sphinx startEar() {
 		speakBlocking("starting ear");
 		ear = (Sphinx) startPeer("ear");
-		if (mouth != null){
+		if (mouth != null) {
 			ear.attach(mouth);
 		}
 		return ear;
@@ -280,34 +286,30 @@ public class InMoov extends Service {
 
 	public MouthControl startMouthControl(String port) {
 		speakBlocking("starting mouth control");
-		if (mouthControl == null){
-			
+		if (mouthControl == null) {
+
 			if (head == null) {
 				startHead(port);
 			}
-			
+
 			mouthControl = (MouthControl) startPeer("mouthControl");
 			mouthControl.jaw.setPin(26);
 			mouthControl.arduino.connect(port);
 			arduinos.put(port, mouthControl.arduino);
 			String p = mouthControl.arduino.getPortName();
-			if (p != null){
+			if (p != null) {
 				arduinos.put(p, mouthControl.arduino);
-			}			
+			}
 			mouthControl.setmouth(10, 50);
 		}
 		return mouthControl;
 	}
-	
+
 	/*
-	
-	public void startPIR(String port, int pin){
-		Arduino
-		arduino.setSampleRate(8000)
-		arduino.digitalReadPollStart(12)
-	}
-	
-	*/
+	 * 
+	 * public void startPIR(String port, int pin){ Arduino
+	 * arduino.setSampleRate(8000) arduino.digitalReadPollStart(12) }
+	 */
 
 	public InMoovHand startRightHand(String port) {
 		return startRightHand(port, null);
@@ -378,7 +380,7 @@ public class InMoov extends Service {
 		arm.arduino.setBoard(getBoardType(side, boardType));
 		arm.connect(port);
 		arduinos.put(port, arm.arduino);
-		
+
 		return arm;
 	}
 
@@ -411,8 +413,8 @@ public class InMoov extends Service {
 	public String getDescription() {
 		return "The InMoov service";
 	}
-	
-	public void trackHumans(){
+
+	public void trackHumans() {
 		if (eyesTracking != null) {
 			eyesTracking.faceDetect();
 		}
@@ -421,9 +423,9 @@ public class InMoov extends Service {
 			headTracking.faceDetect();
 		}
 	}
-	
-	public void trackPoint(){
-				
+
+	public void trackPoint() {
+
 		if (eyesTracking != null) {
 			eyesTracking.startLKTracking();
 			eyesTracking.trackPoint(0.5f, 0.5f);
@@ -434,7 +436,6 @@ public class InMoov extends Service {
 			headTracking.trackPoint(0.5f, 0.5f);
 		}
 	}
-	
 
 	public void stopTracking() {
 		if (eyesTracking != null) {
@@ -525,7 +526,7 @@ public class InMoov extends Service {
 			leftArm.detach();
 		}
 	}
-	
+
 	public static int attachPauseMs = 100;
 
 	public void attach() {
@@ -549,7 +550,7 @@ public class InMoov extends Service {
 		}
 	}
 
-	// This is an in-flight check vs a startup or shutdown
+	// This is an in-flight check vs power up or power down
 	public void systemCheck() {
 		speakBlocking("starting system check");
 		speakBlocking("testing");
@@ -626,33 +627,50 @@ public class InMoov extends Service {
 		moveHand("right", 0, 0, 0, 0, 0, 0);
 	}
 
-	public void powerdown() {
+	public void powerDown() {
 		sleep(2);
-		ear.pauseListening();
+		if (ear != null){
+			ear.pauseListening();
+		}
 		rest();
 		speakBlocking("I'm powering down");
+		purgeAllTasks();
 		sleep(2);
 		moveHead(40, 85);
 		sleep(4);
 		detach();
-		// rightA
+		speakBlocking("for more interaction please request me to power up");
+		speakBlocking("or activate the p eye are sensor. thank you. good bye.");
+		
+		// right
 		// rightSerialPort.digitalWrite(53, Arduino.LOW);
 		// leftSerialPort.digitalWrite(53, Arduino.LOW);
-		ear.lockOutAllGrammarExcept("power up");
-		sleep(2);
-		ear.resumeListening();
+		if (ear != null){
+			ear.lockOutAllGrammarExcept("power up");
+			sleep(2);
+			ear.resumeListening();
+		}
+		
+		startSleep = System.currentTimeMillis();
 	}
 
-	public void powerup() {
+	public void powerUp() {
+		startSleep = null;
 		sleep(2);
-		ear.pauseListening();
+		if (ear != null){
+			ear.pauseListening();
+		}
 		// rightSerialPort.digitalWrite(53, Arduino.HIGH);
 		// leftSerialPort.digitalWrite(53, Arduino.HIGH);
 		speakBlocking("Im powered up");
 		rest();
-		ear.clearLock();
-		sleep(2);
-		ear.resumeListening();
+		if (ear != null){
+			ear.clearLock();
+			sleep(2);
+			ear.resumeListening();
+		}
+		speakBlocking("ready");
+		
 	}
 
 	// ---------- canned gestures end ---------
@@ -747,7 +765,7 @@ public class InMoov extends Service {
 	}
 
 	public void setHeadSpeed(Float rothead, Float neck) {
-		if (head != null){
+		if (head != null) {
 			head.setSpeed(rothead, neck, null, null, null);
 		} else {
 			log.warn("setHeadSpeed - I have no head");
@@ -804,11 +822,6 @@ public class InMoov extends Service {
 		return script.toString();
 	}
 
-	public void shutdown() {
-		speakBlocking("shutting down now");
-		detach();
-	}
-
 	public void startAutoDetach(int intervalSeconds) {
 		addLocalTask(intervalSeconds * 1000, "checkForInactivity");
 	}
@@ -852,21 +865,26 @@ public class InMoov extends Service {
 
 	}
 
-	public void autoDetachOnInactivity(int maxInactivityTimeSeconds) {
-		this.maxInactivityTimeSeconds = maxInactivityTimeSeconds;
-		speakBlocking("auto detach on %s seconds inactivity is on", this.maxInactivityTimeSeconds);
-		addLocalTask(5 * 1000, "detachOnInactivity");
+	public void autoPowerDownOnInactivity() {
+		autoPowerDownOnInactivity(maxInactivityTimeSeconds);
 	}
 
-	public long detachOnInactivity() {
-		// speakBlocking("checking");
+	public void autoPowerDownOnInactivity(int maxInactivityTimeSeconds) {
+		this.maxInactivityTimeSeconds = maxInactivityTimeSeconds;
+		speakBlocking("power down after %s seconds inactivity is on", this.maxInactivityTimeSeconds);
+		addLocalTask(5 * 1000, "powerDownOnInactivity");
+	}
+
+	public long powerDownOnInactivity() {
+		speakBlocking("checking");
 		long lastActivityTime = getLastActivityTime();
 		long now = System.currentTimeMillis();
 		long inactivitySeconds = (now - lastActivityTime) / 1000;
 		if (inactivitySeconds > maxInactivityTimeSeconds && isAttached()) {
-			speakBlocking("%d seconds have passed without activity. detaching", inactivitySeconds);
-			speakBlocking("goodbye");
-			detach();
+			speakBlocking("%d seconds have passed without activity", inactivitySeconds);
+			powerDown();
+		} else {
+			speakBlocking("%d seconds have passed without activity", inactivitySeconds);
 		}
 		return lastActivityTime;
 	}
@@ -894,8 +912,7 @@ public class InMoov extends Service {
 		}
 		return attached;
 	}
-	
-	
+
 	// gestures begin ---------------
 
 	public void hello() {
@@ -974,10 +991,10 @@ public class InMoov extends Service {
 		moveHand("left", 61, 49, 14, 38, 15, 64);
 		moveHand("right", 0, 24, 54, 50, 82, 180);
 	}
-	
+
 	boolean useHeadForTracking = true;
 	boolean useEyesForTracking = false;
-	
+
 	public void track() {
 		if (headTracking == null) {
 			error("attach head before tracking");
@@ -994,26 +1011,30 @@ public class InMoov extends Service {
 		}
 	}
 	
+	public void purgeAllTasks()
+	{
+		speakBlocking("purging all tasks");
+		super.purgeAllTasks();
+	}
+
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
-		
-		
+
 		// Create two virtual ports for UART and user and null them together:
 		// create 2 virtual ports
+/*
 		VirtualSerialPort vp0 = new VirtualSerialPort("UART15");
 		VirtualSerialPort vp1 = new VirtualSerialPort("COM15");
 
 		// make null modem cable ;)
 		VirtualSerialPort.makeNullModem(vp0, vp1);
-		/*
-		 * vp1.tx = vp0.rx; vp1.rx = vp0.tx; vp1.listener
-		 */
+		
 
 		// add virtual ports to the serial device factory
 		SerialDeviceFactory.add(vp0);
 		SerialDeviceFactory.add(vp1);
+*/		
 
 		// create the UART serial service
 		// log.info("Creating a LIDAR UART Serial service named: " + getName() +
@@ -1028,19 +1049,22 @@ public class InMoov extends Service {
 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
 		i01.startMouth();
-		i01.autoDetachOnInactivity(120);
+		//i01.power(120);
 		InMoovHand lefthand = i01.startLeftHand("COM15");
 		i01.leftHand.setRest(10, 10, 10, 10, 10);
+		i01.autoPowerDownOnInactivity(10);
 
-		log.info("inactivity {}", i01.detachOnInactivity());
+		/*
+		log.info("inactivity {}", i01.powerDownOnInactivity());
 
 		lefthand.moveTo(5, 10, 30, 40, 50);
 
-		log.info("inactivity {}", i01.detachOnInactivity());
+		log.info("inactivity {}", i01.powerDownOnInactivity());
 
 		lefthand.rest();
 
-		log.info("inactivity {}", i01.detachOnInactivity());
+		log.info("inactivity {}", i01.powerDownOnInactivity());
+		*/
 
 		/*
 		 * 
