@@ -10,6 +10,14 @@ i01 = Runtime.createAndStart("i01", "InMoov")
 # starts everything
 i01.startAll(leftPort, rightPort)
 
+# how to invert the left hand fingers begin
+# i01.leftHand.thumb.invert()
+# i01.leftHand.index.invert()
+# i01.leftHand.majeure.invert()
+# i01.leftHand.ringFinger.invert()
+# i01.leftHand.pinky.invert()
+# how to invert the left hand fingers end
+
 # starting parts
 #i01.startMouth()
 #i01.startLeftHand(leftPort)
