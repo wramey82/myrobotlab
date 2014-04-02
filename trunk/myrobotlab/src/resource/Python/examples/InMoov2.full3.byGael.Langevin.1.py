@@ -16,7 +16,7 @@ cleverbot = Runtime.createAndStart("cleverbot","CleverBot")
 # starting parts
 i01.startMouth()
 #to tweak the default voice
-i01.mouth.setGoogleURI("http://thehackettfamily.org/Voice_api/api2.php?voice=Ryan&txt=")
+i01.mouth.setGoogleURI("http://thehackettfamily.org/Voice_api/api2.php?voice=Will&txt=")
 
 
 i01.startHead(leftPort)
@@ -57,7 +57,7 @@ i01.startEyesTracking(leftPort)
 #i01.head.eyeX.setRest(78)
 
 i01.head.eyeY.setMinMax(80,100)
-i01.head.eyeY.setRest(78)
+i01.head.eyeY.setRest(80)
 i01.head.eyeX.setMinMax(75,100)
 i01.head.eyeX.setRest(78)
 i01.head.neck.setRest(80)
@@ -74,7 +74,7 @@ i01.rightHand.pinky.map(0,180,45,146)
 i01.leftHand.thumb.map(0,180,45,140)
 i01.leftHand.index.map(0,180,40,140)
 i01.leftHand.majeure.map(0,180,30,118)
-i01.leftHand.ringFinger.map(0,180,37,134)
+i01.leftHand.ringFinger.map(0,180,25,134)
 i01.leftHand.pinky.map(0,180,35,130)
 ############################################################
 #to tweak the default PID values
@@ -190,7 +190,8 @@ ear.addCommand("picture on the right side", "python", "picturerightside")
 ear.addCommand("picture on the left side", "python", "pictureleftside")
 ear.addCommand("picture on both sides", "python", "picturebothside")
 ear.addCommand("look on the right side", "python", "lookrightside")
-ear.addCommand("look on the left side", "python", "lookleftside")
+ear.addCommand("look on your left side", "python", "lookleftside")
+ear.addCommand("look in your middle", "python", "lookinmiddle")
 ear.addCommand("before happy", "python", "beforehappy")
 ear.addCommand("happy birthday", "python", "happy")
 #ear.addCommand("photo", "python", "photo")
@@ -200,7 +201,7 @@ ear.addCommand("about", "python", "about")
 ear.addCommand("servo", "python", "servos")
 ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave")
  
-ear.addComfirmations("yes","correct","ya","yeah") 
+ear.addComfirmations("yes","correct","ya","yeah")
 ear.addNegations("no","wrong","nope","nah")
  
 ear.startListening()
@@ -216,7 +217,7 @@ ear.startListening()
   #i01.headTracking.pyramidDown(False)
 
 #def track():
-  #i01.headTracking.startLKTracking() 
+  #i01.headTracking.startLKTracking()
 
 def trackHumans():
      i01.headTracking.faceDetect()
@@ -239,7 +240,7 @@ def fullspeed():
   i01.setHeadSpeed(1.0, 1.0)
  
 def delicategrab():
-  i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("left", 0.70, 0.60, 1.0, 1.0, 1.0, 1.0)
   i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
@@ -247,7 +248,7 @@ def delicategrab():
   i01.moveHead(21,98)
   i01.moveArm("left",30,72,77,10)
   i01.moveArm("right",0,91,28,17)
-  i01.moveHand("left",131,130,4,0,0,180)
+  i01.moveHand("left",180,130,4,0,0,180)
   i01.moveHand("right",86,51,133,162,153,180)
  
 def perfect():
@@ -283,7 +284,7 @@ def grabthebottle():
   i01.moveHead(20,88)
   i01.moveArm("left",77,85,45,15)
   i01.moveArm("right",0,90,30,10)
-  i01.moveHand("left",109,138,180,164,180,60)
+  i01.moveHand("left",180,138,140,164,180,60)
   i01.moveHand("right",0,0,0,0,0,90)
  
 def grabtheglass():
@@ -295,7 +296,7 @@ def grabtheglass():
   i01.moveHead(20,68)
   i01.moveArm("left",77,85,45,15)
   i01.moveArm("right",48,91,72,10)
-  i01.moveHand("left",109,138,180,164,180,60)
+  i01.moveHand("left",180,138,140,164,180,60)
   i01.moveHand("right",140,112,127,105,143,133)
  
 def poorbottle():
@@ -304,23 +305,26 @@ def poorbottle():
   i01.setArmSpeed("left", 0.60, 0.60, 0.60, 0.60)
   i01.setArmSpeed("right", 0.60, 0.60, 0.60, 0.60)
   i01.setHeadSpeed(0.65, 0.65)
-  i01.moveHead(20,84)
-  i01.moveArm("left",58,40,95,30)
-  i01.moveArm("right",68,74,43,10)
-  i01.moveHand("left",109,138,180,164,180,34)
+  i01.moveHead(0,92)
+  i01.moveArm("left",53,40,95,55)
+  i01.moveArm("right",80,59,43,10)
+  i01.moveHand("left",180,140,150,164,180,0)
   i01.moveHand("right",145,112,127,105,143,133)
  
 def givetheglass():
+  i01.headTracking.faceDetect()
+  i01.eyesTracking.faceDetect()
   i01.setHandSpeed("left", 0.60, 0.60, 0.60, 0.60, 0.60, 0.60)
   i01.setHandSpeed("right", 0.60, 0.80, 0.60, 0.60, 0.60, 0.60)
   i01.setArmSpeed("left", 0.60, 0.60, 0.60, 0.60)
   i01.setArmSpeed("right", 0.60, 0.60, 0.60, 0.60)
   i01.setHeadSpeed(0.65, 0.65)
-  i01.moveHead(47,79)
+  i01.moveHead(84,79)
   i01.moveArm("left",77,75,45,17)
   i01.moveArm("right",21,80,77,10)
   i01.moveHand("left",109,138,180,164,180,60)
-  i01.moveHand("right",102,41,72,105,143,133)
+  i01.moveHand("right",102,86,105,105,143,133)
+  i01.mouth.speakBlocking("please, take the glass")
  
 def takeball():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.85, 0.75)
@@ -396,7 +400,7 @@ def isitaball():
   i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
   i01.setArmSpeed("left", 0.75, 0.85, 0.90, 0.85)
   i01.setHeadSpeed(0.65, 0.75)
-  i01.moveHead(65,74)
+  i01.moveHead(90,83)
   i01.moveArm("left",70,64,87,15)
   i01.moveArm("right",0,82,33,15)
   i01.moveHand("left",147,130,140,34,34,164)
@@ -446,7 +450,7 @@ def removeleftarm():
 def relax():
   i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
   i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
-  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.65, 0.85)
   i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
   i01.setHeadSpeed(0.75, 0.75)
   i01.moveHead(79,100)
@@ -454,7 +458,7 @@ def relax():
   i01.moveArm("right",5,82,28,15)
   i01.moveHand("left",42,10,20,30,50,35)
   i01.moveHand("right",81,50,82,60,105,113)
-  
+ 
 def handopen():
   i01.moveHand("left",0,0,0,0,0)
   i01.moveHand("right",0,0,0,0,0)
@@ -462,13 +466,13 @@ def handopen():
 def handclose():
   i01.moveHand("left",180,180,180,180,180)
   i01.moveHand("right",180,180,180,180,180)
-  
+ 
 def openlefthand():
-  i01.moveHand("left",0,0,0,0,0,0)
+  i01.moveHand("left",0,0,0,0,0)
  
  
 def openrighthand():
-  i01.moveHand("right",0,0,0,0,0,0)
+  i01.moveHand("right",0,0,0,0,0)
 
 def closelefthand():
   i01.moveHand("left",180,180,180,180,180)
@@ -483,8 +487,8 @@ def surrender():
   i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
   i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
-  i01.setHeadSpeed(0.65, 0.65)
-  i01.moveHead(90,90)
+  i01.setHeadSpeed(0.65, 0.65, 0.65, 0.65, 0.65)
+  i01.moveHead(90,90,78,100,38)
   i01.moveArm("left",90,139,15,80)
   i01.moveArm("right",90,145,37,80)
   i01.moveHand("left",50,28,30,10,10,76)
@@ -529,36 +533,40 @@ def picturebothside():
 
 def lookrightside():
   i01.setHeadSpeed(0.70, 0.70)
-  i01.moveHead(40,90)
+  i01.moveHead(85,40)
 
 def lookleftside():
   i01.setHeadSpeed(0.70, 0.70)
-  i01.moveHead(140,90)
+  i01.moveHead(85,140)
+
+def lookinmiddle():
+  i01.setHeadSpeed(0.70, 0.70)
+  i01.moveHead(85,90)
  
 def powerdown():
-	sleep(2)	
-	ear.pauseListening()
-	i01.rest()
-	i01.mouth.speakBlocking("I'm powering down")
-	sleep(2)
-	i01.moveHead(40, 85);
-	sleep(4)
-	rightSerialPort.digitalWrite(53, Arduino.LOW)
-	leftSerialPort.digitalWrite(53, Arduino.LOW)
-	ear.lockOutAllGrammarExcept("power up")
-	sleep(2)
-	ear.resumeListening()
+        sleep(2)        
+        ear.pauseListening()
+        i01.rest()
+        i01.mouth.speakBlocking("I'm powering down")
+        sleep(2)
+        i01.moveHead(40, 85);
+        sleep(4)
+        rightSerialPort.digitalWrite(53, Arduino.LOW)
+        leftSerialPort.digitalWrite(53, Arduino.LOW)
+        ear.lockOutAllGrammarExcept("power up")
+        sleep(2)
+        ear.resumeListening()
  
 def powerup():
-	sleep(2)	
-	ear.pauseListening()
-	rightSerialPort.digitalWrite(53, Arduino.HIGH)
-	leftSerialPort.digitalWrite(53, Arduino.HIGH)
-	i01.mouth.speakBlocking("Im powered up")
-	i01.rest()
-	ear.clearLock()
-	sleep(2)
-	ear.resumeListening()
+        sleep(2)        
+        ear.pauseListening()
+        rightSerialPort.digitalWrite(53, Arduino.HIGH)
+        leftSerialPort.digitalWrite(53, Arduino.HIGH)
+        i01.mouth.speakBlocking("Im powered up")
+        i01.rest()
+        ear.clearLock()
+        sleep(2)
+        ear.resumeListening()
  
 def hello():
      i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
@@ -588,54 +596,54 @@ def hello():
           sleep(1)
  
           if w==1:
-		     i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
-		     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 0.60)
-		     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-		     i01.setArmSpeed("right", 0.65, 1.0, 1.0, 1.0)
-		     i01.setHeadSpeed(0.65, 0.75)
-		     i01.moveHead(83,70)
-		     i01.mouth.speakBlocking("hello, my name is inmov")
-		     i01.moveArm("left",78,48,37,10)
-		     i01.moveArm("right",57,145,50,68)
-		     i01.moveHand("left",100,90,85,80,71,15)
-		     i01.moveHand("right",3,0,31,12,26,45)
-		     sleep(1)
-		     i01.moveHead(83,98)
-		     i01.moveArm("left",78,48,37,10)
-		     i01.moveArm("right",90,157,47,75)
-		     i01.moveHand("left",112,111,105,102,81,10)
-		     i01.moveHand("right",3,0,62,41,117,94)
-		     sleep(1)
-		     i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
-		     i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
-		     i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
-		     i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
-		     i01.setHeadSpeed(0.75, 0.75)
-		     i01.moveHead(79,100)
-		     i01.moveArm("left",0,94,28,15)
-		     i01.moveArm("right",0,82,28,15)
-		     i01.moveHand("left",42,58,42,55,71,35)
-		     i01.moveHand("right",81,50,82,60,105,113)
-		     ear.resumeListening()
+                     i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
+                     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 0.60)
+                     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+                     i01.setArmSpeed("right", 0.65, 1.0, 1.0, 1.0)
+                     i01.setHeadSpeed(0.65, 0.75)
+                     i01.moveHead(83,70)
+                     i01.mouth.speakBlocking("hello, my name is inmov")
+                     i01.moveArm("left",78,48,37,10)
+                     i01.moveArm("right",57,145,50,68)
+                     i01.moveHand("left",100,90,85,80,71,15)
+                     i01.moveHand("right",3,0,31,12,26,45)
+                     sleep(1)
+                     i01.moveHead(83,98)
+                     i01.moveArm("left",78,48,37,10)
+                     i01.moveArm("right",90,157,47,75)
+                     i01.moveHand("left",112,111,105,102,81,10)
+                     i01.moveHand("right",3,0,62,41,117,94)
+                     sleep(1)
+                     i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+                     i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+                     i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+                     i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
+                     i01.setHeadSpeed(0.75, 0.75)
+                     i01.moveHead(79,100)
+                     i01.moveArm("left",0,94,28,15)
+                     i01.moveArm("right",0,82,28,15)
+                     i01.moveHand("left",42,58,42,55,71,35)
+                     i01.moveHand("right",81,50,82,60,105,113)
+                     ear.resumeListening()
  
-def photo():	
-	i01.moveHead(87,60)
-	i01.moveArm("left",78,48,37,10)
-	i01.moveArm("right",46,147,5,75)
-	i01.moveHand("left",138,52,159,106,120,90)
-	i01.moveHand("right",80,65,94,63,70,140)
+def photo():    
+        i01.moveHead(87,60)
+        i01.moveArm("left",78,48,37,10)
+        i01.moveArm("right",46,147,5,75)
+        i01.moveHand("left",138,52,159,106,120,90)
+        i01.moveHand("right",80,65,94,63,70,140)
  
 def beforehappy():
-	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 1.0)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(84,88)
-	i01.moveArm("left",0,82,36,10)
-	i01.moveArm("right",74,112,61,29)
-	i01.moveHand("left",0,88,135,94,96,90)
-	i01.moveHand("right",81,79,118,47,0,90)
+        i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 1.0)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(84,88)
+        i01.moveArm("left",0,82,36,10)
+        i01.moveArm("right",74,112,61,29)
+        i01.moveHand("left",0,88,135,94,96,90)
+        i01.moveHand("right",81,79,118,47,0,90)
  
 def happy():
      for w in range(0,3):
@@ -652,221 +660,221 @@ def happy():
          i01.moveHand("right",81,79,118,47,0,90)
          sleep(1)
          if w==1:
-		     i01.mouth.speakBlocking("happy birthday grog")
-		     i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-		     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-		     i01.setArmSpeed("right", 0.85, 0.85, 0.85, 1.0)
-		     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-		     i01.setHeadSpeed(0.65, 0.65)
-		     i01.moveHead(42,76)
-		     i01.moveArm("left",0,90,30,10)
-		     i01.moveArm("right",74,70,61,10)
-		     i01.moveHand("left",0,0,0,0,0,90)
-		     i01.moveHand("right",81,79,118,47,0,90)
-		     sleep(5)
-		     ear.resumeListening()
+                     i01.mouth.speakBlocking("happy birthday grog")
+                     i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+                     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+                     i01.setArmSpeed("right", 0.85, 0.85, 0.85, 1.0)
+                     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+                     i01.setHeadSpeed(0.65, 0.65)
+                     i01.moveHead(42,76)
+                     i01.moveArm("left",0,90,30,10)
+                     i01.moveArm("right",74,70,61,10)
+                     i01.moveHand("left",0,0,0,0,0,90)
+                     i01.moveHand("right",81,79,118,47,0,90)
+                     sleep(5)
+                     ear.resumeListening()
  
 def about():
-	sleep(2)	
-	ear.pauseListening()
-	sleep(2)
-	i01.setArmSpeed("right", 0.1, 0.1, 0.2, 0.2);
-	i01.setArmSpeed("left", 0.1, 0.1, 0.2, 0.2);
-	i01.setHeadSpeed(0.2,0.2)
-	i01.moveArm("right", 64, 94, 10, 10);
+        sleep(2)        
+        ear.pauseListening()
+        sleep(2)
+        i01.setArmSpeed("right", 0.1, 0.1, 0.2, 0.2);
+        i01.setArmSpeed("left", 0.1, 0.1, 0.2, 0.2);
+        i01.setHeadSpeed(0.2,0.2)
+        i01.moveArm("right", 64, 94, 10, 10);
  
  
-	i01.mouth.speakBlocking("I am the first life size humanoid robot you can 3D print and animate")
-	i01.moveHead(65,66)
-	i01.moveArm("left", 64, 104, 10, 10);
-	i01.moveArm("right", 44, 84, 10, 10);
-	i01.mouth.speakBlocking("my designer creator is Gael Langevin a French sculptor, model maker")
-	i01.moveHead(75,86)
-	i01.moveArm("left", 54, 104, 10, 10);
-	i01.moveArm("right", 64, 84, 10, 20);
-	i01.mouth.speakBlocking("who has released my files  to the opensource 3D world.")
-	i01.moveHead(65,96)
-	i01.moveArm("left", 44, 94, 10, 20);
-	i01.moveArm("right", 54, 94, 20, 10);
-	i01.mouth.speakBlocking("this is where my builder downloaded my files.")
+        i01.mouth.speakBlocking("I am the first life size humanoid robot you can 3D print and animate")
+        i01.moveHead(65,66)
+        i01.moveArm("left", 64, 104, 10, 10);
+        i01.moveArm("right", 44, 84, 10, 10);
+        i01.mouth.speakBlocking("my designer creator is Gael Langevin a French sculptor, model maker")
+        i01.moveHead(75,86)
+        i01.moveArm("left", 54, 104, 10, 10);
+        i01.moveArm("right", 64, 84, 10, 20);
+        i01.mouth.speakBlocking("who has released my files  to the opensource 3D world.")
+        i01.moveHead(65,96)
+        i01.moveArm("left", 44, 94, 10, 20);
+        i01.moveArm("right", 54, 94, 20, 10);
+        i01.mouth.speakBlocking("this is where my builder downloaded my files.")
  
-	i01.moveHead(75,76)
-	i01.moveArm("left", 64, 94, 20, 10);
-	i01.moveArm("right", 34, 94, 10, 10);
-	i01.mouth.speakBlocking("after five hundred hours of printing, four kilos of plastic, twenty five hobby servos, blood and sweat.I was brought to life") # should be " i was borght to life."
-	i01.moveHead(65,86)
-	i01.moveArm("left", 24, 94, 10, 10);
-	i01.moveArm("right", 24, 94, 10, 10);	
-	i01.mouth.speakBlocking("so if You have a 3D printer, some building skills, then you can build your own version of me") # mabe add in " alot of money"
-	i01.moveHead(85,86)
-	i01.moveArm("left", 4, 94, 20, 30);
-	i01.moveArm("right", 24, 124, 10, 20);
-	i01.mouth.speakBlocking("and if enough people build me, some day my kind could take over the world") # mabe add in " alot of money"
-	i01.moveHead(75,96)
-	i01.moveArm("left", 24, 104, 10, 10);
-	i01.moveArm("right", 4, 94, 20, 30);
-	i01.mouth.speakBlocking("I'm just kidding. i need some legs to get around, and i have to over come my  pyro-phobia, a fear of fire") # mabe add in " alot of money"
-	i01.moveHead(75,96)
-	i01.moveArm("left", 4, 94, 10, 10)
-	i01.moveArm("right", 4, 94, 10, 10);
-	i01.mouth.speakBlocking("so, until then. i will be humankind's humble servant")
+        i01.moveHead(75,76)
+        i01.moveArm("left", 64, 94, 20, 10);
+        i01.moveArm("right", 34, 94, 10, 10);
+        i01.mouth.speakBlocking("after five hundred hours of printing, four kilos of plastic, twenty five hobby servos, blood and sweat.I was brought to life") # should be " i was borght to life."
+        i01.moveHead(65,86)
+        i01.moveArm("left", 24, 94, 10, 10);
+        i01.moveArm("right", 24, 94, 10, 10);  
+        i01.mouth.speakBlocking("so if You have a 3D printer, some building skills, then you can build your own version of me") # mabe add in " alot of money"
+        i01.moveHead(85,86)
+        i01.moveArm("left", 4, 94, 20, 30);
+        i01.moveArm("right", 24, 124, 10, 20);
+        i01.mouth.speakBlocking("and if enough people build me, some day my kind could take over the world") # mabe add in " alot of money"
+        i01.moveHead(75,96)
+        i01.moveArm("left", 24, 104, 10, 10);
+        i01.moveArm("right", 4, 94, 20, 30);
+        i01.mouth.speakBlocking("I'm just kidding. i need some legs to get around, and i have to over come my  pyro-phobia, a fear of fire") # mabe add in " alot of money"
+        i01.moveHead(75,96)
+        i01.moveArm("left", 4, 94, 10, 10)
+        i01.moveArm("right", 4, 94, 10, 10);
+        i01.mouth.speakBlocking("so, until then. i will be humankind's humble servant")
  
-	i01.rest()
-	i01.setArmSpeed("right", 1, 1, 1, 1);
-	i01.setArmSpeed("left", 1, 1, 1, 1);
-	i01.setHeadSpeed(1,1)
-	sleep(2)
-	ear.resumeListening()
+        i01.rest()
+        i01.setArmSpeed("right", 1, 1, 1, 1);
+        i01.setArmSpeed("left", 1, 1, 1, 1);
+        i01.setHeadSpeed(1,1)
+        sleep(2)
+        ear.resumeListening()
  
-def servos():	
-	ear.pauseListening()
-	sleep(2)
-	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(79,100)
-	i01.moveArm("left",0,119,28,15)
-	i01.moveArm("right",0,111,28,15)
-	i01.moveHand("left",42,58,87,55,71,35)
-	i01.moveHand("right",81,20,82,60,105,113)
-	i01.mouth.speakBlocking("I currently have twenty five  hobby servos installed in my body to give me life")
-	i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(124,90)
-	i01.moveArm("left",89,94,91,35)
-	i01.moveArm("right",20,67,31,22)
-	i01.moveHand("left",106,41,161,147,138,90)
-	i01.moveHand("right",0,0,0,54,91,90)
-	i01.mouth.speakBlocking("there's one servo  for moving my mouth up and down")
-	sleep(1)
-	i01.setHandSpeed("left", 0.85, 0.85, 1.0, 0.85, 0.85, 0.85)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(105,76);
-	i01.moveArm("left",89,106,103,35);
-	i01.moveArm("right",35,67,31,22);
-	i01.moveHand("left",106,0,0,147,138,7);
-	i01.moveHand("right",0,0,0,54,91,90);
-	i01.mouth.speakBlocking("two for my eyes")
-	sleep(0.2)
-	i01.setHandSpeed("left", 0.85, 0.85, 1.0, 1.0, 1.0, 0.85)
-	i01.moveHand("left",106,0,0,0,0,7);
-	i01.mouth.speakBlocking("and two more for my head")
-	sleep(0.5)
-	i01.setHandSpeed("left", 0.85, 0.9, 0.9, 0.9, 0.9, 0.85)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(90,40);
-	i01.moveArm("left",89,106,103,35);
-	i01.moveArm("right",35,67,31,20);
-	i01.moveHand("left",106,140,140,140,140,7);
-	i01.moveHand("right",0,0,0,54,91,90);
-	i01.mouth.speakBlocking("so i can look around")
-	sleep(0.5)
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(105,125);
-	i01.setArmSpeed("left", 0.9, 0.9, 0.9, 0.9)
-	i01.moveArm("left",60,100,85,30);
-	i01.mouth.speakBlocking("and see who's there")
-	i01.setHeadSpeed(0.65, 0.65)
-	i01.moveHead(40,56);
-	sleep(0.5)
-	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
-	i01.setArmSpeed("right", 0.5, 0.6, 0.5, 0.6);
-	i01.moveArm("left",87,41,64,10)
-	i01.moveArm("right",0,95,40,10)
-	i01.moveHand("left",98,150,160,160,160,104)
-	i01.moveHand("right",0,0,50,54,91,90);
-	i01.mouth.speakBlocking("there's three servos  in each shoulder")
-	i01.moveHead(40,67);
-	sleep(2)
-	i01.setHandSpeed("left", 0.8, 0.9, 0.8, 0.8, 0.8, 0.8)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.8, 0.8)
-	i01.moveHead(43,69)
-	i01.moveArm("left",87,41,64,10)
-	i01.moveArm("right",0,95,40,42)
-	i01.moveHand("left",42,0,100,80,113,35)
-	i01.moveHand("left",42,10,160,160,160,35)
-	i01.moveHand("right",81,20,82,60,105,113)
-	i01.mouth.speakBlocking("here is the first servo movement")
-	sleep(1)
-	i01.moveHead(37,60);
-	i01.setHandSpeed("left", 1.0, 1.0, 0.9, 0.9, 1.0, 0.8)
-	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
-	i01.moveArm("right",0,95,67,42)
-	i01.moveHand("left",42,10,10,160,160,30)
-	i01.mouth.speakBlocking("this is the second one")
-	sleep(1)
-	i01.moveHead(43,69);
-	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
-	i01.moveArm("right",0,134,67,42)
-	i01.moveHand("left",42,10,10,10,160,35)
-	i01.mouth.speakBlocking("now you see the third")
-	sleep(1)
-	i01.setArmSpeed("right", 0.8, 0.8, 0.8, 0.8)
-	i01.moveArm("right",20,90,45,16)
-	i01.mouth.speakBlocking("they give me a more human like movement")
-	sleep(1)
-	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0);
-	i01.moveHead(43,72)
-	i01.moveArm("left",90,44,66,10)
-	i01.moveArm("right",90,100,67,26)
-	i01.moveHand("left",42,80,100,80,113,35)
-	i01.moveHand("right",81,0,82,60,105,69)
-	i01.mouth.speakBlocking("but, i have only  one servo, to move each elbow")
-	i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-	i01.setHeadSpeed(0.8, 0.8)
-	i01.moveHead(45,62)
-	i01.moveArm("left",72,44,90,10)
-	i01.moveArm("right",90,95,68,15)
-	i01.moveHand("left",42,0,100,80,113,35)
-	i01.moveHand("right",81,0,82,60,105,0)
-	i01.mouth.speakBlocking("that, leaves me, with one servo per wrist")
-	i01.moveHead(40,60)
-	i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.setHandSpeed("right", 0.9, 0.9, 0.9, 0.9, 0.9, 0.9)
-	i01.moveArm("left",72,44,90,9)
-	i01.moveArm("right",90,95,68,15)
-	i01.moveHand("left",42,0,100,80,113,35)
-	i01.moveHand("right", 10, 140,82,60,105,10)
-	i01.mouth.speakBlocking("and one servo for each finger.")
-	sleep(0.5)
-	i01.moveHand("left",42,0,100,80,113,35)
-	i01.moveHand("right", 50, 51, 15,23, 30,140);
-	i01.mouth.speakBlocking("these servos are located in my forearms")
-	i01.setHandSpeed("left", 0.8, 0.8, 0.8, 0.8,0.8, 0.8)
-	i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-	i01.moveHand("left", 36, 52, 8,22, 20);
-	i01.moveHand("right", 120, 147, 130,110, 125);
-	further()
-	sleep(1)
-	i01.mouth.speakBlocking("they are hooked up, by the use of tendons")
-	i01.moveHand("left",10,20,30,40,60,150);
-	i01.moveHand("right",110,137,120,100,105,130);
-	i01.setHeadSpeed(1,1)
-	i01.setArmSpeed("right", 1.0,1.0, 1.0, 1.0);
-	i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
-	further()
-	sleep(2)
-	ear.resumeListening()
+def servos():  
+        ear.pauseListening()
+        sleep(2)
+        i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(79,100)
+        i01.moveArm("left",0,119,28,15)
+        i01.moveArm("right",0,111,28,15)
+        i01.moveHand("left",42,58,87,55,71,35)
+        i01.moveHand("right",81,20,82,60,105,113)
+        i01.mouth.speakBlocking("I currently have twenty five  hobby servos installed in my body to give me life")
+        i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(124,90)
+        i01.moveArm("left",89,94,91,35)
+        i01.moveArm("right",20,67,31,22)
+        i01.moveHand("left",106,41,161,147,138,90)
+        i01.moveHand("right",0,0,0,54,91,90)
+        i01.mouth.speakBlocking("there's one servo  for moving my mouth up and down")
+        sleep(1)
+        i01.setHandSpeed("left", 0.85, 0.85, 1.0, 0.85, 0.85, 0.85)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(105,76);
+        i01.moveArm("left",89,106,103,35);
+        i01.moveArm("right",35,67,31,22);
+        i01.moveHand("left",106,0,0,147,138,7);
+        i01.moveHand("right",0,0,0,54,91,90);
+        i01.mouth.speakBlocking("two for my eyes")
+        sleep(0.2)
+        i01.setHandSpeed("left", 0.85, 0.85, 1.0, 1.0, 1.0, 0.85)
+        i01.moveHand("left",106,0,0,0,0,7);
+        i01.mouth.speakBlocking("and two more for my head")
+        sleep(0.5)
+        i01.setHandSpeed("left", 0.85, 0.9, 0.9, 0.9, 0.9, 0.85)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(90,40);
+        i01.moveArm("left",89,106,103,35);
+        i01.moveArm("right",35,67,31,20);
+        i01.moveHand("left",106,140,140,140,140,7);
+        i01.moveHand("right",0,0,0,54,91,90);
+        i01.mouth.speakBlocking("so i can look around")
+        sleep(0.5)
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(105,125);
+        i01.setArmSpeed("left", 0.9, 0.9, 0.9, 0.9)
+        i01.moveArm("left",60,100,85,30);
+        i01.mouth.speakBlocking("and see who's there")
+        i01.setHeadSpeed(0.65, 0.65)
+        i01.moveHead(40,56);
+        sleep(0.5)
+        i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
+        i01.setArmSpeed("right", 0.5, 0.6, 0.5, 0.6);
+        i01.moveArm("left",87,41,64,10)
+        i01.moveArm("right",0,95,40,10)
+        i01.moveHand("left",98,150,160,160,160,104)
+        i01.moveHand("right",0,0,50,54,91,90);
+        i01.mouth.speakBlocking("there's three servos  in each shoulder")
+        i01.moveHead(40,67);
+        sleep(2)
+        i01.setHandSpeed("left", 0.8, 0.9, 0.8, 0.8, 0.8, 0.8)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.8, 0.8)
+        i01.moveHead(43,69)
+        i01.moveArm("left",87,41,64,10)
+        i01.moveArm("right",0,95,40,42)
+        i01.moveHand("left",42,0,100,80,113,35)
+        i01.moveHand("left",42,10,160,160,160,35)
+        i01.moveHand("right",81,20,82,60,105,113)
+        i01.mouth.speakBlocking("here is the first servo movement")
+        sleep(1)
+        i01.moveHead(37,60);
+        i01.setHandSpeed("left", 1.0, 1.0, 0.9, 0.9, 1.0, 0.8)
+        i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+        i01.moveArm("right",0,95,67,42)
+        i01.moveHand("left",42,10,10,160,160,30)
+        i01.mouth.speakBlocking("this is the second one")
+        sleep(1)
+        i01.moveHead(43,69);
+        i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+        i01.moveArm("right",0,134,67,42)
+        i01.moveHand("left",42,10,10,10,160,35)
+        i01.mouth.speakBlocking("now you see the third")
+        sleep(1)
+        i01.setArmSpeed("right", 0.8, 0.8, 0.8, 0.8)
+        i01.moveArm("right",20,90,45,16)
+        i01.mouth.speakBlocking("they give me a more human like movement")
+        sleep(1)
+        i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0);
+        i01.moveHead(43,72)
+        i01.moveArm("left",90,44,66,10)
+        i01.moveArm("right",90,100,67,26)
+        i01.moveHand("left",42,80,100,80,113,35)
+        i01.moveHand("right",81,0,82,60,105,69)
+        i01.mouth.speakBlocking("but, i have only  one servo, to move each elbow")
+        i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+        i01.setHeadSpeed(0.8, 0.8)
+        i01.moveHead(45,62)
+        i01.moveArm("left",72,44,90,10)
+        i01.moveArm("right",90,95,68,15)
+        i01.moveHand("left",42,0,100,80,113,35)
+        i01.moveHand("right",81,0,82,60,105,0)
+        i01.mouth.speakBlocking("that, leaves me, with one servo per wrist")
+        i01.moveHead(40,60)
+        i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.setHandSpeed("right", 0.9, 0.9, 0.9, 0.9, 0.9, 0.9)
+        i01.moveArm("left",72,44,90,9)
+        i01.moveArm("right",90,95,68,15)
+        i01.moveHand("left",42,0,100,80,113,35)
+        i01.moveHand("right", 10, 140,82,60,105,10)
+        i01.mouth.speakBlocking("and one servo for each finger.")
+        sleep(0.5)
+        i01.moveHand("left",42,0,100,80,113,35)
+        i01.moveHand("right", 50, 51, 15,23, 30,140);
+        i01.mouth.speakBlocking("these servos are located in my forearms")
+        i01.setHandSpeed("left", 0.8, 0.8, 0.8, 0.8,0.8, 0.8)
+        i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        i01.moveHand("left", 36, 52, 8,22, 20);
+        i01.moveHand("right", 120, 147, 130,110, 125);
+        further()
+        sleep(1)
+        i01.mouth.speakBlocking("they are hooked up, by the use of tendons")
+        i01.moveHand("left",10,20,30,40,60,150);
+        i01.moveHand("right",110,137,120,100,105,130);
+        i01.setHeadSpeed(1,1)
+        i01.setArmSpeed("right", 1.0,1.0, 1.0, 1.0);
+        i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
+        further()
+        sleep(2)
+        ear.resumeListening()
  
 def howmanyfingersdoihave():
      ear.pauseListening()
@@ -989,3 +997,4 @@ def howmanyfingersdoihave():
      sleep(0.5)
  
      ear.resumeListening()
+
