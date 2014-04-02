@@ -36,7 +36,7 @@ i01.startAll(leftPort, rightPort)
 #i01.attach()
 
 # auto detaches any attached servos after 120 seconds of inactivity
-i01.autoDetachOnInactivity(120)
+i01.autoPowerDownOnInactivity()
 
 # purges any "auto" methods
 #i01.purgeAllTasks()
