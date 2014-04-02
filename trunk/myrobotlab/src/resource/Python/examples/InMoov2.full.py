@@ -11,11 +11,11 @@ i01 = Runtime.createAndStart("i01", "InMoov")
 i01.startAll(leftPort, rightPort)
 
 # how to invert the left hand fingers begin
-# i01.leftHand.thumb.invert()
-# i01.leftHand.index.invert()
-# i01.leftHand.majeure.invert()
-# i01.leftHand.ringFinger.invert()
-# i01.leftHand.pinky.invert()
+# i01.leftHand.thumb.setInverted(True)
+# i01.leftHand.index.setInverted(True)
+# i01.leftHand.majeure.setInverted(True)
+# i01.leftHand.ringFinger.setInverted(True)
+# i01.leftHand.pinky.setInverted(True)
 # how to invert the left hand fingers end
 
 # starting parts
