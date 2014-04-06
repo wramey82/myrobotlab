@@ -134,6 +134,11 @@ public class GestureRecognition extends Service // implements
 
 	void setUpUser() {
 
+		if (context == null){
+			error("could not get context");
+			return;
+		}
+		
 		if (context.isInit() == false) {
 			error("Can't init SimpleOpenNI, maybe the camera is not connected!");
 
@@ -293,6 +298,7 @@ public class GestureRecognition extends Service // implements
 	public void line(Float x, Float y, Float x2, Float y2) {
 		// TODO Auto-generated method stub
 		 g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
+		 //g2d.drawString(str, Math.round(x), Math.round(y));
 	}
 	// USER END ---------------------------------------------
 
