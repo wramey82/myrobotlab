@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.myrobotlab.framework.Service;
 import org.myrobotlab.image.SerializableImage;
@@ -13,22 +16,31 @@ import org.myrobotlab.logging.LoggingFactory;
 import org.myrobotlab.openni.PApplet;
 import org.myrobotlab.openni.PImage;
 import org.myrobotlab.openni.PVector;
+import org.myrobotlab.openni.Skeleton;
 import org.myrobotlab.service.interfaces.VideoSink;
 import org.slf4j.Logger;
 
 import SimpleOpenNI.SimpleOpenNI;
 
-public class GestureRecognition extends Service // implements
+public class OpenNI extends Service // implements
 // UserTracker.NewFrameListener,
 // HandTracker.NewFrameListener
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static Logger log = LoggerFactory.getLogger(GestureRecognition.class);
+	public final static Logger log = LoggerFactory.getLogger(OpenNI.class);
 	SimpleOpenNI context;
 
 	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
+	
+	Graphics2D g2d;
+
+	// BasicStroke bs = new BasicStroke(BasicStroke.CAP_ROUND);
+
+
+	int handVecListSize = 20;
+	HashMap<Integer, ArrayList<PVector>> handPathList = new HashMap<Integer, ArrayList<PVector>>();
 
 	// user begin
 	Color[] userClr = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN, Color.CYAN };
@@ -43,7 +55,7 @@ public class GestureRecognition extends Service // implements
 
 	// user end
 
-	public GestureRecognition(String n) {
+	public OpenNI(String n) {
 		super(n);
 	}
 
@@ -61,7 +73,7 @@ public class GestureRecognition extends Service // implements
 	@Override
 	public void stopService() {
 		super.stopService();
-		closeContext();
+		stopCapture();
 	}
 
 	public void initContext() {
@@ -82,7 +94,7 @@ public class GestureRecognition extends Service // implements
 
 	}
 
-	public void closeContext() {
+	public void stopCapture() {
 		stopWorker();
 		if (context != null) {
 			context.close();
@@ -115,30 +127,11 @@ public class GestureRecognition extends Service // implements
 	// USER BEGIN ---------------------------------------------
 
 	public void startUserTracking() {
-		setUpUser();
-		info("starting user worker");
-		if (worker != null) {
-			stopWorker();
-		}
-		worker = new Worker("user");
-		worker.start();
-	}
-
-	public void stopWorker() {
-		if (worker != null) {
-			info(String.format("stopping worker %s", worker.type));
-			worker.isRunning = false;
-			worker = null;
-		}
-	}
-
-	void setUpUser() {
-
-		if (context == null){
+		if (context == null) {
 			error("could not get context");
 			return;
 		}
-		
+
 		if (context.isInit() == false) {
 			error("Can't init SimpleOpenNI, maybe the camera is not connected!");
 
@@ -151,6 +144,46 @@ public class GestureRecognition extends Service // implements
 		// enable skeleton generation for all joints
 		context.enableUser();
 
+		info("starting user worker");
+		if (worker != null) {
+			stopWorker();
+		}
+		worker = new Worker("user");
+		worker.start();
+	}
+
+	public void startHandTracking() {
+
+		if (context.isInit() == false) {
+			error("Can't init SimpleOpenNI, maybe the camera is not connected!");
+			return;
+		}
+
+		// enable depthMap generation
+		context.enableDepth();
+
+		// disable mirror
+		context.setMirror(true);
+
+		// enable hands + gesture generation
+		// context.enableGesture();
+		context.enableHand();
+		//context.startGesture(SimpleOpenNI.GESTURE_WAVE);
+
+		// set how smooth the hand capturing should be
+		// context.setSmoothingHands(.5);
+
+		worker = new Worker("hands");
+		worker.start();
+	}
+
+	// shutdown worker
+	public void stopWorker() {
+		if (worker != null) {
+			info(String.format("stopping worker %s", worker.type));
+			worker.isRunning = false;
+			worker = null;
+		}
 	}
 
 	public class Worker extends Thread {
@@ -168,8 +201,10 @@ public class GestureRecognition extends Service // implements
 				while (isRunning) {
 					if ("user".equals(type)) {
 						drawUser();
+					} else if ("hands".equals(type)) {
+						drawHand();
 					} else {
-						error("unkown worker %s", type);
+						error("unknown worker %s", type);
 						isRunning = false;
 					}
 
@@ -181,23 +216,21 @@ public class GestureRecognition extends Service // implements
 		}
 	}
 
-	Graphics2D g2d;
-	//BasicStroke bs = new BasicStroke(BasicStroke.CAP_ROUND);
-	
+
 	void drawUser() {
 		// update the cam
 		context.update();
 
 		// draw depthImageMap
 		// image(context.depthImage(),0,0);
-		
+
 		// FIXME - THIS IS INCORRECT - DATA CAN BE BROADCAST BUT NO GRAPHICS !
 		PImage p = context.depthImage();
 		frame = p.getImage();
 
 		g2d = frame.createGraphics();
 		g2d.setColor(Color.RED);
-		
+
 		// draw the skeleton if it's available
 		int[] userList = context.getUsers();
 		for (int i = 0; i < userList.length; i++) {
@@ -228,10 +261,12 @@ public class GestureRecognition extends Service // implements
 		invoke("publishFrame", new SerializableImage(frame, getName()));
 
 	}
+	
+	Skeleton skeleton = new Skeleton();
+	
 
 	// draw the skeleton with the selected joints
 	void drawSkeleton(int userId) {
-		info(String.format("i would be drawing user %d if i knew how", userId));
 		// to get the 3d joint data
 		/*
 		 * PVector jointPos = new PVector();
@@ -244,6 +279,10 @@ public class GestureRecognition extends Service // implements
 		// println(jointPos);
 		log.info("jointPos skeleton neck {} ", jointPos);
 
+		
+		float quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, skeleton.head);
+        //float quality = getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, joint2Pos);
+		
 		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
 		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
@@ -265,6 +304,101 @@ public class GestureRecognition extends Service // implements
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
 	}
+
+	// ----- hand begin ---------------------
+
+	public void drawHand() {
+		// update the cam
+		context.update();
+
+		PImage image = context.depthImage();
+		frame = image.getImage();
+		// image(context.depthImage(),0,0);
+		g2d = frame.createGraphics();
+		g2d.setColor(Color.RED);
+
+		// draw the tracked hands
+		if (handPathList.size() > 0) {
+			Iterator itr = handPathList.entrySet().iterator();
+			while (itr.hasNext()) {
+				Map.Entry mapEntry = (Map.Entry) itr.next();
+				int handId = (Integer) mapEntry.getKey();
+				ArrayList<PVector> vecList = (ArrayList<PVector>) mapEntry.getValue();
+				PVector p;
+				PVector p2d = new PVector();
+
+				// stroke(userClr[(handId - 1) % userClr.length]);
+				// noFill();
+				// strokeWeight(1);
+				Iterator itrVec = vecList.iterator();
+				// beginShape();
+				PVector p1 = null;
+				while (itrVec.hasNext()) {
+					p = (PVector) itrVec.next();
+
+					context.convertRealWorldToProjective(p, p2d);
+					if (p1 != null) {
+						g2d.drawLine(Math.round(p1.x), Math.round(p1.y), Math.round(p2d.x), Math.round(p2d.y));
+					}
+
+					p1 = p2d;
+					// vertex(p2d.x, p2d.y);
+				}
+				// endShape();
+
+				// stroke(userClr[(handId - 1) % userClr.length]);
+				// strokeWeight(4);
+				p = vecList.get(0);
+				context.convertRealWorldToProjective(p, p2d);
+				g2d.fillOval(Math.round(p2d.x), Math.round(p2d.y), 2, 2);
+				// point(p2d.x, p2d.y);
+
+			}
+		}
+		
+		invoke("publishFrame", new SerializableImage(frame, getName()));
+	}
+
+	// -----------------------------------------------------------------
+	// hand events
+
+	public void onNewHand(SimpleOpenNI curContext, int handId, PVector pos) {
+		log.info("onNewHand - handId: " + handId + ", pos: " + pos);
+
+		ArrayList<PVector> vecList = new ArrayList<PVector>();
+		vecList.add(pos);
+
+		handPathList.put(handId, vecList);
+	}
+
+	public void onTrackedHand(SimpleOpenNI curContext, int handId, PVector pos) {
+		// println("onTrackedHand - handId: " + handId + ", pos: " + pos );
+
+		ArrayList<PVector> vecList = handPathList.get(handId);
+		if (vecList != null) {
+			vecList.add(0, pos);
+			if (vecList.size() >= handVecListSize)
+				// remove the last point
+				vecList.remove(vecList.size() - 1);
+		}
+	}
+
+	public void onLostHand(SimpleOpenNI curContext, int handId) {
+		log.info("onLostHand - handId: " + handId);
+		handPathList.remove(handId);
+	}
+
+	// -----------------------------------------------------------------
+	// gesture events
+
+	public void onCompletedGesture(SimpleOpenNI curContext, int gestureType, PVector pos) {
+		log.info("onCompletedGesture - gestureType: " + gestureType + ", pos: " + pos);
+
+		int handId = context.startTrackingHand(pos);
+		log.info("hand stracked: " + handId);
+	}
+
+	// ----- hand end -----------------------
 
 	// -----------------------------------------------------------------
 	// SimpleOpenNI events
@@ -289,30 +423,26 @@ public class GestureRecognition extends Service // implements
 
 	}
 
-	public void onNewHand(SimpleOpenNI openni, int userId, PVector v) {
-		log.info("onVisibleUser - userId: " + userId);
-
-	}
-
 	// PApplet
 	public void line(Float x, Float y, Float x2, Float y2) {
 		// TODO Auto-generated method stub
-		 g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
-		 //g2d.drawString(str, Math.round(x), Math.round(y));
+		g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
+		// g2d.drawString(str, Math.round(x), Math.round(y));
 	}
+
 	// USER END ---------------------------------------------
 
 	public static void main(String s[]) {
 		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel("INFO");
 
 		Runtime.createAndStart("gui", "GUIService");
 		Runtime.createAndStart("python", "Python");
 
-		GestureRecognition gr = new GestureRecognition("gr");
-		gr.startService();
-		gr.startUserTracking();
+		OpenNI openni = new OpenNI("gr");
+		openni.startService();
+		openni.startUserTracking();
+		//openni.startHandTracking();
 	}
-
-	
 
 }
