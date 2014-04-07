@@ -1,5 +1,6 @@
 package org.myrobotlab.service;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.myrobotlab.framework.Peers;
@@ -181,6 +182,9 @@ public class InMoov extends Service {
 		startMouth();
 		startHead(leftPort);
 		startEar();
+
+		startMouthControl(leftPort);
+
 		startLeftHand(leftPort);
 		startRightHand(rightPort);
 		startLeftArm(leftPort);
@@ -190,38 +194,6 @@ public class InMoov extends Service {
 		startEyesTracking(leftPort);
 
 		speakBlocking("startup sequence completed");
-	}
-
-	public Integer pirPin = null;
-	Long startSleep = null;
-
-	public void startPIR(String port, int pin) {
-		speakBlocking("starting pee eye are sensor on port %s pin %d", port, pin);
-		if (arduinos.containsKey(port)) {
-			Arduino arduino = arduinos.get(port);
-			arduino.connect(port);
-			arduino.setSampleRate(8000);
-			arduino.digitalReadPollStart(pin);
-			pirPin = pin;
-			arduino.addListener("publishPin", this.getName(), "publishPin");
-
-		} else {
-			// FIXME - SHOULD ALLOW STARTUP AND LATER ACCESS VIA PORT ONCE OTHER
-			// STARTS CHECK MAP FIRST
-			log.error(String.format("%s arduino not found - start some other system first (head, arm, hand)", port));
-		}
-
-	}
-
-	public void publishPin(Pin pin) {
-		if (pirPin == pin.pin) {
-			if (startSleep != null) {
-				attach(); // good morning / evening / night... asleep for % hours
-				powerUp();
-				speakBlocking("hello. i was sleeping but now i am awake");
-				// TODO - add saying time asleep
-			}
-		}
 	}
 
 	// TODO TODO TODO - context & status report -
@@ -583,6 +555,7 @@ public class InMoov extends Service {
 			head.test();
 		}
 
+		rest();
 		broadcastState();
 		speakBlocking("system check completed");
 	}
@@ -627,50 +600,24 @@ public class InMoov extends Service {
 		moveHand("right", 0, 0, 0, 0, 0, 0);
 	}
 
-	public void powerDown() {
-		sleep(2);
-		if (ear != null){
-			ear.pauseListening();
-		}
-		rest();
-		speakBlocking("I'm powering down");
-		purgeAllTasks();
-		sleep(2);
-		moveHead(40, 85);
-		sleep(4);
-		detach();
-		speakBlocking("for more interaction please request me to power up");
-		speakBlocking("or activate the p eye are sensor. thank you. good bye.");
-		
-		// right
-		// rightSerialPort.digitalWrite(53, Arduino.LOW);
-		// leftSerialPort.digitalWrite(53, Arduino.LOW);
-		if (ear != null){
-			ear.lockOutAllGrammarExcept("power up");
-			sleep(2);
-			ear.resumeListening();
-		}
-		
-		startSleep = System.currentTimeMillis();
-	}
-
 	public void powerUp() {
+		attach();
+		
 		startSleep = null;
-		sleep(2);
-		if (ear != null){
+		if (ear != null) {
 			ear.pauseListening();
 		}
 		// rightSerialPort.digitalWrite(53, Arduino.HIGH);
 		// leftSerialPort.digitalWrite(53, Arduino.HIGH);
 		speakBlocking("Im powered up");
 		rest();
-		if (ear != null){
+		if (ear != null) {
 			ear.clearLock();
 			sleep(2);
 			ear.resumeListening();
 		}
 		speakBlocking("ready");
-		
+
 	}
 
 	// ---------- canned gestures end ---------
@@ -876,7 +823,7 @@ public class InMoov extends Service {
 	}
 
 	public long powerDownOnInactivity() {
-		speakBlocking("checking");
+		// speakBlocking("checking");
 		long lastActivityTime = getLastActivityTime();
 		long now = System.currentTimeMillis();
 		long inactivitySeconds = (now - lastActivityTime) / 1000;
@@ -884,9 +831,90 @@ public class InMoov extends Service {
 			speakBlocking("%d seconds have passed without activity", inactivitySeconds);
 			powerDown();
 		} else {
-			speakBlocking("%d seconds have passed without activity", inactivitySeconds);
+			// speakBlocking("%d seconds have passed without activity",
+			// inactivitySeconds);
+			info("checking powerDownOnInactivity - %d seconds have passed without activity", inactivitySeconds);
 		}
 		return lastActivityTime;
+	}
+
+	public void powerDown() {
+		sleep(2);
+		if (ear != null) {
+			ear.pauseListening();
+		}
+		rest();
+		speakBlocking("I'm powering down");
+		purgeAllTasks();
+		sleep(2);
+		moveHead(40, 85);
+		sleep(4);
+		detach();
+		speakBlocking("for more interaction please request me to power up");
+		speakBlocking("or activate the p eye are sensor. thank you. good bye.");
+
+		// right
+		// rightSerialPort.digitalWrite(53, Arduino.LOW);
+		// leftSerialPort.digitalWrite(53, Arduino.LOW);
+		if (ear != null) {
+			ear.lockOutAllGrammarExcept("power up");
+			sleep(2);
+			ear.resumeListening();
+		}
+
+		startSleep = System.currentTimeMillis();
+	}
+
+	public Integer pirPin = null;
+	Long startSleep = null;
+
+	public void startPIR(String port, int pin) {
+		speakBlocking("starting pee eye are sensor on port %s pin %d", port, pin);
+		if (arduinos.containsKey(port)) {
+			Arduino arduino = arduinos.get(port);
+			arduino.connect(port);
+			arduino.setSampleRate(8000);
+			arduino.digitalReadPollStart(pin);
+			pirPin = pin;
+			arduino.addListener("publishPin", this.getName(), "publishPin");
+
+		} else {
+			// FIXME - SHOULD ALLOW STARTUP AND LATER ACCESS VIA PORT ONCE OTHER
+			// STARTS CHECK MAP FIRST
+			log.error(String.format("%s arduino not found - start some other system first (head, arm, hand)", port));
+		}
+
+	}
+
+	public void stopPIR() {
+		/*
+		 * if (arduinos.containsKey(port)) { Arduino arduino =
+		 * arduinos.get(port); arduino.connect(port);
+		 * arduino.setSampleRate(8000); arduino.digitalReadPollStart(pin);
+		 * pirPin = pin; arduino.addListener("publishPin", this.getName(),
+		 * "publishPin"); }
+		 */
+
+	}
+
+	public void publishPin(Pin pin) {
+		// if its PIR & PIR is active & was sleeping - then wake up !
+		if (pirPin == pin.pin && startSleep != null && pin.value == 1) {
+			//attach(); // good morning / evening / night... asleep for % hours
+			powerUp();
+			Calendar now = Calendar.getInstance();
+			
+			String salutation = "hello ";
+			if (now.get(Calendar.HOUR_OF_DAY) < 12) {
+				salutation = "good morning ";
+			} else if (now.get(Calendar.HOUR_OF_DAY) < 16) {
+				salutation = "good afternoon ";
+			} else {
+				salutation = "good evening ";
+			}
+			
+			speakBlocking(String.format("%s. i was sleeping but now i am awake", salutation));
+		}
 	}
 
 	public boolean isAttached() {
@@ -1010,9 +1038,8 @@ public class InMoov extends Service {
 			headTracking.clearTrackingPoints();
 		}
 	}
-	
-	public void purgeAllTasks()
-	{
+
+	public void purgeAllTasks() {
 		speakBlocking("purging all tasks");
 		super.purgeAllTasks();
 	}
@@ -1023,18 +1050,17 @@ public class InMoov extends Service {
 
 		// Create two virtual ports for UART and user and null them together:
 		// create 2 virtual ports
-/*
-		VirtualSerialPort vp0 = new VirtualSerialPort("UART15");
-		VirtualSerialPort vp1 = new VirtualSerialPort("COM15");
-
-		// make null modem cable ;)
-		VirtualSerialPort.makeNullModem(vp0, vp1);
-		
-
-		// add virtual ports to the serial device factory
-		SerialDeviceFactory.add(vp0);
-		SerialDeviceFactory.add(vp1);
-*/		
+		/*
+		 * VirtualSerialPort vp0 = new VirtualSerialPort("UART15");
+		 * VirtualSerialPort vp1 = new VirtualSerialPort("COM15");
+		 * 
+		 * // make null modem cable ;) VirtualSerialPort.makeNullModem(vp0,
+		 * vp1);
+		 * 
+		 * 
+		 * // add virtual ports to the serial device factory
+		 * SerialDeviceFactory.add(vp0); SerialDeviceFactory.add(vp1);
+		 */
 
 		// create the UART serial service
 		// log.info("Creating a LIDAR UART Serial service named: " + getName() +
@@ -1049,22 +1075,22 @@ public class InMoov extends Service {
 
 		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
 		i01.startMouth();
-		//i01.power(120);
+		// i01.power(120);
 		InMoovHand lefthand = i01.startLeftHand("COM15");
 		i01.leftHand.setRest(10, 10, 10, 10, 10);
 		i01.autoPowerDownOnInactivity(10);
 
 		/*
-		log.info("inactivity {}", i01.powerDownOnInactivity());
-
-		lefthand.moveTo(5, 10, 30, 40, 50);
-
-		log.info("inactivity {}", i01.powerDownOnInactivity());
-
-		lefthand.rest();
-
-		log.info("inactivity {}", i01.powerDownOnInactivity());
-		*/
+		 * log.info("inactivity {}", i01.powerDownOnInactivity());
+		 * 
+		 * lefthand.moveTo(5, 10, 30, 40, 50);
+		 * 
+		 * log.info("inactivity {}", i01.powerDownOnInactivity());
+		 * 
+		 * lefthand.rest();
+		 * 
+		 * log.info("inactivity {}", i01.powerDownOnInactivity());
+		 */
 
 		/*
 		 * 
