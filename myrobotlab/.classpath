@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.java3d/java3d/1.5.1/j3dutils.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.java3d/java3d/1.5.1/vecmath.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/com.sun.jna/jna/3.2.2/jna.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/1.2/freetts.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/batch.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/jsapi-1.0-base.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/edu.cmu.sphinx/sphinx/4-1.0beta6/sphinx4.jar"/>
@@ -83,6 +82,12 @@
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-examples-3.0.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-media-support-3.0.5.jar"/>
 	<classpathentry kind="lib" path="thirdParty/repo/org.twitter4j.twitter/twitter/3.0.5/twitter4j-stream-3.0.5.jar"/>
-	<classpathentry kind="lib" path="thirdParty/repo/com.google.simpleopenni/simpleopenni/1.96/library/SimpleOpenNI.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/javax.microedition.io/io/2.0.3/cldcapi11-2.0.3.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/freetts-1.2/lib/cmu_us_kal.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/freetts-1.2/lib/en_us.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/freetts-1.2/lib/freetts-jsapi10.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/freetts-1.2/lib/freetts.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.sun.speech.freetts/freetts/freetts-1.2/lib/mbrola.jar"/>
+	<classpathentry kind="lib" path="thirdParty/repo/com.google.simpleopenni/simpleopenni/1.96/SimpleOpenNI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
