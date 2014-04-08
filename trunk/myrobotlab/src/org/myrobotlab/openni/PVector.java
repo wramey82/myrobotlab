@@ -47,6 +47,9 @@ public class PVector {
 
   /** The z component of the vector. */
   public float z;
+  
+  /** quality from openni */
+  public float quality;
 
   /** Array so that this can be temporarily used in an array context */
   protected float[] array;

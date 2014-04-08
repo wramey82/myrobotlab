@@ -1,19 +1,19 @@
 package org.myrobotlab.openni;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.service.GestureRecognition;
+import org.myrobotlab.service.OpenNI;
 import org.slf4j.Logger;
 
 import SimpleOpenNI.SimpleOpenNI;
 
 public class PApplet {
 	// FIXME - EXTRACT INTERFACE ----
-	private GestureRecognition gr = null;
+	private OpenNI gr = null;
 
 	public Object g;
 	public final static Logger log = LoggerFactory.getLogger(PApplet.class);
 	
-	public PApplet(GestureRecognition gr) {
+	public PApplet(OpenNI gr) {
 		this.gr = gr;
 	}
 
@@ -49,18 +49,21 @@ public class PApplet {
 	}
 	
 	public void onOutOfSceneUser(SimpleOpenNI openni, int userId){
-		
+		gr.onOutOfSceneUser(openni, userId);
 	}
 
 	public void onNewHand(SimpleOpenNI openni, int userId, PVector v){
+		gr.onNewHand(openni, userId, v);
+	}
+	
+	public void onTrackedHand(SimpleOpenNI openni, int userId, PVector v){
 		log.info("here");
-		//gr.onNewHand(openni, userId);
+		gr.onTrackedHand(openni, userId, v);
 		//gr.on
 	}
-	public void onTrackedHand(SimpleOpenNI openni, int userId){
-		log.info("here");
-		gr.onNewUser(openni, userId);
-		//gr.on
+	
+	public void onLostHand(SimpleOpenNI openni, int userId){
+		gr.onLostHand(openni, userId);
 	}
 
 }
