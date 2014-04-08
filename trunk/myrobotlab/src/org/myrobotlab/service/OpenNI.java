@@ -13,7 +13,6 @@ import org.myrobotlab.image.SerializableImage;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.Logging;
 import org.myrobotlab.logging.LoggingFactory;
-import org.myrobotlab.openni.PApplet;
 import org.myrobotlab.openni.PImage;
 import org.myrobotlab.openni.PVector;
 import org.myrobotlab.openni.Skeleton;
@@ -47,7 +46,7 @@ public class OpenNI extends Service // implements
 	PVector com = new PVector();
 	PVector com2d = new PVector();
 
-	PApplet fake;
+	//PApplet fake;
 
 	BufferedImage frame;
 
@@ -89,8 +88,8 @@ public class OpenNI extends Service // implements
 			error("found 0 devices - Jenga software not initialized :P");
 		}
 
-		fake = new PApplet(this);
-		context = new SimpleOpenNI(fake);
+		//fake = new PApplet(this);
+		context = new SimpleOpenNI(this);
 
 	}
 
@@ -493,4 +492,16 @@ public class OpenNI extends Service // implements
 		//openni.startHandTracking();
 	}
 
+	public void registerDispose(SimpleOpenNI simpleOpenNI) {
+		log.info("registerDispose");
+	}
+
+	public String dataPath(String recordPath) {
+		log.info("dataPath");
+		return null;
+	}
+
+	public void createPath(String path) {
+		log.info("createPath");
+	}
 }
