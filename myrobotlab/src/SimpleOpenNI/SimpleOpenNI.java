@@ -33,6 +33,7 @@ import org.myrobotlab.openni.PApplet;
 import org.myrobotlab.openni.PImage;
 import org.myrobotlab.openni.PMatrix3D;
 import org.myrobotlab.openni.PVector;
+import org.myrobotlab.service.OpenNI;
 import org.slf4j.Logger;
 
 
@@ -227,7 +228,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 	
 	
 	protected String 			_filename;	
-	protected PApplet			_parent;
+	protected OpenNI			_parent;
 	
 	protected PImage			_depthImage;
 	protected int[]				_depthRaw;
@@ -269,7 +270,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 	* @param parent
 	*          PApplet
 	*/
-	public SimpleOpenNI(PApplet parent)
+	public SimpleOpenNI(OpenNI parent)
 	{
             initEnv(parent,RUN_MODE_SINGLE_THREADED,-1);
         }
@@ -282,7 +283,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 	* @param parent
 	*          PApplet
 	*/
-	public SimpleOpenNI(int deviceIndex,PApplet parent)
+	public SimpleOpenNI(int deviceIndex,OpenNI parent)
 	{
             initEnv(parent,RUN_MODE_SINGLE_THREADED,deviceIndex);
 	}
@@ -293,12 +294,12 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
         * @param deviceIndex
         *          int
         * @param parent
-        *          PApplet
+        *          OpenNI
         * @param runMode
         *     	   - RUN_MODE_DEFAULT, RunMode_SingleThreaded = Runs all in a single thread
         *		   - RunMode_MultiThreaded = Runs the openNI/NIITE in another thread than processing
         */
-        public SimpleOpenNI(int deviceIndex,PApplet parent,int runMode)
+        public SimpleOpenNI(int deviceIndex,OpenNI parent,int runMode)
         {
             initEnv(parent,runMode,deviceIndex);
         }
@@ -307,12 +308,12 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 	* Creates the OpenNI context ands inits the modules
 	* 
 	* @param parent
-	*          PApplet
+	*          OpenNI
 	* @param runMode
         *     	   - RUN_MODE_DEFAULT, RunMode_SingleThreaded = Runs all in a single thread
         *           - RunMode_MultiThreaded = Runs the openNI/NIITE in another thread than processing
 	*/
-	public SimpleOpenNI(PApplet parent,int runMode)
+	public SimpleOpenNI(OpenNI parent,int runMode)
 	{
             initEnv(parent,runMode,-1);
 	}
@@ -321,14 +322,14 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
         * Creates the OpenNI context ands inits the modules
         *
         * @param parent
-        *          PApplet
+        *          OpenNI
         * @param recordPath
         *          String, path to the record file
         * @param runMode
         *     	   - RUN_MODE_DEFAULT, RunMode_SingleThreaded = Runs all in a single thread
         *          - RunMode_MultiThreaded = Runs the openNI/NIITE in another thread than processing
         */
-        public SimpleOpenNI(PApplet parent,String recordPath,int runMode)
+        public SimpleOpenNI(OpenNI parent,String recordPath,int runMode)
         {
             String path = parent.dataPath(recordPath);
 
@@ -362,11 +363,11 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
         * Creates the OpenNI context ands inits the modules
         *
         * @param parent
-        *          PApplet
+        *          OpenNI
         * @param recordPath
         *          String, path to the record file
         */
-        public SimpleOpenNI(PApplet parent,String recordPath)
+        public SimpleOpenNI(OpenNI parent,String recordPath)
         {
             String path = parent.dataPath(recordPath);
 
@@ -393,7 +394,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
             SimpleOpenNI.chdir(curPath);
         }
 
-        protected void initEnv(PApplet parent,int runMode,int deviceIndex)
+        protected void initEnv(OpenNI parent,int runMode,int deviceIndex)
         {
             String curPath = SimpleOpenNI.getcwd();
             SimpleOpenNI.chdir(new String(nativDepLibPath));
