@@ -264,6 +264,9 @@ public class OpenNI extends Service // implements
 	
 	Skeleton skeleton = new Skeleton();
 	
+	public Skeleton publish(Skeleton skeleton){
+		return skeleton;
+	}
 
 	// draw the skeleton with the selected joints
 	void drawSkeleton(int userId) {
@@ -273,15 +276,59 @@ public class OpenNI extends Service // implements
 		 * context.getJointPositionSkeleton(userId
 		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
 		 */
+		
+		skeleton = new Skeleton();
 
 		PVector jointPos = new PVector();
 		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, jointPos);
 		// println(jointPos);
 		log.info("jointPos skeleton neck {} ", jointPos);
 
-		
+		// ------- skeleton data build begin-------
 		float quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, skeleton.head);
-        //float quality = getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, joint2Pos);
+		skeleton.head.quality = quality;
+
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, skeleton.neck);
+		skeleton.neck.quality = quality;
+		
+		// left & right arms
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, skeleton.leftShoulder);
+		skeleton.leftShoulder.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, skeleton.leftElbow);
+		skeleton.leftElbow.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, skeleton.leftHand);
+		skeleton.leftHand.quality = quality;
+		
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, skeleton.rightShoulder);
+		skeleton.rightShoulder.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, skeleton.rightElbow);
+		skeleton.rightElbow.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, skeleton.rightHand);
+		skeleton.rightHand.quality = quality;
+		
+		// torso 
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, skeleton.torso);
+		skeleton.torso.quality = quality;
+		
+		// right and left leg
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HIP, skeleton.leftHip);
+		skeleton.leftHip.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_KNEE, skeleton.leftKnee);
+		skeleton.leftKnee.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_FOOT, skeleton.leftFoot);
+		skeleton.leftFoot.quality = quality;
+
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HIP, skeleton.rightHip);
+		skeleton.rightHip.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, skeleton.rightKnee);
+		skeleton.rightKnee.quality = quality;
+		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_FOOT, skeleton.rightFoot);
+		skeleton.rightFoot.quality = quality;
+		// ------- skeleton data build end -------
+		
+		invoke("publish", skeleton);
+		
+		//float quality = getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, joint2Pos);
 		
 		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
@@ -427,6 +474,7 @@ public class OpenNI extends Service // implements
 	public void line(Float x, Float y, Float x2, Float y2) {
 		// TODO Auto-generated method stub
 		g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
+		g2d.drawString(String.format("head %d %d %d", Math.round(skeleton.head.x),Math.round(skeleton.head.y),Math.round(skeleton.head.z)), 20, 20);
 		// g2d.drawString(str, Math.round(x), Math.round(y));
 	}
 
@@ -439,7 +487,7 @@ public class OpenNI extends Service // implements
 		Runtime.createAndStart("gui", "GUIService");
 		Runtime.createAndStart("python", "Python");
 
-		OpenNI openni = new OpenNI("gr");
+		OpenNI openni = new OpenNI("openni");
 		openni.startService();
 		openni.startUserTracking();
 		//openni.startHandTracking();
