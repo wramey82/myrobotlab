@@ -480,6 +480,30 @@ public class InMoov extends Service {
 			leftArm.rest();
 		}
 	}
+	
+	public void atEase() {
+		if (head != null) {
+			head.rest();
+		}
+		if (rightHand != null) {
+			rightHand.rest();
+			rightHand.detach();
+		}
+		if (leftHand != null) {
+			leftHand.rest();
+			leftHand.detach();
+		}
+		if (rightArm != null) {
+			rightArm.rest();
+			rightArm.detach();
+		}
+		if (leftArm != null) {
+			leftArm.rest();
+			leftArm.detach();
+		}
+	}
+	
+	
 
 	public void detach() {
 		if (head != null) {
@@ -555,6 +579,7 @@ public class InMoov extends Service {
 			head.test();
 		}
 
+		sleep(500);
 		rest();
 		broadcastState();
 		speakBlocking("system check completed");
@@ -849,9 +874,10 @@ public class InMoov extends Service {
 		sleep(2);
 		moveHead(40, 85);
 		sleep(4);
-		detach();
 		speakBlocking("for more interaction please request me to power up");
 		speakBlocking("or activate the p eye are sensor. thank you. good bye.");
+
+		detach();
 
 		// right
 		// rightSerialPort.digitalWrite(53, Arduino.LOW);
@@ -869,7 +895,7 @@ public class InMoov extends Service {
 	Long startSleep = null;
 
 	public void startPIR(String port, int pin) {
-		speakBlocking("starting pee eye are sensor on port %s pin %d", port, pin);
+		speakBlocking("starting pee. eye. are. sensor on port %s pin %d", port, pin);
 		if (arduinos.containsKey(port)) {
 			Arduino arduino = arduinos.get(port);
 			arduino.connect(port);
