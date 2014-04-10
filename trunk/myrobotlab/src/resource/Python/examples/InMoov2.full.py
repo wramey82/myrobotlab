@@ -66,19 +66,23 @@ i01.systemCheck()
 # verbal commands
 ear = i01.ear
 
+# commands with i01.getName() use the InMoov service methods
 ear.addCommand("attach", i01.getName(), "attach")
 ear.addCommand("detach", i01.getName(), "detach")
 ear.addCommand("rest", i01.getName(), "rest")
+
+ear.addCommand("power down", i01.getName(), "powerDown")
+ear.addCommand("power up", i01.getName(), "powerUp")
 
 ear.addCommand("open hand", i01.getName(), "handOpen", "both")
 ear.addCommand("close hand", i01.getName(), "handClose", "both")
 ear.addCommand("camera on", i01.getName(), "cameraOn")
 ear.addCommand("off camera", i01.getName(), "cameraOff")
 ear.addCommand("capture gesture", i01.getName(), "captureGesture")
+
 # FIXME - lk tracking setpoint
 ear.addCommand("track", i01.getName(), "track")
 ear.addCommand("freeze track", i01.getName(), "clearTrackingPoints")
-#ear.addCommand("hello", i01.getName(), "hello")
 ear.addCommand("hello", "python", "hello")
 ear.addCommand("giving", i01.getName(), "giving")
 ear.addCommand("fighter", i01.getName(), "fighter")
@@ -88,7 +92,7 @@ ear.addCommand("victory", i01.getName(), "victory")
 ear.addCommand("arms up", i01.getName(), "armsUp")
 ear.addCommand("arms front", i01.getName(), "armsFront")
 ear.addCommand("da vinci", i01.getName(), "daVinci")
-# FIXME -  
+
 ear.addCommand("manual", ear.getName(), "lockOutAllGrammarExcept", "voice control")
 ear.addCommand("voice control", ear.getName(), "clearLock")
 ear.addCommand("stop listening", ear.getName(), "stopListening")
@@ -126,8 +130,6 @@ ear.addCommand("before happy", "python", "beforehappy")
 ear.addCommand("happy birthday", "python", "happy")
 #ear.addCommand("photo", "python", "photo")
 ear.addCommand("about", "python", "about")
-#ear.addCommand("power down", "python", "powerdown")
-#ear.addCommand("power up", "python", "powerup")
 ear.addCommand("servo", "python", "servos")
 ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave")
 
@@ -417,30 +419,34 @@ def picturebothside():
   i01.moveHand("left",50,86,97,74,106,119)
   i01.moveHand("right",10,112,95,91,125,45)
 
-def powerdown():
-	sleep(2)	
-	ear.pauseListening()
-	i01.rest()
-	i01.mouth.speakBlocking("I'm powering down")
-	sleep(2)
-	i01.moveHead(40, 85);
-	sleep(4)
-	rightSerialPort.digitalWrite(53, Arduino.LOW)
-	leftSerialPort.digitalWrite(53, Arduino.LOW)
-	ear.lockOutAllGrammarExcept("power up")
-	sleep(2)
-	ear.resumeListening()
-
-def powerup():
-	sleep(2)	
-	ear.pauseListening()
-	rightSerialPort.digitalWrite(53, Arduino.HIGH)
-	leftSerialPort.digitalWrite(53, Arduino.HIGH)
-	i01.mouth.speakBlocking("Im powered up")
-	i01.rest()
-	ear.clearLock()
-	sleep(2)
-	ear.resumeListening()
+# power up and power down are implemented in the
+# InMoov service now
+#
+#def powerdown():
+#	sleep(2)	
+#	ear.pauseListening()
+#	i01.rest()
+#	i01.mouth.speakBlocking("I'm powering down")
+#	sleep(2)
+#	i01.moveHead(40, 85);
+#	sleep(4)
+#	rightSerialPort.digitalWrite(53, Arduino.LOW)
+#	leftSerialPort.digitalWrite(53, Arduino.LOW)
+#	ear.lockOutAllGrammarExcept("power up")
+#	sleep(2)
+#	ear.resumeListening()
+#
+#def powerup():
+#	sleep(2)	
+#	ear.pauseListening()
+#	#rightSerialPort.digitalWrite(53, Arduino.HIGH)
+#	#leftSerialPort.digitalWrite(53, Arduino.HIGH)
+#	i01.mouth.speakBlocking("Im powered up")
+#	i01.rest()
+#	ear.clearLock()
+#	sleep(2)
+#	ear.resumeListening()
+#	attach()
 
 def hello():
      i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
