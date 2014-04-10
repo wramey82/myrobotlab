@@ -283,6 +283,9 @@ public class OpenNI extends Service // implements
 		// println(jointPos);
 		log.info("jointPos skeleton neck {} ", jointPos);
 
+		// 3D matrix 4x4
+		//context.getJointOrientationSkeleton(userId, joint, jointOrientation);
+		
 		// ------- skeleton data build begin-------
 		float quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, skeleton.head);
 		skeleton.head.quality = quality;

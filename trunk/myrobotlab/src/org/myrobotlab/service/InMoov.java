@@ -642,7 +642,8 @@ public class InMoov extends Service {
 			ear.resumeListening();
 		}
 		speakBlocking("ready");
-
+		
+		autoPowerDownOnInactivity();
 	}
 
 	// ---------- canned gestures end ---------
