@@ -795,10 +795,6 @@ public class InMoov extends Service {
 		return script.toString();
 	}
 
-	public void startAutoDetach(int intervalSeconds) {
-		addLocalTask(intervalSeconds * 1000, "checkForInactivity");
-	}
-
 	/**
 	 * finds most recent activity
 	 * 
