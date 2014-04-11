@@ -28,15 +28,19 @@ public class OpenNI extends Service // implements
 
 	private static final long serialVersionUID = 1L;
 
+	public static final float PI = (float) Math.PI;
+	public static final float RAD_TO_DEG = 180.0f / PI;
+
 	public final static Logger log = LoggerFactory.getLogger(OpenNI.class);
 	SimpleOpenNI context;
 
 	ArrayList<VideoSink> sinks = new ArrayList<VideoSink>();
-	
+
 	Graphics2D g2d;
 
 	// BasicStroke bs = new BasicStroke(BasicStroke.CAP_ROUND);
 
+	int cnt = 0;
 
 	int handVecListSize = 20;
 	HashMap<Integer, ArrayList<PVector>> handPathList = new HashMap<Integer, ArrayList<PVector>>();
@@ -46,7 +50,7 @@ public class OpenNI extends Service // implements
 	PVector com = new PVector();
 	PVector com2d = new PVector();
 
-	//PApplet fake;
+	// PApplet fake;
 
 	BufferedImage frame;
 
@@ -88,7 +92,7 @@ public class OpenNI extends Service // implements
 			error("found 0 devices - Jenga software not initialized :P");
 		}
 
-		//fake = new PApplet(this);
+		// fake = new PApplet(this);
 		context = new SimpleOpenNI(this);
 
 	}
@@ -167,7 +171,7 @@ public class OpenNI extends Service // implements
 		// enable hands + gesture generation
 		// context.enableGesture();
 		context.enableHand();
-		//context.startGesture(SimpleOpenNI.GESTURE_WAVE);
+		// context.startGesture(SimpleOpenNI.GESTURE_WAVE);
 
 		// set how smooth the hand capturing should be
 		// context.setSmoothingHands(.5);
@@ -215,7 +219,6 @@ public class OpenNI extends Service // implements
 		}
 	}
 
-
 	void drawUser() {
 		// update the cam
 		context.update();
@@ -226,6 +229,7 @@ public class OpenNI extends Service // implements
 		// FIXME - THIS IS INCORRECT - DATA CAN BE BROADCAST BUT NO GRAPHICS !
 		PImage p = context.depthImage();
 		frame = p.getImage();
+		++cnt;
 
 		g2d = frame.createGraphics();
 		g2d.setColor(Color.RED);
@@ -260,10 +264,10 @@ public class OpenNI extends Service // implements
 		invoke("publishFrame", new SerializableImage(frame, getName()));
 
 	}
-	
+
 	Skeleton skeleton = new Skeleton();
-	
-	public Skeleton publish(Skeleton skeleton){
+
+	public Skeleton publish(Skeleton skeleton) {
 		return skeleton;
 	}
 
@@ -275,7 +279,7 @@ public class OpenNI extends Service // implements
 		 * context.getJointPositionSkeleton(userId
 		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
 		 */
-		
+
 		skeleton = new Skeleton();
 
 		PVector jointPos = new PVector();
@@ -284,15 +288,15 @@ public class OpenNI extends Service // implements
 		log.info("jointPos skeleton neck {} ", jointPos);
 
 		// 3D matrix 4x4
-		//context.getJointOrientationSkeleton(userId, joint, jointOrientation);
-		
+		// context.getJointOrientationSkeleton(userId, joint, jointOrientation);
+
 		// ------- skeleton data build begin-------
 		float quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, skeleton.head);
 		skeleton.head.quality = quality;
 
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, skeleton.neck);
 		skeleton.neck.quality = quality;
-		
+
 		// left & right arms
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, skeleton.leftShoulder);
 		skeleton.leftShoulder.quality = quality;
@@ -300,18 +304,18 @@ public class OpenNI extends Service // implements
 		skeleton.leftElbow.quality = quality;
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, skeleton.leftHand);
 		skeleton.leftHand.quality = quality;
-		
+
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, skeleton.rightShoulder);
 		skeleton.rightShoulder.quality = quality;
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, skeleton.rightElbow);
 		skeleton.rightElbow.quality = quality;
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, skeleton.rightHand);
 		skeleton.rightHand.quality = quality;
-		
-		// torso 
+
+		// torso
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, skeleton.torso);
 		skeleton.torso.quality = quality;
-		
+
 		// right and left leg
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HIP, skeleton.leftHip);
 		skeleton.leftHip.quality = quality;
@@ -327,11 +331,61 @@ public class OpenNI extends Service // implements
 		quality = context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_FOOT, skeleton.rightFoot);
 		skeleton.rightFoot.quality = quality;
 		// ------- skeleton data build end -------
-		
+
 		invoke("publish", skeleton);
-		
-		//float quality = getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, joint2Pos);
-		
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(String.format(String.format("\n-----------------------frame %d begin----------------------\n", cnt)));
+		sb.append(String.format("head = [%f,%f,%f]\n", skeleton.head.x, skeleton.head.y, skeleton.head.z));
+		sb.append(String.format("neck = [%f,%f,%f]\n", skeleton.neck.x, skeleton.neck.y, skeleton.neck.z));
+
+		sb.append(String.format("leftShoulder = [%f,%f,%f]\n", skeleton.leftShoulder.x, skeleton.leftShoulder.y, skeleton.leftShoulder.z));
+		sb.append(String.format("leftElbow = [%f,%f,%f]\n", skeleton.leftElbow.x, skeleton.leftElbow.y, skeleton.leftElbow.z));
+		sb.append(String.format("leftHand = [%f,%f,%f]\n", skeleton.leftHand.x, skeleton.head.y, skeleton.head.z));
+
+		sb.append(String.format("rightShoulder = [%f,%f,%f]\n", skeleton.rightShoulder.x, skeleton.rightShoulder.y, skeleton.rightShoulder.z));
+		sb.append(String.format("rightElbow = [%f,%f,%f]\n", skeleton.rightElbow.x, skeleton.rightElbow.y, skeleton.rightElbow.z));
+		sb.append(String.format("rightHand = [%f,%f,%f]\n", skeleton.rightHand.x, skeleton.head.y, skeleton.head.z));
+
+		sb.append(String.format("torso = [%f,%f,%f]\n", skeleton.torso.x, skeleton.torso.y, skeleton.torso.z));
+
+		sb.append(String.format("leftHip = [%f,%f,%f]\n", skeleton.leftHip.x, skeleton.leftHip.y, skeleton.leftHip.z));
+		sb.append(String.format("leftKnee = [%f,%f,%f]\n", skeleton.leftKnee.x, skeleton.leftKnee.y, skeleton.leftKnee.z));
+		sb.append(String.format("leftFoot = [%f,%f,%f]\n", skeleton.leftFoot.x, skeleton.leftFoot.y, skeleton.leftFoot.z));
+
+		sb.append(String.format("rightHip = [%f,%f,%f]\n", skeleton.rightHip.x, skeleton.rightHip.y, skeleton.rightHip.z));
+		sb.append(String.format("rightKnee = [%f,%f,%f]\n", skeleton.rightKnee.x, skeleton.rightKnee.y, skeleton.rightKnee.z));
+		sb.append(String.format("rightFoot = [%f,%f,%f]\n", skeleton.rightFoot.x, skeleton.rightFoot.y, skeleton.rightFoot.z));
+
+		sb.append("model = Sketchup.active_model\n");
+		sb.append("model.entities.add_line(head, neck)\n");
+
+		sb.append("model.entities.add_line(neck, leftShoulder)\n");
+		sb.append("model.entities.add_line(leftShoulder, leftElbow)\n");
+		sb.append("model.entities.add_line(leftElbow, leftHand)\n");
+
+		sb.append("model.entities.add_line(neck, rightShoulder)\n");
+		sb.append("model.entities.add_line(rightShoulder, rightElbow)\n");
+		sb.append("model.entities.add_line(rightElbow, rightHand)\n");
+
+		sb.append("model.entities.add_line(torso, leftShoulder)\n");
+		sb.append("model.entities.add_line(torso, rightShoulder)\n");
+
+		sb.append("model.entities.add_line(torso, leftHip)\n");
+		sb.append("model.entities.add_line(leftHip, leftKnee)\n");
+		sb.append("model.entities.add_line(leftKnee, leftFoot)\n");
+
+		sb.append("model.entities.add_line(torso, rightHip)\n");
+		sb.append("model.entities.add_line(rightHip, rightKnee)\n");
+		sb.append("model.entities.add_line(rightKnee, rightFoot)\n");
+
+		sb.append(String.format(String.format("\n-----------------------frame %d begin----------------------\n", cnt)));
+
+		//log.info(sb.toString());
+
+		// float quality = getJointPositionSkeleton(userId,
+		// SimpleOpenNI.SKEL_HEAD, joint2Pos);
+
 		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
 		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
@@ -352,6 +406,62 @@ public class OpenNI extends Service // implements
 		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
+
+		// begin angular decomposition
+
+		/**
+		 * Taken from "Making Things See" a excellent book and I recommend
+		 * buying it http://shop.oreilly.com/product/0636920020684.do
+		 */
+
+		// reduce our joint vectors to two dimensions
+		PVector rightHand2D = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
+		PVector rightElbow2D = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
+		PVector rightShoulder2D = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
+		PVector rightHip2D = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
+		
+		PVector leftHand2D = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
+		PVector leftElbow2D = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
+		PVector leftShoulder2D = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
+		PVector leftHip2D = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
+		
+		
+		// calculate the axes against which we want to measure our angles
+		PVector rightTorsoOrientation = PVector.sub(rightShoulder2D, rightHip2D);
+		PVector rightUpperArmOrientation = PVector.sub(rightElbow2D, rightShoulder2D);
+		
+		PVector leftTorsoOrientation = PVector.sub(leftShoulder2D, leftHip2D);
+		PVector leftUpperArmOrientation = PVector.sub(leftElbow2D, leftShoulder2D);
+		
+		// calculate the angles between our joints
+		float rightShoulderAngle = angleOf(rightElbow2D, rightShoulder2D, rightTorsoOrientation);
+		float rightElbowAngle = angleOf(rightHand2D, rightElbow2D, rightUpperArmOrientation);
+
+		float leftShoulderAngle = angleOf(leftElbow2D, leftShoulder2D, leftTorsoOrientation);
+		float leftElbowAngle = angleOf(leftHand2D, leftElbow2D, leftUpperArmOrientation);
+		
+		log.info(String.format("right bicep, right omoplate, left omoplate, left bicep [%f,%f,%f,%f]", rightElbowAngle, rightShoulderAngle, leftShoulderAngle, leftElbowAngle));
+		
+		g2d.drawString(String.format("angles %d %d %d %d", Math.round(rightElbowAngle), Math.round(rightShoulderAngle), Math.round(leftShoulderAngle),Math.round(leftElbowAngle)), 20, 30);
+
+	}
+
+	/**
+	 * Taken from "Making Things See" a excellent book and I recommend buying it
+	 * http://shop.oreilly.com/product/0636920020684.do
+	 * 
+	 * @param one
+	 * @param two
+	 * @param axis
+	 * @return the resultant angle in degrees
+	 */
+	float angleOf(PVector one, PVector two, PVector axis) {
+		PVector limb = PVector.sub(two, one);
+		return degrees(PVector.angleBetween(limb, axis));
+	}
+
+	static public final float degrees(float radians) {
+		return radians * RAD_TO_DEG;
 	}
 
 	// ----- hand begin ---------------------
@@ -404,7 +514,7 @@ public class OpenNI extends Service // implements
 
 			}
 		}
-		
+
 		invoke("publishFrame", new SerializableImage(frame, getName()));
 	}
 
@@ -476,7 +586,7 @@ public class OpenNI extends Service // implements
 	public void line(Float x, Float y, Float x2, Float y2) {
 		// TODO Auto-generated method stub
 		g2d.drawLine(Math.round(x), Math.round(y), Math.round(x2), Math.round(y2));
-		g2d.drawString(String.format("head %d %d %d", Math.round(skeleton.head.x),Math.round(skeleton.head.y),Math.round(skeleton.head.z)), 20, 20);
+		g2d.drawString(String.format("head %d %d %d", Math.round(skeleton.head.x), Math.round(skeleton.head.y), Math.round(skeleton.head.z)), 20, 20);
 		// g2d.drawString(str, Math.round(x), Math.round(y));
 	}
 
@@ -492,7 +602,7 @@ public class OpenNI extends Service // implements
 		OpenNI openni = new OpenNI("openni");
 		openni.startService();
 		openni.startUserTracking();
-		//openni.startHandTracking();
+		// openni.startHandTracking();
 	}
 
 	public void registerDispose(SimpleOpenNI simpleOpenNI) {

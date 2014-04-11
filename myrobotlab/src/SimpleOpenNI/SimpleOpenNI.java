@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 import org.myrobotlab.logging.LoggerFactory;
-import org.myrobotlab.openni.PApplet;
 import org.myrobotlab.openni.PImage;
 import org.myrobotlab.openni.PMatrix3D;
 import org.myrobotlab.openni.PVector;
