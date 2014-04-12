@@ -3,6 +3,8 @@ package org.myrobotlab.service;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +23,24 @@ import org.slf4j.Logger;
 
 import SimpleOpenNI.SimpleOpenNI;
 
+/**
+ * @author GroG
+ * 
+ *         Service to expose the capabilities of kinect like sensors through a
+ *         modified SimpleOpenNI interface
+ * 
+ *         References
+ * 
+ *         http://stackoverflow.com/questions/2676719/calculating-the-angle-
+ *         between-the-line-defined-by-two-points
+ *         http://stackoverflow.com/questions
+ *         /9614109/how-to-calculate-an-angle-from-points
+ *         http://nghiaho.com/?page_id=846
+ *         https://www.youtube.com/watch?v=KKuiuctKGRQ Some snippets are taken
+ *         from "Making Things See" a excellent book and I recommend buying it
+ *         http://shop.oreilly.com/product/0636920020684.do
+ * 
+ */
 public class OpenNI extends Service // implements
 // UserTracker.NewFrameListener,
 // HandTracker.NewFrameListener
@@ -38,8 +58,6 @@ public class OpenNI extends Service // implements
 
 	Graphics2D g2d;
 
-	// BasicStroke bs = new BasicStroke(BasicStroke.CAP_ROUND);
-
 	int cnt = 0;
 
 	int handVecListSize = 20;
@@ -50,13 +68,12 @@ public class OpenNI extends Service // implements
 	PVector com = new PVector();
 	PVector com2d = new PVector();
 
-	// PApplet fake;
-
 	BufferedImage frame;
+	Skeleton skeleton = new Skeleton();
 
+	private boolean recordRubySketchUp = false;
+	private boolean initialized = false;
 	transient Worker worker = null;
-
-	// user end
 
 	public OpenNI(String n) {
 		super(n);
@@ -77,32 +94,33 @@ public class OpenNI extends Service // implements
 	public void stopService() {
 		super.stopService();
 		stopCapture();
-	}
-
-	public void initContext() {
-
-		// String s = SimpleOpenNI.getLibraryPathWin();
-		SimpleOpenNI.start();
-
-		SimpleOpenNI.initContext();
-		int cnt = SimpleOpenNI.deviceCount();
-		info("initContext found %d devices", cnt);
-
-		if (cnt < 1) {
-			error("found 0 devices - Jenga software not initialized :P");
-		}
-
-		// fake = new PApplet(this);
-		context = new SimpleOpenNI(this);
-
-	}
-
-	public void stopCapture() {
-		stopWorker();
 		if (context != null) {
 			context.close();
 		}
 	}
+
+
+	public void initContext() {
+
+		if (!initialized) {
+			// String s = SimpleOpenNI.getLibraryPathWin();
+			SimpleOpenNI.start();
+
+			SimpleOpenNI.initContext();
+			int cnt = SimpleOpenNI.deviceCount();
+			info("initContext found %d devices", cnt);
+
+			if (cnt < 1) {
+				error("found 0 devices - Jenga software not initialized :P");
+			}
+
+			// fake = new PApplet(this);
+			context = new SimpleOpenNI(this);
+			initialized = true;
+		}
+
+	}
+
 
 	/**
 	 * FIXME - input needs to be OpenCVData THIS IS NOT USED ! VideoProcessor
@@ -149,7 +167,7 @@ public class OpenNI extends Service // implements
 
 		info("starting user worker");
 		if (worker != null) {
-			stopWorker();
+			stopCapture();
 		}
 		worker = new Worker("user");
 		worker.start();
@@ -181,7 +199,7 @@ public class OpenNI extends Service // implements
 	}
 
 	// shutdown worker
-	public void stopWorker() {
+	public void stopCapture() {
 		if (worker != null) {
 			info(String.format("stopping worker %s", worker.type));
 			worker.isRunning = false;
@@ -265,7 +283,10 @@ public class OpenNI extends Service // implements
 
 	}
 
-	Skeleton skeleton = new Skeleton();
+	public boolean recordRubySketchUp(boolean b) {
+		recordRubySketchUp = b;
+		return recordRubySketchUp;
+	}
 
 	public Skeleton publish(Skeleton skeleton) {
 		return skeleton;
@@ -285,7 +306,7 @@ public class OpenNI extends Service // implements
 		PVector jointPos = new PVector();
 		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, jointPos);
 		// println(jointPos);
-		log.info("jointPos skeleton neck {} ", jointPos);
+		//log.info("jointPos skeleton neck {} ", jointPos);
 
 		// 3D matrix 4x4
 		// context.getJointOrientationSkeleton(userId, joint, jointOrientation);
@@ -332,10 +353,99 @@ public class OpenNI extends Service // implements
 		skeleton.rightFoot.quality = quality;
 		// ------- skeleton data build end -------
 
-		invoke("publish", skeleton);
+		// log.info(sb.toString());
 
+		// float quality = getJointPositionSkeleton(userId,
+		// SimpleOpenNI.SKEL_HEAD, joint2Pos);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_LEFT_HIP);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_HIP, SimpleOpenNI.SKEL_LEFT_KNEE);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_KNEE, SimpleOpenNI.SKEL_LEFT_FOOT);
+
+		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
+		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
+
+		// begin angular decomposition
+
+		/**
+		 * Taken from "Making Things See" a excellent book and I recommend
+		 * buying it http://shop.oreilly.com/product/0636920020684.do
+		 */
+
+		// reduce our joint vectors to two dimensions
+		PVector rightHand2D = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
+		PVector rightElbow2D = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
+		PVector rightShoulder2D = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
+		PVector rightHip2D = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
+
+		PVector leftHand2D = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
+		PVector leftElbow2D = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
+		PVector leftShoulder2D = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
+		PVector leftHip2D = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
+
+		// calculate the axes against which we want to measure our angles
+		PVector rightTorsoOrientation = PVector.sub(rightShoulder2D, rightHip2D);
+		PVector rightUpperArmOrientation = PVector.sub(rightElbow2D, rightShoulder2D);
+
+		PVector leftTorsoOrientation = PVector.sub(leftShoulder2D, leftHip2D);
+		PVector leftUpperArmOrientation = PVector.sub(leftElbow2D, leftShoulder2D);
+
+		// calculate the angles between our joints
+		float rightShoulderAngle = angleOf(rightElbow2D, rightShoulder2D, rightTorsoOrientation);
+		float rightElbowAngle = angleOf(rightHand2D, rightElbow2D, rightUpperArmOrientation);
+
+		float leftShoulderAngle = angleOf(leftElbow2D, leftShoulder2D, leftTorsoOrientation);
+		float leftElbowAngle = angleOf(leftHand2D, leftElbow2D, leftUpperArmOrientation);
+
+		skeleton.rightShoulder.angle = rightShoulderAngle;
+		skeleton.rightElbow.angle = rightElbowAngle;
+		skeleton.leftShoulder.angle = leftShoulderAngle;
+		skeleton.leftElbow.angle = leftElbowAngle;
+
+		//log.info(String.format("right bicep, right omoplate, left omoplate, left bicep [%f,%f,%f,%f]", rightElbowAngle, rightShoulderAngle, leftShoulderAngle, leftElbowAngle));
+
+		g2d.drawString(String.format("angles %d %d %d %d", Math.round(rightElbowAngle), Math.round(rightShoulderAngle), Math.round(leftShoulderAngle), Math.round(leftElbowAngle)),
+				20, 30);
+
+		invoke("publish", skeleton); 
+
+		if (recordRubySketchUp) {
+			addRubySketchUpFrame(skeleton);
+		}
+
+	}
+
+	FileOutputStream rubySketchUpFile = null;
+
+	public void openRubySketchUpFile() {
+		try {
+			if (rubySketchUpFile != null) {
+				rubySketchUpFile.close();
+			}
+			String filename = String.format("skeleton_%d.rb", System.currentTimeMillis());
+			rubySketchUpFile = new FileOutputStream(new File(filename));
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
+	}
+
+	public void addRubySketchUpFrame(Skeleton skeleton) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(String.format(String.format("\n-----------------------frame %d begin----------------------\n", cnt)));
+		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", cnt)));
 		sb.append(String.format("head = [%f,%f,%f]\n", skeleton.head.x, skeleton.head.y, skeleton.head.z));
 		sb.append(String.format("neck = [%f,%f,%f]\n", skeleton.neck.x, skeleton.neck.y, skeleton.neck.z));
 
@@ -379,71 +489,30 @@ public class OpenNI extends Service // implements
 		sb.append("model.entities.add_line(rightHip, rightKnee)\n");
 		sb.append("model.entities.add_line(rightKnee, rightFoot)\n");
 
-		sb.append(String.format(String.format("\n-----------------------frame %d begin----------------------\n", cnt)));
+		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", cnt)));
 
-		//log.info(sb.toString());
+		if (rubySketchUpFile == null) {
+			openRubySketchUpFile();
+		}
 
-		// float quality = getJointPositionSkeleton(userId,
-		// SimpleOpenNI.SKEL_HEAD, joint2Pos);
+		try {
+			rubySketchUpFile.write(sb.toString().getBytes());
+		} catch (Exception e) {
+			Logging.logException(e);
+		}
 
-		context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
+	}
 
-		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
-
-		context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
-
-		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
-
-		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_LEFT_HIP);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_HIP, SimpleOpenNI.SKEL_LEFT_KNEE);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_KNEE, SimpleOpenNI.SKEL_LEFT_FOOT);
-
-		context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
-		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
-
-		// begin angular decomposition
-
-		/**
-		 * Taken from "Making Things See" a excellent book and I recommend
-		 * buying it http://shop.oreilly.com/product/0636920020684.do
-		 */
-
-		// reduce our joint vectors to two dimensions
-		PVector rightHand2D = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
-		PVector rightElbow2D = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
-		PVector rightShoulder2D = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
-		PVector rightHip2D = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
-		
-		PVector leftHand2D = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
-		PVector leftElbow2D = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
-		PVector leftShoulder2D = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
-		PVector leftHip2D = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
-		
-		
-		// calculate the axes against which we want to measure our angles
-		PVector rightTorsoOrientation = PVector.sub(rightShoulder2D, rightHip2D);
-		PVector rightUpperArmOrientation = PVector.sub(rightElbow2D, rightShoulder2D);
-		
-		PVector leftTorsoOrientation = PVector.sub(leftShoulder2D, leftHip2D);
-		PVector leftUpperArmOrientation = PVector.sub(leftElbow2D, leftShoulder2D);
-		
-		// calculate the angles between our joints
-		float rightShoulderAngle = angleOf(rightElbow2D, rightShoulder2D, rightTorsoOrientation);
-		float rightElbowAngle = angleOf(rightHand2D, rightElbow2D, rightUpperArmOrientation);
-
-		float leftShoulderAngle = angleOf(leftElbow2D, leftShoulder2D, leftTorsoOrientation);
-		float leftElbowAngle = angleOf(leftHand2D, leftElbow2D, leftUpperArmOrientation);
-		
-		log.info(String.format("right bicep, right omoplate, left omoplate, left bicep [%f,%f,%f,%f]", rightElbowAngle, rightShoulderAngle, leftShoulderAngle, leftElbowAngle));
-		
-		g2d.drawString(String.format("angles %d %d %d %d", Math.round(rightElbowAngle), Math.round(rightShoulderAngle), Math.round(leftShoulderAngle),Math.round(leftElbowAngle)), 20, 30);
-
+	public void closeRubySketchUpFile() {
+		try {
+			if (rubySketchUpFile != null) {
+				rubySketchUpFile.close();
+			}
+		} catch (Exception e) {
+			Logging.logException(e);
+		} finally {
+			rubySketchUpFile = null;
+		}
 	}
 
 	/**
@@ -592,19 +661,6 @@ public class OpenNI extends Service // implements
 
 	// USER END ---------------------------------------------
 
-	public static void main(String s[]) {
-		LoggingFactory.getInstance().configure();
-		LoggingFactory.getInstance().setLevel("INFO");
-
-		Runtime.createAndStart("gui", "GUIService");
-		Runtime.createAndStart("python", "Python");
-
-		OpenNI openni = new OpenNI("openni");
-		openni.startService();
-		openni.startUserTracking();
-		// openni.startHandTracking();
-	}
-
 	public void registerDispose(SimpleOpenNI simpleOpenNI) {
 		log.info("registerDispose");
 	}
@@ -616,5 +672,20 @@ public class OpenNI extends Service // implements
 
 	public void createPath(String path) {
 		log.info("createPath");
+	}
+
+	public static void main(String s[]) {
+		LoggingFactory.getInstance().configure();
+		LoggingFactory.getInstance().setLevel("INFO");
+
+		Runtime.createAndStart("gui", "GUIService");
+		Runtime.createAndStart("python", "Python");
+
+		OpenNI openni = new OpenNI("openni");
+		openni.startService();
+		openni.startUserTracking();
+		openni.recordRubySketchUp(true);
+
+		// openni.startHandTracking();
 	}
 }

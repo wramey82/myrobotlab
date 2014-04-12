@@ -9,6 +9,7 @@ import org.myrobotlab.framework.Status;
 import org.myrobotlab.logging.Level;
 import org.myrobotlab.logging.LoggerFactory;
 import org.myrobotlab.logging.LoggingFactory;
+import org.myrobotlab.openni.Skeleton;
 import org.myrobotlab.service.data.Pin;
 import org.myrobotlab.service.interfaces.ServiceInterface;
 import org.simpleframework.xml.Element;
@@ -73,6 +74,10 @@ public class InMoov extends Service {
 	transient public final static String LEFT = "left";
 	transient public final static String RIGHT = "right";
 
+	transient public OpenNI openni;
+
+	transient public PID pid;
+
 	// reflective or non-interactive peers
 	// transient public WebGUI webgui;
 	// transient public XMPP xmpp;
@@ -126,6 +131,8 @@ public class InMoov extends Service {
 		peers.put("mouth", "Speech", "InMoov speech service");
 		peers.put("mouthControl", "MouthControl", "MouthControl");
 		peers.put("opencv", "OpenCV", "InMoov OpenCV service");
+		peers.put("openni", "OpenNI", "Kinect service");
+		peers.put("pid", "PID", "PID service");
 
 		return peers;
 	}
@@ -194,6 +201,70 @@ public class InMoov extends Service {
 		startEyesTracking(leftPort);
 
 		speakBlocking("startup sequence completed");
+	}
+
+	public OpenNI startOpenNI() {
+		speakBlocking("starting kinect");
+		openni = (OpenNI) startPeer("openni");
+		pid = (PID) startPeer("pid");
+
+		pid.setMode(PID.MODE_AUTOMATIC);
+		pid.setOutputRange(-1, 1);
+		pid.setPID(10.0, 0.0, 1.0);
+		pid.setControllerDirection(0);
+
+		openni.addListener("publish", this.getName(), "getSkeleton");
+		return openni;
+	}
+
+	boolean copyGesture = false;
+	boolean firstSkeleton = true;
+
+	public Skeleton getSkeleton(Skeleton skeleton) {
+		
+		if (firstSkeleton){
+			speakBlocking("i see you");
+			firstSkeleton = false;
+		}
+
+		if (copyGesture) {
+			if (leftArm != null) {
+
+				float actualBicep = leftArm.bicep.getPosition();
+
+				/*
+				pid.setSetpoint(skeleton.leftElbow.angle);
+				pid.setInput(actualBicep);
+				pid.compute();
+				float servox = (float) pid.getOutput();
+				actualBicep = (actualBicep + servox);
+				log.info(String.format("moving bicep from %f to %f", leftArm.bicep.getPosition(),  actualBicep));
+				*/
+				leftArm.bicep.moveTo(skeleton.leftElbow.angle);
+			}
+		}
+
+		return skeleton;
+	}
+
+	public boolean copyGesture(boolean b) {
+		if (b) {
+			if (openni == null){
+				openni = startOpenNI();
+			}
+			speakBlocking("copying gestures");
+			openni.initContext();
+			openni.startUserTracking();
+		} else {
+			speakBlocking("stop copying gestures");
+			if (openni != null){
+				openni.stopCapture();
+				firstSkeleton = true;
+			}
+		}
+
+		copyGesture = b;
+		return b;
 	}
 
 	// TODO TODO TODO - context & status report -
@@ -480,7 +551,7 @@ public class InMoov extends Service {
 			leftArm.rest();
 		}
 	}
-	
+
 	public void atEase() {
 		if (head != null) {
 			head.rest();
@@ -502,8 +573,6 @@ public class InMoov extends Service {
 			leftArm.detach();
 		}
 	}
-	
-	
 
 	public void detach() {
 		if (head != null) {
@@ -627,7 +696,7 @@ public class InMoov extends Service {
 
 	public void powerUp() {
 		attach();
-		
+
 		startSleep = null;
 		if (ear != null) {
 			ear.pauseListening();
@@ -642,7 +711,7 @@ public class InMoov extends Service {
 			ear.resumeListening();
 		}
 		speakBlocking("ready");
-		
+
 		autoPowerDownOnInactivity();
 	}
 
@@ -923,10 +992,10 @@ public class InMoov extends Service {
 	public void publishPin(Pin pin) {
 		// if its PIR & PIR is active & was sleeping - then wake up !
 		if (pirPin == pin.pin && startSleep != null && pin.value == 1) {
-			//attach(); // good morning / evening / night... asleep for % hours
+			// attach(); // good morning / evening / night... asleep for % hours
 			powerUp();
 			Calendar now = Calendar.getInstance();
-			
+
 			String salutation = "hello ";
 			if (now.get(Calendar.HOUR_OF_DAY) < 12) {
 				salutation = "good morning ";
@@ -935,7 +1004,7 @@ public class InMoov extends Service {
 			} else {
 				salutation = "good evening ";
 			}
-			
+
 			speakBlocking(String.format("%s. i was sleeping but now i am awake", salutation));
 		}
 	}
@@ -1070,6 +1139,13 @@ public class InMoov extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
+		
+		Runtime.createAndStart("gui", "GUIService");
+		
+		InMoov i01 = (InMoov)Runtime.createAndStart("i01","InMoov");
+		i01.startMouth();
+		i01.startLeftArm("COM15");
+		i01.copyGesture(true);
 
 		// Create two virtual ports for UART and user and null them together:
 		// create 2 virtual ports
@@ -1089,6 +1165,7 @@ public class InMoov extends Service {
 		// log.info("Creating a LIDAR UART Serial service named: " + getName() +
 		// "SerialService");
 		// String serialName = getName() + "SerialService";
+		/*
 		Serial serial0 = new Serial("UART15");
 		serial0.startService();
 		serial0.connect("UART15");
@@ -1102,6 +1179,7 @@ public class InMoov extends Service {
 		InMoovHand lefthand = i01.startLeftHand("COM15");
 		i01.leftHand.setRest(10, 10, 10, 10, 10);
 		i01.autoPowerDownOnInactivity(10);
+		*/
 
 		/*
 		 * log.info("inactivity {}", i01.powerDownOnInactivity());

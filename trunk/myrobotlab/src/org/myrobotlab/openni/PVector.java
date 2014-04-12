@@ -50,6 +50,8 @@ public class PVector {
   
   /** quality from openni */
   public float quality;
+  
+  public float angle;
 
   /** Array so that this can be temporarily used in an array context */
   protected float[] array;
