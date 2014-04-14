@@ -439,6 +439,17 @@
          </list>
       </dependsOn>
    </serviceType>
+      <serviceType string="org.myrobotlab.service.OpenNI" workingLevel="4">
+      <dependsOn>
+        <description>The OpenNI interfaces a Kinect or Kinect like sensor
+        </description>
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+            <string>com.google.simpleopenni</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.PickToLight" workingLevel="3">
       <dependsOn>
         <description>Pick To Light
