@@ -69,7 +69,7 @@ public class OpenNI extends Service // implements
 	PVector com2d = new PVector();
 
 	BufferedImage frame;
-	Skeleton skeleton = new Skeleton();
+	public Skeleton skeleton = new Skeleton();
 
 	private boolean recordRubySketchUp = false;
 	private boolean initialized = false;
@@ -161,6 +161,7 @@ public class OpenNI extends Service // implements
 
 		// enable depthMap generation
 		context.enableDepth();
+		//context.en
 
 		// enable skeleton generation for all joints
 		context.enableUser();
@@ -301,7 +302,8 @@ public class OpenNI extends Service // implements
 		 * ,SimpleOpenNI.SKEL_NECK,jointPos); println(jointPos);
 		 */
 
-		skeleton = new Skeleton();
+		// FIXME - shouldn't have to new it up each frame - is a waste
+		// skeleton = new Skeleton();
 
 		PVector jointPos = new PVector();
 		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, jointPos);
@@ -411,10 +413,10 @@ public class OpenNI extends Service // implements
 		float leftShoulderAngle = angleOf(leftElbow2D, leftShoulder2D, leftTorsoOrientation);
 		float leftElbowAngle = angleOf(leftHand2D, leftElbow2D, leftUpperArmOrientation);
 
-		skeleton.rightShoulder.angle = rightShoulderAngle;
-		skeleton.rightElbow.angle = rightElbowAngle;
-		skeleton.leftShoulder.angle = leftShoulderAngle;
-		skeleton.leftElbow.angle = leftElbowAngle;
+		skeleton.rightShoulder.setAngle(rightShoulderAngle);
+		skeleton.rightElbow.setAngle(rightElbowAngle);
+		skeleton.leftShoulder.setAngle(leftShoulderAngle);
+		skeleton.leftElbow.setAngle(leftElbowAngle);
 
 		//log.info(String.format("right bicep, right omoplate, left omoplate, left bicep [%f,%f,%f,%f]", rightElbowAngle, rightShoulderAngle, leftShoulderAngle, leftElbowAngle));
 
