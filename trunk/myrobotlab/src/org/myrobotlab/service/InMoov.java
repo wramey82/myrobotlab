@@ -204,16 +204,21 @@ public class InMoov extends Service {
 	}
 
 	public OpenNI startOpenNI() {
-		speakBlocking("starting kinect");
-		openni = (OpenNI) startPeer("openni");
-		pid = (PID) startPeer("pid");
+		if (openni == null) {
+			speakBlocking("starting kinect");
+			openni = (OpenNI) startPeer("openni");
+			pid = (PID) startPeer("pid");
 
-		pid.setMode(PID.MODE_AUTOMATIC);
-		pid.setOutputRange(-1, 1);
-		pid.setPID(10.0, 0.0, 1.0);
-		pid.setControllerDirection(0);
+			pid.setMode(PID.MODE_AUTOMATIC);
+			pid.setOutputRange(-1, 1);
+			pid.setPID(10.0, 0.0, 1.0);
+			pid.setControllerDirection(0);
 
-		openni.addListener("publish", this.getName(), "getSkeleton");
+			openni.skeleton.leftElbow.map(0, 180, 180, 0);
+			openni.skeleton.rightElbow.map(0, 180, 180, 0);
+
+			openni.addListener("publish", this.getName(), "getSkeleton");
+		}
 		return openni;
 	}
 
@@ -221,26 +226,20 @@ public class InMoov extends Service {
 	boolean firstSkeleton = true;
 
 	public Skeleton getSkeleton(Skeleton skeleton) {
-		
-		if (firstSkeleton){
+
+		if (firstSkeleton) {
 			speakBlocking("i see you");
 			firstSkeleton = false;
 		}
 
 		if (copyGesture) {
 			if (leftArm != null) {
-
-				float actualBicep = leftArm.bicep.getPosition();
-
-				/*
-				pid.setSetpoint(skeleton.leftElbow.angle);
-				pid.setInput(actualBicep);
-				pid.compute();
-				float servox = (float) pid.getOutput();
-				actualBicep = (actualBicep + servox);
-				log.info(String.format("moving bicep from %f to %f", leftArm.bicep.getPosition(),  actualBicep));
-				*/
-				leftArm.bicep.moveTo(skeleton.leftElbow.angle);
+				leftArm.bicep.moveTo(skeleton.leftElbow.getAngle());
+				leftArm.omoplate.moveTo(skeleton.leftShoulder.getAngle());
+			}
+			if (rightArm != null) {
+				rightArm.bicep.moveTo(skeleton.rightElbow.getAngle());
+				rightArm.omoplate.moveTo(skeleton.rightShoulder.getAngle());
 			}
 		}
 
@@ -249,7 +248,7 @@ public class InMoov extends Service {
 
 	public boolean copyGesture(boolean b) {
 		if (b) {
-			if (openni == null){
+			if (openni == null) {
 				openni = startOpenNI();
 			}
 			speakBlocking("copying gestures");
@@ -257,7 +256,7 @@ public class InMoov extends Service {
 			openni.startUserTracking();
 		} else {
 			speakBlocking("stop copying gestures");
-			if (openni != null){
+			if (openni != null) {
 				openni.stopCapture();
 				firstSkeleton = true;
 			}
@@ -1139,10 +1138,10 @@ public class InMoov extends Service {
 	public static void main(String[] args) {
 		LoggingFactory.getInstance().configure();
 		LoggingFactory.getInstance().setLevel(Level.INFO);
-		
+
 		Runtime.createAndStart("gui", "GUIService");
-		
-		InMoov i01 = (InMoov)Runtime.createAndStart("i01","InMoov");
+
+		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
 		i01.startMouth();
 		i01.startLeftArm("COM15");
 		i01.copyGesture(true);
@@ -1166,20 +1165,17 @@ public class InMoov extends Service {
 		// "SerialService");
 		// String serialName = getName() + "SerialService";
 		/*
-		Serial serial0 = new Serial("UART15");
-		serial0.startService();
-		serial0.connect("UART15");
-
-		Runtime.createAndStart("gui", "GUIService");
-		Runtime.createAndStart("python", "Python");
-
-		InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
-		i01.startMouth();
-		// i01.power(120);
-		InMoovHand lefthand = i01.startLeftHand("COM15");
-		i01.leftHand.setRest(10, 10, 10, 10, 10);
-		i01.autoPowerDownOnInactivity(10);
-		*/
+		 * Serial serial0 = new Serial("UART15"); serial0.startService();
+		 * serial0.connect("UART15");
+		 * 
+		 * Runtime.createAndStart("gui", "GUIService");
+		 * Runtime.createAndStart("python", "Python");
+		 * 
+		 * InMoov i01 = (InMoov) Runtime.createAndStart("i01", "InMoov");
+		 * i01.startMouth(); // i01.power(120); InMoovHand lefthand =
+		 * i01.startLeftHand("COM15"); i01.leftHand.setRest(10, 10, 10, 10, 10);
+		 * i01.autoPowerDownOnInactivity(10);
+		 */
 
 		/*
 		 * log.info("inactivity {}", i01.powerDownOnInactivity());
