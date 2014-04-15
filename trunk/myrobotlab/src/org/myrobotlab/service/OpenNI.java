@@ -99,7 +99,6 @@ public class OpenNI extends Service // implements
 		}
 	}
 
-
 	public void initContext() {
 
 		if (!initialized) {
@@ -120,7 +119,6 @@ public class OpenNI extends Service // implements
 		}
 
 	}
-
 
 	/**
 	 * FIXME - input needs to be OpenCVData THIS IS NOT USED ! VideoProcessor
@@ -161,7 +159,7 @@ public class OpenNI extends Service // implements
 
 		// enable depthMap generation
 		context.enableDepth();
-		//context.en
+		// context.en
 
 		// enable skeleton generation for all joints
 		context.enableUser();
@@ -308,7 +306,7 @@ public class OpenNI extends Service // implements
 		PVector jointPos = new PVector();
 		context.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_NECK, jointPos);
 		// println(jointPos);
-		//log.info("jointPos skeleton neck {} ", jointPos);
+		// log.info("jointPos skeleton neck {} ", jointPos);
 
 		// 3D matrix 4x4
 		// context.getJointOrientationSkeleton(userId, joint, jointOrientation);
@@ -389,41 +387,50 @@ public class OpenNI extends Service // implements
 		 */
 
 		// reduce our joint vectors to two dimensions
-		PVector rightHand2D = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
-		PVector rightElbow2D = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
-		PVector rightShoulder2D = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
-		PVector rightHip2D = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
+		PVector rightHandXY = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
+		PVector rightElbowXY = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
+		PVector rightShoulderXY = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
+		PVector rightHipXY = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
 
-		PVector leftHand2D = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
-		PVector leftElbow2D = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
-		PVector leftShoulder2D = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
-		PVector leftHip2D = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
+		PVector leftHandXY = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
+		PVector leftElbowXY = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
+		PVector leftElbowXZ = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.z);
+		PVector leftShoulderXY = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
+		PVector leftShoulderXZ = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.z);
+		PVector leftHipXY = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
 
-		// calculate the axes against which we want to measure our angles
-		PVector rightTorsoOrientation = PVector.sub(rightShoulder2D, rightHip2D);
-		PVector rightUpperArmOrientation = PVector.sub(rightElbow2D, rightShoulder2D);
+		// calculate the axis against which we want to measure our angles
+		// dunno if this needs all the defintion it has :P - normal of the
+		// "person" is pretty much XY
+		PVector rightTorsoOrientation = PVector.sub(rightShoulderXY, rightHipXY);
+		PVector rightUpperArmOrientation = PVector.sub(rightElbowXY, rightShoulderXY);
 
-		PVector leftTorsoOrientation = PVector.sub(leftShoulder2D, leftHip2D);
-		PVector leftUpperArmOrientation = PVector.sub(leftElbow2D, leftShoulder2D);
+		PVector leftTorsoOrientationXY = PVector.sub(leftShoulderXY, leftHipXY);
+		PVector leftUpperArmOrientationXY = PVector.sub(leftElbowXY, leftShoulderXY);
+
+		// FIXME !! - IS THIS CORRECT - CAN XY JUST BE RE-USED - SINCE THE
+		// NORMAL OF THE BODY IS IN THE Z ?
+		PVector leftTorsoOrientationXZ = PVector.sub(leftShoulderXY, leftHipXY);
 
 		// calculate the angles between our joints
-		float rightShoulderAngle = angleOf(rightElbow2D, rightShoulder2D, rightTorsoOrientation);
-		float rightElbowAngle = angleOf(rightHand2D, rightElbow2D, rightUpperArmOrientation);
+		float rightShoulderAngleXY = angleOf(rightElbowXY, rightShoulderXY, rightTorsoOrientation);
+		float rightElbowAngleXY = angleOf(rightHandXY, rightElbowXY, rightUpperArmOrientation);
 
-		float leftShoulderAngle = angleOf(leftElbow2D, leftShoulder2D, leftTorsoOrientation);
-		float leftElbowAngle = angleOf(leftHand2D, leftElbow2D, leftUpperArmOrientation);
+		float leftShoulderAngleXY = angleOf(leftElbowXY, leftShoulderXY, leftTorsoOrientationXY);
+		float leftShoulderAngleXZ = angleOf(leftElbowXZ, leftShoulderXZ, leftTorsoOrientationXZ);
+		float leftElbowAngleXY = angleOf(leftHandXY, leftElbowXY, leftUpperArmOrientationXY);
 
-		skeleton.rightShoulder.setAngle(rightShoulderAngle);
-		skeleton.rightElbow.setAngle(rightElbowAngle);
-		skeleton.leftShoulder.setAngle(leftShoulderAngle);
-		skeleton.leftElbow.setAngle(leftElbowAngle);
+		skeleton.rightShoulder.setAngleXY(rightShoulderAngleXY);
+		skeleton.rightElbow.setAngleXY(rightElbowAngleXY);
+		skeleton.leftShoulder.setAngleXY(leftShoulderAngleXY);
+		skeleton.leftElbow.setAngleXY(leftElbowAngleXY);
+		skeleton.leftElbow.setAngleXZ(leftShoulderAngleXZ);
 
-		//log.info(String.format("right bicep, right omoplate, left omoplate, left bicep [%f,%f,%f,%f]", rightElbowAngle, rightShoulderAngle, leftShoulderAngle, leftElbowAngle));
-
-		g2d.drawString(String.format("angles %d %d %d %d", Math.round(rightElbowAngle), Math.round(rightShoulderAngle), Math.round(leftShoulderAngle), Math.round(leftElbowAngle)),
-				20, 30);
-
-		invoke("publish", skeleton); 
+		g2d.drawString(String.format("shoulder %d ", Math.round(leftShoulderAngleXZ)), 20, 30);
+		g2d.drawString(String.format("omoplate %d %d", Math.round(rightShoulderAngleXY), Math.round(leftShoulderAngleXY)), 20, 40);
+		g2d.drawString(String.format("bicep %d %d", Math.round(rightElbowAngleXY), Math.round(leftElbowAngleXY)), 20, 50);
+		
+		invoke("publish", skeleton);
 
 		if (recordRubySketchUp) {
 			addRubySketchUpFrame(skeleton);
