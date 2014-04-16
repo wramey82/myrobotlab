@@ -394,9 +394,9 @@ public class OpenNI extends Service // implements
 
 		PVector leftHandXY = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
 		PVector leftElbowXY = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.y);
-		PVector leftElbowYZ = new PVector(skeleton.leftElbow.x, skeleton.leftElbow.z);
+		PVector leftElbowYZ = new PVector(skeleton.leftElbow.y, skeleton.leftElbow.z);
 		PVector leftShoulderXY = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.y);
-		PVector leftShoulderYZ = new PVector(skeleton.leftShoulder.x, skeleton.leftShoulder.z);
+		PVector leftShoulderYZ = new PVector(skeleton.leftShoulder.y, skeleton.leftShoulder.z);
 		PVector leftHipXY = new PVector(skeleton.leftHip.x, skeleton.leftHip.y);
 
 		// calculate the axis against which we want to measure our angles
