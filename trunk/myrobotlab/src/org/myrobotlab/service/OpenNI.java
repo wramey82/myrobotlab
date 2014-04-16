@@ -256,7 +256,10 @@ public class OpenNI extends Service // implements
 		for (int i = 0; i < userList.length; i++) {
 			if (context.isTrackingSkeleton(userList[i])) {
 				// stroke(userClr[(userList[i] - 1) % userClr.length]);
-				drawSkeleton(userList[i]);
+				int userID = userList[i];
+				if (userID == 1){
+					drawSkeleton(userID);
+				}
 			}
 
 			// draw the center of mass
@@ -293,6 +296,7 @@ public class OpenNI extends Service // implements
 
 	// draw the skeleton with the selected joints
 	void drawSkeleton(int userId) {
+		
 		// to get the 3d joint data
 		/*
 		 * PVector jointPos = new PVector();
@@ -389,7 +393,9 @@ public class OpenNI extends Service // implements
 		// reduce our joint vectors to two dimensions
 		PVector rightHandXY = new PVector(skeleton.rightHand.x, skeleton.rightHand.y);
 		PVector rightElbowXY = new PVector(skeleton.rightElbow.x, skeleton.rightElbow.y);
+		PVector rightElbowYZ = new PVector(skeleton.rightElbow.y, skeleton.rightElbow.z);
 		PVector rightShoulderXY = new PVector(skeleton.rightShoulder.x, skeleton.rightShoulder.y);
+		PVector rightShoulderYZ = new PVector(skeleton.rightShoulder.y, skeleton.rightShoulder.z);
 		PVector rightHipXY = new PVector(skeleton.rightHip.x, skeleton.rightHip.y);
 
 		PVector leftHandXY = new PVector(skeleton.leftHand.x, skeleton.leftHand.y);
@@ -402,8 +408,8 @@ public class OpenNI extends Service // implements
 		// calculate the axis against which we want to measure our angles
 		// dunno if this needs all the defintion it has :P - normal of the
 		// "person" is pretty much XY
-		PVector rightTorsoOrientation = PVector.sub(rightShoulderXY, rightHipXY);
-		PVector rightUpperArmOrientation = PVector.sub(rightElbowXY, rightShoulderXY);
+		PVector rightTorsoOrientationXY = PVector.sub(rightShoulderXY, rightHipXY);
+		PVector rightUpperArmOrientationXY = PVector.sub(rightElbowXY, rightShoulderXY);
 
 		PVector leftTorsoOrientationXY = PVector.sub(leftShoulderXY, leftHipXY);
 		PVector leftUpperArmOrientationXY = PVector.sub(leftElbowXY, leftShoulderXY);
@@ -411,10 +417,12 @@ public class OpenNI extends Service // implements
 		// FIXME !! - IS THIS CORRECT - CAN XY JUST BE RE-USED - SINCE THE
 		// NORMAL OF THE BODY IS IN THE Z ?
 		PVector leftTorsoOrientationYZ = PVector.sub(leftShoulderXY, leftHipXY);
-
+		PVector rightTorsoOrientationYZ = PVector.sub(rightShoulderXY, rightHipXY);
+		
 		// calculate the angles between our joints
-		float rightShoulderAngleXY = angleOf(rightElbowXY, rightShoulderXY, rightTorsoOrientation);
-		float rightElbowAngleXY = angleOf(rightHandXY, rightElbowXY, rightUpperArmOrientation);
+		float rightShoulderAngleXY = angleOf(rightElbowXY, rightShoulderXY, rightTorsoOrientationXY);
+		float rightShoulderAngleYZ = angleOf(rightElbowYZ, rightShoulderYZ, rightTorsoOrientationYZ);
+		float rightElbowAngleXY = angleOf(rightHandXY, rightElbowXY, rightUpperArmOrientationXY);
 
 		float leftShoulderAngleXY = angleOf(leftElbowXY, leftShoulderXY, leftTorsoOrientationXY);
 		float leftShoulderAngleYZ = angleOf(leftElbowYZ, leftShoulderYZ, leftTorsoOrientationYZ);
@@ -422,11 +430,13 @@ public class OpenNI extends Service // implements
 
 		skeleton.rightShoulder.setAngleXY(rightShoulderAngleXY);
 		skeleton.rightElbow.setAngleXY(rightElbowAngleXY);
+		skeleton.rightShoulder.setAngleYZ(rightShoulderAngleYZ);
+		
 		skeleton.leftShoulder.setAngleXY(leftShoulderAngleXY);
 		skeleton.leftElbow.setAngleXY(leftElbowAngleXY);
 		skeleton.leftShoulder.setAngleYZ(leftShoulderAngleYZ);
 
-		g2d.drawString(String.format("shoulder %d ", Math.round(leftShoulderAngleYZ)), 20, 30);
+		g2d.drawString(String.format("shoulder %d %d", Math.round(leftShoulderAngleYZ), Math.round(rightShoulderAngleYZ)), 20, 30);
 		g2d.drawString(String.format("omoplate %d %d", Math.round(rightShoulderAngleXY), Math.round(leftShoulderAngleXY)), 20, 40);
 		g2d.drawString(String.format("bicep %d %d", Math.round(rightElbowAngleXY), Math.round(leftElbowAngleXY)), 20, 50);
 		
