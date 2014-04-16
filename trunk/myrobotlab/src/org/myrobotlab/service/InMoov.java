@@ -214,8 +214,14 @@ public class InMoov extends Service {
 			pid.setPID(10.0, 0.0, 1.0);
 			pid.setControllerDirection(0);
 
-			openni.skeleton.leftElbow.map(0, 180, 180, 0);
-			openni.skeleton.rightElbow.map(0, 180, 180, 0);
+			// re-mapping of skeleton !
+			openni.skeleton.leftElbow.mapXY(0, 180, 180, 0);
+			openni.skeleton.rightElbow.mapXY(0, 180, 180, 0);
+			
+			openni.skeleton.leftShoulder.mapYZ(0, 180, 180, 0);
+			openni.skeleton.rightShoulder.mapYZ(0, 180, 180, 0);
+			
+			//openni.skeleton.leftShoulder
 
 			openni.addListener("publish", this.getName(), "getSkeleton");
 		}
@@ -234,12 +240,14 @@ public class InMoov extends Service {
 
 		if (copyGesture) {
 			if (leftArm != null) {
-				leftArm.bicep.moveTo(skeleton.leftElbow.getAngle());
-				leftArm.omoplate.moveTo(skeleton.leftShoulder.getAngle());
+				leftArm.bicep.moveTo(skeleton.leftElbow.getAngleXY());
+				leftArm.omoplate.moveTo(skeleton.leftShoulder.getAngleXY());
+				leftArm.shoulder.moveTo(skeleton.leftShoulder.getAngleYZ());
+				log.info(String.format("------------------------------------------------[%f]",skeleton.leftShoulder.getAngleYZ()));
 			}
 			if (rightArm != null) {
-				rightArm.bicep.moveTo(skeleton.rightElbow.getAngle());
-				rightArm.omoplate.moveTo(skeleton.rightShoulder.getAngle());
+				rightArm.bicep.moveTo(skeleton.rightElbow.getAngleXY());
+				rightArm.omoplate.moveTo(skeleton.rightShoulder.getAngleXY());
 			}
 		}
 

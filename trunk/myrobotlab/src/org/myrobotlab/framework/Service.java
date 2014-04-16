@@ -2086,10 +2086,20 @@ public abstract class Service implements Runnable, Serializable, ServiceInterfac
 		Logging.logException(e);
 		return error(e.getMessage());
 	}
+	
+	/*
+	static public setErrorEmail(String to, String host, String user, String password){
+		
+	}
+	*/
 
 	public String error(String msg) {
 		lastErrorMsg = msg;
 		log.error(msg);
+		
+		// handle error
+		//email.sendEmail("greg.perry@daimler.com", "test", "test body");
+		
 		// if (System.currentTimeMillis() - lastError > 300) {
 		invoke("publishStatus", "error", msg);
 		invoke("publishError", msg);
