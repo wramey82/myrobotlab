@@ -1,6 +1,5 @@
 package org.myrobotlab.openni;
 
-import org.simpleframework.xml.Element;
 
 /* -*- mode: java; c-basic-offset: 2; indent-tabs-mode: nil -*- */
 
@@ -55,17 +54,24 @@ public class PVector {
 	/** quality from openni */
 	public float quality;
 
-	private float angle;
+	private float angleXY;
+	private float angleYZ;
 
 	/** Array so that this can be temporarily used in an array context */
 	protected float[] array;
 
-	// range mapping
-	private float minX = 0;
-	private float maxX = 180;
-	private float minY = 0;
-	private float maxY = 180;
+	// range mapping - in XY plane
+	private float XYminX = 0;
+	private float XYmaxX = 180;
+	private float XYminY = 0;
+	private float XYmaxY = 180;
 
+	// range mapping in YZ plane
+	private float YZminY = 0;
+	private float YZmaxY = 180;
+	private float YZminZ = 0;
+	private float YZmaxZ = 180;
+	
 	/**
 	 * Constructor for an empty vector: x, y, and z are set to 0.
 	 */
@@ -580,6 +586,15 @@ public class PVector {
 		double v2mag = Math.sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
 		return (float) Math.acos(dot / (v1mag * v2mag));
 	}
+	
+	static public float aSinangleBetween(PVector v1, PVector v2) {
+		double dot = v1.y * v2.y + v1.x * v2.x + v1.z * v2.z;
+		double v1mag = Math.sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
+		double v2mag = Math.sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+		return (float) Math.acos(dot / (v1mag * v2mag));
+	}
+	
+	
 
 	public String toString() {
 		return "[ " + x + ", " + y + ", " + z + " ]";
@@ -600,25 +615,48 @@ public class PVector {
 		return array;
 	}
 	
-	public void map(float minX, float maxX, float minY, float maxY) {
-		this.minX = minX;
-		this.maxX = maxX;
-		this.minY = minY;
-		this.maxY = maxY;
+	public void mapXY(float minX, float maxX, float minY, float maxY) {
+		this.XYminX = minX;
+		this.XYmaxX = maxX;
+		this.XYminY = minY;
+		this.XYmaxY = maxY;
 	}
 
-	public void map(int minX, int maxX, int minY, int maxY) {
-		this.minX = minX;
-		this.maxX = maxX;
-		this.minY = minY;
-		this.maxY = maxY;
+	public void mapXY(int minX, int maxX, int minY, int maxY) {
+		this.XYminX = minX;
+		this.XYmaxX = maxX;
+		this.XYminY = minY;
+		this.XYmaxY = maxY;
 	}
 	
-	public void setAngle(float angle){
-		this.angle =  minY + ((angle - minX)*(maxY - minY))/(maxX - minX);;
+	public void mapYZ(float minY, float maxY, float minZ, float maxZ) {
+		this.YZminY = minY;
+		this.YZmaxY = maxY;
+		this.YZminZ = minZ;
+		this.YZmaxZ = maxZ;
+	}
+
+	public void mapXZ(int minY, int maxY, int minZ, int maxZ) {
+		this.YZminY = minY;
+		this.YZmaxY = maxY;
+		this.YZminZ = minZ;
+		this.YZmaxZ = maxZ;
 	}
 	
-	public float getAngle(){
-		return  angle;
+	public void setAngleXY(float angle){
+		this.angleXY =  XYminY + ((angle - XYminX)*(XYmaxY - XYminY))/(XYmaxX - XYminX);
+	}
+	
+
+	public float getAngleXY(){
+		return  angleXY;
+	}
+	
+	public void setAngleYZ(float angle){
+		this.angleYZ =  YZminZ + ((angle - YZminY)*(YZmaxZ - YZminZ))/(YZmaxY - YZminY);
+	}
+	
+	public float getAngleYZ(){
+		return  angleYZ;
 	}
 }

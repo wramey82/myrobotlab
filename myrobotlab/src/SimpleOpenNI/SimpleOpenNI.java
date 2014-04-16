@@ -242,47 +242,6 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 		initEnv(parent, RUN_MODE_SINGLE_THREADED, -1);
 	}
 
-	/**
-	 * Creates the OpenNI context ands inits the modules
-	 * 
-	 * @param deviceIndex
-	 *            int
-	 * @param parent
-	 *            PApplet
-	 */
-	public SimpleOpenNI(int deviceIndex, OpenNI parent) {
-		initEnv(parent, RUN_MODE_SINGLE_THREADED, deviceIndex);
-	}
-
-	/**
-	 * Creates the OpenNI context ands inits the modules
-	 * 
-	 * @param deviceIndex
-	 *            int
-	 * @param parent
-	 *            OpenNI
-	 * @param runMode
-	 *            - RUN_MODE_DEFAULT, RunMode_SingleThreaded = Runs all in a
-	 *            single thread - RunMode_MultiThreaded = Runs the openNI/NIITE
-	 *            in another thread than processing
-	 */
-	public SimpleOpenNI(int deviceIndex, OpenNI parent, int runMode) {
-		initEnv(parent, runMode, deviceIndex);
-	}
-
-	/**
-	 * Creates the OpenNI context ands inits the modules
-	 * 
-	 * @param parent
-	 *            OpenNI
-	 * @param runMode
-	 *            - RUN_MODE_DEFAULT, RunMode_SingleThreaded = Runs all in a
-	 *            single thread - RunMode_MultiThreaded = Runs the openNI/NIITE
-	 *            in another thread than processing
-	 */
-	public SimpleOpenNI(OpenNI parent, int runMode) {
-		initEnv(parent, runMode, -1);
-	}
 
 	/**
 	 * Creates the OpenNI context ands inits the modules
