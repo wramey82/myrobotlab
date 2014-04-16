@@ -243,11 +243,11 @@ public class InMoov extends Service {
 				leftArm.bicep.moveTo(skeleton.leftElbow.getAngleXY());
 				leftArm.omoplate.moveTo(skeleton.leftShoulder.getAngleXY());
 				leftArm.shoulder.moveTo(skeleton.leftShoulder.getAngleYZ());
-				log.info(String.format("------------------------------------------------[%f]",skeleton.leftShoulder.getAngleYZ()));
 			}
 			if (rightArm != null) {
 				rightArm.bicep.moveTo(skeleton.rightElbow.getAngleXY());
 				rightArm.omoplate.moveTo(skeleton.rightShoulder.getAngleXY());
+				rightArm.shoulder.moveTo(skeleton.rightShoulder.getAngleYZ());
 			}
 		}
 
