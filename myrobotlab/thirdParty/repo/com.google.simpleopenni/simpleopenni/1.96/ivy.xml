@@ -8,6 +8,10 @@
     <publications>
         <artifact name="SimpleOpenNI" type="jar"/>
         
+         <artifact name="libSimpleOpenNI" type="jnilib" conf="x86.64.mac"/>
+         <artifact name="libSimpleOpenNI64" type="so" conf="x86.64.linux"/>
+         <artifact name="SimpleOpenNI32" type="dll" conf="x86.32.windows"/>
          <artifact name="SimpleOpenNI64" type="dll" conf="x86.64.windows"/>
-    </publications>
+         
+         </publications>
 </ivy-module>
