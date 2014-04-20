@@ -194,6 +194,16 @@
          </list>
       </dependsOn>
    </serviceType>
+      <serviceType string="org.myrobotlab.service.GY80" workingLevel="2">
+      <dependsOn>
+  	 <description>service for general purpose graphics - might use SensorMonitor instead
+	 </description>      
+         <list>
+            <string>org.apache.log4j</string>
+            <string>org.simpleframework.xml</string>
+         </list>
+      </dependsOn>
+   </serviceType>
    <serviceType string="org.myrobotlab.service.Houston" workingLevel="1">
       <dependsOn>
   	 <description>control service for Houston robot project
