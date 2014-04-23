@@ -19,6 +19,7 @@ import org.myrobotlab.openni.PImage;
 import org.myrobotlab.openni.PVector;
 import org.myrobotlab.openni.Skeleton;
 import org.myrobotlab.service.interfaces.VideoSink;
+import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 
 import SimpleOpenNI.SimpleOpenNI;
@@ -58,7 +59,7 @@ public class OpenNI extends Service // implements
 
 	Graphics2D g2d;
 
-	int cnt = 0;
+	int frameNumber = 0;
 
 	int handVecListSize = 20;
 	HashMap<Integer, ArrayList<PVector>> handPathList = new HashMap<Integer, ArrayList<PVector>>();
@@ -69,6 +70,8 @@ public class OpenNI extends Service // implements
 	PVector com2d = new PVector();
 
 	BufferedImage frame;
+	
+	@Element
 	public Skeleton skeleton = new Skeleton();
 
 	private boolean recordRubySketchUp = false;
@@ -246,7 +249,8 @@ public class OpenNI extends Service // implements
 		// FIXME - THIS IS INCORRECT - DATA CAN BE BROADCAST BUT NO GRAPHICS !
 		PImage p = context.depthImage();
 		frame = p.getImage();
-		++cnt;
+		++frameNumber;
+		skeleton.frameNumber = frameNumber;
 
 		g2d = frame.createGraphics();
 		g2d.setColor(Color.RED);
@@ -383,10 +387,10 @@ public class OpenNI extends Service // implements
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);
 
-		// begin angular decomposition
+		// begin angular decomposition & projections
 
 		/**
-		 * Taken from "Making Things See" a excellent book and I recommend
+		 * initially started from "Making Things See" a excellent book and I recommend
 		 * buying it http://shop.oreilly.com/product/0636920020684.do
 		 */
 
@@ -464,7 +468,7 @@ public class OpenNI extends Service // implements
 
 	public void addRubySketchUpFrame(Skeleton skeleton) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", cnt)));
+		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", frameNumber)));
 		sb.append(String.format("head = [%f,%f,%f]\n", skeleton.head.x, skeleton.head.z, skeleton.head.y));
 		sb.append(String.format("neck = [%f,%f,%f]\n", skeleton.neck.x, skeleton.neck.z, skeleton.neck.y));
 
@@ -508,7 +512,7 @@ public class OpenNI extends Service // implements
 		sb.append("model.entities.add_line(rightHip, rightKnee)\n");
 		sb.append("model.entities.add_line(rightKnee, rightFoot)\n");
 
-		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", cnt)));
+		sb.append(String.format(String.format("\n#-----------------------frame %d begin----------------------\n", frameNumber)));
 
 		if (rubySketchUpFile == null) {
 			openRubySketchUpFile();
@@ -677,7 +681,7 @@ public class OpenNI extends Service // implements
 		g2d.drawString(String.format("head %d %d %d", Math.round(skeleton.head.x), Math.round(skeleton.head.y), Math.round(skeleton.head.z)), 20, 20);
 		// g2d.drawString(str, Math.round(x), Math.round(y));
 	}
-
+	
 	// USER END ---------------------------------------------
 
 	public void registerDispose(SimpleOpenNI simpleOpenNI) {
@@ -700,8 +704,7 @@ public class OpenNI extends Service // implements
 		Runtime.createAndStart("gui", "GUIService");
 		Runtime.createAndStart("python", "Python");
 
-		OpenNI openni = new OpenNI("openni");
-		openni.startService();
+		OpenNI openni = (OpenNI)Runtime.createAndStart("openni", "OpenNI");
 		openni.startUserTracking();
 		openni.recordRubySketchUp(true);
 
