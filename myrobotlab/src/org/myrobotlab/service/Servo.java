@@ -62,7 +62,6 @@ public class Servo extends Service implements ServoControl {
 
 	ServoController controller;
 
-	@Element
 	private Float inputX;
 	
 	// clipping
@@ -81,6 +80,7 @@ public class Servo extends Service implements ServoControl {
 	@Element
 	private float maxY = 180;
 
+	@Element
 	private int rest = 90;
 	
 	private long lastActivityTime = 0;

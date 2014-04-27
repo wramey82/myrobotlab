@@ -82,7 +82,8 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 			} else if (sysStr.indexOf("mac") >= 0) { // mac
 
 				libName = "lib" + libName + ".jnilib";
-				nativLibPath = getLibraryPathLinux() + "/SimpleOpenNI/library/";
+				//nativLibPath = getLibraryPathLinux() + "/SimpleOpenNI/library/";
+				nativLibPath = getLibraryPathMac();
 				nativDepLibPath = nativLibPath + "osx/";
 
 				// log.info("nativDepLibPath = " + nativDepLibPath);
@@ -120,6 +121,13 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 			return "";
 	}
 
+	public static String getLibraryPathMac() {
+		
+		File f = new File("libraries/native/x86.64.mac/");
+		return f.getAbsolutePath() + "/";
+	}
+
+	
 	public static String getLibraryPathWin() {
 		/*
 		 * FIXME -- need a different way URL url =
@@ -138,7 +146,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 		 * if ((-1 < n0) && (-1 < n1)) return path.substring(n0, n1); else
 		 * return ""; } else return "";
 		 */
-
+		// FIXME - get a Platform.instance - to support 32 bit
 		File f = new File("libraries/native/x86.64.windows/");
 		return f.getAbsolutePath().replace("\\", "/") + "/";
 	}
@@ -942,7 +950,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 		convertRealWorldToProjective(joint1Pos, joint1Pos2d);
 		convertRealWorldToProjective(joint2Pos, joint2Pos2d);
 
-		_parent.line(joint1Pos2d.x, joint1Pos2d.y, joint2Pos2d.x, joint2Pos2d.y);
+		_parent.line(joint1Pos2d.x, joint1Pos2d.y, joint2Pos2d.x, joint2Pos2d.y, userId, joint1, joint2);
 	}
 
 	/**
@@ -959,6 +967,7 @@ public class SimpleOpenNI extends ContextWrapper implements SimpleOpenNIConstant
 	public float getJointPositionSkeleton(int userId, int joint, PVector jointPos) {
 		float ret = getJointPositionSkeleton(userId, joint, _tempVec);
 		jointPos.set(_tempVec);
+		jointPos.quality = ret;
 		return ret;
 	}
 
