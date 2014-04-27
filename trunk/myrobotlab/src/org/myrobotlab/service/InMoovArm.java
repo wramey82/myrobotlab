@@ -303,4 +303,22 @@ public class InMoovArm extends Service {
 		
 		return attached;
 	}
+	
+	public boolean save(){
+		super.save();
+		bicep.save();
+		rotate.save();
+		shoulder.save();
+		omoplate.save();
+		return true;
+	}
+	
+	public boolean load(){
+		super.load();
+		bicep.load();
+		rotate.load();
+		shoulder.load();
+		omoplate.load();
+		return true;
+	}
 }

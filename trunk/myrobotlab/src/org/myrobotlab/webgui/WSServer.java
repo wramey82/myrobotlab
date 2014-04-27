@@ -323,6 +323,10 @@ public class WSServer extends WebSocketServer {
 	public void onRawOpen(WebSocket conn, ByteBuffer d) {
 
 		try {
+			if (conn == null){
+				log.error("conn is null");
+				return;
+			}
 
 			log.info(String.format("onRawOpen %s", conn.getRemoteSocketAddress()));
 
@@ -393,7 +397,6 @@ public class WSServer extends WebSocketServer {
 
 			if (r == null) {
 				log.info("---------------CLOSE-------------------------");
-				conn.close();
 				return;
 			}
 
@@ -405,11 +408,13 @@ public class WSServer extends WebSocketServer {
 			byte[] ba = out.toByteArray();
 			log.info(String.format("sending %d bytes", ba.length));
 			conn.send(ba);
-			conn.close();
+			//conn.close();
 
 		} catch (Exception e) {
 			// attempt a 500
 			Logging.logException(e);
+		} finally {
+			conn.close();
 		}
 
 	}
