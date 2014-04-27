@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <ivy-module version="1.0">
-    <info organisation="com.sun.jna" module="jna" status="release" revision="3.2.2">
+    <info organisation="com.google.simpleopenni" module="simpleopenni" status="release" revision="1.96">
     </info>
     <configurations>
         <include url="http://myrobotlab.googlecode.com/svn/trunk/myrobotlab/thirdParty/repo/ivyconfigurations.xml"/>
