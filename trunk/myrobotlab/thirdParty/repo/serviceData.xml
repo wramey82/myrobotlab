@@ -210,7 +210,25 @@ service for general purpose graphics - might use SensorMonitor instead
 			</list>
 		</dependsOn>
 	</serviceType>
-	<serviceType string="org.myrobotlab.service.InMoovHand" workingLevel="3">
+	<serviceType string="org.myrobotlab.service.InMoovTorso" workingLevel="3">
+		<dependsOn>
+			<description>service to control the InMoov robot</description>
+			<list>
+				<string>com.sun.speech.freetts</string>
+				<string>org.apache.commons.httpclient</string>
+				<string>javax.speech.recognition</string>
+				<string>com.googlecode.javacv</string>
+				<string>net.sourceforge.opencv</string>
+				<string>com.sun.jna</string>
+				<string>edu.cmu.sphinx</string>
+				<string>gnu.io.rxtx</string>
+				<string>cc.arduino</string>
+				<string>org.openni</string>
+				<string>javazoom.jl.player</string>
+			</list>
+		</dependsOn>
+	</serviceType>
+		<serviceType string="org.myrobotlab.service.InMoovHand" workingLevel="3">
 		<dependsOn>
 			<description>service to control the InMoov robot</description>
 			<list>
