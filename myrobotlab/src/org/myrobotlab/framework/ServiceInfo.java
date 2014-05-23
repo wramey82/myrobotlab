@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -654,6 +652,7 @@ public class ServiceInfo implements Serializable {
 			ArtifactDownloadReport[] artifacts;
 			ArtifactDownloadReport artifact;
 			String filename;
+			
 			for (int i = 0; i < dependencies.size(); ++i) {
 				dep = dependencies.get(i);
 				module = dep.substring(dep.lastIndexOf(".") + 1);

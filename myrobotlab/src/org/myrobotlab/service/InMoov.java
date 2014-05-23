@@ -56,6 +56,7 @@ public class InMoov extends Service {
 
 	// hands and arms
 	transient public InMoovHead head;
+	transient public InMoovTorso torso;
 	transient public InMoovArm leftArm;
 	transient public InMoovHand leftHand;
 	transient public InMoovArm rightArm;
@@ -98,6 +99,7 @@ public class InMoov extends Service {
 
 		// SHARING !!!
 		peers.suggestAs("head.arduino", "left", "Arduino", "shared left arduino");
+		peers.suggestAs("torso.arduino", "left", "Arduino", "shared left arduino");
 
 		peers.suggestAs("leftArm.arduino", "left", "Arduino", "shared left arduino");
 		peers.suggestAs("leftHand.arduino", "left", "Arduino", "shared left arduino");
@@ -461,6 +463,23 @@ public class InMoov extends Service {
 
 		return head;
 	}
+	
+	public InMoovTorso startTorso(String port, String type) {
+		// log.warn(InMoov.buildDNA(myKey, serviceClass))
+		speakBlocking("starting torso on %s", port);
+
+		torso = (InMoovTorso) startPeer("torso");
+
+		if (type == null) {
+			type = Arduino.BOARD_TYPE_ATMEGA2560;
+		}
+
+		torso.arduino.setBoard(type);
+		torso.connect(port);
+		arduinos.put(port, torso.arduino);
+
+		return torso;
+	}
 
 	// ------ starts end ---------
 	// ------ composites begin ---------
@@ -545,6 +564,9 @@ public class InMoov extends Service {
 		if (leftArm != null) {
 			leftArm.setSpeed(1.0f, 1.0f, 1.0f, 1.0f);
 		}
+		if (torso != null) {
+			torso.setSpeed(1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	public void rest() {
@@ -562,6 +584,9 @@ public class InMoov extends Service {
 		}
 		if (leftArm != null) {
 			leftArm.rest();
+		}
+		if (torso != null) {
+			torso.rest();
 		}
 	}
 
@@ -585,6 +610,10 @@ public class InMoov extends Service {
 			leftArm.rest();
 			leftArm.detach();
 		}
+		if (torso != null) {
+			torso.rest();
+			torso.detach();
+		}
 	}
 
 	public void detach() {
@@ -602,6 +631,9 @@ public class InMoov extends Service {
 		}
 		if (leftArm != null) {
 			leftArm.detach();
+		}
+		if (torso != null) {
+			torso.detach();
 		}
 	}
 
@@ -625,6 +657,9 @@ public class InMoov extends Service {
 		if (leftArm != null) {
 			sleep(100);
 			leftArm.attach();
+		}
+		if (torso != null) {
+			torso.attach();
 		}
 	}
 
@@ -661,6 +696,11 @@ public class InMoov extends Service {
 			head.test();
 		}
 
+		if (torso != null) {
+			speakBlocking("testing torso");
+			torso.test();
+		}
+		
 		sleep(500);
 		rest();
 		broadcastState();
@@ -686,6 +726,10 @@ public class InMoov extends Service {
 
 		if (head != null) {
 			head.broadcastState();
+		}
+
+		if (torso != null) {
+			torso.broadcastState();
 		}
 
 		if (headTracking != null) {
@@ -811,6 +855,14 @@ public class InMoov extends Service {
 		}
 	}
 
+	public void moveTorso(Integer topStom, Integer midStom, Integer lowStom) {
+		if (torso != null) {
+			torso.moveTo(topStom, midStom, lowStom);
+		} else {
+			log.error("moveTorso - I have a null torso");
+		}
+	}
+
 	public void moveHead(Integer neck, Integer rothead, Integer eyeX, Integer eyeY, Integer jaw) {
 		if (head != null) {
 			head.moveTo(neck, rothead, eyeX, eyeY, jaw);
@@ -824,6 +876,14 @@ public class InMoov extends Service {
 			head.setSpeed(rothead, neck, null, null, null);
 		} else {
 			log.warn("setHeadSpeed - I have no head");
+		}
+	}
+	
+	public void setTorsoSpeed(Float topStom, Float midStom, Float lowStom) {
+		if (torso != null) {
+			torso.setSpeed(topStom, midStom, lowStom);
+		} else {
+			log.warn("setTorsoSpeed - I have no torso");
 		}
 	}
 
@@ -871,6 +931,11 @@ public class InMoov extends Service {
 			script.append(indentSpace);
 			script.append(rightHand.getScript(getName()));
 		}
+		
+		if (torso != null) {
+			script.append(indentSpace);
+			script.append(torso.getScript(getName()));
+		}
 
 		send("python", "appendScript", script.toString());
 
@@ -909,6 +974,11 @@ public class InMoov extends Service {
 
 		if (head != null) {
 			myLastActivity = head.getLastActivityTime();
+			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
+		}
+		
+		if (torso != null) {
+			myLastActivity = torso.getLastActivityTime();
 			lastActivityTime = (lastActivityTime > myLastActivity) ? myLastActivity : lastActivityTime;
 		}
 
@@ -1042,6 +1112,10 @@ public class InMoov extends Service {
 
 		if (head != null) {
 			attached |= head.isAttached();
+		}
+		
+		if (torso != null) {
+			attached |= torso.isAttached();
 		}
 		return attached;
 	}
