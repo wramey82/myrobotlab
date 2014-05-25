@@ -2,7 +2,7 @@
 
 # Mac's don't use LD_LIBRARY_PATH yet its 
 # required to load shared objects on Linux systems
-LD_LIBRARY_PATH=`pwd`/libraries/native/arm.32.linux:`pwd`/libraries/native/x86.32.linux:`pwd`/libraries/native/x86.64.linux:${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=`pwd`/libraries/native/armv6.hfp.32.linux:`pwd`/libraries/native/x86.32.linux:`pwd`/libraries/native/x86.64.linux:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
 
 DYLD_LIBRARY_PATH=`pwd`/libraries/native/x86.32.mac:`pwd`/libraries/native/x86.64.mac:${DYLD_LIBRARY_PATH}
@@ -16,5 +16,5 @@ export DYLD_LIBRARY_PATH
 
 # memory change - -Xmx 128m -Xms 128m
 
-java -classpath "./libraries/jar/*:./libraries/jar/x86.32.linux/*:./libraries/jar/x86.64.linux/*:" -Djava.library.path="./libraries/native/arm.32.linux:./libraries/native/x86.32.linux:./libraries/native/x86.64.linux:./libraries/native/x86.32.mac:./libraries/native/x86.64.mac" org.myrobotlab.service.Runtime -service gui GUIService python Python 
+java -classpath "./libraries/jar/*:./libraries/jar/x86.32.linux/*:./libraries/jar/x86.64.linux/*:" -Djava.library.path="./libraries/native/armv6.hfp.32.linux:./libraries/native/x86.32.linux:./libraries/native/x86.64.linux:./libraries/native/x86.32.mac:./libraries/native/x86.64.mac" org.myrobotlab.service.Runtime -service gui GUIService python Python 
 
