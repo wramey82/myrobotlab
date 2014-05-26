@@ -36,7 +36,7 @@ def input():
   heaterValue = futureHeaterValue
   arduino.analogWrite(6,futureHeaterValue)
   print heaterValue
- else
+ else :
   arduino.analogWrite(6,heaterValue)
   print heaterValue
   
