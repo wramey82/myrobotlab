@@ -34,9 +34,9 @@ def input():
  futureHeaterValue = (heaterValue + correction)
  if (futureHeaterValue < 1024) and (futureHeaterValue >0):
   heaterValue = futureHeaterValue
-  arduino.analogWrite(6,futureHeaterValue)
+  arduino.analogWrite(4,futureHeaterValue)
   print heaterValue
  else :
-  arduino.analogWrite(6,heaterValue)
+  arduino.analogWrite(4,heaterValue)
   print heaterValue
   
