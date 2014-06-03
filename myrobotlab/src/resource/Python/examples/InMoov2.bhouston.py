@@ -47,10 +47,10 @@ i01.startEyesTracking(leftPort)
 #i01.attach()
  
 # auto detaches any attached servos after 120 seconds of inactivity
-i01.autoPowerDownOnInactivity(120)
+#i01.autoPowerDownOnInactivity(120)
 
 ###########################
-i01.startPIR("COM7",12)
+i01.startPIR("COM7",28)
  
  
  
@@ -60,9 +60,9 @@ def input():
     print 'pin data is ', pin.pin, pin.value
     if (pin.value == 1):
       mouth.speak("who's there")
-      head.neck.moveTo(85)
+      i01.head.neck.moveTo(85)
       sleep(2)
-      head.neck.moveTo(90)
+      i01.head.neck.moveTo(90)
 ###########################
 
 ############################################################
