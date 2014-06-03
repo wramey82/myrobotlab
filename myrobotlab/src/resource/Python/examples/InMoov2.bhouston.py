@@ -47,7 +47,7 @@ i01.startEyesTracking(leftPort)
 #i01.attach()
  
 # auto detaches any attached servos after 120 seconds of inactivity
-i01.autoDetachOnInactivity(120)
+i01.autoPowerDownOnInactivity(120)
 
 ###########################
 i01.startPIR("COM7",12)
