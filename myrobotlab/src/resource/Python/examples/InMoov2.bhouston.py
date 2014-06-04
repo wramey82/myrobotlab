@@ -1,5 +1,5 @@
 #Bhouston script - modified Gael's script
-
+ 
 # this script is provided as a basic guide
 # most parts can be run by uncommenting them
 # InMoov now can be started in modular pieces
@@ -17,8 +17,8 @@ cleverbot = Runtime.createAndStart("cleverbot","CleverBot")
 i01.startMouth()
 #to tweak the default voice
 i01.mouth.setGoogleURI("http://thehackettfamily.org/Voice_api/api2.php?voice=Will&txt=")
-
-
+ 
+ 
 i01.startHead(leftPort)
 i01.startMouthControl(leftPort)
 i01.startEar()
@@ -28,18 +28,18 @@ i01.startRightHand(rightPort)
 i01.startRightArm(rightPort)
 i01.startHeadTracking(leftPort)
 i01.startEyesTracking(leftPort)
-
+ 
 # starting part with a reference, with a reference
 # you can interact further
 #opencv = i01.startOpenCV()
 #opencv.startCapture()
 # or you can use i01's reference
 #i01.opencv.startCapture()
-
+ 
 #i01.headTracking.faceDetect()
 #i01.eyesTracking.faceDetect()
 #i01.headTracking.pyramidDown()
-
+ 
  
 # after a start you may call detach to detach all
 # currently attached servos
@@ -47,8 +47,8 @@ i01.startEyesTracking(leftPort)
 #i01.attach()
  
 # auto detaches any attached servos after 120 seconds of inactivity
-#i01.autoPowerDownOnInactivity(120)
-
+i01.autoPowerDownOnInactivity(120)
+ 
 ###########################
 i01.startPIR("COM7",28)
  
@@ -59,19 +59,20 @@ def input():
     pin = msg_i01_right_publishPin.data[0]
     print 'pin data is ', pin.pin, pin.value
     if (pin.value == 1):
+      #i01.powerUp()
       mouth.speak("who's there")
       i01.head.neck.moveTo(85)
       sleep(2)
       i01.head.neck.moveTo(90)
 ###########################
-
+ 
 ############################################################
 #if needed we can tweak the default settings with these lines
 #i01.head.eyeY.map(0,180,80,100)
 #i01.head.eyeY.setRest(78)
 #i01.head.eyeX.map(0,180,75,100)
 #i01.head.eyeX.setRest(78)
-
+ 
 i01.head.eyeY.setMinMax(80,100)
 i01.head.eyeY.setRest(80)
 i01.head.eyeX.setMinMax(75,100)
@@ -99,7 +100,7 @@ i01.headTracking.ypid.setPID(15.0,5.0,0.1)
 i01.eyesTracking.xpid.setPID(15.0,5.0,0.1)
 i01.eyesTracking.ypid.setPID(22.0,5.0,0.1)
 ############################################################
-
+ 
 #i01.speakErrors(false)
 # purges any "auto" methods
 #i01.purgeAllTasks()
@@ -123,7 +124,7 @@ i01.eyesTracking.ypid.setPID(22.0,5.0,0.1)
 # After ear.startListening(), the ear will listen for commands
  
 # i01.systemCheck()
-
+ 
 i01.mouth.speakBlocking(cleverbot.chat("hi"))
 #i01.mouth.speakBlocking(cleverbot.chat("how are you"))
  
@@ -131,7 +132,7 @@ i01.mouth.speakBlocking(cleverbot.chat("hi"))
 ear = i01.ear
  
 ear.addCommand("rest", i01.getName(), "rest")
-
+ 
 ear.addCommand("attach head", "i01.head", "attach")
 ear.addCommand("disconnect head", "i01.head", "detach")
 ear.addCommand("attach eyes", "i01.head.eyeY", "attach")
@@ -213,8 +214,8 @@ ear.addCommand("before happy", "python", "beforehappy")
 ear.addCommand("happy birthday", "python", "happy")
 #ear.addCommand("photo", "python", "photo")
 ear.addCommand("about", "python", "about")
-#ear.addCommand("power down", "python", "powerdown")
-#ear.addCommand("power up", "python", "powerup")
+ear.addCommand("power down", "python", "powerdown")
+ear.addCommand("power up", "python", "powerup")
 ear.addCommand("servo", "python", "servos")
 ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave")
  
@@ -222,32 +223,32 @@ ear.addComfirmations("yes","correct","ya","yeah")
 ear.addNegations("no","wrong","nope","nah")
  
 ear.startListening()
-
+ 
 #def findFace():
   #i01.headTracking.faceDetect(True)
   #i01.eyesTracking.faceDetect(True)
   #i01.headTracking.pyramidDown(True)
-
+ 
 #def stopScan():
   #i01.headTracking.faceDetect(False)
   #i01.eyesTracking.faceDetect(False)
   #i01.headTracking.pyramidDown(False)
-
+ 
 #def track():
   #i01.headTracking.startLKTracking()
-
+ 
 def trackHumans():
      i01.headTracking.faceDetect()
      i01.eyesTracking.faceDetect()
-
+ 
 def trackPoint():
      i01.headTracking.startLKTracking()
      i01.eyesTracking.startLKTracking()
-
+ 
 def stopTracking():
      i01.headTracking.stopTracking()
      i01.eyesTracking.stopTracking()
-
+ 
  
 def fullspeed():
   i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -479,7 +480,7 @@ def relax():
 def handopen():
   i01.moveHand("left",0,0,0,0,0)
   i01.moveHand("right",0,0,0,0,0)
-
+ 
 def handclose():
   i01.moveHand("left",180,180,180,180,180)
   i01.moveHand("right",180,180,180,180,180)
@@ -490,7 +491,7 @@ def openlefthand():
  
 def openrighthand():
   i01.moveHand("right",0,0,0,0,0)
-
+ 
 def closelefthand():
   i01.moveHand("left",180,180,180,180,180)
  
@@ -547,43 +548,45 @@ def picturebothside():
   i01.moveArm("right",90,115,23,68)
   i01.moveHand("left",50,86,97,74,106,119)
   i01.moveHand("right",10,112,95,91,125,45)
-
+ 
 def lookrightside():
   i01.setHeadSpeed(0.70, 0.70)
   i01.moveHead(85,40)
-
+ 
 def lookleftside():
   i01.setHeadSpeed(0.70, 0.70)
   i01.moveHead(85,140)
-
+ 
 def lookinmiddle():
   i01.setHeadSpeed(0.70, 0.70)
   i01.moveHead(85,90)
  
 def powerdown():
-        sleep(2)        
-        ear.pauseListening()
-        i01.rest()
-        i01.mouth.speakBlocking("I'm powering down")
-        sleep(2)
-        i01.moveHead(40, 85);
-        sleep(4)
-        rightSerialPort.digitalWrite(53, Arduino.LOW)
-        leftSerialPort.digitalWrite(53, Arduino.LOW)
-        ear.lockOutAllGrammarExcept("power up")
-        sleep(2)
-        ear.resumeListening()
+        i01.powerDown()
+        #sleep(2)        
+        #ear.pauseListening()
+        #i01.rest()
+        #i01.mouth.speakBlocking("I'm powering down")
+        #sleep(2)
+        #i01.moveHead(40, 85);
+        #sleep(4)
+        #rightSerialPort.digitalWrite(53, Arduino.LOW)
+        #leftSerialPort.digitalWrite(53, Arduino.LOW)
+        #ear.lockOutAllGrammarExcept("power up")
+        #sleep(2)
+        #ear.resumeListening()
  
 def powerup():
-        sleep(2)        
-        ear.pauseListening()
-        rightSerialPort.digitalWrite(53, Arduino.HIGH)
-        leftSerialPort.digitalWrite(53, Arduino.HIGH)
-        i01.mouth.speakBlocking("Im powered up")
-        i01.rest()
-        ear.clearLock()
-        sleep(2)
-        ear.resumeListening()
+        i01.powerUp()
+        #sleep(2)        
+        #ear.pauseListening()
+        #rightSerialPort.digitalWrite(53, Arduino.HIGH)
+        #leftSerialPort.digitalWrite(53, Arduino.HIGH)
+        #i01.mouth.speakBlocking("Im powered up")
+        #i01.rest()
+        #ear.clearLock()
+        #sleep(2)
+        #ear.resumeListening()
  
 def hello():
      i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
@@ -881,7 +884,6 @@ def servos():
         i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
         i01.moveHand("left", 36, 52, 8,22, 20);
         i01.moveHand("right", 120, 147, 130,110, 125)
-        further()
         sleep(1)
         i01.mouth.speakBlocking("they are hooked up, by the use of tendons")
         i01.moveHand("left",10,20,30,40,60,150);
@@ -889,7 +891,6 @@ def servos():
         i01.setHeadSpeed(1,1)
         i01.setArmSpeed("right", 1.0,1.0, 1.0, 1.0)
         i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
-        further()
         sleep(2)
         ear.resumeListening()
  
@@ -1014,21 +1015,21 @@ def howmanyfingersdoihave():
      sleep(0.5)
  
      ear.resumeListening()
-
+ 
 def systemcheck():
      sleep(2)
      i01.setHeadSpeed(.75,.75)
      i01.moveHead(90,90)
      sleep(1)
      i01.moveHead(72,64)
-     
+ 
      sleep(2)
      i01.moveHead(155,94)
      sleep(2)
-
+ 
      i01.moveHead(90,138)
      sleep(2)
-
+ 
      i01.moveHead(29,95)
      sleep(2)
      i01.moveHead(90,90)
@@ -1060,7 +1061,7 @@ def systemcheck():
      sleep(1)
      i01.setHeadSpeed(.9,.9)
      i01.moveHead(20,120)
-        
+ 
      i01.moveArm("left",75,123,52,45)
      i01.moveArm("right",75,123,52,45)
      i01.moveHand("left",180,180,180,180,180,30)
@@ -1068,7 +1069,7 @@ def systemcheck():
      sleep(3)
      i01.setHeadSpeed(.9,.9)
      i01.moveHead(59,67)
-     
+ 
      i01.moveHand("right",0,0,0,0,0,19)
      i01.moveHand("left",0,0,0,0,0,170)
      sleep(1)
@@ -1080,7 +1081,7 @@ def systemcheck():
      sleep(1)
      i01.mouth.speakBlocking(" hands and Wrists,    check")
      sleep(1)
-     
+ 
      i01.moveHead(90,90)
      i01.moveArm("left",0,90,30,10)
      i01.moveArm("right",0,90,30,10)
@@ -1089,16 +1090,16 @@ def systemcheck():
      i01.mouth.speakBlocking("all servos are functioning properly")
      sleep(1.5)
      i01.mouth.speakBlocking("awaiting your commands")
-
+ 
 def whatcanido():
     sleep(10)
     i01.mouth.speakBlocking("people ask")
-  
+ 
     i01.mouth.speakBlocking("what can I do?")
     sleep(.1)
     i01.mouth.speakBlocking("Well, I can do what ever Bob programs me to do")
     sleep(.3)
-    
+ 
     i01.moveHead(94,90)
     i01.setArmSpeed("left",.9,.9,.9,.9)
     i01.setArmSpeed("right",.9,.9,.9,.9)
@@ -1114,7 +1115,7 @@ def whatcanido():
     i01.moveHand("left",0,0,0,0,0,90)
     i01.moveHand("right",0,0,0,0,0,90)
     sleep(.1)
-
+ 
     i01.mouth.speakBlocking("and introduce myself")
     i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
     i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -1128,7 +1129,7 @@ def whatcanido():
     i01.moveHand("right",0,0,0,50,82,180)
     ear.pauseListening()
     sleep(.1)
-	
+ 
     for w in range(0,3):
          i01.setHandSpeed("left", 0.60, 0.60, 1.0, 1.0, 1.0, 1.0)
          i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 0.60)
@@ -1141,7 +1142,7 @@ def whatcanido():
          i01.moveHand("left",112,111,105,102,81,10)
          i01.moveHand("right",3,0,62,41,117,94)
          sleep(.5)
-          
+ 
          if w==1:
 	     i01.mouth.speakBlocking("hello, my name is inmoov")
 	     i01.setHandSpeed("left", 1.0,1.0, 1.0, 1.0, 1.0, 1.0)
@@ -1174,7 +1175,7 @@ def whatcanido():
     i01.moveArm("right",0,90,30,10)
     i01.moveHand("left",0,0,0,0,0,90)
     i01.moveHand("right",0,0,0,0,0,90)
-	
+ 
     sleep(1)
     i01.moveHead(90,90)
     i01.moveArm("left",0,90,30,10)
@@ -1212,13 +1213,13 @@ def whatcanido():
     i01.setHeadSpeed(.75,.75)
     sleep(1)
     i01.moveHead(72,64)
-     
+ 
     sleep(2)
     i01.moveHead(155,94)
     sleep(2)
     i01.moveHead(90,138)
     sleep(2)
-
+ 
     i01.moveHead(29,95)
     sleep(2)
     i01.moveHead(90,90)
@@ -1251,7 +1252,7 @@ def whatcanido():
     sleep(1)
     i01.setHeadSpeed(.9,.9)
     i01.moveHead(20,120)
-        
+ 
     i01.moveArm("left",75,123,52,45)
     i01.moveArm("right",75,123,52,45) 
     i01.moveHand("left",180,180,180,180,180,30)
@@ -1259,7 +1260,7 @@ def whatcanido():
     sleep(3)
     i01.setHeadSpeed(.9,.9)
     i01.moveHead(59,67)
-     
+ 
     i01.moveHand("right",0,0,0,0,0,19)
     i01.moveHand("left",0,0,0,0,0,170)
     sleep(1)
@@ -1285,14 +1286,14 @@ def whatcanido():
     i01.mouth.speakBlocking("Houston we have a problem")
     sleep(1.5)
     i01.mouth.speakBlocking("I can tell you about myself")
-     
+ 
     sleep(.5)
     i01.setArmSpeed("right", 0.1, 0.1, 0.2, 0.2);
     i01.setArmSpeed("left", 0.1, 0.1, 0.2, 0.2);
     i01.setHeadSpeed(0.2,0.2)
     i01.moveArm("right", 64, 94, 10, 10);
-
-
+ 
+ 
     i01.mouth.speakBlocking("I am the first life size humanoid robot")
     sleep(.1)
     i01.mouth.speakBlocking("that you can 3D print and animate")
@@ -1301,7 +1302,7 @@ def whatcanido():
     i01.moveArm("right", 44, 84, 10, 10);
     i01.mouth.speakBlocking("my designer creator is Gael Langevin a French sculptor, model maker")
     i01.mouth.speakBlocking("as well as being very smart, Gael is also a generous man")
-    
+ 
     i01.moveHead(75,86)
     i01.moveArm("left", 54, 104, 10, 10);
     i01.moveArm("right", 64, 84, 10, 20);
@@ -1315,7 +1316,7 @@ def whatcanido():
     i01.moveArm("right", 54, 94, 20, 10);
     sleep(.1)
     i01.mouth.speakBlocking("my basic programing was done by GroG, from My Robot Lab")
-    
+ 
     i01.mouth.speakBlocking("so nothing should go wrong")
     i01.setHeadSpeed(1,1)
     i01.moveHead(90,90)
@@ -1520,7 +1521,7 @@ def whatcanido():
     i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
     i01.setHandSpeed("left",1,1,1,1,1,1)
     i01.setHandSpeed("right",1,1,1,1,1,1)
-    
+ 
     sleep(1.5)
     i01.mouth.speakBlocking("Bob, has even taught me to count my fingers")
     sleep(1)
@@ -1534,23 +1535,23 @@ def whatcanido():
     sleep(2)
     i01.moveHand("right",0,80,98,120,114,180)
     i01.mouth.speakBlocking("ten")
-     
+ 
     sleep(.1)
     i01.moveHand("right",0,0,98,120,114,180)
     i01.mouth.speakBlocking("nine")
-     
+ 
     sleep(.1)
     i01.moveHand("right",0,0,0,120,114,180)
     i01.mouth.speakBlocking("eight")
-     
+ 
     sleep(.1)
     i01.moveHand("right",0,0,0,0,114,180)
     i01.mouth.speakBlocking("seven")
-     
+ 
     sleep(.1)
     i01.moveHand("right",0,0,0,0,0,180)
     i01.mouth.speakBlocking("six")
-     
+ 
     sleep(.5)
     i01.setHeadSpeed(.70,.70)
     i01.moveHead(40,105)
@@ -1560,7 +1561,7 @@ def whatcanido():
     i01.moveHand("right",0,0,0,0,0,180)
     sleep(.1)
     i01.mouth.speakBlocking("and five makes eleven")
-     
+ 
     sleep(.7)
     i01.setHeadSpeed(.7,.7)
     i01.moveHead(49,87)
@@ -1581,7 +1582,7 @@ def whatcanido():
     sleep(1)
     i01.mouth.speakBlocking("that doesn't seem right")
     sleep(1)
-     
+ 
     i01.mouth.speakBlocking("Oh ya, I need to start from one")
     i01.moveHead(40,105)
     i01.moveArm("left",75,83,79,24)
@@ -1589,16 +1590,16 @@ def whatcanido():
     i01.moveHand("left",87,138,109,168,158,25)
     i01.moveHand("right",87,138,109,168,158,90)
     sleep(2)
-     
+ 
     i01.moveHand("left",0,138,109,168,158,25)
     i01.mouth.speakBlocking("one")
     sleep(.1)
-     
-     
+ 
+ 
     i01.moveHand("left",0,0,109,168,158,25)
     i01.mouth.speakBlocking("two")
     sleep(.1)
-     
+ 
     i01.moveHand("left",0,0,0,168,158,25)
     i01.mouth.speakBlocking("three")
     sleep(.1)
@@ -1606,7 +1607,7 @@ def whatcanido():
     i01.mouth.speakBlocking("four")
     sleep(.1)
     i01.moveHand("left",0,0,0,0,0,25)
-     
+ 
     i01.mouth.speakBlocking("five")
     sleep(.1)
     i01.setHeadSpeed(.65,.65)
@@ -1644,7 +1645,7 @@ def whatcanido():
     i01.setHeadSpeed(.8,.8)
     i01.moveHead(90,110)
     sleep(.2)
-    
+ 
     i01.mouth.speakBlocking("cat")
     i01.mouth.speakBlocking("dog")
     i01.mouth.speakBlocking("spot")
@@ -1656,19 +1657,19 @@ def whatcanido():
     i01.mouth.speakBlocking("solar energy")
     i01.mouth.speakBlocking("antidisestabishmentaryism")
     i01.mouth.speakBlocking("supercalifrajewlisticexpialidocious")
-    
+ 
     sleep(.1)
-    
-    
+ 
+ 
     i01.moveHead(90,100)
     i01.setHeadSpeed(.8,.8)
     sleep(.3)
     i01.mouth.speakBlocking("some don't even make sense!!")
-    
+ 
     sleep(.75)
     i01.mouth.speakBlocking(" I can also do some different poses")
     sleep(.5)
-    
+ 
     i01.moveHead(75,79)
     i01.moveArm("left",9,115,28,80)
     i01.moveArm("right",13,118,26,80)
@@ -1676,8 +1677,8 @@ def whatcanido():
     i01.moveHand("right",0,24,54,50,82,180)
     i01.mouth.speakBlocking("like the famous Davinci pose")
     sleep(1)
-    
-    
+ 
+ 
     i01.setHeadSpeed(.75,.75)
     i01.moveHead(63,48)
     i01.moveArm("left",77,162,30,78)
@@ -1701,8 +1702,8 @@ def whatcanido():
     i01.moveHand("right",76,169,180,141,180,150)
     sleep(1)
     i01.mouth.speakBlocking("I can do some gestures, like")
-    
-    
+ 
+ 
     i01.moveHead(90,90)
     i01.moveArm("left",0,90,30,10)
     i01.moveArm("right",68,105,72,10)
@@ -1710,7 +1711,7 @@ def whatcanido():
     i01.moveHand("right",60,0,0,180,175,1)
     i01.mouth.speakBlocking(" Peace or victory, depending on your perspective")
     sleep(2)
-    
+ 
     i01.moveHead(90,90)
     i01.moveArm("left",0,90,30,10)
     i01.moveArm("right",75,160,43,71)
@@ -1718,7 +1719,7 @@ def whatcanido():
     i01.moveHand("right",180,180,180,180,180,90)
     i01.mouth.speakBlocking("right on, man")
     sleep(2)
-    
+ 
     i01.setHeadSpeed(.7,.7)    
     i01.moveHead(12,75)
     i01.moveArm("left",15,77,68,10)
@@ -1727,7 +1728,7 @@ def whatcanido():
     i01.moveHand("right",0,0,7,44,23,180)
     i01.mouth.speakBlocking("caring")
     sleep(4)
-    
+ 
     i01.moveHead(90,90)
     i01.moveArm("left",54,90,46,70)
     i01.moveArm("right",54,90,46,70)
@@ -1741,7 +1742,7 @@ def whatcanido():
     i01.moveHand("left",0,0,0,0,0,90)
     i01.moveHand("right",0,0,0,0,0,90)
     i01.mouth.speakBlocking(" soon I will be able to sense when someone is in the room")
-    
+ 
     i01.mouth.speakBlocking(" with my camera and an additional sensor")
     i01.moveHead(90,110)
     i01.moveArm("left",88,90,79,42)
@@ -1763,8 +1764,8 @@ def whatcanido():
     i01.setArmSpeed("right",.9,.9,.9,.9)
     i01.moveArm("left",0,90,35,10)
     i01.moveArm("right",10,80,35,15)
-    
-    
+ 
+ 
     i01.mouth.speakBlocking("and follow them as they move around")
     i01.moveHead(90,40)
     sleep(1)
@@ -1783,7 +1784,7 @@ def whatcanido():
     sleep(.5)
     i01.mouth.speakBlocking("I am finished telling you about myself")
     sleep(.1)
-    
+ 
     i01.setHandSpeed("left", 1,1,1,1,1,1)
     i01.setHandSpeed("right", 1,1,1,1,1,1)
     i01.setArmSpeed("left", 1,1,1,1)
@@ -1796,8 +1797,8 @@ def whatcanido():
     i01.moveHand("right",86,51,133,162,153,180)
     i01.mouth.speakBlocking("I think everything went OK")
     sleep(1)
-    
-    
+ 
+ 
     i01.moveHead(90,90)
     i01.moveArm("left",0,90,30,10)
     i01.moveArm("right",50,135,73,51)
@@ -1815,7 +1816,7 @@ def whatcanido():
     sleep(.2)
     i01.moveHand("right",0,0,0,0,0,65)
     sleep(.2)
-    
+ 
     i01.moveHand("right",0,0,0,0,0,6)
     sleep(.2)
     i01.moveHand("right",0,0,0,0,0,65)
@@ -1833,3 +1834,4 @@ def whatcanido():
     i01.moveArm("right",0,90,30,10)
     i01.moveHand("left",0,0,0,0,0,90)
     i01.moveHand("right",0,0,0,0,0,90)
+    
