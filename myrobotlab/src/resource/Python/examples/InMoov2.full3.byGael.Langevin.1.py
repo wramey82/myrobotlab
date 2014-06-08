@@ -21,7 +21,7 @@ i01.mouth.setGoogleURI("http://thehackettfamily.org/Voice_api/api2.php?voice=Rya
 
 i01.startHead(leftPort)
 # tweaking default settings of eyes
-i01.head.eyeY.setMinMax(80,100)
+i01.head.eyeY.setMinMax(74,100)
 i01.head.eyeY.setRest(78)
 i01.head.eyeX.setMinMax(78,100)
 i01.head.eyeX.setRest(82)
@@ -97,7 +97,13 @@ torso.midStom.setMinMax(60,120)
 #i01.headTracking.faceDetect()
 #i01.eyesTracking.faceDetect()
 #i01.headTracking.pyramidDown()
-##############
+############################################################
+#to tweak the default PID values
+i01.headTracking.xpid.setPID(10.0,5.0,0.1)
+i01.headTracking.ypid.setPID(15.0,5.0,0.1)
+i01.eyesTracking.xpid.setPID(15.0,5.0,0.1)
+i01.eyesTracking.ypid.setPID(22.0,5.0,0.1)
+############################################################
 i01.startPIR("COM8",12)
  
  
@@ -109,9 +115,9 @@ def input():
     if (pin.value == 1):
       i01.powerUp()
       mouth.speak("who's there")
-      head.neck.moveTo(85)
+      head.neck.moveTo(80)
       sleep(2)
-      head.neck.moveTo(90)
+      head.neck.moveTo(86)
 
  
 # after a start you may call detach to detach all
@@ -121,15 +127,6 @@ def input():
  
 # auto detaches any attached servos after 120 seconds of inactivity
 i01.autoPowerDownOnInactivity(120)
-
-
-############################################################
-#to tweak the default PID values
-i01.headTracking.xpid.setPID(10.0,5.0,0.1)
-i01.headTracking.ypid.setPID(15.0,5.0,0.1)
-i01.eyesTracking.xpid.setPID(15.0,5.0,0.1)
-i01.eyesTracking.ypid.setPID(22.0,5.0,0.1)
-############################################################
 
 
 #i01.speakErrors(false)
@@ -601,8 +598,8 @@ def powerdown():
         i01.powerDown()
         sleep(2)        
         ear.pauseListening()
-        i01.relax()
-        i01.mouth.speakBlocking("I'm powering down")
+        relax()
+        i01.mouth.speakBlocking()
         sleep(2)
         i01.moveHead(40, 85);
         sleep(4)
@@ -618,8 +615,8 @@ def powerup():
         ear.pauseListening()
         rightSerialPort.digitalWrite(53, Arduino.HIGH)
         leftSerialPort.digitalWrite(53, Arduino.HIGH)
-        i01.mouth.speakBlocking("hi")
-        i01.relax()
+        i01.mouth.speakBlocking("hello")
+        relax()
         ear.clearLock()
         sleep(2)
         ear.resumeListening()
@@ -928,7 +925,7 @@ def servos():
         i01.setHeadSpeed(1,1)
         i01.setArmSpeed("right", 1.0,1.0, 1.0, 1.0);
         i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0);
-        further()
+        relax()
         sleep(2)
         ear.resumeListening()
  
@@ -1049,7 +1046,7 @@ def howmanyfingersdoihave():
      i01.moveArm("left",5,90,30,11)
      i01.moveArm("right",5,90,30,11)
      sleep(0.5)
-     further()
+     relax()
      sleep(0.5)
  
      ear.resumeListening()
