@@ -33,19 +33,6 @@ i01.startMouthControl(leftPort)
 i01.head.jaw.setMinMax(10,55)
 i01.mouthControl.setmouth(10,38)
 ##############
-#i01.startPIR("COM8",12)
- 
- 
- 
-#def input():
-    ## print 'python object is ', msg_clock_pulse
-    #pin = msg_i01_right_publishPin.data[0]
-   # print 'pin data is ', pin.pin, pin.value
-   # if (pin.value == 1):
-     # mouth.speak("who's there")
-      #head.neck.moveTo(85)
-      #sleep(2)
-      #head.neck.moveTo(90)
 i01.startEar()
 ##############
 i01.startLeftHand(leftPort)
@@ -110,6 +97,21 @@ torso.midStom.setMinMax(60,120)
 #i01.headTracking.faceDetect()
 #i01.eyesTracking.faceDetect()
 #i01.headTracking.pyramidDown()
+##############
+i01.startPIR("COM8",12)
+ 
+ 
+ 
+def input():
+    print 'python object is ', msg_clock_pulse
+    pin = msg_i01_right_publishPin.data[0]
+    print 'pin data is ', pin.pin, pin.value
+    if (pin.value == 1):
+      i01.powerUp()
+      mouth.speak("who's there")
+      head.neck.moveTo(85)
+      sleep(2)
+      head.neck.moveTo(90)
 
  
 # after a start you may call detach to detach all
@@ -118,7 +120,7 @@ torso.midStom.setMinMax(60,120)
 #i01.attach()
  
 # auto detaches any attached servos after 120 seconds of inactivity
-#i01.autoDetachOnInactivity(120)
+i01.autoPowerDownOnInactivity(120)
 
 
 ############################################################
@@ -244,8 +246,8 @@ ear.addCommand("before happy", "python", "beforehappy")
 ear.addCommand("happy birthday", "python", "happy")
 #ear.addCommand("photo", "python", "photo")
 ear.addCommand("about", "python", "about")
-#ear.addCommand("power down", "python", "powerdown")
-#ear.addCommand("power up", "python", "powerup")
+ear.addCommand("power down", "python", "powerdown")
+ear.addCommand("power up", "python", "powerup")
 ear.addCommand("servo", "python", "servos")
 ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave")
 ear.addCommand("who's there", "python", "welcome")
@@ -596,9 +598,10 @@ def lookinmiddle():
   i01.moveHead(85,86)
  
 def powerdown():
+        i01.powerDown()
         sleep(2)        
         ear.pauseListening()
-        i01.rest()
+        i01.relax()
         i01.mouth.speakBlocking("I'm powering down")
         sleep(2)
         i01.moveHead(40, 85);
@@ -610,12 +613,13 @@ def powerdown():
         ear.resumeListening()
  
 def powerup():
+        i01.powerUp()
         sleep(2)        
         ear.pauseListening()
         rightSerialPort.digitalWrite(53, Arduino.HIGH)
         leftSerialPort.digitalWrite(53, Arduino.HIGH)
-        i01.mouth.speakBlocking("Im powered up")
-        i01.rest()
+        i01.mouth.speakBlocking("hi")
+        i01.relax()
         ear.clearLock()
         sleep(2)
         ear.resumeListening()
