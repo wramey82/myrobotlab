@@ -30,22 +30,31 @@ i01.head.rothead.setRest(86)
 ##############
 i01.startMouthControl(leftPort)
 # tweaking default settings of jaw
-i01.head.jaw.setMinMax(10,55)
-i01.mouthControl.setmouth(10,38)
+i01.head.jaw.setMinMax(8,55)
+i01.mouthControl.setmouth(8,38)
 ##############
 i01.startEar()
+##############
+torso = i01.startTorso("COM7")
+# tweaking the torso settings
+#torso.topStom.setMinMax(60,120)
+torso.midStom.setMinMax(60,120)
+#torso.lowStom.setMinMax(0,180)
+#torso.topStom.setRest(90)
+#torso.midStom.setRest(90)
+#torso.lowStom.setRest(90)
 ##############
 i01.startLeftHand(leftPort)
 # tweaking default settings of left hand
 i01.leftHand.thumb.setMinMax(45,140)
 i01.leftHand.index.setMinMax(40,140)
-i01.leftHand.majeure.setMinMax(30,118)
-i01.leftHand.ringFinger.setMinMax(25,134)
+i01.leftHand.majeure.setMinMax(30,176)
+i01.leftHand.ringFinger.setMinMax(25,175)
 i01.leftHand.pinky.setMinMax(35,130)
 i01.leftHand.thumb.map(0,180,45,140)
 i01.leftHand.index.map(0,180,40,140)
-i01.leftHand.majeure.map(0,180,30,118)
-i01.leftHand.ringFinger.map(0,180,25,134)
+i01.leftHand.majeure.map(0,180,30,176)
+i01.leftHand.ringFinger.map(0,180,25,175)
 i01.leftHand.pinky.map(0,180,35,130)
 ################
 i01.startLeftArm(leftPort)
@@ -59,12 +68,12 @@ i01.startRightHand(rightPort)
 # tweaking defaults settings of right hand
 i01.rightHand.thumb.setMinMax(55,135)
 i01.rightHand.index.setMinMax(0,160)
-i01.rightHand.majeure.setMinMax(0,140)
+i01.rightHand.majeure.setMinMax(50,170)
 i01.rightHand.ringFinger.setMinMax(48,145)
-i01.rightHand.pinky.setMinMax(45,146)
+i01.rightHand.pinky.setMinMax(30,168)
 i01.rightHand.thumb.map(0,180,55,135)
 i01.rightHand.index.map(0,180,0,160)
-i01.rightHand.majeure.map(0,180,0,140)
+i01.rightHand.majeure.map(0,180,50,170)
 i01.rightHand.ringFinger.map(0,180,48,145)
 i01.rightHand.pinky.map(0,180,45,146)
 #################
@@ -78,14 +87,6 @@ i01.startRightArm(rightPort)
 i01.startHeadTracking(leftPort)
 i01.startEyesTracking(leftPort)
 ################
-torso = i01.startTorso("COM7")
-# tweaking the torso settings
-#torso.topStom.setMinMax(60,120)
-torso.midStom.setMinMax(60,120)
-#torso.lowStom.setMinMax(0,180)
-#torso.topStom.setRest(90)
-#torso.midStom.setRest(90)
-#torso.lowStom.setRest(90)
 
 # starting part with a reference, with a reference
 # you can interact further
@@ -102,8 +103,9 @@ torso.midStom.setMinMax(60,120)
 i01.headTracking.xpid.setPID(10.0,5.0,0.1)
 i01.headTracking.ypid.setPID(15.0,5.0,0.1)
 i01.eyesTracking.xpid.setPID(15.0,5.0,0.1)
-i01.eyesTracking.ypid.setPID(22.0,5.0,0.1)
+i01.eyesTracking.ypid.setPID(15.0,5.0,0.1)
 ############################################################
+
 i01.startPIR("COM8",12)
  
  
@@ -126,7 +128,7 @@ def input():
 #i01.attach()
  
 # auto detaches any attached servos after 120 seconds of inactivity
-i01.autoPowerDownOnInactivity(120)
+#i01.autoPowerDownOnInactivity(120)
 
 
 #i01.speakErrors(false)
@@ -159,7 +161,7 @@ i01.mouth.speakBlocking(cleverbot.chat("hi"))
 # verbal commands
 ear = i01.ear
  
-ear.addCommand("rest", i01.getName(), "rest")
+ear.addCommand("rest", "python", "rest")
 
 ear.addCommand("attach head", "i01.head", "attach")
 ear.addCommand("disconnect head", "i01.head", "detach")
@@ -192,7 +194,7 @@ ear.addCommand("capture gesture", i01.getName(), "captureGesture")
 ear.addCommand("hello", "python", "hello")
 ear.addCommand("giving", i01.getName(), "giving")
 ear.addCommand("fighter", i01.getName(), "fighter")
-ear.addCommand("fist hips", i01.getName(), "fistHips")
+ear.addCommand("fist hips", "python", "fistHips")
 ear.addCommand("look at this", i01.getName(), "lookAtThis")
 ear.addCommand("victory", i01.getName(), "victory")
 ear.addCommand("arms up", i01.getName(), "armsUp")
@@ -250,6 +252,8 @@ ear.addCommand("how many fingers do you have", "python", "howmanyfingersdoihave"
 ear.addCommand("who's there", "python", "welcome")
 ear.addCommand("start gesture", "python", "startkinect")
 ear.addCommand("off gesture", "python", "offkinect")
+ear.addCommand("cycle gesture one", "python", "cyclegesture1")
+ear.addCommand("show your muscles", "python", "muscle")
  
 ear.addComfirmations("yes","correct","ya","yeah")
 ear.addNegations("no","wrong","nope","nah")
@@ -273,13 +277,41 @@ def stopTracking():
      i01.headTracking.stopTracking()
      i01.eyesTracking.stopTracking()
 
- 
+def fistHips():
+  i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+  i01.setHeadSpeed(1.0, 1.0)
+  i01.setTorsoSpeed(1.0, 1.0, 1.0)
+  i01.moveHead(138,80,82,78,8)
+  i01.moveArm("left",79,42,23,41)
+  i01.moveArm("right",71,40,14,39)
+  i01.moveHand("left",180,180,180,180,180,47)
+  i01.moveHand("right",99,130,152,154,145,180)
+  i01.moveTorso(90,90,90)
+
+def rest():
+  i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+  i01.setHeadSpeed(1.0, 1.0)
+  i01.setTorsoSpeed(1.0, 1.0, 1.0)
+  i01.moveHead(80,86,82,78,8)
+  i01.moveArm("left",5,90,30,10)
+  i01.moveArm("right",5,90,30,10)
+  i01.moveHand("left",2,2,2,2,2,90)
+  i01.moveHand("right",2,2,2,2,2,90)
+  i01.moveTorso(90,90,90)
+  
 def fullspeed():
   i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
   i01.setHeadSpeed(1.0, 1.0)
+  i01.setTorsoSpeed(1.0, 1.0, 1.0)
  
 def delicategrab():
   i01.setHandSpeed("left", 0.70, 0.60, 1.0, 1.0, 1.0, 1.0)
@@ -379,7 +411,7 @@ def takeball():
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",6,73,76,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   i01.moveTorso(101,100,90)
  
  
@@ -389,12 +421,12 @@ def keepball():
   i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
   i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
   i01.setHeadSpeed(0.65, 0.65)
-  i01.setTorsoSpeed(0.75, 0,55, 1.0)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,70)
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",54,77,55,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   i01.moveTorso(90,90,90)
  
 def approachlefthand():
@@ -405,9 +437,9 @@ def approachlefthand():
   i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",67,52,59,23)
-  i01.moveArm("right",55,51,50,16)
+  i01.moveArm("right",55,55,50,16)
   i01.moveHand("left",130,50,40,180,180,0)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   i01.moveTorso(90,85,90)
  
 def uselefthand():
@@ -417,9 +449,9 @@ def uselefthand():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",79,51,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
-  i01.moveHand("right",140,114,115,3,0,11)
+  i01.moveHand("right",140,114,120,3,0,11)
  
  
 def more():
@@ -429,7 +461,7 @@ def more():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",78,51,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
  
@@ -495,20 +527,22 @@ def removeleftarm():
   i01.moveArm("right",5,82,28,15)
   i01.moveHand("left",60,43,45,34,34,35)
   i01.moveHand("right",20,40,40,30,30,72)
- 
- 
+  
+
 def relax():
   i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
   i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
   i01.setArmSpeed("right", 0.75, 0.85, 0.65, 0.85)
   i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
   i01.setHeadSpeed(0.75, 0.75)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(79,100)
   i01.moveArm("left",5,84,28,15)
   i01.moveArm("right",5,82,28,15)
   i01.moveHand("left",92,33,37,71,66,25)
   i01.moveHand("right",81,66,82,60,105,113)
   i01.moveHead(79,100,80,90,13)
+  i01.moveTorso(90,90,90)
  
 def handopen():
   i01.moveHand("left",0,0,0,0,0)
@@ -593,10 +627,45 @@ def lookleftside():
 def lookinmiddle():
   i01.setHeadSpeed(0.70, 0.70)
   i01.moveHead(85,86)
- 
+
+def muscle():
+  i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
+  i01.moveHead(90,129,78,100,8)
+  i01.moveArm("left",90,139,48,79)
+  i01.moveArm("right",71,40,14,39)
+  i01.moveHand("left",180,180,180,180,180,148)
+  i01.moveHand("right",99,130,152,154,145,180)
+  i01.moveTorso(101,100,90)
+  sleep(5)
+  i01.mouth.speakBlocking("Looks good, doesn't it")
+  sleep(3)
+  i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+  i01.setHeadSpeed(0.85, 0.85)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
+  i01.moveHead(90,45,78,100,10)
+  i01.moveArm("left",44,46,20,39)
+  i01.moveArm("right",90,145,58,74)
+  i01.moveHand("left",180,180,180,180,180,83)
+  i01.moveHand("right",99,130,152,154,145,21)
+  i01.moveTorso(74,80,90)
+  sleep(4)
+  i01.mouth.speakBlocking("not bad either, don't you think")
+  sleep(5)
+  i01.rest()
+  sleep(1)
+
+  
 def powerdown():
         i01.powerDown()
-        sleep(2)        
+        sleep(2)       
         ear.pauseListening()
         relax()
         i01.mouth.speakBlocking()
@@ -1064,7 +1133,7 @@ def studyball():
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",54,77,55,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   i01.moveTorso(90,90,90)
   sleep(3)
 ##approachlefthand():
@@ -1074,9 +1143,9 @@ def studyball():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",67,52,59,23)
-  i01.moveArm("right",55,54,50,16)
+  i01.moveArm("right",55,55,50,16)
   i01.moveHand("left",130,50,40,180,180,0)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   sleep(3)
 ##uselefthand():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
@@ -1085,9 +1154,9 @@ def studyball():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",79,54,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
-  i01.moveHand("right",140,114,115,3,0,11)
+  i01.moveHand("right",140,114,120,3,0,11)
   sleep(3)
 ##more():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
@@ -1096,7 +1165,7 @@ def studyball():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",78,54,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
   sleep(3)
@@ -1140,6 +1209,155 @@ def welcome():
   i01.moveHand("left",2,2,2,2,2,90)
   i01.moveHand("right",2,2,2,2,2,90)
   sleep(1)
-  i01.mouth.speakBlocking("Welcome the hue")
+  i01.mouth.speakBlocking("Welcome to the hue music")
   sleep(1)
+
+def cyclegesture1():
+
+##takeball():
+  i01.setHandSpeed("right", 0.85, 0.75, 0.75, 0.75, 0.85, 0.75)
+  i01.setArmSpeed("right", 0.85, 0.85, 0.85, 0.85)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
+  i01.moveHead(30,70,78,80,13)
+  i01.moveArm("left",5,84,16,15)
+  i01.moveArm("right",6,73,76,16)
+  i01.moveHand("left",50,50,40,20,20,90)
+  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveTorso(101,100,90)
+ 
+ 
+##keepball():
+  i01.setHandSpeed("left", 0.65, 0.65, 0.65, 0.65, 0.65, 1.0)
+  i01.setHandSpeed("right", 0.65, 0.65, 0.65, 0.65, 0.65, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.setTorsoSpeed(0.75, 0,55, 1.0)
+  i01.moveHead(20,70)
+  i01.moveArm("left",5,84,16,15)
+  i01.moveArm("right",54,77,55,16)
+  i01.moveHand("left",50,50,40,20,20,90)
+  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveTorso(90,90,90)
+  sleep(1)
+ 
+##approachlefthand():
+  i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
+  i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.25, 0.25, 0.25, 0.25)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
+  i01.moveHead(20,84,78,80,13)
+  i01.moveArm("left",67,52,59,23)
+  i01.moveArm("right",55,51,50,16)
+  i01.moveHand("left",130,50,40,180,180,0)
+  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveTorso(90,85,90)
+  sleep(1)
+ 
+##uselefthand():
+  i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
+  i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.25, 0.25, 0.25, 0.25)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.moveHead(20,84,78,80,13)
+  i01.moveArm("left",65,52,59,23)
+  i01.moveArm("right",79,51,50,16)
+  i01.moveHand("left",140,50,40,180,180,0)
+  i01.moveHand("right",140,114,115,3,0,11)
+  sleep(1)
+ 
+ 
+##more():
+  i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
+  i01.setArmSpeed("left", 0.85, 0.85, 0.85, 0.95)
+  i01.setArmSpeed("right", 0.75, 0.65, 0.65, 0.65)
+  i01.setHeadSpeed(0.65, 0.65)
+  i01.moveHead(16,84,78,80,13)
+  i01.moveArm("left",63,52,59,23)
+  i01.moveArm("right",78,51,50,16)
+  i01.moveHand("left",140,148,180,180,180,0)
+  i01.moveHand("right",80,114,88,3,0,11)
+  sleep(1)
+ 
+ 
+ 
+##handdown():
+  i01.setHandSpeed("left", 0.75, 0.75, 0.75, 0.75, 0.75, 0.75)
+  i01.setHandSpeed("right", 0.70, 0.70, 0.70, 0.70, 0.70, 1.0)
+  i01.moveHead(16,84,78,80,13)
+  i01.moveArm("left",66,52,59,23)
+  i01.moveArm("right",69,51,50,16)
+  i01.moveHand("left",140,148,180,180,180,0)
+  i01.moveHand("right",54,95,66,3,0,11)
+ 
+##isitaball():
+  i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.75, 0.85, 0.90, 0.85)
+  i01.setHeadSpeed(0.65, 0.75)
+  i01.moveHead(90,83,78,80,13)
+  i01.moveArm("left",70,59,95,15)
+  i01.moveArm("right",12,74,33,15)
+  i01.moveHand("left",170,150,180,180,180,164)
+  i01.moveHand("right",105,81,78,57,62,105)
+  sleep(2)
+ 
+##putitdown():
+  i01.setHandSpeed("left", 0.90, 0.90, 0.90, 0.90, 0.90, 0.90)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
+  i01.setHeadSpeed(0.75, 0.75)
+  i01.moveHead(20,99)
+  i01.moveArm("left",5,45,87,31)
+  i01.moveArm("right",5,82,33,15)
+  i01.moveHand("left",147,130,135,34,34,35)
+  i01.moveHand("right",20,40,40,30,30,72)
+  sleep(2)
+ 
+##dropit():
+  i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.75, 0.85, 1.0, 0.85)
+  i01.setHeadSpeed(0.75, 0.75)
+  i01.moveHead(20,99)
+  i01.moveArm("left",5,45,87,31)
+  i01.moveArm("right",5,82,33,15)
+  sleep(3)
+  i01.moveHand("left",60,61,67,34,34,35)
+  i01.moveHand("right",20,40,40,30,30,72)
+  sleep(1)
+ 
+ 
+##removeleftarm():
+  i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+  i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
+  i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
+  i01.setHeadSpeed(0.75, 0.75)
+  i01.moveHead(20,100)
+  i01.moveArm("left",71,94,41,31)
+  i01.moveArm("right",5,82,28,15)
+  i01.moveHand("left",60,43,45,34,34,35)
+  i01.moveHand("right",20,40,40,30,30,72)
+  sleep(1)
+ 
+ 
+##relax():
+  i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+  i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
+  i01.setArmSpeed("right", 0.75, 0.85, 0.65, 0.85)
+  i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
+  i01.setHeadSpeed(0.75, 0.75)
+  i01.moveHead(79,100)
+  i01.moveArm("left",5,84,28,15)
+  i01.moveArm("right",5,82,28,15)
+  i01.moveHand("left",92,33,37,71,66,25)
+  i01.moveHand("right",81,66,82,60,105,113)
+  i01.moveHead(79,100,80,90,13)
+
   
