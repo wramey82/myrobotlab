@@ -22,8 +22,10 @@ i01.mouth.setGoogleURI("http://thehackettfamily.org/Voice_api/api2.php?voice=Rya
 i01.startHead(leftPort)
 # tweaking default settings of eyes
 i01.head.eyeY.setMinMax(74,100)
+#i01.head.eyeY.map(0,180,74,100)
 i01.head.eyeY.setRest(78)
 i01.head.eyeX.setMinMax(78,100)
+#i01.head.eyeX.map(0,180,78,100)
 i01.head.eyeX.setRest(82)
 i01.head.neck.setRest(80)
 i01.head.rothead.setRest(86)
@@ -1141,13 +1143,11 @@ def studyball():
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("right", 0.25, 0.25, 0.25, 0.25)
   i01.setHeadSpeed(0.65, 0.65)
-  i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",67,52,59,23)
   i01.moveArm("right",55,55,50,16)
   i01.moveHand("left",130,50,40,180,180,0)
   i01.moveHand("right",180,114,120,3,0,11)
-  i01.moveTorso(90,85,90)
   sleep(4)
 ##uselefthand():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
@@ -1252,12 +1252,11 @@ def cyclegesture1():
   i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",67,52,59,23)
-  i01.moveArm("right",55,51,50,16)
+  i01.moveArm("right",55,55,50,16)
   i01.moveHand("left",130,50,40,180,180,0)
-  i01.moveHand("right",180,114,115,3,0,11)
+  i01.moveHand("right",180,114,120,3,0,11)
   i01.moveTorso(90,85,90)
-  sleep(1)
- 
+  sleep(4)
 ##uselefthand():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
@@ -1265,12 +1264,10 @@ def cyclegesture1():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",79,51,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
-  i01.moveHand("right",140,114,115,3,0,11)
-  sleep(1)
- 
- 
+  i01.moveHand("right",140,114,120,3,0,11)
+  sleep(4)
 ##more():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
   i01.setArmSpeed("left", 0.85, 0.85, 0.85, 0.95)
@@ -1278,10 +1275,10 @@ def cyclegesture1():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",78,51,50,16)
+  i01.moveArm("right",82,55,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
-  sleep(1)
+  sleep(3)
  
  
  
