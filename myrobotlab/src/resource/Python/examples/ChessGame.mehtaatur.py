@@ -1,6 +1,3 @@
-#Importing the Libraries
-
- 
 from time import sleep
 from org.myrobotlab.service import Speech
 from org.myrobotlab.service import Runtime
@@ -19,11 +16,12 @@ speech.setLanguage("en")
 speech.speak("Game Begins!")
  
 count = 0
+chessMove = ""
  
 #Connecting Arduino via Serial
  
 if not serial.isConnected():
-    serial.connect("COM5")
+    serial.connect("COM9")
  
 # Adding Listeners
 serial.addListener("publishByte", python.name, "input") 
@@ -34,25 +32,21 @@ chessgame.addListener("makeMove", serial.name, "write")
 #Function taking I/P from Serial and sending the data to Chess Game
  
 def input():
- 
- 
-   global count
-   newByte = int(serial.readByte())
-   #we have reached the end of a new line
-   if (newByte == 10) :
-     chessMove = ""
-     while (newByte != 13):
-         newByte = serial.readByte()
-         chessMove += chr(newByte)
- 
-     print chessMove   
-     chessgame.move(chessMove)
+ global chessMove
+ global count
+ code = msg_serial_publishByte.data[0]
+ if (code !=10 and code != 13 and count < 4):
+   chessMove += chr(code)
+   count += 1
+ elif (code == 10 and count == 4):
+   chessgame.move(chessMove)
    part1 = chessMove[0:2]
    part2 = chessMove[2:4]
    feedback = "You Played " + part1 + " to " + part2
    speech.speak(feedback)
    print feedback
- 
+   count = 0
+   chessMove = "" 
  
 # Function "voice" which decodes the move played by the computer and gives a voice feedback
  
