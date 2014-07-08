@@ -4,6 +4,8 @@
 # most parts can be run by uncommenting them
 # InMoov now can be started in modular pieces
  
+import random
+
 leftPort = "COM7"
 rightPort = "COM8"
  
