@@ -270,10 +270,10 @@ ear.addNegations("no","wrong","nope","nah")
 ear.startListening("sorry | how do you do | goodbye | i love you")
 
 # set up a message route from the ear --to--> python method "heard"
-ear.addListener("recognized", python.name, "heard")
+ear.addListener("recognized", "python", "heard")
 
 def heard():
-    data = msg_ear_recognized.data[0]
+    data = msg_i01_ear_recognized.data[0]
  
  
  
