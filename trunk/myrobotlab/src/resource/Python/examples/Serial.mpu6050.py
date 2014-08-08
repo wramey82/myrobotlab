@@ -1,12 +1,12 @@
-import time
 serial = Runtime.createAndStart("serial","Serial")
-serial.connect("COM3", 38400, 8, 1, 0)
-#have python listening to serial
-serial.addListener("publishByteArray", python.name, "input") 
- 
- 
-def input():
- byte1= msg_serial_publishByteArray.data[0]
- byte2= msg_serial_publishByteArray.data[1]
- print 'byte 1 is' , byte1
- print 'byte 2 is' , byte2
+serial.connect("COM3",38400,8,1,0)
+serial.addListener("publishByte","python","prova")
+ax = ""
+def prova(data):
+    global ax
+    code = (data & 0xff)
+    if (code !=10 and code !=13):
+      ax += chr(code)
+    elif (code == 10):
+      print ax
+      ax = ""
