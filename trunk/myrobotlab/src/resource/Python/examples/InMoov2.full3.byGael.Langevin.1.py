@@ -32,8 +32,8 @@ i01.head.rothead.setRest(86)
 ##############
 i01.startMouthControl(leftPort)
 # tweaking default settings of jaw
-i01.head.jaw.setMinMax(76,103)
-i01.mouthControl.setmouth(76,100)
+i01.head.jaw.setMinMax(72,103)
+i01.mouthControl.setmouth(72,100)
 helvar = 1
 ##############
 i01.startEar()
@@ -256,19 +256,197 @@ ear.addCommand("cycle gesture two", "python", "cyclegesture2")
 ear.addCommand("show your muscles", "python", "muscle")
 ear.addCommand("shake hand", "python", "shakehand")
 ear.addCommand("unhappy", "python", "unhappy")
+ear.addCommand("take this", "python", "takethis")
+ear.addCommand("rock paper scissors", "python", "rockpaperscissors")
+ear.addCommand("ready", "python", "ready")
+ear.addCommand("rock", "python", "rock")
+ear.addCommand("paper", "python", "paper")
+ear.addCommand("scissors", "python", "scissors")
+ear.addCommand("that was fun", "python", "thatwasfun")
+ear.addCommand("guess what", "python", "guesswhat")
+
  
 ear.addComfirmations("yes","correct","ya","yeah")
 ear.addNegations("no","wrong","nope","nah")
 
-ear.startListening("sorry | how do you do | hello | byebye | i love you | thanks | thank you | nice")
+ear.startListening("sorry | how do you do | hello | bye bye | i love you | thanks | thank you | shake hand | nice")
  
 # set up a message route from the ear --to--> python method "heard"
 ear.addListener("recognized", "python", "heard")
- 
-def heard():
+
+def guesswhat():
+    i01.mouth.speak("I'm not really a human man")
+    i01.mouth.speak("but I use Old spice body wash and deodorant together")
+    i01.mouth.speak("and now I'm really cool")
+
+
+def rockpaperscissors():
+    fullspeed()
+    for y in range(0, 5):
+        x = (random.randint(1, 3))
+        if x == 1:
+            ready()
+            sleep(2)
+            rock()
+            sleep(2)
+        if x == 2:
+            ready()
+            sleep(2)
+            paper()
+            sleep(2)
+        if x == 3:
+            ready()
+            sleep(2)
+            scissors()
+            sleep(2)
+    thatwasfun()
+
+def ready():
+    i01.mouth.speak("ready")
+    i01.mouth.speak("go")
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",65,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    
+    
+
+def rock():
+    
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.setHeadSpeed(.8,.8)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    
+    sleep(.3)
+    
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,140)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.mouth.speakBlocking("rock")
+
+def paper():
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.setHeadSpeed(.8,.8)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",0,0,0,0,0,165)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.mouth.speakBlocking("paper")
+
+def scissors():
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.setHeadSpeed(.8,.8)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(60,107,80,90,75)
+    i01.moveArm("left",70,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",40,171,180,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.moveHead(90,90,80,90,75)
+    i01.moveArm("left",49,90,75,10)
+    i01.moveArm("right",5,90,30,10)
+    i01.moveHand("left",50,0,0,180,180,90)
+    i01.moveHand("right",2,2,2,2,2,90)
+    sleep(.3)
+    i01.mouth.speakBlocking("scissors")
+
+def thatwasfun():
+  i01.mouth.speak("that was fun")
+  i01.moveHead(90,90,80,90,75)
+  i01.moveArm("left",5,90,30,10)
+  i01.moveArm("right",5,90,30,10)
+  i01.moveHand("left",2,2,2,2,2,90)
+  i01.moveHand("right",2,2,2,2,2,90)
+
+  
+def heard(self):
     data = msg_i01_ear_recognized.data[0]
- 
- 
  
     if (data == "sorry"):
         x = (random.randint(1, 3))
@@ -280,21 +458,23 @@ def heard():
             i01.mouth.speak("it's okay")
 
     if (data == "nice"):
-        x = (random.randint(1, 2))
+        x = (random.randint(1, 3))
         if x == 1:
             i01.mouth.speak("I know")
         if x == 2:
-            i01.mouth.speak("yeah isn't it")
+            i01.mouth.speak("yes, indeed")
+        if x == 3:
+            i01.mouth.speak("you are damn right")
 
     if (data == "hello"):
         hello()
         relax()    
  
-    if (data == "byebye"):
+    if (data == "bye bye"):
         i01.mouth.speak("see you soon")
         global helvar
         helvar = 1
-        x = (random.randint(1, 4))
+        x = (random.randint(1, 2))
         if x == 1:
             i01.mouth.speak("i'm looking forward to see you again")
         if x == 2:
@@ -373,6 +553,19 @@ def trackPoint():
 def stopTracking():
      i01.headTracking.stopTracking()
      i01.eyesTracking.stopTracking()
+
+def takethis():
+  fullspeed()
+  i01.moveHead(58,96,82,78,72)
+  i01.moveArm("left",13,45,95,10)
+  i01.moveArm("right",5,90,30,10)
+  i01.moveHand("left",2,2,2,2,2,15)
+  i01.moveHand("right",81,66,82,60,105,113)
+  i01.moveTorso(79,90,90)
+  sleep(3)
+  closelefthand()
+  sleep(2)
+  isitaball()
 
 def fistHips():
   i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -558,7 +751,7 @@ def approachlefthand():
   i01.setHeadSpeed(0.65, 0.65)
   i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
-  i01.moveArm("left",67,52,59,23)
+  i01.moveArm("left",67,52,62,23)
   i01.moveArm("right",55,55,45,16)
   i01.moveHand("left",130,50,40,180,180,0)
   i01.moveHand("right",180,114,120,3,0,11)
@@ -571,7 +764,7 @@ def uselefthand():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",82,55,50,16)
+  i01.moveArm("right",82,52,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
   i01.moveHand("right",140,114,120,3,0,11)
  
@@ -583,7 +776,7 @@ def more():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",82,55,50,16)
+  i01.moveArm("right",82,52,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
  
@@ -594,7 +787,7 @@ def handdown():
   i01.setHandSpeed("right", 0.70, 0.70, 0.70, 0.70, 0.70, 1.0)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",66,52,59,23)
-  i01.moveArm("right",69,51,50,16)
+  i01.moveArm("right",59,52,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",54,95,66,3,0,11)
  
@@ -656,7 +849,7 @@ def relax():
   i01.setArmSpeed("left", 0.95, 0.65, 0.75, 0.75)
   i01.setHeadSpeed(0.75, 0.75)
   i01.setTorsoSpeed(0.75, 0.55, 1.0)
-  i01.moveHead(79,100,80,90,76)
+  i01.moveHead(79,100)
   i01.moveArm("left",5,84,28,15)
   i01.moveArm("right",5,82,28,15)
   i01.moveHand("left",92,33,37,71,66,25)
@@ -782,6 +975,7 @@ def muscle():
   sleep(1)
 
 def shakehand():
+  data = msg_i01_ear_recognized.data[0]
 ##rest
   i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
@@ -839,7 +1033,17 @@ def shakehand():
   i01.moveTorso(101,100,90)
   sleep(1)
 ##shake hand down
-  i01.mouth.speak("please to meet you")
+  if (data == "shake hand"):
+       x = (random.randint(1, 4))
+       if x == 1:
+            i01.mouth.speak("Please to meet you")
+       if x == 2:
+            i01.mouth.speak("carefull my hand is made out of plastic")
+       if x == 3:
+            i01.mouth.speak("I am happy to shake a human hand")
+       if x == 4:
+            i01.mouth.speak("it is a pleasure to meet you ")
+  ##i01.mouth.speak("please to meet you")
   i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
@@ -894,7 +1098,7 @@ def shakehand():
   i01.moveHand("left",50,50,40,20,20,77)
   i01.moveHand("right",20,50,40,20,20,90)
   i01.moveTorso(101,100,90)
-  sleep(4)
+  sleep(1)
 ##relax
   i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
   i01.setHandSpeed("right", 0.85, 0.85, 0.85, 0.85, 0.85, 0.85)
@@ -1248,6 +1452,7 @@ def servos():
 def howmanyfingersdoihave():
      ear.pauseListening()
      sleep(1)
+     fullspeed()
      i01.moveHead(49,74)
      i01.moveArm("left",75,83,79,24)
      i01.moveArm("right",65,82,71,24)
@@ -1349,7 +1554,7 @@ def howmanyfingersdoihave():
      i01.moveArm("left",75,83,79,24)
      i01.moveArm("right",40,70,70,10)
      sleep(0.5)
-     i01.mouth.speakBlocking("inmoov i01 has ten fingers")
+     i01.mouth.speakBlocking("inmoov has ten fingers")
      sleep(0.5)
      i01.moveHead(90,90)
      i01.setHandSpeed("left", 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
