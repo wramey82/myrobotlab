@@ -32,8 +32,8 @@ i01.head.rothead.setRest(86)
 ##############
 i01.startMouthControl(leftPort)
 # tweaking default settings of jaw
-i01.head.jaw.setMinMax(72,103)
-i01.mouthControl.setmouth(72,100)
+i01.head.jaw.setMinMax(70,103)
+i01.mouthControl.setmouth(70,100)
 helvar = 1
 ##############
 i01.startEar()
@@ -119,10 +119,10 @@ def input():
     print 'pin data is ', pin.pin, pin.value
     if (pin.value == 1):
       i01.powerUp()
-      mouth.speak("who's there")
-      head.neck.moveTo(80)
+      i01.mouth.speak("I was sleeping")
+      i01.head.neck.moveTo(80)
       sleep(2)
-      head.neck.moveTo(86)
+      i01.head.neck.moveTo(86)
 
  
 # after a start you may call detach to detach all
@@ -264,6 +264,8 @@ ear.addCommand("paper", "python", "paper")
 ear.addCommand("scissors", "python", "scissors")
 ear.addCommand("that was fun", "python", "thatwasfun")
 ear.addCommand("guess what", "python", "guesswhat")
+ear.addCommand("finger", "python", "finger")
+ear.addCommand("come here", "python", "comehere")
 
  
 ear.addComfirmations("yes","correct","ya","yeah")
@@ -273,6 +275,84 @@ ear.startListening("sorry | how do you do | hello | bye bye | i love you | thank
  
 # set up a message route from the ear --to--> python method "heard"
 ear.addListener("recognized", "python", "heard")
+
+def finger():
+    i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 1.0)
+    i01.setHandSpeed("right", 1.0, 0.85, 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("right", 0.90, 1.0, 1.0, 1.0)
+    i01.setHeadSpeed(1.0, 0.90)
+    i01.setTorsoSpeed(1.0, 1.0, 1.0)
+    i01.moveHead(80,86,85,85,72)
+    i01.moveArm("left",5,94,30,10)
+    i01.moveArm("right",7,78,92,10)
+    i01.moveHand("left",180,180,180,180,180,90)
+    i01.moveHand("right",180,2,175,160,165,180)
+    i01.moveTorso(90,90,90)
+    sleep(4.5)
+
+def comehere():
+    fullspeed()
+    relax()
+##look around
+    i01.setHeadSpeed(0.80, 0.80, 0.90, 0.90, 1.0)
+    i01.moveHead(80,66,7,85,72)
+    sleep(3)
+    i01.setHeadSpeed(0.80, 0.80, 0.90, 0.90, 1.0)
+    i01.moveHead(80,110,175,85,72)
+    sleep(3)
+##raise arm point finger
+    i01.setHandSpeed("left", 0.85, 0.85, 0.85, 0.85, 0.85, 1.0)
+    i01.setHandSpeed("right", 1.0, 0.85, 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("right", 0.90, 1.0, 1.0, 1.0)
+    i01.setHeadSpeed(1.0, 0.90)
+    i01.setTorsoSpeed(1.0, 1.0, 1.0)
+    i01.moveHead(80,86,85,85,72)
+    i01.moveArm("left",5,94,30,10)
+    i01.moveArm("right",7,78,92,10)
+    i01.moveHand("left",180,180,180,180,180,90)
+    i01.moveHand("right",180,2,175,160,165,180)
+    i01.moveTorso(90,90,90)
+    sleep(4.5)
+##move finger
+    i01.setHandSpeed("left", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+    i01.setHandSpeed("right", 1.0, 0.95, 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
+    i01.setArmSpeed("right", 1.0, 1.0, 1.0, 1.0)
+    i01.setHeadSpeed(1.0, 1.0)
+    i01.setTorsoSpeed(1.0, 1.0, 1.0)
+    i01.moveHead(80,86)
+    i01.moveArm("left",5,94,30,10)
+    i01.moveArm("right",48,78,92,10)
+    i01.moveHand("left",180,180,180,180,180,90)
+    i01.moveHand("right",180,2,175,160,165,26)
+    i01.moveTorso(90,90,90)
+    sleep(2)
+    i01.setHeadSpeed(0.80, 0.80)
+    i01.moveHead(80,80)
+    i01.moveHand("right",180,164,175,160,165,26)
+    sleep(2)
+    i01.moveHead(80,80)
+    i01.moveHand("right",180,2,175,160,165,26)
+    sleep(2)
+    i01.moveHead(118,80)
+    i01.moveHand("right",180,164,175,160,165,26)
+    sleep(2)
+    i01.mouth.speak("come closer")
+    i01.moveHead(60,80)
+    i01.moveHand("right",180,2,175,160,165,26)
+    sleep(2)
+    i01.moveHead(118,80)
+    i01.moveHand("right",180,164,175,160,165,26)
+    sleep(2)
+    i01.moveHead(60,80)
+    sleep(1)
+    relax()
+    sleep(6)
+    fullspeed()
+    
+    
 
 def guesswhat():
     i01.mouth.speak("I'm not really a human man")
@@ -532,7 +612,8 @@ def heard(self):
  
     if (data == "i love you"):
         i01.mouth.speak("i love you too")
-        giving()
+        surrender()
+        sleep(1)
         relax()
 
         
@@ -697,8 +778,8 @@ def poorbottle():
   i01.setArmSpeed("right", 0.60, 0.60, 0.60, 0.60)
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(0,92)
-  i01.moveArm("left",53,40,95,55)
-  i01.moveArm("right",80,59,43,10)
+  i01.moveArm("left",58,40,95,55)
+  i01.moveArm("right",90,66,34,10)
   i01.moveHand("left",180,140,150,164,180,0)
   i01.moveHand("right",145,112,127,105,143,133)
  
@@ -726,7 +807,7 @@ def takeball():
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",6,73,76,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,120,3,0,11)
+  i01.moveHand("right",180,125,130,3,0,11)
   i01.moveTorso(101,100,90)
  
  
@@ -741,7 +822,7 @@ def keepball():
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",54,77,55,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,120,3,0,11)
+  i01.moveHand("right",180,125,130,3,0,11)
   i01.moveTorso(90,90,90)
  
 def approachlefthand():
@@ -752,9 +833,9 @@ def approachlefthand():
   i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",67,52,62,23)
-  i01.moveArm("right",55,55,45,16)
+  i01.moveArm("right",55,61,45,16)
   i01.moveHand("left",130,50,40,180,180,0)
-  i01.moveHand("right",180,114,120,3,0,11)
+  i01.moveHand("right",180,125,130,3,0,11)
   i01.moveTorso(90,85,90)
  
 def uselefthand():
@@ -764,9 +845,9 @@ def uselefthand():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",82,52,50,16)
+  i01.moveArm("right",82,61,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
-  i01.moveHand("right",140,114,120,3,0,11)
+  i01.moveHand("right",140,125,130,3,0,11)
  
  
 def more():
@@ -776,7 +857,7 @@ def more():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",82,52,50,16)
+  i01.moveArm("right",82,60,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
  
@@ -787,7 +868,7 @@ def handdown():
   i01.setHandSpeed("right", 0.70, 0.70, 0.70, 0.70, 0.70, 1.0)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",66,52,59,23)
-  i01.moveArm("right",59,52,50,16)
+  i01.moveArm("right",59,60,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",54,95,66,3,0,11)
  
@@ -1115,29 +1196,30 @@ def shakehand():
 
   
 def powerdown():
-        i01.powerDown()
-        sleep(2)       
-        ear.pauseListening()
         relax()
-        i01.mouth.speakBlocking()
-        sleep(2)
-        i01.moveHead(40, 85);
-        sleep(4)
-        rightSerialPort.digitalWrite(53, Arduino.LOW)
-        leftSerialPort.digitalWrite(53, Arduino.LOW)
-        ear.lockOutAllGrammarExcept("power up")
+        i01.powerDown()
+        ##sleep(2)       
+        ##ear.pauseListening()
+        ##relax()
+        ##i01.mouth.speakBlocking()
+        ##sleep(2)
+        ##i01.moveHead(40, 85);
+        ##sleep(4)
+        ##rightSerialPort.digitalWrite(53, Arduino.LOW)
+        ##leftSerialPort.digitalWrite(53, Arduino.LOW)
+        ##ear.lockOutAllGrammarExcept("power up")
         sleep(2)
         ear.resumeListening()
  
 def powerup():
         i01.powerUp()
-        sleep(2)        
-        ear.pauseListening()
-        rightSerialPort.digitalWrite(53, Arduino.HIGH)
-        leftSerialPort.digitalWrite(53, Arduino.HIGH)
-        i01.mouth.speakBlocking("hello")
+        ##sleep(2)        
+        ##ear.pauseListening()
+        ##rightSerialPort.digitalWrite(53, Arduino.HIGH)
+        ##leftSerialPort.digitalWrite(53, Arduino.HIGH)
+        i01.mouth.speakBlocking("I was sleeping")
         relax()
-        ear.clearLock()
+        ##ear.clearLock()
         sleep(2)
         ear.resumeListening()
  
@@ -1437,7 +1519,7 @@ def servos():
         i01.setHandSpeed("right", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
         i01.moveHand("left", 36, 52, 8,22, 20);
         i01.moveHand("right", 120, 147, 130,110, 125);
-        further()
+        removeleftarm()
         sleep(1)
         i01.mouth.speakBlocking("they are hooked up, by the use of tendons")
         i01.moveHand("left",10,20,30,40,60,150);
@@ -1580,12 +1662,12 @@ def studyball():
   i01.setArmSpeed("right", 0.75, 0.85, 0.95, 0.85)
   i01.setArmSpeed("left", 0.75, 0.85, 0.95, 0.85)
   i01.setHeadSpeed(0.65, 0.65)
-  i01.setTorsoSpeed(1.0, 0.65, 1.0)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,70)
   i01.moveArm("left",5,84,16,15)
   i01.moveArm("right",54,77,55,16)
   i01.moveHand("left",50,50,40,20,20,90)
-  i01.moveHand("right",180,114,120,3,0,11)
+  i01.moveHand("right",180,125,130,3,0,11)
   i01.moveTorso(90,90,90)
   sleep(3)
 ##approachlefthand():
@@ -1593,11 +1675,13 @@ def studyball():
   i01.setArmSpeed("left", 1.0, 1.0, 1.0, 1.0)
   i01.setArmSpeed("right", 0.25, 0.25, 0.25, 0.25)
   i01.setHeadSpeed(0.65, 0.65)
+  i01.setTorsoSpeed(0.75, 0.55, 1.0)
   i01.moveHead(20,84,78,80,13)
-  i01.moveArm("left",67,52,59,23)
-  i01.moveArm("right",55,55,45,16)
+  i01.moveArm("left",67,52,62,23)
+  i01.moveArm("right",55,61,45,16)
   i01.moveHand("left",130,50,40,180,180,0)
-  i01.moveHand("right",180,114,120,3,0,11)
+  i01.moveHand("right",180,125,130,3,0,11)
+  i01.moveTorso(90,85,90)
   sleep(4)
 ##uselefthand():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
@@ -1606,9 +1690,9 @@ def studyball():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(20,84,78,80,13)
   i01.moveArm("left",65,52,59,23)
-  i01.moveArm("right",82,55,50,16)
+  i01.moveArm("right",82,61,50,16)
   i01.moveHand("left",140,50,40,180,180,0)
-  i01.moveHand("right",140,114,120,3,0,11)
+  i01.moveHand("right",140,125,130,3,0,11)
   sleep(4)
 ##more():
   i01.setHandSpeed("right", 0.75, 0.75, 0.75, 0.75, 0.75, 0.65)
@@ -1617,7 +1701,7 @@ def studyball():
   i01.setHeadSpeed(0.65, 0.65)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",63,52,59,23)
-  i01.moveArm("right",82,55,50,16)
+  i01.moveArm("right",82,60,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",80,114,88,3,0,11)
   sleep(3)
@@ -1626,7 +1710,7 @@ def studyball():
   i01.setHandSpeed("right", 0.70, 0.70, 0.70, 0.70, 0.70, 1.0)
   i01.moveHead(16,84,78,80,13)
   i01.moveArm("left",66,52,59,23)
-  i01.moveArm("right",69,54,50,16)
+  i01.moveArm("right",59,60,50,16)
   i01.moveHand("left",140,148,180,180,180,0)
   i01.moveHand("right",54,95,66,3,0,11)
   sleep(2)
@@ -1661,24 +1745,37 @@ def welcome():
   i01.moveHand("left",2,2,2,2,2,90)
   i01.moveHand("right",2,2,2,2,2,90)
   sleep(1)
-  i01.mouth.speakBlocking("Welcome to the hue music")
+  i01.mouth.speakBlocking("Welcome to the inmoov nation")
   sleep(1)
 
 
-
+def cyclegesture1():
+    welcome()
+    sleep(1)
+    relax()
+    servos()
 
 def cyclegesture2():
+    welcome()
+    sleep(1)
     relax()
+    sleep(2)
+    finger()
+    sleep(1)
+    isitaball()
     sleep(2)
     removeleftarm()
     sleep(2)
     handdown()
     sleep(1)
-    #i01.giving()
-    sleep(5)
-    ##giving()
+    fullspeed()
+    i01.giving()
     sleep(5)
     removeleftarm()
+    sleep(2)
+    takeball()
+    sleep(1)
+    surrender()
     sleep(2)
     isitaball()
     sleep(4)
@@ -1686,4 +1783,4 @@ def cyclegesture2():
     sleep(2)
     relax()
     sleep(5)
-    powerdown()
+    i01.powerDown()
